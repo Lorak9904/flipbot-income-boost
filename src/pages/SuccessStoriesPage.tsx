@@ -26,7 +26,7 @@ const testimonials = [
     name: 'Anna M.',
     location: 'Wrocław, Poland',
     image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'I was skeptical at first, but FlipBot actually works! In my first month, I made over 2,000 PLN flipping furniture while working my regular job. The AI's ability to spot good deals is impressive, and the automatic messaging saves me hours.',
+    quote: "I was skeptical at first, but FlipBot actually works! In my first month, I made over 2,000 PLN flipping furniture while working my regular job. The AI's ability to spot good deals is impressive, and the automatic messaging saves me hours.",
     highlight: '+2,000 PLN extra income per month',
     rating: 4
   },
