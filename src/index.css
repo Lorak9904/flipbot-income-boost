@@ -1,3 +1,6 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 199 94% 48%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -96,6 +99,48 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-semibold;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl;
+  }
+
+  .container {
+    @apply px-4 md:px-6 max-w-7xl mx-auto;
+  }
+}
+
+@layer components {
+  .badge {
+    @apply inline-flex items-center rounded-full bg-flipbot-orange/10 px-3 py-1 text-sm font-medium text-flipbot-orange;
+  }
+  
+  .cta-btn {
+    @apply bg-flipbot-orange hover:bg-flipbot-orange/90 text-white font-semibold px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-lg;
+  }
+  
+  .secondary-btn {
+    @apply bg-flipbot-teal hover:bg-flipbot-teal/90 text-white font-semibold px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-lg;
+  }
+  
+  .section {
+    @apply py-12 md:py-24;
   }
 }
