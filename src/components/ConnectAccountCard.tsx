@@ -19,45 +19,55 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, onConnected }: Co
   const [sessionKey, setSessionKey] = useState('');
   const [showManualInput, setShowManualInput] = useState(false);
 
-  const handleConnect = async () => {
-    if (showManualInput && !sessionKey) {
-      toast.error("Please enter your session key first");
-      return;
-    }
+  // const handleConnect = async () => {
+  //   if (showManualInput && !sessionKey) {
+  //     toast.error("Please enter your session key first");
+  //     return;
+  //   }
 
-    setStatus('connecting');
+  //   setStatus('connecting');
     
+  //   try {
+  //     // API integration with backend
+  //     const response = await fetch(`/FlipIt/api/connect/${platform}`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         platform,
+  //         cookies: sessionKey || "auto-generated-session", // In a real implementation, we'd handle oauth or session capture
+  //         duration
+  //       }),
+  //     });
+      
+  //     // Simulate API delay
+  //     await new Promise(resolve => setTimeout(resolve, 1500));
+      
+  //     if (!response.ok) {
+  //       throw new Error('Connection failed');
+  //     }
+      
+  //     setStatus('connected');
+  //     toast.success(`${platformName} connected successfully!`);
+      
+  //     if (onConnected) {
+  //       onConnected();
+  //     }
+  //   } catch (error) {
+  //     console.error('Connection error:', error);
+  //     setStatus('error');
+  //     toast.error(`Failed to connect ${platformName}. Please try again.`);
+  //   }
+  // };
+
+  const handleConnect = async () => {
     try {
-      // API integration with backend
-      const response = await fetch(`/FlipIt/api/connect/${platform}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          platform,
-          cookies: sessionKey || "auto-generated-session", // In a real implementation, we'd handle oauth or session capture
-          duration
-        }),
-      });
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      if (!response.ok) {
-        throw new Error('Connection failed');
-      }
-      
-      setStatus('connected');
-      toast.success(`${platformName} connected successfully!`);
-      
-      if (onConnected) {
-        onConnected();
-      }
+      const response = await fetch("127.0.0.1:8000/home");
+      console.log(response);
+      const data = await response.json();
     } catch (error) {
-      console.error('Connection error:', error);
-      setStatus('error');
-      toast.error(`Failed to connect ${platformName}. Please try again.`);
+      console.error("GET request failed:", error);
     }
   };
 
