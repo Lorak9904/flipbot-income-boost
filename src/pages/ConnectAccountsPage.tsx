@@ -1,18 +1,52 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import ConnectAccountCard from '@/components/ConnectAccountCard';
 import { CheckCircle, ArrowRight, Lock } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 const ConnectAccountsPage = () => {
   const [activeStep, setActiveStep] = useState(1);
   const [accountsConnected, setAccountsConnected] = useState(0);
   
-  // For demo purposes, we'll track progress through steps
   const handleNextStep = () => {
     if (activeStep < 3) {
       setActiveStep(activeStep + 1);
+      
+      // Show toast notification when moving to the next step
+      if (activeStep === 1) {
+        toast.success("Great! Your preferences have been saved.");
+      } else if (activeStep === 2) {
+        toast.success("You're all set to start flipping!");
+      }
     }
+  };
+
+  const handleAccountConnected = () => {
+    setAccountsConnected(prev => prev + 1);
+  };
+
+  // Animation variants for staggered animations
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, 
+      transition: { 
+        type: "spring",
+        stiffness: 100
+      }
+    },
   };
 
   return (
@@ -20,12 +54,22 @@ const ConnectAccountsPage = () => {
       {/* Hero Section */}
       <section className="py-16 md:py-20 bg-gradient-to-b from-white to-blue-50">
         <div className="container mx-auto text-center">
-          <h1 className="font-bold mb-6">
-            Connect <span className="gradient-text">Accounts</span>
-          </h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Let FlipBot do the work for you. Connect your marketplace accounts and start earning extra income.
-          </p>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="font-bold mb-6"
+          >
+            Turn <span className="bg-gradient-to-r from-flipbot-teal to-flipbot-purple text-transparent bg-clip-text">clutter</span> into <span className="bg-gradient-to-r from-flipbot-purple to-flipbot-teal text-transparent bg-clip-text">cash</span>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto"
+          >
+            Connect your marketplace accounts and let FlipIt's AI do the work for you. Start earning extra income automatically.
+          </motion.p>
         </div>
       </section>
 
@@ -72,39 +116,70 @@ const ConnectAccountsPage = () => {
 
       {/* Connect Accounts */}
       {activeStep === 1 && (
-        <section className="section bg-gray-50">
+        <section className="section bg-gray-50 py-12 md:py-16">
           <div className="container mx-auto">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8 text-center">
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">Connect Your Marketplace Accounts</h2>
-                <p className="text-gray-600">
-                  Link your selling accounts so FlipBot can find deals and help you flip items for profit.
-                </p>
+                <motion.h2 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-2xl md:text-3xl font-bold mb-4"
+                >
+                  Connect Your Marketplace Accounts
+                </motion.h2>
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-gray-600"
+                >
+                  Link your selling accounts so FlipIt can find deals and help you flip items for profit.
+                </motion.p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                <ConnectAccountCard 
-                  platform="facebook" 
-                  platformName="Facebook" 
-                  logoSrc="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png" 
-                />
+              <motion.div 
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+              >
+                <motion.div variants={itemVariants}>
+                  <ConnectAccountCard 
+                    platform="facebook" 
+                    platformName="Facebook" 
+                    logoSrc="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png" 
+                    onConnected={handleAccountConnected}
+                  />
+                </motion.div>
                 
-                <ConnectAccountCard 
-                  platform="olx" 
-                  platformName="OLX" 
-                  logoSrc="https://upload.wikimedia.org/wikipedia/commons/9/91/Logotype_of_OLX.png" 
-                />
+                <motion.div variants={itemVariants}>
+                  <ConnectAccountCard 
+                    platform="olx" 
+                    platformName="OLX" 
+                    logoSrc="https://upload.wikimedia.org/wikipedia/commons/9/91/Logotype_of_OLX.png" 
+                    onConnected={handleAccountConnected}
+                  />
+                </motion.div>
                 
-                <ConnectAccountCard 
-                  platform="vinted" 
-                  platformName="Vinted" 
-                  logoSrc="https://upload.wikimedia.org/wikipedia/commons/2/29/Vinted_logo.png" 
-                />
-              </div>
+                <motion.div variants={itemVariants}>
+                  <ConnectAccountCard 
+                    platform="vinted" 
+                    platformName="Vinted" 
+                    logoSrc="https://upload.wikimedia.org/wikipedia/commons/2/29/Vinted_logo.png" 
+                    onConnected={handleAccountConnected}
+                  />
+                </motion.div>
+              </motion.div>
               
               <div className="mt-10 text-center">
-                <Button onClick={handleNextStep} variant="default" size="xl" rounded="xl" className="animate-hover">
-                  Continue <ArrowRight className="ml-2" />
+                <Button 
+                  onClick={handleNextStep} 
+                  variant="default" 
+                  size="xl" 
+                  rounded="xl" 
+                  className="animate-hover bg-gradient-to-r from-flipbot-teal to-flipbot-teal-light hover:shadow-lg transition-all"
+                >
+                  {accountsConnected === 0 ? "Skip for now" : "Continue"} <ArrowRight className="ml-2" />
                 </Button>
               </div>
             </div>
@@ -114,18 +189,34 @@ const ConnectAccountsPage = () => {
 
       {/* Set Preferences - Simplified for demo */}
       {activeStep === 2 && (
-        <section className="section bg-gray-50">
+        <section className="section bg-gray-50 py-12 md:py-16">
           <div className="container mx-auto">
             <div className="max-w-3xl mx-auto">
               <div className="mb-8 text-center">
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">Set Your Flipping Preferences</h2>
-                <p className="text-gray-600">
-                  Tell FlipBot what kind of items you want to flip and how you want to operate.
-                </p>
+                <motion.h2 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-2xl md:text-3xl font-bold mb-4"
+                >
+                  Set Your Flipping Preferences
+                </motion.h2>
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-gray-600"
+                >
+                  Tell FlipIt what kind of items you want to flip and how you want to operate.
+                </motion.p>
               </div>
               
               {/* For the prototype, we'll show a simplified UI */}
-              <div className="bg-white rounded-2xl p-8 shadow-md">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white rounded-2xl p-8 shadow-md"
+              >
                 <div className="space-y-6">
                   <div>
                     <h3 className="font-medium mb-3">What types of items do you want to flip?</h3>
@@ -166,10 +257,16 @@ const ConnectAccountsPage = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
               
               <div className="mt-10 text-center">
-                <Button onClick={handleNextStep} variant="default" size="xl" rounded="xl" className="animate-hover">
+                <Button 
+                  onClick={handleNextStep} 
+                  variant="default" 
+                  size="xl" 
+                  rounded="xl" 
+                  className="animate-hover bg-gradient-to-r from-flipbot-teal to-flipbot-purple hover:shadow-lg transition-all"
+                >
                   Save Preferences <ArrowRight className="ml-2" />
                 </Button>
               </div>
@@ -180,25 +277,52 @@ const ConnectAccountsPage = () => {
 
       {/* Final Step - Start Flipping */}
       {activeStep === 3 && (
-        <section className="section bg-gray-50">
+        <section className="section bg-gray-50 py-12 md:py-16">
           <div className="container mx-auto">
             <div className="max-w-3xl mx-auto text-center">
-              <div className="bg-white rounded-2xl p-10 shadow-md">
-                <div className="w-20 h-20 bg-flipbot-green/10 rounded-full mx-auto flex items-center justify-center mb-6">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: "spring", stiffness: 100 }}
+                className="bg-white rounded-2xl p-10 shadow-md"
+              >
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                  className="w-20 h-20 bg-flipbot-green/10 rounded-full mx-auto flex items-center justify-center mb-6"
+                >
                   <CheckCircle className="h-10 w-10 text-flipbot-green" />
-                </div>
+                </motion.div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">You're All Set!</h2>
-                <p className="text-lg text-gray-600 mb-6">
-                  FlipBot is now scanning for profitable items to flip. We'll notify you when we find something good!
-                </p>
+                <motion.h2 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="text-2xl md:text-3xl font-bold mb-4"
+                >
+                  You're All Set!
+                </motion.h2>
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="text-lg text-gray-600 mb-6"
+                >
+                  FlipIt is now scanning for profitable items to flip. We'll notify you when we find something good!
+                </motion.p>
                 
-                <div className="bg-gray-50 p-6 rounded-xl mb-8">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 }}
+                  className="bg-gray-50 p-6 rounded-xl mb-8"
+                >
                   <h3 className="font-semibold mb-3">What's happening now?</h3>
                   <ul className="text-left space-y-2">
                     <li className="flex gap-2 items-start">
                       <div className="w-5 h-5 rounded-full bg-flipbot-teal text-white flex items-center justify-center text-xs mt-0.5">1</div>
-                      <span>FlipBot is scanning your connected marketplaces for undervalued items</span>
+                      <span>FlipIt is scanning your connected marketplaces for undervalued items</span>
                     </li>
                     <li className="flex gap-2 items-start">
                       <div className="w-5 h-5 rounded-full bg-flipbot-teal text-white flex items-center justify-center text-xs mt-0.5">2</div>
@@ -206,19 +330,31 @@ const ConnectAccountsPage = () => {
                     </li>
                     <li className="flex gap-2 items-start">
                       <div className="w-5 h-5 rounded-full bg-flipbot-teal text-white flex items-center justify-center text-xs mt-0.5">3</div>
-                      <span>With one click, you can have FlipBot negotiate and secure the item</span>
+                      <span>With one click, you can have FlipIt negotiate and secure the item</span>
                     </li>
                     <li className="flex gap-2 items-start">
                       <div className="w-5 h-5 rounded-full bg-flipbot-teal text-white flex items-center justify-center text-xs mt-0.5">4</div>
                       <span>We'll help you list it for the optimal price and handle communication with buyers</span>
                     </li>
                   </ul>
-                </div>
+                </motion.div>
                 
-                <Button asChild variant="success" size="xl" rounded="xl" className="animate-hover">
-                  <Link to="/dashboard">View Your Dashboard</Link>
-                </Button>
-              </div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  <Button 
+                    asChild 
+                    variant="success" 
+                    size="xl" 
+                    rounded="xl" 
+                    className="animate-hover bg-gradient-to-r from-flipbot-green to-flipbot-green-light"
+                  >
+                    <Link to="/dashboard">View Your Dashboard</Link>
+                  </Button>
+                </motion.div>
+              </motion.div>
             </div>
           </div>
         </section>
@@ -228,7 +364,12 @@ const ConnectAccountsPage = () => {
       <section className="py-12 bg-white">
         <div className="container mx-auto">
           <div className="max-w-3xl mx-auto">
-            <div className="border border-gray-100 rounded-2xl p-6 shadow-sm">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="border border-gray-100 rounded-2xl p-6 shadow-sm"
+            >
               <h3 className="font-semibold text-xl mb-4">Safe & Secure</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
@@ -256,7 +397,7 @@ const ConnectAccountsPage = () => {
                   <p className="text-sm text-gray-600">You're always in control of your accounts</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
