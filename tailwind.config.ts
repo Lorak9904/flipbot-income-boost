@@ -63,7 +63,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				flipit: {
+				flipbot: {
 					teal: '#0EA5E9',
 					'teal-light': '#38BDF8',
 					purple: '#8B5CF6',
@@ -74,9 +74,6 @@ export default {
 					gray: '#8E9196',
 					green: '#10B981',
 					'green-light': '#34D399',
-					dark: '#1A1F2C',
-					charcoal: '#403E43',
-					'dark-charcoal': '#221F26',
 				},
 			},
 			fontFamily: {
@@ -159,8 +156,6 @@ export default {
 				'gradient-secondary': 'linear-gradient(to right, #0EA5E9, #8B5CF6)',
 				'gradient-accent': 'linear-gradient(to right, #F97316, #FB923C)',
 				'gradient-success': 'linear-gradient(to right, #10B981, #34D399)',
-				'gradient-dark': 'linear-gradient(to right, #1A1F2C, #403E43)',
-				'gradient-immersive': 'linear-gradient(to bottom right, #221F26, #403E43, #1A1F2C)',
 			}
 		}
 	},

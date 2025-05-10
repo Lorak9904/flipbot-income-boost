@@ -22,17 +22,17 @@ const Navbar = () => {
   ];
 
   const isActive = (path: string) => {
-    return location.pathname === path ? 'text-flipit-teal font-medium' : 'text-gray-600 hover:text-flipit-teal';
+    return location.pathname === path ? 'text-flipbot-teal font-medium' : 'text-gray-600 hover:text-flipbot-teal';
   };
 
   return (
-    <nav className="py-4 border-b border-gray-100 bg-gradient-immersive text-white sticky top-0 z-50">
+    <nav className="py-4 border-b border-gray-100 bg-white sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-flipit-teal to-flipit-teal-light flex items-center justify-center text-white font-bold">
-            FI
+          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-flipbot-teal to-flipbot-teal-light flex items-center justify-center text-white font-bold">
+            FB
           </div>
-          <span className="font-heading font-semibold text-xl">FlipIt</span>
+          <span className="font-heading font-semibold text-xl">FlipBot AI</span>
         </Link>
 
         {/* Desktop Menu */}
@@ -62,13 +62,13 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-flipit-dark/90 backdrop-blur-md shadow-lg z-50 animate-scale-in">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg z-50 animate-scale-in">
           <div className="container mx-auto py-4 flex flex-col gap-4">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`${isActive(item.path)} py-2 transition-colors text-white`}
+                className={`${isActive(item.path)} py-2 transition-colors`}
                 onClick={toggleMenu}
               >
                 {item.name}
