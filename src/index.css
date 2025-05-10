@@ -35,22 +35,15 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -133,14 +126,41 @@
   }
   
   .cta-btn {
-    @apply bg-flipbot-orange hover:bg-flipbot-orange/90 text-white font-semibold px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-lg;
+    @apply bg-gradient-to-r from-flipbot-teal to-flipbot-teal-light text-white font-semibold px-6 py-3 rounded-2xl transition-all shadow-md hover:shadow-lg hover:scale-105;
   }
   
   .secondary-btn {
-    @apply bg-flipbot-teal hover:bg-flipbot-teal/90 text-white font-semibold px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-lg;
+    @apply bg-gradient-to-r from-flipbot-teal to-flipbot-purple text-white font-semibold px-6 py-3 rounded-2xl transition-all shadow-md hover:shadow-lg hover:scale-105;
   }
   
   .section {
     @apply py-12 md:py-24;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-md border border-gray-100 transition-all hover:shadow-lg;
+  }
+
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-flipbot-teal to-flipbot-purple text-transparent bg-clip-text;
+  }
+}
+
+/* Animation utilities */
+@layer utilities {
+  .animate-hover {
+    @apply transition-transform duration-300 hover:scale-105;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+  }
+
+  .pulse {
+    @apply animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite];
   }
 }

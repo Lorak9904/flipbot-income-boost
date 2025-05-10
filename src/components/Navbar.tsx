@@ -18,6 +18,7 @@ const Navbar = () => {
     { name: 'Success Stories', path: '/success-stories' },
     { name: 'Features', path: '/features' },
     { name: 'FAQ', path: '/faq' },
+    { name: 'Connect Accounts', path: '/connect-accounts' },
   ];
 
   const isActive = (path: string) => {
@@ -28,14 +29,14 @@ const Navbar = () => {
     <nav className="py-4 border-b border-gray-100 bg-white sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-flipbot-teal flex items-center justify-center text-white font-bold">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-flipbot-teal to-flipbot-teal-light flex items-center justify-center text-white font-bold">
             FB
           </div>
           <span className="font-heading font-semibold text-xl">FlipBot AI</span>
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-6">
           {navItems.map((item) => (
             <Link
               key={item.path}
@@ -48,7 +49,7 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:block">
-          <Button asChild className="cta-btn">
+          <Button asChild variant="accent" rounded="xl" size="default" className="animate-hover">
             <Link to="/get-started">Get Started</Link>
           </Button>
         </div>
@@ -61,7 +62,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg z-50 animate-fade-in">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg z-50 animate-scale-in">
           <div className="container mx-auto py-4 flex flex-col gap-4">
             {navItems.map((item) => (
               <Link
@@ -73,7 +74,7 @@ const Navbar = () => {
                 {item.name}
               </Link>
             ))}
-            <Button asChild className="cta-btn mt-2">
+            <Button asChild variant="accent" rounded="xl" className="mt-2">
               <Link to="/get-started" onClick={toggleMenu}>Get Started</Link>
             </Button>
           </div>
