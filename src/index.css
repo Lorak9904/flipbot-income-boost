@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 220 30% 96%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -48,7 +48,7 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 220 25% 10%;
     --foreground: 210 40% 98%;
 
     --card: 222.2 84% 4.9%;
@@ -57,7 +57,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    --primary: 199 94% 48%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -122,15 +122,15 @@
 
 @layer components {
   .badge {
-    @apply inline-flex items-center rounded-full bg-flipbot-orange/10 px-3 py-1 text-sm font-medium text-flipbot-orange;
+    @apply inline-flex items-center rounded-full bg-flipit-teal/10 px-3 py-1 text-sm font-medium text-flipit-teal;
   }
   
   .cta-btn {
-    @apply bg-gradient-to-r from-flipbot-teal to-flipbot-teal-light text-white font-semibold px-6 py-3 rounded-2xl transition-all shadow-md hover:shadow-lg hover:scale-105;
+    @apply bg-gradient-to-r from-flipit-teal to-flipit-teal-light text-white font-semibold px-6 py-3 rounded-2xl transition-all shadow-md hover:shadow-lg hover:scale-105;
   }
   
   .secondary-btn {
-    @apply bg-gradient-to-r from-flipbot-teal to-flipbot-purple text-white font-semibold px-6 py-3 rounded-2xl transition-all shadow-md hover:shadow-lg hover:scale-105;
+    @apply bg-gradient-to-r from-flipit-teal to-flipit-purple text-white font-semibold px-6 py-3 rounded-2xl transition-all shadow-md hover:shadow-lg hover:scale-105;
   }
   
   .section {
@@ -146,7 +146,15 @@
   }
   
   .gradient-text {
-    @apply bg-gradient-to-r from-flipbot-teal to-flipbot-purple text-transparent bg-clip-text;
+    @apply bg-gradient-to-r from-flipit-teal to-flipit-purple text-transparent bg-clip-text;
+  }
+  
+  .immersive-card {
+    @apply bg-gradient-immersive text-white rounded-2xl shadow-lg border border-flipit-dark/20;
+  }
+  
+  .dark-btn {
+    @apply bg-gradient-to-r from-flipit-dark to-flipit-charcoal text-white font-semibold px-6 py-3 rounded-2xl transition-all shadow-md hover:shadow-lg hover:scale-105;
   }
 }
 
