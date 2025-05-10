@@ -1,9 +1,8 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import ConnectAccountCard from '@/components/ConnectAccountCard';
-import { CheckCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle, ArrowRight, Lock } from 'lucide-react';
 
 const ConnectAccountsPage = () => {
   const [activeStep, setActiveStep] = useState(1);
