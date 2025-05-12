@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   DropdownMenu,
@@ -11,15 +11,28 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogIn, User, Settings, LogOut } from 'lucide-react';
+import { LogIn, User, Settings, LogOut, Home, Package, BarChart3, MessageCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const UserMenu = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setOpen(false);
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account",
+    });
+    navigate('/');
+  };
 
   if (!isAuthenticated) {
     return (
-      <Button asChild variant="outline" className="text-black border-white/20 hover:bg-white/10">
+      <Button asChild variant="outline" className="text-white border-white/20 hover:bg-white/10">
         <Link to="/login">
           <LogIn className="mr-2 h-4 w-4" />
           Log in
@@ -69,6 +82,18 @@ const UserMenu = () => {
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <DropdownMenuItem asChild>
+            <Link to="/">
+              <Home className="mr-2 h-4 w-4" />
+              <span>Dashboard</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/connect-accounts">
+              <Package className="mr-2 h-4 w-4" />
+              <span>Connected Accounts</span>
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem>
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
@@ -80,11 +105,8 @@ const UserMenu = () => {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
-          onClick={() => {
-            logout();
-            setOpen(false);
-          }}
-          className="text-destructive"
+          onClick={handleLogout}
+          className="text-red-500 focus:text-red-500"
         >
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>

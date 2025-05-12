@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
@@ -6,110 +7,99 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Facebook, Mail } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext'; // Import useAuth
+import { Facebook, Mail, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID"; // Replace with real client ID
 const FACEBOOK_APP_ID = "YOUR_APP_ID"; // Replace with real app ID
 
 const LoginPage = () => {
-  const { login, loginWithProvider } = useAuth(); // Use login from AuthContext
+  const { loginWithProvider, loginWithEmail, registerWithEmail } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsLoading(true);
+    e.preventDefault();
+    setIsLoading(true);
 
-  try {
-    const response = await fetch("http://127.0.0.1:8000/auth/login/email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Invalid email or password");
+    try {
+      await loginWithEmail(email, password);
+      toast({
+        title: "Logged in successfully",
+        description: "Welcome to FlipIt!",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Login Failed",
+        description: error.message || "Unable to log in. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-
-    const { userData, token } = await response.json(); // Expect the backend to return both userData and token
-    login(userData, token); // Pass both userData and token to the login function
-    toast({
-      title: "Logged in successfully",
-      description: "Welcome to FlipIt!",
-    });
-    navigate("/");
-  } catch (error: any) {
-    toast({
-      title: "Login Failed",
-      description: error.message || "Unable to log in. Please try again.",
-      variant: "destructive",
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsLoading(true);
-
-  try {
-    const response = await fetch("http://127.0.0.1:8000/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, name: "New User" }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Registration failed");
+    e.preventDefault();
+    
+    if (!name.trim()) {
+      toast({
+        title: "Registration Failed",
+        description: "Please enter your name",
+        variant: "destructive",
+      });
+      return;
     }
+    
+    setIsLoading(true);
 
-    const { userData, token } = await response.json(); // Expect the backend to return both userData and token
-    login(userData, token); // Pass both userData and token to the login function
-    toast({
-      title: "Registered successfully",
-      description: "Welcome to FlipIt!",
-    });
-    navigate("/");
-  } catch (error: any) {
-    toast({
-      title: "Registration Failed",
-      description: error.message || "Unable to register. Please try again.",
-      variant: "destructive",
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+    try {
+      await registerWithEmail(email, password, name);
+      toast({
+        title: "Registered successfully",
+        description: "Welcome to FlipIt!",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Registration Failed",
+        description: error.message || "Unable to register. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
- const handleGoogleSuccess = async (credentialResponse: any) => {
-  try {
-    await loginWithProvider("google", credentialResponse.credential); // Pass the Google credential to loginWithProvider
-    toast({
-      title: "Logged in with Google",
-      description: "Welcome to FlipIt!",
-    });
-    navigate("/");
-  } catch (error) {
-    toast({
-      title: "Login Failed",
-      description: "Unable to login with Google",
-      variant: "destructive",
-    });
-  }
-};
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      await loginWithProvider("google", credentialResponse.credential);
+      toast({
+        title: "Logged in with Google",
+        description: "Welcome to FlipIt!",
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Login Failed",
+        description: "Unable to login with Google",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleFacebookLogin = async () => {
     try {
       // Redirect to Facebook OAuth
-      const appId = "YOUR_FACEBOOK_APP_ID"; // Replace with your Facebook App ID
-      const redirectUri = "http://localhost:3000/facebook-callback";
-      const facebookLoginUrl = `https://www.facebook.com/v13.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&scope=email`;
+      const appId = FACEBOOK_APP_ID; // Replace with your Facebook App ID
+      const redirectUri = encodeURIComponent("http://localhost:3000/facebook-callback");
+      const facebookLoginUrl = `https://www.facebook.com/v13.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&scope=email,public_profile`;
 
       window.location.href = facebookLoginUrl;
     } catch (error) {
@@ -124,7 +114,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-800 py-12">
       <div className="w-full max-w-md px-4">
-        <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
+        <Card className="bg-white/5 backdrop-blur-md border border-white/10 shadow-xl">
           <CardHeader className="text-center pb-2">
             <div className="w-16 h-16 rounded-full bg-gradient-to-r from-teal-500 to-green-400 flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
               FI
@@ -141,6 +131,20 @@ const LoginPage = () => {
           <CardContent className="space-y-6 pt-4">
             {/* Email/Password Form */}
             <form onSubmit={isSignUp ? handleRegister : handleEmailLogin} className="space-y-4">
+              {isSignUp && (
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-white">Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required={isSignUp}
+                    className="bg-white/10 border-white/10 text-white placeholder:text-slate-400"
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-white">Email</Label>
                 <Input
@@ -150,7 +154,7 @@ const LoginPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-white/20 border-white/10 text-white placeholder:text-slate-400"
+                  className="bg-white/10 border-white/10 text-white placeholder:text-slate-400"
                 />
               </div>
               <div className="space-y-2">
@@ -162,7 +166,7 @@ const LoginPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="bg-white/20 border-white/10 text-white placeholder:text-slate-400"
+                  className="bg-white/10 border-white/10 text-white placeholder:text-slate-400"
                 />
               </div>
               <Button
@@ -171,14 +175,23 @@ const LoginPage = () => {
                 variant="default"
                 disabled={isLoading}
               >
-                <Mail className="mr-2 h-4 w-4" />
-                {isSignUp ? 'Sign Up' : 'Log In'} with Email
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {isSignUp ? 'Signing Up...' : 'Logging In...'}
+                  </>
+                ) : (
+                  <>
+                    <Mail className="mr-2 h-4 w-4" />
+                    {isSignUp ? 'Sign Up' : 'Log In'} with Email
+                  </>
+                )}
               </Button>
             </form>
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-white/20" />
+                <span className="w-full border-t border-white/10" />
               </div>
               <div className="relative flex justify-center text-xs">
                 <span className="bg-slate-800 px-2 text-slate-400">or continue with</span>
