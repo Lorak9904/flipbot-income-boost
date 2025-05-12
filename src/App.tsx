@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +18,7 @@ import FAQPage from "./pages/FAQPage";
 import GetStartedPage from "./pages/GetStartedPage";
 import ConnectAccountsPage from "./pages/ConnectAccountsPage";
 import NotFound from "./pages/NotFound";
+import FacebookCallbackPage from "./pages/FacebookCallbackPage";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +41,7 @@ const App = () => (
                 <Route path="/faq" element={<FAQPage />} />
                 <Route path="/get-started" element={<GetStartedPage />} />
                 <Route path="/connect-accounts" element={<ConnectAccountsPage />} />
+                <Route path="/facebook-callback" element={<FacebookCallbackPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

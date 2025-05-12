@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export type User = {
@@ -13,7 +12,10 @@ type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (user: User) => void;
+  login: (user: User, token: string) => void; // Update this line
+  loginWithProvider: (provider: 'google' | 'facebook', token: string) => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
+  registerWithEmail: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
 };
 
@@ -24,23 +26,117 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Check if user is stored in localStorage
-    const storedUser = localStorage.getItem('flipit_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+  const fetchUser = async () => {
+    const token = localStorage.getItem("flipit_token"); // Retrieve the token
+    if (!token) {
+      setUser(null);
+      setIsLoading(false);
+      return;
     }
-    setIsLoading(false);
-  }, []);
 
-  const login = (userData: User) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/auth/user", {
+        headers: { Authorization: `Bearer ${token}` }, // Send the token in the Authorization header
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchUser();
+}, []);
+
+const login = (userData: User, token: string) => {
+  setUser(userData);
+  localStorage.setItem('flipit_user', JSON.stringify(userData));
+  localStorage.setItem('flipit_token', token);
+};
+  // const login = (userData: User) => {
+  //   setUser(userData);
+  //   localStorage.setItem('flipit_user', JSON.stringify(userData));
+  // };
+
+const loginWithProvider = async (provider: 'google' | 'facebook', token: string) => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ provider, token }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to log in");
+    }
+
+    const { userData, token: authToken } = await response.json(); // Expect the backend to return both user data and token
     setUser(userData);
-    localStorage.setItem('flipit_user', JSON.stringify(userData));
+    localStorage.setItem("flipit_user", JSON.stringify(userData));
+    localStorage.setItem("flipit_token", authToken); // Store the token
+  } catch (error) {
+    console.error("Login failed:", error);
+    throw error;
+  }
+};
+
+  const loginWithEmail = async (email: string, password: string) => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/auth/login/email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Invalid email or password");
+    }
+
+    const { userData, token } = await response.json(); // Expect the backend to return both user data and token
+    setUser(userData);
+    localStorage.setItem("flipit_user", JSON.stringify(userData));
+    localStorage.setItem("flipit_token", token); // Store the token
+  } catch (error) {
+    console.error("Email login failed:", error);
+    throw error;
+  }
+};
+
+  const registerWithEmail = async (email: string, password: string, name: string) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Registration failed");
+      }
+
+      const userData = await response.json();
+      setUser(userData);
+      localStorage.setItem("flipit_user", JSON.stringify(userData));
+    } catch (error) {
+      console.error("Registration failed:", error);
+      throw error;
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('flipit_user');
-  };
+const logout = () => {
+  setUser(null);
+  localStorage.removeItem("flipit_user");
+  localStorage.removeItem("flipit_token"); // Remove the token
+};
 
   return (
     <AuthContext.Provider
@@ -49,7 +145,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated: !!user,
         isLoading,
         login,
-        logout
+        loginWithProvider,
+        loginWithEmail,
+        registerWithEmail,
+        logout,
       }}
     >
       {children}
@@ -64,3 +163,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
