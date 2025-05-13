@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Facebook, Mail, Loader2, Flame } from 'lucide-react';
+import { Facebook, Mail, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID"; // Replace with real client ID
@@ -114,15 +114,15 @@ const LoginPage = () => {
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-800 py-12">
       <div className="w-full max-w-md px-4">
-        <Card className="bg-slate-800/80 backdrop-blur-md border border-slate-700/50 shadow-xl">
+        <Card className="bg-white/5 backdrop-blur-md border border-white/10 shadow-xl">
           <CardHeader className="text-center pb-2">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-orange-600 to-orange-500 flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
-              <Flame size={28} />
+            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-teal-500 to-green-400 flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
+              FI
             </div>
             <CardTitle className="text-3xl text-white mb-2">
               {isSignUp ? 'Create an account' : 'Welcome back'}
             </CardTitle>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-slate-300">
               {isSignUp
                 ? 'Sign up to start flipping items for profit'
                 : 'Log in to access your FlipIt dashboard'}
@@ -141,7 +141,7 @@ const LoginPage = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required={isSignUp}
-                    className="bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-500"
+                    className="bg-white/10 border-white/10 text-white placeholder:text-slate-400"
                   />
                 </div>
               )}
@@ -154,7 +154,7 @@ const LoginPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-500"
+                  className="bg-white/10 border-white/10 text-white placeholder:text-slate-400"
                 />
               </div>
               <div className="space-y-2">
@@ -166,12 +166,12 @@ const LoginPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-500"
+                  className="bg-white/10 border-white/10 text-white placeholder:text-slate-400"
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full bg-orange-500 hover:bg-orange-600"
+                className="w-full bg-teal-500 hover:bg-teal-600"
                 variant="default"
                 disabled={isLoading}
               >
@@ -191,7 +191,7 @@ const LoginPage = () => {
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-700/50" />
+                <span className="w-full border-t border-white/10" />
               </div>
               <div className="relative flex justify-center text-xs">
                 <span className="bg-slate-800 px-2 text-slate-400">or continue with</span>
@@ -223,7 +223,7 @@ const LoginPage = () => {
               {/* Facebook Login */}
               <Button
                 variant="outline"
-                className="w-full bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-white border-slate-700/50"
+                className="w-full bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-white border-white/10"
                 onClick={handleFacebookLogin}
               >
                 <Facebook className="mr-2 h-4 w-4 text-[#1877F2]" />
@@ -234,7 +234,7 @@ const LoginPage = () => {
           <CardFooter className="flex flex-col space-y-4">
             <Button
               variant="link"
-              className="text-orange-400 hover:text-orange-500"
+              className="text-slate-300 hover:text-white"
               onClick={() => setIsSignUp(!isSignUp)}
             >
               {isSignUp

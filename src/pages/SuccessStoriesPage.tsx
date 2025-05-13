@@ -8,7 +8,7 @@ const testimonials = [
     name: 'Marta K.',
     location: 'Warsaw, Poland',
     image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'I made over 600 PLN in my first weekend using FlipIt! It found a vintage cabinet on OLX for 350 PLN that I resold for 950 PLN. The AI even handled most of the messaging with the buyer and seller.',
+    quote: 'I made over 600 PLN in my first weekend using FlipBot! It found a vintage cabinet on OLX for 350 PLN that I resold for 950 PLN. The AI even handled most of the messaging with the buyer and seller.',
     highlight: '+600 PLN profit in one weekend',
     rating: 5
   },
@@ -17,7 +17,7 @@ const testimonials = [
     name: 'Piotr G.',
     location: 'Kraków, Poland',
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'As a student, I needed extra income but had limited time. FlipIt changed everything! It found a PS5 bundle for 1,200 PLN that I flipped for 1,850 PLN in just 3 days. The bot handled all the negotiation - I just did the pickup and drop-off.',
+    quote: 'As a student, I needed extra income but had limited time. FlipBot changed everything! It found a PS5 bundle for 1,200 PLN that I flipped for 1,850 PLN in just 3 days. The bot handled all the negotiation - I just did the pickup and drop-off.',
     highlight: '+650 PLN profit with minimal effort',
     rating: 5
   },
@@ -26,7 +26,7 @@ const testimonials = [
     name: 'Anna M.',
     location: 'Wrocław, Poland',
     image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: "I was skeptical at first, but FlipIt actually works! In my first month, I made over 2,000 PLN flipping furniture while working my regular job. The AI's ability to spot good deals is impressive, and the automatic messaging saves me hours.",
+    quote: "I was skeptical at first, but FlipBot actually works! In my first month, I made over 2,000 PLN flipping furniture while working my regular job. The AI's ability to spot good deals is impressive, and the automatic messaging saves me hours.",
     highlight: '+2,000 PLN extra income per month',
     rating: 4
   },
@@ -35,7 +35,7 @@ const testimonials = [
     name: 'Tomasz W.',
     location: 'Poznań, Poland',
     image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'FlipIt found an IKEA desk listed for 150 PLN when the same model was selling for 400 PLN elsewhere. I wouldn\'t have caught this opportunity on my own! The profit margin was amazing, and I\'ve since flipped several more furniture items.',
+    quote: 'FlipBot found an IKEA desk listed for 150 PLN when the same model was selling for 400 PLN elsewhere. I wouldn\'t have caught this opportunity on my own! The profit margin was amazing, and I\'ve since flipped several more furniture items.',
     highlight: 'Found deals I would have missed',
     rating: 5
   },
@@ -43,31 +43,31 @@ const testimonials = [
 
 const SuccessStoriesPage = () => {
   return (
-    <div className="bg-slate-900">
+    <div>
       {/* Hero Section */}
-      <section className="py-16 md:py-20 bg-gradient-to-b from-slate-900 to-slate-800">
+      <section className="py-16 md:py-20 bg-gradient-to-b from-white to-blue-50">
         <div className="container mx-auto text-center">
-          <h1 className="font-bold mb-6 text-white">
-            Success <span className="gradient-text">Stories</span>
+          <h1 className="font-bold mb-6">
+            Success <span className="text-flipbot-teal">Stories</span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
-            Real people making real profits with FlipIt.
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            Real people making real profits with FlipBot AI.
             See how our users are turning marketplace opportunities into extra income.
           </p>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="section bg-slate-800/50">
+      <section className="section bg-white">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 gap-12">
             {testimonials.map((testimonial) => (
               <div 
                 key={testimonial.id} 
-                className="max-w-4xl mx-auto glass-card p-8 rounded-2xl shadow-xl border border-slate-700/50"
+                className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-md border border-gray-100"
               >
                 <div className="flex flex-col md:flex-row md:items-center gap-6 mb-6">
-                  <div className="w-20 h-20 rounded-full bg-slate-700 overflow-hidden flex-shrink-0 border border-slate-600">
+                  <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
                     <img 
                       src={testimonial.image} 
                       alt={testimonial.name} 
@@ -75,13 +75,13 @@ const SuccessStoriesPage = () => {
                     />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-xl text-white">{testimonial.name}</h4>
-                    <p className="text-gray-400">{testimonial.location}</p>
+                    <h4 className="font-semibold text-xl">{testimonial.name}</h4>
+                    <p className="text-gray-600">{testimonial.location}</p>
                     <div className="flex gap-1 mt-2">
                       {[...Array(5)].map((_, index) => (
                         <svg 
                           key={index} 
-                          className={`w-5 h-5 ${index < testimonial.rating ? 'text-orange-400' : 'text-gray-600'}`} 
+                          className={`w-5 h-5 ${index < testimonial.rating ? 'text-yellow-400' : 'text-gray-300'}`} 
                           fill="currentColor" 
                           viewBox="0 0 20 20"
                         >
@@ -91,11 +91,11 @@ const SuccessStoriesPage = () => {
                     </div>
                   </div>
                 </div>
-                <blockquote className="text-lg text-gray-300 mb-6">
+                <blockquote className="text-lg text-gray-800 mb-6">
                   "{testimonial.quote}"
                 </blockquote>
-                <div className="bg-orange-500/20 p-4 rounded-lg inline-block">
-                  <p className="text-orange-400 font-medium">
+                <div className="bg-flipbot-orange/10 p-4 rounded-lg inline-block">
+                  <p className="text-flipbot-orange font-medium">
                     {testimonial.highlight}
                   </p>
                 </div>
@@ -106,23 +106,23 @@ const SuccessStoriesPage = () => {
       </section>
 
       {/* Quote Section */}
-      <section className="py-16 md:py-20 bg-gradient-to-b from-slate-900 to-slate-800">
+      <section className="py-16 md:py-20 bg-flipbot-teal/10">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-white">
-              "FlipIt has helped users generate over 15,000 PLN in collective profits during our beta testing phase."
+            <h2 className="text-3xl md:text-4xl font-bold mb-8">
+              "FlipBot AI has helped users generate over 15,000 PLN in collective profits during our beta testing phase."
             </h2>
-            <p className="text-xl font-medium text-orange-400">— FlipIt Founder</p>
+            <p className="text-xl font-medium">— FlipBot Founder</p>
           </div>
         </div>
       </section>
 
       {/* Your Success Story */}
-      <section className="section bg-slate-800/50">
+      <section className="section bg-white">
         <div className="container mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">Ready to Write Your Success Story?</h2>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
-            Join our waitlist now to be among the first to access FlipIt when we launch.
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Write Your Success Story?</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+            Join our waitlist now to be among the first to access FlipBot AI when we launch.
           </p>
           <Button asChild size="lg" className="cta-btn text-lg px-8 py-6">
             <Link to="/get-started">Join the Waitlist</Link>

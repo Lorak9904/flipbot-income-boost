@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Plus, Flame } from 'lucide-react';
+import { Menu, X, Plus } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -30,15 +30,15 @@ const Navbar = () => {
     : baseNavItems;
 
   const isActive = (path: string) => {
-    return location.pathname === path ? 'text-orange-400 font-medium' : 'text-gray-400 hover:text-orange-400';
+    return location.pathname === path ? 'text-teal-400 font-medium' : 'text-gray-300 hover:text-teal-400';
   };
 
   return (
-    <nav className="py-4 border-b border-slate-800/50 bg-gradient-to-r from-slate-900 to-slate-800 backdrop-blur-md sticky top-0 z-50">
+    <nav className="py-4 border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-600 to-orange-500 flex items-center justify-center text-white font-bold">
-            <Flame size={20} />
+          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-green-400 flex items-center justify-center text-white font-bold">
+            FI
           </div>
           <span className="font-heading font-semibold text-xl text-white">FlipIt</span>
         </Link>
@@ -49,7 +49,7 @@ const Navbar = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`${isActive(item.path)} transition-colors text-sm font-medium`}
+              className={`${isActive(item.path)} transition-colors`}
             >
               {item.name}
             </Link>
@@ -79,7 +79,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-900/95 backdrop-blur-md shadow-lg z-50 animate-scale-in border-b border-slate-800/50">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-800 shadow-lg z-50 animate-scale-in">
           <div className="container mx-auto py-4 flex flex-col gap-4">
             {navItems.map((item) => (
               <Link
@@ -101,7 +101,7 @@ const Navbar = () => {
                 </Button>
               )}
               <UserMenu />
-              <Button asChild variant="accent" rounded="xl" className="w-full">
+              <Button asChild variant="accent" rounded="xl">
                 <Link to="/get-started" onClick={toggleMenu}>Get Started</Link>
               </Button>
             </div>

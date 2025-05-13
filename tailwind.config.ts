@@ -63,20 +63,18 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				orange: {
-          500: '#FF6B00',
-          600: '#E05800',
-          400: '#FF8A3C',
-        },
-        amber: {
-          400: '#FFB74D',
-          500: '#FFA726',
-        },
-        slate: {
-          700: '#334155',
-          800: '#1E293B',
-          900: '#0F172A',
-        }
+				flipbot: {
+					teal: '#0EA5E9',
+					'teal-light': '#38BDF8',
+					purple: '#8B5CF6',
+					'purple-light': '#A78BFA',
+					orange: '#F97316',
+					'orange-light': '#FB923C',
+					lightgray: '#F1F1F1',
+					gray: '#8E9196',
+					green: '#10B981',
+					'green-light': '#34D399',
+				},
 			},
 			fontFamily: {
 				sans: ['Inter', 'sans-serif'],
@@ -153,11 +151,11 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-				'gradient-card': 'linear-gradient(225deg, #FF8A3C 0%, #FFA726 48%, #FF6B00 100%)',
-				'gradient-primary': 'linear-gradient(to right, #FF6B00, #FF8A3C)',
-				'gradient-secondary': 'linear-gradient(to right, #FF6B00, #FFB74D)',
-				'gradient-accent': 'linear-gradient(to right, #FF6B00, #FF8A3C)',
-				'gradient-success': 'linear-gradient(to right, #22c55e, #34D399)',
+				'gradient-card': 'linear-gradient(225deg, #FFE29F 0%, #FFA99F 48%, #FF719A 100%)',
+				'gradient-primary': 'linear-gradient(to right, #0EA5E9, #38BDF8)',
+				'gradient-secondary': 'linear-gradient(to right, #0EA5E9, #8B5CF6)',
+				'gradient-accent': 'linear-gradient(to right, #F97316, #FB923C)',
+				'gradient-success': 'linear-gradient(to right, #10B981, #34D399)',
 			}
 		}
 	},
