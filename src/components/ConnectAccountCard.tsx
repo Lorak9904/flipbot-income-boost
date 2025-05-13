@@ -1,14 +1,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Lock, Check, AlertCircle, Loader2, X } from 'lucide-react';
+import { Lock, Check, AlertCircle, Loader2, X, Copy, Info, Clipboard, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-
-
-
-
 
 interface ConnectAccountCardProps {
   platform: 'facebook' | 'olx' | 'vinted';
@@ -17,7 +13,6 @@ interface ConnectAccountCardProps {
   onConnected?: () => void;
   isConnected: boolean;
 }
-
 
 import { useExtensionCheck } from "@/hooks/useExtensionCheck";
 
@@ -50,7 +45,6 @@ export function Dashboard() {
     </div>
   );
 }
-
 
 const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: initialConnected, onConnected }: ConnectAccountCardProps) => {
   const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>(
@@ -198,81 +192,125 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
               }}
               className="space-y-4"
             >
-              <div className="mb-4 space-y-2">
-  <button
-    type="button"
-    onClick={() => setShowInstructions(!showInstructions)}
-    className="text-teal-400 text-sm hover:underline"
-  >
-    {showInstructions ? 'Hide instructions' : 'How to get cookies?'}
-  </button>
-  
-  {showInstructions && (
-    <div className="p-4 bg-slate-700 rounded-lg text-sm">
-      <h4 className="font-medium mb-3">Steps to get Facebook cookies:</h4>
-      <div className="space-y-3">
-        <div className="flex items-start gap-2">
-          <div className="w-5 h-5 bg-teal-500 rounded-full text-center text-sm">1</div>
-          <p>Open <b>Facebook.com</b> in your browser and log in</p>
-        </div>
-        <div className="flex items-start gap-2">
-          <div className="w-5 h-5 bg-teal-500 rounded-full text-center text-sm">2</div>
-          <p>
-            Open Developer Tools:
-            <br/>
-            <kbd className="px-2 py-1 bg-slate-600 rounded text-xs mx-1">
-              {navigator.platform.includes('Mac') ? 'Cmd + Opt + J' : 'F12 or Ctrl + Shift + J'}
-            </kbd>
-          </p>
-        </div>
-        <div className="flex items-start gap-2">
-          <div className="w-5 h-5 bg-teal-500 rounded-full text-center text-sm">3</div>
-          <p>Go to <b>Console</b> tab</p>
-        </div>
-        <div className="flex items-start gap-2">
-          <div className="w-5 h-5 bg-teal-500 rounded-full text-center text-sm">4</div>
-          <div>
-            <p>Type or paste this command:</p>
-            <div className="flex items-center gap-2 mt-1">
-              <code className="p-1.5 bg-slate-600 rounded text-xs">document.cookie</code>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText('document.cookie');
-                  toast.info('Command copied to clipboard!');
-                }}
-                className="text-teal-400 hover:text-teal-300 text-xs"
-              >
-                Copy
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-start gap-2">
-          <div className="w-5 h-5 bg-teal-500 rounded-full text-center text-sm">5</div>
-          <p>Press Enter and copy all text that appears</p>
-        </div>
-      </div>
-    </div>
-  )}
-</div>
+              <div className="mb-6">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setShowInstructions(!showInstructions)}
+                  className="flex items-center text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 transition-colors w-full justify-between px-4 py-2 rounded-lg"
+                >
+                  <span className="flex items-center gap-2">
+                    <Info className="h-5 w-5" />
+                    <span className="font-medium">How to get {platformName} cookies?</span>
+                  </span>
+                  <motion.div
+                    animate={{ rotate: showInstructions ? 90 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </motion.div>
+                </Button>
+                
+                {showInstructions && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="mt-3"
+                  >
+                    <div className="glass-card p-5 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg">
+                      <h4 className="text-base font-semibold mb-4 text-teal-400">Get {platformName} Cookies in 5 Simple Steps</h4>
+                      
+                      <div className="space-y-3 text-left">
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">1</div>
+                          <div className="text-slate-200">
+                            <p>Visit <span className="font-medium text-white">{platform}.com</span> and log in to your account</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">2</div>
+                          <div className="text-slate-200">
+                            <p className="mb-1">Open Developer Tools:</p>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <kbd className="px-2 py-1 bg-slate-800 rounded text-xs text-white border border-slate-600 shadow">
+                                {navigator.platform.includes('Mac') ? '⌘ + Option + J' : 'F12 or Ctrl + Shift + J'}
+                              </kbd>
+                              <span className="text-sm text-slate-300">or right-click → Inspect → Console</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">3</div>
+                          <div className="text-slate-200">
+                            <p>Click on the <span className="font-medium text-white">Console</span> tab</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">4</div>
+                          <div className="text-slate-200">
+                            <p className="mb-1">Type or paste this command:</p>
+                            <div className="flex items-center gap-2 bg-slate-800 p-2 rounded-md">
+                              <code className="text-teal-300 font-mono text-sm">document.cookie</code>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText('document.cookie');
+                                  toast.success('Command copied to clipboard!');
+                                }}
+                                className="ml-auto text-teal-400 hover:text-teal-300 focus:outline-none"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">5</div>
+                          <div className="text-slate-200">
+                            <p>Press <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-xs text-white border border-slate-600 shadow">Enter</kbd> and copy all the text between the quotes</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
               
               <p className="text-slate-300">
                 Paste your cookies for <b>{platformName}</b> below. Your user ID will be linked automatically.
               </p>
-              <textarea
-                className="w-full p-2 border rounded"
-                rows={4}
-                placeholder="Paste cookies here..."
-                value={manualCookies}
-                onChange={e => setManualCookies(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <textarea
+                  className="w-full p-3 border border-slate-600 bg-slate-800/60 rounded-lg text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  rows={4}
+                  placeholder={`Paste ${platformName} cookies here...`}
+                  value={manualCookies}
+                  onChange={e => setManualCookies(e.target.value)}
+                  required
+                />
+                <Clipboard className="absolute right-3 top-3 text-slate-400 h-5 w-5" />
+              </div>
               <div className="flex gap-2">
-                <Button type="submit" className="bg-teal-500 hover:bg-teal-600 text-white" disabled={status === 'connecting'}>
+                <Button 
+                  type="submit" 
+                  className="bg-teal-500 hover:bg-teal-600 text-white flex-1"
+                  disabled={status === 'connecting'}
+                >
                   {status === 'connecting' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                  Connect Manually
+                  Connect {platformName}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setShowManual(false)}>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowManual(false)}
+                  className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                >
                   Cancel
                 </Button>
               </div>
