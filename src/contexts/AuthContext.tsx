@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         provider
       };
       
-      const authToken = crypto.randomUUID(); // Generate a token for frontend use
+      const authToken = data.token;
       setUser(userData);
       localStorage.setItem("flipit_user", JSON.stringify(userData));
       localStorage.setItem("flipit_token", authToken);
@@ -122,7 +122,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         provider: 'email' as const
       };
       
-      const authToken = crypto.randomUUID(); // Generate a token for frontend use
+      const authToken = data.token;
       setUser(userData);
       localStorage.setItem("flipit_user", JSON.stringify(userData));
       localStorage.setItem("flipit_token", authToken);
@@ -152,8 +152,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email: data.email,
         provider: 'email' as const
       };
-      
-      const authToken = crypto.randomUUID(); // Generate a token for frontend use
+      const authToken = data.token;
       setUser(userData);
       localStorage.setItem("flipit_user", JSON.stringify(userData));
       localStorage.setItem("flipit_token", authToken);
