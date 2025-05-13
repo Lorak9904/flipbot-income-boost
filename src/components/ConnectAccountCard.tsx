@@ -1,8 +1,7 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Lock, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { Lock, Check, AlertCircle, Loader2, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,11 +14,47 @@ interface ConnectAccountCardProps {
   isConnected: boolean;
 }
 
+
+import { useExtensionCheck } from "@/hooks/useExtensionCheck";
+
+const EXTENSION_ID = "your_extension_id_here"; // from Chrome Web Store URL
+
+export function Dashboard() {
+  const extensionInstalled = useExtensionCheck(EXTENSION_ID);
+
+  return (
+    <div>
+      <h1>Welcome to FlipIt</h1>
+
+      {extensionInstalled === false && (
+        <div className="bg-yellow-100 text-yellow-900 p-4 rounded-md mt-4">
+          🚫 Our extension isn’t detected. Please{" "}
+          <a
+            href={`https://chrome.google.com/webstore/detail/legmgkojkpeflgbamlebigjffgmiiiej`}
+            target="_blank"
+            className="underline text-blue-600"
+          >
+            install it from the Chrome Web Store
+          </a>{" "}
+          and visit Facebook.
+        </div>
+      )}
+
+      {extensionInstalled === true && (
+        <p className="text-green-600 mt-4">✅ Extension is active!</p>
+      )}
+    </div>
+  );
+}
+
+
 const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: initialConnected, onConnected }: ConnectAccountCardProps) => {
   const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>(
     initialConnected ? 'connected' : 'idle'
   );
   const [isConnected, setIsConnected] = useState(initialConnected);
+  const [showManual, setShowManual] = useState(false);
+  const [manualCookies, setManualCookies] = useState("");
   const { user } = useAuth();
 
   const handleConnect = async () => {
@@ -98,28 +133,115 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
               <p className="text-slate-300">
                 FlipIt is now analyzing {platformName} for flipping opportunities.
               </p>
+              <Button
+                variant="outline"
+                className="mt-4 text-red-500 border-red-300 hover:bg-red-50 hover:text-red-700 transition"
+                onClick={async () => {
+                  try {
+                    const token = localStorage.getItem('flipit_token');
+                    const response = await fetch(`http://127.0.0.1:8000/FlipIt/api/delete-session/${platform}`, {
+                      method: 'DELETE',
+                      headers: {
+                        'Authorization': `Bearer ${token}`,
+                      },
+                    });
+                    if (!response.ok) throw new Error('Failed to disconnect');
+                    setIsConnected(false);
+                    setStatus('idle');
+                    toast.success(`${platformName} disconnected.`);
+                    if (onConnected) onConnected();
+                  } catch (error) {
+                    toast.error('Failed to disconnect. Please try again.');
+                  }
+                }}
+              >
+                <X className="w-4 h-4 mr-2" /> Disconnect
+              </Button>
             </div>
+          ) : showManual ? (
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setStatus('connecting');
+                try {
+                  const token = localStorage.getItem('flipit_token');
+                  const response = await fetch("http://127.0.0.1:8000/FlipIt/api/manual-connect", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                      platform,
+                      cookies: manualCookies,
+                      duration: "7d",
+                    }),
+                  });
+                  if (!response.ok) throw new Error("Failed to connect manually");
+                  setIsConnected(true);
+                  setStatus('connected');
+                  toast.success(`Manually connected to ${platformName}`);
+                  setShowManual(false);
+                  setManualCookies("");
+                  if (onConnected) onConnected();
+                } catch (error) {
+                  setStatus('error');
+                  toast.error("Manual connection failed. Please check your cookies and try again.");
+                }
+              }}
+              className="space-y-4"
+            >
+              <p className="text-slate-300">
+                Paste your cookies for <b>{platformName}</b> below. Your user ID will be linked automatically.
+              </p>
+              <textarea
+                className="w-full p-2 border rounded"
+                rows={4}
+                placeholder="Paste cookies here..."
+                value={manualCookies}
+                onChange={e => setManualCookies(e.target.value)}
+                required
+              />
+              <div className="flex gap-2">
+                <Button type="submit" className="bg-teal-500 hover:bg-teal-600 text-white" disabled={status === 'connecting'}>
+                  {status === 'connecting' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  Connect Manually
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setShowManual(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
           ) : (
             <div className="space-y-4">
               <p className="text-slate-300">
                 Connect your {platformName} account to let FlipIt find and flip items automatically.
               </p>
-              <Button 
-                onClick={handleConnect} 
-                className="w-full bg-teal-500 hover:bg-teal-600 text-white"
-                disabled={status === 'connecting'}
-              >
-                {status === 'connecting' ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Connecting...
-                  </>
-                ) : (
-                  <>
-                    Connect {platformName}
-                  </>
-                )}
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button 
+                  onClick={handleConnect} 
+                  className="w-full bg-teal-500 hover:bg-teal-600 text-white"
+                  disabled={status === 'connecting'}
+                >
+                  {status === 'connecting' ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Connecting...
+                    </>
+                  ) : (
+                    <>
+                      Automated Connect
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="text-teal-500 border-teal-500"
+                  onClick={() => setShowManual(true)}
+                >
+                  Manual Connect
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
