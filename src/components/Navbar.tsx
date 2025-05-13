@@ -2,18 +2,20 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Plus } from 'lucide-react';
 import UserMenu from './UserMenu';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
-  const navItems = [
+  const baseNavItems = [
     { name: 'Home', path: '/' },
     { name: 'How It Works', path: '/how-it-works' },
     { name: 'Success Stories', path: '/success-stories' },
@@ -21,6 +23,11 @@ const Navbar = () => {
     { name: 'FAQ', path: '/faq' },
     { name: 'Connect Accounts', path: '/connect-accounts' },
   ];
+  
+  // Only show Add Item to authenticated users
+  const navItems = isAuthenticated 
+    ? [...baseNavItems, { name: 'Add Item', path: '/add-item' }] 
+    : baseNavItems;
 
   const isActive = (path: string) => {
     return location.pathname === path ? 'text-teal-400 font-medium' : 'text-gray-300 hover:text-teal-400';
@@ -50,6 +57,14 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-4">
+          {isAuthenticated && (
+            <Button asChild variant="success" size="sm" className="mr-2">
+              <Link to="/add-item">
+                <Plus size={16} />
+                Add Item
+              </Link>
+            </Button>
+          )}
           <UserMenu />
           <Button asChild variant="accent" rounded="xl" size="default" className="animate-hover">
             <Link to="/get-started">Get Started</Link>
@@ -77,6 +92,14 @@ const Navbar = () => {
               </Link>
             ))}
             <div className="flex flex-col gap-3 pt-2">
+              {isAuthenticated && (
+                <Button asChild variant="success" size="sm" className="w-full">
+                  <Link to="/add-item" onClick={toggleMenu}>
+                    <Plus size={16} />
+                    Add Item
+                  </Link>
+                </Button>
+              )}
               <UserMenu />
               <Button asChild variant="accent" rounded="xl">
                 <Link to="/get-started" onClick={toggleMenu}>Get Started</Link>
