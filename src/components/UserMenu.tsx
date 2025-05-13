@@ -32,7 +32,7 @@ const UserMenu = () => {
 
   if (!isAuthenticated) {
     return (
-      <Button asChild variant="outline" className="text-white border-white/20 hover:bg-white/10">
+      <Button asChild variant="default" className="bg-teal-500 hover:bg-teal-600 text-white">
         <Link to="/login">
           <LogIn className="mr-2 h-4 w-4" />
           Log in

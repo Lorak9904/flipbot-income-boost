@@ -76,18 +76,11 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
     >
       <Card className="w-full overflow-hidden h-full border border-slate-700 bg-slate-800/50">
         <CardHeader className="pb-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
-                <img src={logoSrc} alt={`${platformName} logo`} className="h-8 w-auto" />
-              </div>
-              <h3 className="font-semibold text-lg text-white">{platformName}</h3>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
+              <img src={logoSrc} alt={`${platformName} logo`} className="h-8 w-auto" />
             </div>
-            {isConnected && (
-              <div className="bg-teal-500/10 text-teal-400 px-2 py-1 rounded-full text-sm flex items-center gap-1">
-                <Check className="h-4 w-4" /> Connected
-              </div>
-            )}
+            <h3 className="font-semibold text-lg text-white">{platformName}</h3>
           </div>
         </CardHeader>
         <CardContent className="pt-4">
