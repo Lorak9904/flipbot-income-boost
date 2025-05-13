@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { GeneratedItemData, ItemImage, Platform } from '@/types/item';
 import { useToast } from '@/hooks/use-toast';
@@ -83,9 +82,18 @@ const ReviewItemForm = ({ initialData, connectedPlatforms, onBack }: ReviewItemF
       formData.append('uploadedImages', JSON.stringify(uploadedImageUrls));
       
       // Call the backend API to publish item
-      const response = await fetch('http://127.0.0.1:8000/FlipIt/api/publish-item', {
+      const token = localStorage.getItem('flipit_token');
+      const response = await fetch('http://127.0.0.1:8000/FlipIt/api/items/publish', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...data,
+          platforms: selectedPlatforms,
+          images: data.images.map(img => img.url),
+        }),
       });
       
       if (!response.ok) {

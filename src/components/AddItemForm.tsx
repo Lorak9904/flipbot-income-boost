@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
@@ -65,8 +64,10 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
       });
       
       // Call the backend API to generate item data
-      const response = await fetch('http://127.0.0.1:8000/FlipIt/api/generate-item', {
+      const token = localStorage.getItem('flipit_token');
+      const response = await fetch('http://127.0.0.1:8000/FlipIt/api/items/propose', {
         method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
         body: formData,
       });
       

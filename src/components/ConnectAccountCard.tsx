@@ -6,6 +6,10 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
+
+
+
+
 interface ConnectAccountCardProps {
   platform: 'facebook' | 'olx' | 'vinted';
   platformName: string;
@@ -55,6 +59,8 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
   const [isConnected, setIsConnected] = useState(initialConnected);
   const [showManual, setShowManual] = useState(false);
   const [manualCookies, setManualCookies] = useState("");
+  const [showInstructions, setShowInstructions] = useState(false);
+
   const { user } = useAuth();
 
   const handleConnect = async () => {
@@ -159,6 +165,7 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
               </Button>
             </div>
           ) : showManual ? (
+            
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
@@ -191,6 +198,64 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
               }}
               className="space-y-4"
             >
+              <div className="mb-4 space-y-2">
+  <button
+    type="button"
+    onClick={() => setShowInstructions(!showInstructions)}
+    className="text-teal-400 text-sm hover:underline"
+  >
+    {showInstructions ? 'Hide instructions' : 'How to get cookies?'}
+  </button>
+  
+  {showInstructions && (
+    <div className="p-4 bg-slate-700 rounded-lg text-sm">
+      <h4 className="font-medium mb-3">Steps to get Facebook cookies:</h4>
+      <div className="space-y-3">
+        <div className="flex items-start gap-2">
+          <div className="w-5 h-5 bg-teal-500 rounded-full text-center text-sm">1</div>
+          <p>Open <b>Facebook.com</b> in your browser and log in</p>
+        </div>
+        <div className="flex items-start gap-2">
+          <div className="w-5 h-5 bg-teal-500 rounded-full text-center text-sm">2</div>
+          <p>
+            Open Developer Tools:
+            <br/>
+            <kbd className="px-2 py-1 bg-slate-600 rounded text-xs mx-1">
+              {navigator.platform.includes('Mac') ? 'Cmd + Opt + J' : 'F12 or Ctrl + Shift + J'}
+            </kbd>
+          </p>
+        </div>
+        <div className="flex items-start gap-2">
+          <div className="w-5 h-5 bg-teal-500 rounded-full text-center text-sm">3</div>
+          <p>Go to <b>Console</b> tab</p>
+        </div>
+        <div className="flex items-start gap-2">
+          <div className="w-5 h-5 bg-teal-500 rounded-full text-center text-sm">4</div>
+          <div>
+            <p>Type or paste this command:</p>
+            <div className="flex items-center gap-2 mt-1">
+              <code className="p-1.5 bg-slate-600 rounded text-xs">document.cookie</code>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText('document.cookie');
+                  toast.info('Command copied to clipboard!');
+                }}
+                className="text-teal-400 hover:text-teal-300 text-xs"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <div className="w-5 h-5 bg-teal-500 rounded-full text-center text-sm">5</div>
+          <p>Press Enter and copy all text that appears</p>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+              
               <p className="text-slate-300">
                 Paste your cookies for <b>{platformName}</b> below. Your user ID will be linked automatically.
               </p>
