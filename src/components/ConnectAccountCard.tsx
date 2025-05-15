@@ -53,7 +53,11 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
   const [isConnected, setIsConnected] = useState(initialConnected);
   const [showManual, setShowManual] = useState(false);
   const [manualCookies, setManualCookies] = useState("");
+  const [manualDtsg, setManualDtsg] = useState("");
   const [showInstructions, setShowInstructions] = useState(false);
+  const [showCookieInstructions, setShowCookieInstructions] = useState(false);
+  const [showDtsgInstructions, setShowDtsgInstructions] = useState(false);
+
 
   const { user } = useAuth();
 
@@ -175,6 +179,7 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                     body: JSON.stringify({
                       platform,
                       cookies: manualCookies,
+                      dtsg: manualDtsg,
                       duration: "7d",
                     }),
                   });
@@ -190,7 +195,7 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                   toast.error("Manual connection failed. Please check your cookies and try again.");
                 }
               }}
-              className="space-y-4"
+              className="space-y-6"
             >
               <div className="mb-6">
                 <Button
@@ -225,15 +230,19 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                       <div className="space-y-3 text-left">
                         <div className="flex gap-3">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">1</div>
-                          <div className="text-slate-200">
-                            <p>Visit <span className="font-medium text-white">{platform}.com</span> and log in to your account</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal">
+                              Visit <span className="font-medium text-white">{platform}.com</span> and log in to your account
+                            </p>
                           </div>
                         </div>
                         
                         <div className="flex gap-3">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">2</div>
-                          <div className="text-slate-200">
-                            <p className="mb-1">Open Developer Tools:</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal w-full mb-1">
+                              Open Developer Tools:
+                            </p>
                             <div className="flex items-center gap-2 flex-wrap">
                               <kbd className="px-2 py-1 bg-slate-800 rounded text-xs text-white border border-slate-600 shadow">
                                 {navigator.platform.includes('Mac') ? '⌘ + Option + J' : 'F12 or Ctrl + Shift + J'}
@@ -245,17 +254,21 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                         
                         <div className="flex gap-3">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">3</div>
-                          <div className="text-slate-200">
-                            <p>Click on the <span className="font-medium text-white">Console</span> tab</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal">
+                              Click on the <span className="font-medium text-white">Console</span> tab
+                            </p>
                           </div>
                         </div>
                         
                         <div className="flex gap-3">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">4</div>
-                          <div className="text-slate-200">
-                            <p className="mb-1">Type or paste this command:</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal w-full mb-1">
+                              Type or paste this command:
+                            </p>
                             <div className="flex items-center gap-2 bg-slate-800 p-2 rounded-md">
-                              <code className="text-teal-300 font-mono text-sm">document.cookie</code>
+                              <code className="text-teal-300 font-mono text-xs">document.cookie</code>
                               <button
                                 type="button"
                                 onClick={() => {
@@ -272,8 +285,10 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                         
                         <div className="flex gap-3">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">5</div>
-                          <div className="text-slate-200">
-                            <p>Press <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-xs text-white border border-slate-600 shadow">Enter</kbd> and copy all the text between the quotes</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal">
+                              Press <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-xs text-white border border-slate-600 shadow">Enter</kbd> and copy all the text between the quotes
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -285,7 +300,7 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
               <p className="text-slate-300">
                 Paste your cookies for <b>{platformName}</b> below. Your user ID will be linked automatically.
               </p>
-              <div className="relative">
+              <div className="relative mb-4">
                 <textarea
                   className="w-full p-3 border border-slate-600 bg-slate-800/60 rounded-lg text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   rows={4}
@@ -295,6 +310,113 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                   required
                 />
                 <Clipboard className="absolute right-3 top-3 text-slate-400 h-5 w-5" />
+              </div>
+
+              {/* DTSG tutorial and input */}
+              <div className="mb-6">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setShowInstructions(!showInstructions)}
+                  className="flex items-center text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 transition-colors w-full justify-between px-4 py-2 rounded-lg"
+                >
+                  <span className="flex items-center gap-2">
+                    <Info className="h-5 w-5" />
+                    <span className="font-medium">How to get dtsg token?</span>
+                  </span>
+                  <motion.div
+                    animate={{ rotate: showInstructions ? 90 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </motion.div>
+                </Button>
+                {showInstructions && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="mt-3"
+                  >
+                    <div className="glass-card p-5 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg">
+                      <h4 className="text-base font-semibold mb-4 text-teal-400">Get dtsg Token in 5 Simple Steps</h4>
+                      <div className="space-y-3 text-left">
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">1</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal">
+                              Visit <span className="font-medium text-white">facebook.com</span> and log in to your account
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">2</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal w-full mb-1">
+                              Open Developer Tools:
+                            </p>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <kbd className="px-2 py-1 bg-slate-800 rounded text-xs text-white border border-slate-600 shadow">
+                                {navigator.platform.includes('Mac') ? '⌘ + Option + J' : 'F12 or Ctrl + Shift + J'}
+                              </kbd>
+                              <span className="text-sm text-slate-300">or right-click → Inspect → Console</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">3</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal">
+                              Click on the <span className="font-medium text-white">Console</span> tab
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">4</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal w-full mb-1">
+                              Type or paste this command:
+                            </p>
+                            <div className="flex flex-col bg-slate-800 p-2 rounded-md">
+                              <code className="text-teal-300 font-mono text-xs break-words whitespace-pre-wrap">
+                                require("DTSG").getToken()
+                              </code>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText('require("DTSG").getToken()');
+                                  toast.success('Command copied to clipboard!');
+                                }}
+                                className="mt-2 self-end text-teal-400 hover:text-teal-300 focus:outline-none"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">5</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal">
+                              Press <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-xs text-white border border-slate-600 shadow">Enter</kbd> and copy the value shown, then paste it below.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+              <div className="relative mb-4">
+                <input
+                  type="text"
+                  className="w-full p-3 border border-slate-600 bg-slate-800/60 rounded-lg text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  placeholder="Paste your dtsg token here..."
+                  value={manualDtsg}
+                  onChange={e => setManualDtsg(e.target.value)}
+                  required
+                />
               </div>
               <div className="flex gap-2">
                 <Button 

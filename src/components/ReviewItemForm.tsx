@@ -39,88 +39,86 @@ const ReviewItemForm = ({ initialData, connectedPlatforms, onBack }: ReviewItemF
     );
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (selectedPlatforms.length === 0) {
-      toast({
-        title: "No platforms selected",
-        description: "Please select at least one platform to publish to",
-        variant: "destructive",
-      });
-      return;
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (selectedPlatforms.length === 0) {
+    toast({
+      title: "No platforms selected",
+      description: "Please select at least one platform to publish to",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    const numericPrice = parseFloat(data.price);
+    if (isNaN(numericPrice)) {
+      throw new Error('Invalid price format');
     }
-    
-    setIsSubmitting(true);
-    
-    try {
-      // Prepare form data for API
-      const formData = new FormData();
-      
-      // Add text fields
-      formData.append('title', data.title);
-      formData.append('description', data.description);
-      formData.append('brand', data.brand);
-      formData.append('condition', data.condition);
-      formData.append('category', data.category);
-      formData.append('price', data.price);
-      formData.append('userId', user?.id || '');
-      formData.append('platforms', JSON.stringify(selectedPlatforms));
-      
-      // Add images - first upload any non-uploaded images
-      const imagesToUpload = data.images.filter(img => !img.isUploaded && img.file);
-      imagesToUpload.forEach((image, index) => {
-        if (image.file) {
-          formData.append(`newImage${index}`, image.file);
-        }
-      });
-      
-      // Add already uploaded image URLs
-      const uploadedImageUrls = data.images
-        .filter(img => img.isUploaded)
-        .map(img => img.url);
-      formData.append('uploadedImages', JSON.stringify(uploadedImageUrls));
-      
-      // Call the backend API to publish item
-      const token = localStorage.getItem('flipit_token');
-      const response = await fetch('http://127.0.0.1:8000/FlipIt/api/items/publish', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ...data,
-          platforms: selectedPlatforms,
-          images: data.images.map(img => img.url),
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to publish item');
+
+    // Prepare FormData
+    const formData = new FormData();
+    // Append images as files
+    data.images.forEach((img: any) => {
+      // If your image object has a File, use it; otherwise, fetch and convert the URL to a Blob/File
+      if (img.file) {
+        formData.append('images', img.file);
+      } else if (img.url && img.url.startsWith('blob:')) {
+        // If you only have a blob URL, fetch it and convert to File
+        // (This is needed if you use canvas or similar in the uploader)
+        // Example:
+        // const blob = await fetch(img.url).then(r => r.blob());
+        // formData.append('images', new File([blob], 'image.jpg', { type: blob.type }));
+      } else if (img.url) {
+        // If you have a server path, you can't re-upload it as a file
+        // You must keep the File reference from the original upload step!
       }
-      
-      const result = await response.json();
-      
-      toast({
-        title: "Success!",
-        description: "Your item has been published successfully",
-      });
-      
-      // Redirect to home or confirmation page
-      window.location.href = '/';
-      
-    } catch (error) {
-      console.error('Error publishing item:', error);
-      toast({
-        title: "Error",
-        description: "Failed to publish item. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+    });
+    formData.append('title', data.title);
+    formData.append('brand', data.brand || '');
+    formData.append('condition', data.condition || '');
+    formData.append('price', numericPrice.toString());
+    formData.append('description', data.description);
+    formData.append('category', data.category);
+    selectedPlatforms.forEach(p => formData.append('platforms', p));
+
+    const token = localStorage.getItem('flipit_token');
+    const response = await fetch('http://127.0.0.1:8000/FlipIt/api/items/publish', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        // Do NOT set Content-Type here; browser will set it for FormData
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to publish item');
     }
-  };
+
+    const result = await response.json();
+
+    toast({
+      title: "Success!",
+      description: "Your item has been published successfully",
+    });
+
+    window.location.href = '/';
+
+  } catch (error) {
+    console.error('Error publishing item:', error);
+    toast({
+      title: "Error",
+      description: "Failed to publish item. Please try again.",
+      variant: "destructive",
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">

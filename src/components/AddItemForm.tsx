@@ -44,40 +44,41 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
     setIsSubmitting(true);
 
     try {
-      // Prepare form data for API
       const formData = new FormData();
-      
-      // Add text fields
-      formData.append('title', data.title);
-      formData.append('description', data.description);
-      formData.append('brand', data.brand);
-      formData.append('condition', data.condition);
-      formData.append('category', data.category);
-      formData.append('price', data.price);
-      formData.append('userId', user?.id || '');
-      
-      // Add images
-      images.forEach((image, index) => {
+      if (data.title) formData.append('title', data.title);
+      if (data.description) formData.append('description', data.description);
+      if (data.brand) formData.append('brand', data.brand);
+      if (data.condition) formData.append('condition', data.condition);
+      if (data.category) formData.append('category', data.category);
+      if (data.price !== undefined && data.price !== null && data.price !== '') {
+        formData.append('price', String(data.price));
+      }
+
+      // Add images - all must use 'images' as key!
+      images.forEach((image) => {
         if (image.file) {
-          formData.append(`image${index}`, image.file);
+          formData.append('images', image.file);
         }
       });
-      
-      // Call the backend API to generate item data
+
+      // Send request
       const token = localStorage.getItem('flipit_token');
       const response = await fetch('http://127.0.0.1:8000/FlipIt/api/items/propose', {
         method: 'POST',
         headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
         body: formData,
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to generate item data');
       }
-      
+
       const generatedData = await response.json();
-      
+      console.log('Generated item:', generatedData);
+
       // Transform API response to match our expected format
+      const [minPrice, maxPrice] = generatedData.price_range || [];
+
       const transformedData: GeneratedItemData = {
         title: generatedData.title || data.title,
         description: generatedData.description || data.description,
@@ -86,11 +87,11 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
         category: generatedData.category || data.category,
         price: generatedData.price?.toString() || data.price,
         priceRange: {
-          min: generatedData.price_range?.min?.toString() || '',
-          max: generatedData.price_range?.max?.toString() || '',
+          min: minPrice?.toString() || '',
+          max: maxPrice?.toString() || '',
         },
         images: generatedData.images ? [
-          ...images, 
+          ...images,
           ...generatedData.images.map((url: string, index: number) => ({
             id: `generated-${index}`,
             url,
@@ -98,7 +99,7 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
           }))
         ] : images
       };
-      
+
       onComplete(transformedData);
     } catch (error) {
       console.error('Error generating item data:', error);
@@ -110,7 +111,8 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }
+
   
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
