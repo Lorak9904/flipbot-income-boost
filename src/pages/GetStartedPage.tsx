@@ -116,7 +116,7 @@ const GetStartedPage = () => {
                       Start thinking about what items you'd like to flip and which marketplaces you're most familiar with.
                     </p>
                     <p className="text-gray-600">
-                      The average FlipBot user makes their first profit within 7 days of getting access!
+                      The average FlipIt user makes their first profit within 7 days of getting access!
                     </p>
                   </div>
                 </div>
@@ -178,7 +178,7 @@ const GetStartedPage = () => {
                 <div>
                   <h3 className="font-semibold text-xl mb-2">Feature Influence</h3>
                   <p className="text-gray-600">
-                    Help shape the future of FlipBot by providing feedback that influences our development roadmap.
+                    Help shape the future of FlipIt by providing feedback that influences our development roadmap.
                   </p>
                 </div>
               </div>

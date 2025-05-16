@@ -13,12 +13,12 @@ const FeaturesPage = () => {
     {
       icon: <TrendingUp className="h-6 w-6 text-flipbot-teal" />,
       title: "Price Analysis",
-      description: "FlipBot compares prices across multiple platforms to identify the best deals and highest profit margins."
+      description: "FlipIt compares prices across multiple platforms to identify the best deals and highest profit margins."
     },
     {
       icon: <MessageSquare className="h-6 w-6 text-flipbot-teal" />,
       title: "Automated Negotiations",
-      description: "Let FlipBot handle communication with sellers, negotiate prices, and secure the best deals on your behalf."
+      description: "Let FlipIt handle communication with sellers, negotiate prices, and secure the best deals on your behalf."
     },
     {
       icon: <Image className="h-6 w-6 text-flipbot-teal" />,
@@ -28,12 +28,12 @@ const FeaturesPage = () => {
     {
       icon: <Shield className="h-6 w-6 text-flipbot-teal" />,
       title: "Privacy Protection",
-      description: "FlipBot acts as an intermediary to protect your personal information when dealing with buyers and sellers."
+      description: "FlipIt acts as an intermediary to protect your personal information when dealing with buyers and sellers."
     },
     {
       icon: <Clock className="h-6 w-6 text-flipbot-teal" />,
       title: "Time-Saving Automation",
-      description: "Save hours of searching, messaging, and listing by letting FlipBot handle the tedious parts of the flipping process."
+      description: "Save hours of searching, messaging, and listing by letting FlipIt handle the tedious parts of the flipping process."
     },
     {
       icon: <DollarSign className="h-6 w-6 text-flipbot-teal" />,
@@ -56,7 +56,7 @@ const FeaturesPage = () => {
             FlipIt <span className="text-flipbot-teal">Features</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Discover all the powerful tools and features that make FlipBot the ultimate 
+            Discover all the powerful tools and features that make FlipIt the ultimate 
             assistant for resale arbitrage and passive income generation.
           </p>
         </div>
@@ -86,14 +86,14 @@ const FeaturesPage = () => {
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Automated Profit Generation</h2>
               <p className="text-lg text-gray-600 mb-6">
-                FlipBot is designed to handle the entire resale arbitrage process from start to finish:
+                FlipIt is designed to handle the entire resale arbitrage process from start to finish:
               </p>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-flipbot-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-flipbot-teal font-medium">1</span>
                   </div>
-                  <p>FlipBot scans marketplaces 24/7 to find the best deals with highest profit potential</p>
+                  <p>FlipIt scans marketplaces 24/7 to find the best deals with highest profit potential</p>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-flipbot-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -105,7 +105,7 @@ const FeaturesPage = () => {
                   <div className="w-6 h-6 rounded-full bg-flipbot-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-flipbot-teal font-medium">3</span>
                   </div>
-                  <p>FlipBot negotiates with sellers to get the best possible price</p>
+                  <p>FlipIt negotiates with sellers to get the best possible price</p>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-flipbot-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -117,13 +117,13 @@ const FeaturesPage = () => {
                   <div className="w-6 h-6 rounded-full bg-flipbot-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-flipbot-teal font-medium">5</span>
                   </div>
-                  <p>FlipBot creates professional listings and handles communication with buyers</p>
+                  <p>FlipIt creates professional listings and handles communication with buyers</p>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-flipbot-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-flipbot-teal font-medium">6</span>
                   </div>
-                  <p>You collect the profits while FlipBot finds your next opportunity</p>
+                  <p>You collect the profits while FlipIt finds your next opportunity</p>
                 </li>
               </ul>
             </div>
@@ -157,7 +157,7 @@ const FeaturesPage = () => {
       {/* CTA Section */}
       <section className="py-16 md:py-24 bg-flipbot-teal/10">
         <div className="container mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Making Money with FlipBot?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Making Money with FlipIt?</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
             Join our waitlist now to be among the first to access FlipIt when we launch.
           </p>

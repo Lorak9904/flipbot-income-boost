@@ -8,7 +8,7 @@ const testimonials = [
     name: 'Marta K.',
     location: 'Warsaw, Poland',
     image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'I made over 600 PLN in my first weekend using FlipBot! It found a vintage cabinet on OLX for 350 PLN that I resold for 950 PLN. The AI even handled most of the messaging with the buyer and seller.',
+    quote: 'I made over 600 PLN in my first weekend using FlipIt! It found a vintage cabinet on OLX for 350 PLN that I resold for 950 PLN. The AI even handled most of the messaging with the buyer and seller.',
     highlight: '+600 PLN profit in one weekend',
     rating: 5
   },
@@ -17,7 +17,7 @@ const testimonials = [
     name: 'Piotr G.',
     location: 'Kraków, Poland',
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'As a student, I needed extra income but had limited time. FlipBot changed everything! It found a PS5 bundle for 1,200 PLN that I flipped for 1,850 PLN in just 3 days. The bot handled all the negotiation - I just did the pickup and drop-off.',
+    quote: 'As a student, I needed extra income but had limited time. FlipIt changed everything! It found a PS5 bundle for 1,200 PLN that I flipped for 1,850 PLN in just 3 days. The bot handled all the negotiation - I just did the pickup and drop-off.',
     highlight: '+650 PLN profit with minimal effort',
     rating: 5
   },
@@ -26,7 +26,7 @@ const testimonials = [
     name: 'Anna M.',
     location: 'Wrocław, Poland',
     image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: "I was skeptical at first, but FlipBot actually works! In my first month, I made over 2,000 PLN flipping furniture while working my regular job. The AI's ability to spot good deals is impressive, and the automatic messaging saves me hours.",
+    quote: "I was skeptical at first, but FlipIt actually works! In my first month, I made over 2,000 PLN flipping furniture while working my regular job. The AI's ability to spot good deals is impressive, and the automatic messaging saves me hours.",
     highlight: '+2,000 PLN extra income per month',
     rating: 4
   },
@@ -35,7 +35,7 @@ const testimonials = [
     name: 'Tomasz W.',
     location: 'Poznań, Poland',
     image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'FlipBot found an IKEA desk listed for 150 PLN when the same model was selling for 400 PLN elsewhere. I wouldn\'t have caught this opportunity on my own! The profit margin was amazing, and I\'ve since flipped several more furniture items.',
+    quote: 'FlipIt found an IKEA desk listed for 150 PLN when the same model was selling for 400 PLN elsewhere. I wouldn\'t have caught this opportunity on my own! The profit margin was amazing, and I\'ve since flipped several more furniture items.',
     highlight: 'Found deals I would have missed',
     rating: 5
   },
@@ -112,7 +112,7 @@ const SuccessStoriesPage = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
               "FlipIt has helped users generate over 15,000 PLN in collective profits during our beta testing phase."
             </h2>
-            <p className="text-xl font-medium">— FlipBot Founder</p>
+            <p className="text-xl font-medium">— FlipIt Founder</p>
           </div>
         </div>
       </section>

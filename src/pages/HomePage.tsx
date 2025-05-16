@@ -30,7 +30,7 @@ const HomePage = () => {
             <div className="relative flex justify-center">
               <div className="bg-white p-6 rounded-2xl shadow-lg max-w-md animate-fade-in">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold">FlipBot Assistant</h4>
+                  <h4 className="font-semibold">FlipIt Assistant</h4>
                   <div className="h-3 w-3 bg-green-500 rounded-full"></div>
                 </div>
                 <div className="space-y-4">
@@ -57,7 +57,7 @@ const HomePage = () => {
       <section className="section bg-white">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">How FlipBot Makes You Money</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">How FlipIt Makes You Money</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Our AI-powered assistant handles the entire flipping process, so you can earn passive income with minimal effort.
             </p>
@@ -70,7 +70,7 @@ const HomePage = () => {
               </div>
               <h3 className="text-xl font-semibold mb-2">Smart Marketplace Scanner</h3>
               <p className="text-gray-600">
-                FlipBot continuously scans OLX, Allegro, and Facebook Marketplace to find undervalued items with high profit potential.
+                FlipIt continuously scans OLX, Allegro, and Facebook Marketplace to find undervalued items with high profit potential.
               </p>
             </div>
             
@@ -80,7 +80,7 @@ const HomePage = () => {
               </div>
               <h3 className="text-xl font-semibold mb-2">Automated Negotiations</h3>
               <p className="text-gray-600">
-                Let FlipBot handle communication with sellers, negotiate prices, and secure the best deals on your behalf.
+                Let FlipIt handle communication with sellers, negotiate prices, and secure the best deals on your behalf.
               </p>
             </div>
             
@@ -109,7 +109,7 @@ const HomePage = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Real Results from Real People</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              See how everyday people are using FlipBot to create a reliable side income.
+              See how everyday people are using FlipIt to create a reliable side income.
             </p>
           </div>
           
@@ -135,7 +135,7 @@ const HomePage = () => {
               ))}
             </div>
             <blockquote className="text-lg text-gray-800 mb-6">
-              "I made over 600 PLN in my first weekend using FlipBot! It found a vintage cabinet on OLX for 350 PLN that I resold for 950 PLN. The AI even handled most of the messaging with the buyer and seller."
+              "I made over 600 PLN in my first weekend using FlipIt! It found a vintage cabinet on OLX for 350 PLN that I resold for 950 PLN. The AI even handled most of the messaging with the buyer and seller."
             </blockquote>
             <p className="text-flipbot-orange font-medium">
               +600 PLN profit in one weekend

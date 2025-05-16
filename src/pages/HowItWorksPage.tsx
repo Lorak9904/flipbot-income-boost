@@ -50,9 +50,9 @@ const HowItWorksPage = () => {
                   </ul>
                   <div className="mt-6 bg-white rounded-lg p-4 border border-gray-100">
                     <p className="italic text-gray-600">
-                      "FlipBot found an IKEA desk listed for 150 PLN when the same model was selling for 400 PLN elsewhere. I wouldn't have caught this opportunity on my own!"
+                      "FlipIt found an IKEA desk listed for 150 PLN when the same model was selling for 400 PLN elsewhere. I wouldn't have caught this opportunity on my own!"
                     </p>
-                    <p className="text-sm font-medium mt-2">— Tomasz W., FlipBot user</p>
+                    <p className="text-sm font-medium mt-2">— Tomasz W., FlipIt user</p>
                   </div>
                 </div>
               </div>
@@ -68,7 +68,7 @@ const HowItWorksPage = () => {
               </div>
               <div className="col-span-2">
                 <div className="bg-gray-50 p-6 rounded-xl">
-                  <h4 className="text-lg font-semibold mb-4">FlipBot handles communication and negotiation with sellers</h4>
+                  <h4 className="text-lg font-semibold mb-4">FlipIt handles communication and negotiation with sellers</h4>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-2">
                       <CheckCircle className="h-5 w-5 text-flipbot-teal mt-0.5 flex-shrink-0" />
@@ -88,7 +88,7 @@ const HowItWorksPage = () => {
                       <div className="w-8 h-8 bg-flipbot-teal rounded-full flex items-center justify-center text-white font-bold text-xs">
                         FB
                       </div>
-                      <p className="font-medium">FlipBot (on your behalf)</p>
+                      <p className="font-medium">FlipIt (on your behalf)</p>
                     </div>
                     <p className="mb-3 bg-white p-3 rounded-md shadow-sm">
                       "Dzień dobry! I'm interested in the coffee table you're selling. Is it still available? I could pick it up tomorrow afternoon if the price is right."
@@ -117,7 +117,7 @@ const HowItWorksPage = () => {
               </div>
               <div className="col-span-2">
                 <div className="bg-gray-50 p-6 rounded-xl">
-                  <h4 className="text-lg font-semibold mb-4">FlipBot creates optimized listings to sell your items</h4>
+                  <h4 className="text-lg font-semibold mb-4">FlipIt creates optimized listings to sell your items</h4>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-2">
                       <CheckCircle className="h-5 w-5 text-flipbot-teal mt-0.5 flex-shrink-0" />
@@ -159,7 +159,7 @@ const HowItWorksPage = () => {
               </div>
               <div className="col-span-2">
                 <div className="bg-gray-50 p-6 rounded-xl">
-                  <h4 className="text-lg font-semibold mb-4">You collect the profit while FlipBot handles everything else</h4>
+                  <h4 className="text-lg font-semibold mb-4">You collect the profit while FlipIt handles everything else</h4>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-2">
                       <CheckCircle className="h-5 w-5 text-flipbot-teal mt-0.5 flex-shrink-0" />
