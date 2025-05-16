@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loginWithEmail = async (email: string, password: string) => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/auth/login/email", {
+      const response = await fetch("/api/auth/login/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
