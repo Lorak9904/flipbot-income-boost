@@ -1,73 +1,183 @@
-# Welcome to your Lovable project
+# 🔁 FlipIt – Fullstack Reselling Automation Tool
 
-## Project info
+**FlipIt** is a smart automation tool that helps users resell second-hand items (like clothes, electronics, or furniture) across marketplaces like **Facebook Marketplace, OLX, and Vinted** — without relying on public APIs.
 
-**URL**: https://lovable.dev/projects/4720dfe1-a24a-45f4-ba81-e71f608f1691
+It uses AI to generate optimized listings from just photos, handles marketplace login with cookies, and posts items automatically.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 🧭 Project Structure
 
-**Use Lovable**
+- `backend/` – FastAPI API with AI integration and listing logic
+- `frontend/` – React + TypeScript interface for listing and user interaction
+- `extension/` – (Optional) Chrome plugin for extracting Facebook cookies
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/4720dfe1-a24a-45f4-ba81-e71f608f1691) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📦 Features
 
-**Use your preferred IDE**
+- 🔐 JWT-based authentication
+- 🖼️ Upload photos → get title, category, price, description
+- 🤖 OpenAI-powered AI listing assistant
+- 🛒 Facebook Marketplace posting via cookies
+- 🛠️ OLX & Vinted integration in progress
+- ⚡ Mobile-friendly, no Puppeteer or headless browsers used
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## ⚙️ Tech Stack
 
-Follow these steps:
+| Layer       | Tech                                     |
+|-------------|------------------------------------------|
+| Frontend    | React, TypeScript, Tailwind CSS, Vite    |
+| Backend     | FastAPI, Tortoise ORM, PostgreSQL, JWT   |
+| AI/ML       | OpenAI API (Vision + Text)               |
+| Deployment  | Docker, Nginx, DigitalOcean/VPS          |
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 🚀 Getting Started
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🐳 Run Fullstack with Docker
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 1. Clone the repo
+```bash
+git clone https://github.com/Lorak9904/FlipIt.git --recurse-submodules
+cd FlipIt
+```
+
+### 2. Set up `.env` file
+Create two environment files:
+
+#### Backend – `backend/.env`
+```env
+DATABASE_URL=postgres://flipit:flipit@db:5432/flipit
+JWT_SECRET_KEY=your_jwt_secret
+OPENAI_API_KEY=sk-...
+```
+
+#### Frontend – `frontend/.env`
+```env
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+### 3. Run Docker Compose
+```bash
+docker-compose up --build
+```
+
+The frontend will be available at:  
+📍 `http://localhost:5173`
+
+The backend API will be at:  
+📍 `http://localhost:8000`
+
+---
+
+# 📂 Backend – `backend/`
+
+## 📦 Summary
+
+Handles auth, image uploads, AI generation, and posting logic.
+
+### 💻 Run Locally (without Docker)
+
+```bash
+cd backend
+pip install -r requirements.txt
+
+# Set up DB
+aerich init -t app.db.TORTOISE_ORM
+aerich init-db
+aerich migrate
+aerich upgrade
+
+# Start server
+uvicorn app.main:app --reload
+```
+
+### 🔐 API Highlights
+
+| Method | Endpoint                  | Description                         |
+|--------|---------------------------|-------------------------------------|
+| POST   | `/api/auth/register`      | Register user                       |
+| POST   | `/api/auth/login/email`   | Login with email/password           |
+| POST   | `/api/manual-connect`     | Save FB cookie/token                |
+| POST   | `/api/items/propose`      | AI-generated listing from images    |
+| POST   | `/api/items/post`         | [Planned] Listing submission        |
+
+---
+
+# 🎨 Frontend – `frontend/`
+
+## 📦 Summary
+
+Built with React + TypeScript using Vite. Communicates with backend via `fetch` and Bearer tokens.
+
+### 💻 Run Locally
+
+```bash
+cd frontend
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Open your browser at:  
+📍 `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 🔧 Scripts
 
-**Use GitHub Codespaces**
+| Script            | Description                     |
+|-------------------|---------------------------------|
+| `npm run dev`     | Start dev server                |
+| `npm run build`   | Build production files          |
+| `npm run preview` | Preview production build        |
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+# 🔐 Authentication
 
-This project is built with:
+- JWT is issued by backend and stored in `localStorage`
+- Managed globally via `AuthContext` in frontend
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
+# 🤖 AI Integration
 
-Simply open [Lovable](https://lovable.dev/projects/4720dfe1-a24a-45f4-ba81-e71f608f1691) and click on Share -> Publish.
+FlipIt uses **OpenAI GPT-4** for:
+- Analyzing uploaded images
+- Generating title, description, category, price
+- (Planned) enhancing image backgrounds
 
-## Can I connect a custom domain to my Lovable project?
+OpenAI API is used securely from backend only.
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# 🛠️ Current Status
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- ✅ Facebook integration – **working**
+- 🧠 AI listing assistant – **active**
+- 🛠️ OLX & Vinted – **in development**
+- 🧪 Image enhancement – **functionally ready**, UI pending
+
+---
+
+# 🧑‍💻 Developer Notes
+
+- Make sure to use real cookies/tokens for Facebook manual connect
+- Devtools + network reverse-engineering used in place of APIs
+- Works even on mobile devices without headless browser dependencies
+
+---
+
+# 📄 License
+
+MIT – free for personal or experimental use.
+
+---
+
+# 🙋 Support
+
+For bugs, suggestions, or help:  
+- Open an issue  
+- Or contact [LinkedIn](https://www.linkedin.com/in/karol-obrebski/)
