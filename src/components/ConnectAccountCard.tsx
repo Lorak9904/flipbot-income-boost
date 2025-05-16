@@ -225,69 +225,38 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                     className="mt-3"
                   >
                     <div className="glass-card p-5 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg">
-                      <h4 className="text-base font-semibold mb-4 text-teal-400">Get {platformName} Cookies in 5 Simple Steps</h4>
-                      
+                      <h4 className="text-base font-semibold mb-4 text-teal-400">Get {platformName} Cookies in 4 Simple Steps</h4>
                       <div className="space-y-3 text-left">
                         <div className="flex gap-3">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">1</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal">
-                              Visit <span className="font-medium text-white">{platform}.com</span> and log in to your account
+                              <b>Install the <a href="https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" className="underline text-blue-400">Cookie-Editor extension</a></b> in your browser.
                             </p>
                           </div>
                         </div>
-                        
                         <div className="flex gap-3">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">2</div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-slate-200 text-sm break-words whitespace-normal w-full mb-1">
-                              Open Developer Tools:
+                            <p className="text-slate-200 text-sm break-words whitespace-normal">
+                              Go to <span className="font-medium text-white">facebook.com</span> and log in to your account.
                             </p>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <kbd className="px-2 py-1 bg-slate-800 rounded text-xs text-white border border-slate-600 shadow">
-                                {navigator.platform.includes('Mac') ? '⌘ + Option + J' : 'F12 or Ctrl + Shift + J'}
-                              </kbd>
-                              <span className="text-sm text-slate-300">or right-click → Inspect → Console</span>
-                            </div>
                           </div>
                         </div>
-                        
                         <div className="flex gap-3">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">3</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal">
-                              Click on the <span className="font-medium text-white">Console</span> tab
+                              Click the Cookie-Editor extension icon, then click the <b>Export</b> button (bottom right), choose <b>Export → Header String</b>, and copy the result.
                             </p>
+                            <p className="text-slate-200 text-xs mt-1">Paste this string into the cookies field below.</p>
                           </div>
                         </div>
-                        
                         <div className="flex gap-3">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">4</div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-slate-200 text-sm break-words whitespace-normal w-full mb-1">
-                              Type or paste this command:
-                            </p>
-                            <div className="flex items-center gap-2 bg-slate-800 p-2 rounded-md">
-                              <code className="text-teal-300 font-mono text-xs">document.cookie</code>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  navigator.clipboard.writeText('document.cookie');
-                                  toast.success('Command copied to clipboard!');
-                                }}
-                                className="ml-auto text-teal-400 hover:text-teal-300 focus:outline-none"
-                              >
-                                <Copy className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex gap-3">
-                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">5</div>
-                          <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal">
-                              Press <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-xs text-white border border-slate-600 shadow">Enter</kbd> and copy all the text between the quotes
+                              Paste this string into the cookies field below.
                             </p>
                           </div>
                         </div>

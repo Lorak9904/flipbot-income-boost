@@ -32,12 +32,12 @@ const ImageUploader = ({ images, onChange, isDisabled = false }: ImageUploaderPr
       return;
     }
     
-    // Check file sizes (max 5MB per file)
+    // Check file sizes (max 10MB per file)
     const validFiles = newFiles.filter(file => {
-      if (file.size > 5 * 1024 * 1024) {
+      if (file.size > 10 * 1024 * 1024) {
         toast({
           title: "File too large",
-          description: `${file.name} is larger than 5MB`,
+          description: `${file.name} is larger than 10MB`,
           variant: "destructive",
         });
         return false;
@@ -85,10 +85,10 @@ const ImageUploader = ({ images, onChange, isDisabled = false }: ImageUploaderPr
     }
     
     const validFiles = newFiles.filter(file => {
-      if (file.size > 5 * 1024 * 1024) {
+      if (file.size > 10 * 1024 * 1024) {
         toast({
           title: "File too large",
-          description: `${file.name} is larger than 5MB`,
+          description: `${file.name} is larger than 10MB`,
           variant: "destructive",
         });
         return false;
@@ -161,7 +161,7 @@ const ImageUploader = ({ images, onChange, isDisabled = false }: ImageUploaderPr
               Drag & drop images or click to browse
             </p>
             <p className="text-xs text-slate-400 mt-1 text-center">
-              JPG, PNG, WEBP • Max 5MB each
+              JPG, PNG, WEBP • Max 10MB each
             </p>
           </div>
         )}
