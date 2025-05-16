@@ -16,7 +16,7 @@ const HomePage = () => {
                 Turn Online Finds into <span className="text-flipbot-teal">Real Profits</span>
               </h1>
               <p className="text-lg md:text-xl text-gray-600 max-w-lg">
-                FlipBot AI scans marketplaces, finds undervalued items, and helps you resell them for profit — all on autopilot.
+                FlipIt scans marketplaces, finds undervalued items, and helps you resell them for profit — all on autopilot.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button asChild className="cta-btn">
@@ -155,7 +155,7 @@ const HomePage = () => {
         <div className="container mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Making Money?</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-            Join the waitlist now and be among the first to access FlipBot AI when we launch.
+            Join the waitlist now and be among the first to access FlipIt when we launch.
           </p>
           <Button asChild size="lg" className="cta-btn text-lg px-8 py-6">
             <Link to="/get-started">Get Early Access</Link>

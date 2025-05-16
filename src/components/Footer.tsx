@@ -11,7 +11,7 @@ const Footer = () => {
               <div className="w-8 h-8 rounded-full bg-flipbot-teal flex items-center justify-center text-white font-bold text-sm">
                 FB
               </div>
-              <span className="font-heading font-semibold text-lg">FlipBot AI</span>
+              <span className="font-heading font-semibold text-lg">FlipIt</span>
             </Link>
             <p className="text-gray-600 mb-4">
               The intelligent agent that helps you earn extra income through resale arbitrage.
@@ -40,7 +40,7 @@ const Footer = () => {
           <div>
             <h4 className="text-base font-semibold mb-4">Join Waitlist</h4>
             <p className="text-gray-600 mb-4">
-              Be the first to know when FlipBot AI launches.
+              Be the first to know when FlipIt launches.
             </p>
             <form className="flex flex-col sm:flex-row gap-2">
               <input 
@@ -57,7 +57,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-gray-200 pt-8 mt-8 text-center text-sm text-gray-500">
-          <p>&copy; {new Date().getFullYear()} FlipBot AI. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} FlipIt. All rights reserved.</p>
         </div>
       </div>
     </footer>

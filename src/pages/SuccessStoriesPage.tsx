@@ -51,7 +51,7 @@ const SuccessStoriesPage = () => {
             Success <span className="text-flipbot-teal">Stories</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Real people making real profits with FlipBot AI.
+            Real people making real profits with FlipIt.
             See how our users are turning marketplace opportunities into extra income.
           </p>
         </div>
@@ -110,7 +110,7 @@ const SuccessStoriesPage = () => {
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-8">
-              "FlipBot AI has helped users generate over 15,000 PLN in collective profits during our beta testing phase."
+              "FlipIt has helped users generate over 15,000 PLN in collective profits during our beta testing phase."
             </h2>
             <p className="text-xl font-medium">— FlipBot Founder</p>
           </div>
@@ -122,7 +122,7 @@ const SuccessStoriesPage = () => {
         <div className="container mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Write Your Success Story?</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-            Join our waitlist now to be among the first to access FlipBot AI when we launch.
+            Join our waitlist now to be among the first to access FlipIt when we launch.
           </p>
           <Button asChild size="lg" className="cta-btn text-lg px-8 py-6">
             <Link to="/get-started">Join the Waitlist</Link>

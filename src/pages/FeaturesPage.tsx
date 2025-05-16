@@ -53,7 +53,7 @@ const FeaturesPage = () => {
       <section className="py-16 md:py-20 bg-gradient-to-b from-white to-blue-50">
         <div className="container mx-auto text-center">
           <h1 className="font-bold mb-6">
-            FlipBot AI <span className="text-flipbot-teal">Features</span>
+            FlipIt <span className="text-flipbot-teal">Features</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
             Discover all the powerful tools and features that make FlipBot the ultimate 
@@ -159,7 +159,7 @@ const FeaturesPage = () => {
         <div className="container mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Making Money with FlipBot?</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-            Join our waitlist now to be among the first to access FlipBot AI when we launch.
+            Join our waitlist now to be among the first to access FlipIt when we launch.
           </p>
           <Button asChild size="lg" className="cta-btn text-lg px-8 py-6">
             <Link to="/get-started">Join the Waitlist</Link>

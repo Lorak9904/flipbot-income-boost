@@ -64,7 +64,7 @@ const FAQPage = () => {
             Frequently Asked <span className="text-flipbot-teal">Questions</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Find answers to common questions about FlipBot AI and how it can help you earn extra income through resale arbitrage.
+            Find answers to common questions about FlipIt and how it can help you earn extra income through resale arbitrage.
           </p>
         </div>
       </section>
@@ -119,7 +119,7 @@ const FAQPage = () => {
         <div className="container mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Making Money with FlipBot?</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-            Join our waitlist now to be among the first to access FlipBot AI when we launch.
+            Join our waitlist now to be among the first to access FlipIt when we launch.
           </p>
           <Button asChild size="lg" className="cta-btn text-lg px-8 py-6">
             <Link to="/get-started">Join the Waitlist</Link>

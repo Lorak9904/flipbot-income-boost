@@ -21,7 +21,7 @@ const GetStartedPage = () => {
       setIsSubmitted(true);
       toast({
         title: "You're on the waitlist!",
-        description: "We'll notify you when FlipBot AI launches.",
+        description: "We'll notify you when FlipIt launches.",
       });
     }, 1500);
   };
@@ -35,7 +35,7 @@ const GetStartedPage = () => {
             Join the <span className="text-flipbot-teal">Waitlist</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Be among the first to access FlipBot AI and start earning extra income through resale arbitrage.
+            Be among the first to access FlipIt and start earning extra income through resale arbitrage.
           </p>
         </div>
       </section>
@@ -48,7 +48,7 @@ const GetStartedPage = () => {
               {!isSubmitted ? (
                 <div>
                   <h2 className="text-2xl md:text-3xl font-bold mb-6">
-                    Get Early Access to FlipBot AI
+                    Get Early Access to FlipIt
                   </h2>
                   <div className="flex items-center gap-2 text-flipbot-orange mb-8">
                     <Users className="h-5 w-5" />
@@ -108,7 +108,7 @@ const GetStartedPage = () => {
                     You're on the Waitlist!
                   </h2>
                   <p className="text-lg text-gray-600 mb-6">
-                    Thank you for your interest in FlipBot AI. We'll notify you when we launch!
+                    Thank you for your interest in FlipIt. We'll notify you when we launch!
                   </p>
                   <div className="bg-white p-6 rounded-lg border border-gray-200 mx-auto max-w-md">
                     <h4 className="font-medium mb-2">While you wait...</h4>
@@ -142,7 +142,7 @@ const GetStartedPage = () => {
                 <div>
                   <h3 className="font-semibold text-xl mb-2">Priority Access</h3>
                   <p className="text-gray-600">
-                    Be among the first to use FlipBot AI when we launch, ahead of the general public.
+                    Be among the first to use FlipIt when we launch, ahead of the general public.
                   </p>
                 </div>
               </div>

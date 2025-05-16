@@ -10,7 +10,7 @@ const HowItWorksPage = () => {
       <section className="py-16 md:py-20 bg-gradient-to-b from-white to-blue-50">
         <div className="container mx-auto text-center">
           <h1 className="font-bold mb-6">
-            How FlipBot AI <span className="text-flipbot-teal">Works</span>
+            How FlipIt <span className="text-flipbot-teal">Works</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
             Our AI-powered assistant handles the tedious parts of resale arbitrage,
@@ -33,7 +33,7 @@ const HowItWorksPage = () => {
               </div>
               <div className="col-span-2">
                 <div className="bg-gray-50 p-6 rounded-xl">
-                  <h4 className="text-lg font-semibold mb-4">FlipBot AI scans local marketplaces to find undervalued items</h4>
+                  <h4 className="text-lg font-semibold mb-4">FlipIt scans local marketplaces to find undervalued items</h4>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-2">
                       <CheckCircle className="h-5 w-5 text-flipbot-teal mt-0.5 flex-shrink-0" />
@@ -207,7 +207,7 @@ const HowItWorksPage = () => {
         <div className="container mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Flipping?</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-            Join our waitlist now to be among the first to access FlipBot AI when we launch.
+            Join our waitlist now to be among the first to access FlipIt when we launch.
           </p>
           <Button asChild size="lg" className="cta-btn text-lg px-8 py-6">
             <Link to="/get-started">Join the Waitlist</Link>
