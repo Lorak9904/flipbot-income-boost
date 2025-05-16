@@ -46,7 +46,7 @@ const UserMenu = () => {
       <DropdownMenuTrigger asChild>
         <Button 
           variant="outline" 
-          className="flex items-center gap-2 text-white border-white/20 hover:bg-white/10"
+          className="flex items-center gap-2 text-black border-white/20 hover:bg-white/10"
         >
           {user?.avatar ? (
             <img 
