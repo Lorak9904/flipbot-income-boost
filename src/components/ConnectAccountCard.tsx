@@ -113,7 +113,7 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
       whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 300 }}
     >
-      <Card className="w-full overflow-hidden h-full border border-slate-700 bg-slate-800/50">
+      <Card className="w-full overflow-hidden h-full border border-slate-700 bg-slate-700">
         <CardHeader className="pb-0">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
