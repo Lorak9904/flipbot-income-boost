@@ -80,7 +80,7 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         // In a real app, you'd save the connection to the backend
-        const response = await fetch(`http://127.0.0.1:8000/FlipIt/api/connect/${platform}`, {
+        const response = await fetch(`/api/FlipIt/api/connect/${platform}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                 onClick={async () => {
                   try {
                     const token = localStorage.getItem('flipit_token');
-                    const response = await fetch(`http://127.0.0.1:8000/FlipIt/api/delete-session/${platform}`, {
+                    const response = await fetch(`/api/FlipIt/api/delete-session/${platform}`, {
                       method: 'DELETE',
                       headers: {
                         'Authorization': `Bearer ${token}`,
@@ -170,7 +170,7 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                 setStatus('connecting');
                 try {
                   const token = localStorage.getItem('flipit_token');
-                  const response = await fetch("http://127.0.0.1:8000/FlipIt/api/manual-connect", {
+                  const response = await fetch("/api/FlipIt/api/manual-connect", {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",

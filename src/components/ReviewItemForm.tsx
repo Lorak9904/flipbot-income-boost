@@ -86,7 +86,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     selectedPlatforms.forEach(p => formData.append('platforms', p));
 
     const token = localStorage.getItem('flipit_token');
-    const response = await fetch('http://127.0.0.1:8000/FlipIt/api/items/publish', {
+    const response = await fetch('/api/FlipIt/api/items/publish', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

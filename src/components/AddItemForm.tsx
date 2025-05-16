@@ -63,7 +63,7 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
 
       // Send request
       const token = localStorage.getItem('flipit_token');
-      const response = await fetch('http://127.0.0.1:8000/FlipIt/api/items/propose', {
+      const response = await fetch('/api/FlipIt/api/items/propose', {
         method: 'POST',
         headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
         body: formData,

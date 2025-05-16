@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       try {
-        const response = await fetch("http://127.0.0.1:8000/auth/user", {
+        const response = await fetch("/api/auth/user", {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loginWithProvider = async (provider: 'google' | 'facebook', token: string) => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/auth/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ provider, token }),

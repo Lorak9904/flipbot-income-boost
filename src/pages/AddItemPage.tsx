@@ -36,7 +36,7 @@ const AddItemPage = () => {
         const token = localStorage.getItem('flipit_token');
         if (!token) return;
         
-        const response = await fetch('http://127.0.0.1:8000/FlipIt/api/connected-platforms', {
+        const response = await fetch('/api/FlipIt/api/connected-platforms', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
