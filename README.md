@@ -51,7 +51,7 @@ Create two environment files:
 
 #### Backend – `backend/.env`
 ```env
-DATABASE_URL=postgres://flipit:flipit@db:5432/flipit
+DATABASE_URL=postgres://user:password@db:5432/flipit
 JWT_SECRET_KEY=your_jwt_secret
 OPENAI_API_KEY=sk-...
 ```
