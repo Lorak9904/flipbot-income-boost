@@ -202,7 +202,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             />
             {data.priceRange.min && data.priceRange.max && (
               <p className="text-xs text-slate-500 mt-1">
-                Suggested price range: ${data.priceRange.min} - ${data.priceRange.max}
+                Suggested price range: PLN{data.priceRange.min} - PLN{data.priceRange.max}
               </p>
             )}
           </div>
