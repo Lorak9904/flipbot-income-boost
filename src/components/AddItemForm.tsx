@@ -9,6 +9,7 @@ import { ItemFormData, ItemImage, GeneratedItemData, Platform } from '@/types/it
 import ImageUploader from './ImageUploader';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import imageCompression from 'browser-image-compression';
 
 interface AddItemFormProps {
   onComplete: (generatedData: GeneratedItemData) => void;
@@ -40,9 +41,7 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
       });
       return;
     }
-    
     setIsSubmitting(true);
-
     try {
       const formData = new FormData();
       if (data.title) formData.append('title', data.title);
@@ -54,12 +53,27 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
         formData.append('price', String(data.price));
       }
 
-      // Add images - all must use 'images' as key!
-      images.forEach((image) => {
+      // Compress and add images
+      for (const image of images) {
         if (image.file) {
-          formData.append('images', image.file);
+          try {
+            const compressedFile = await imageCompression(image.file, {
+              maxSizeMB: 1,
+              maxWidthOrHeight: 1000,
+              useWebWorker: true,
+            });
+            formData.append('images', compressedFile, image.file.name);
+          } catch (err) {
+            console.error('Image compression failed:', err);
+            toast({
+              title: "Image compression failed",
+              description: `Could not compress ${image.file.name}. Uploading original file.`,
+              variant: "destructive",
+            });
+            formData.append('images', image.file);
+          }
         }
-      });
+      }
 
       // Send request
       const token = localStorage.getItem('flipit_token');
