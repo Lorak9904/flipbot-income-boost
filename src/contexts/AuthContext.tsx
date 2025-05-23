@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export type User = {
@@ -145,17 +144,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(errorData.detail || "Registration failed");
       }
 
-      const data = await response.json();
-      const userData = {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        provider: 'email' as const
-      };
-      const authToken = data.token;
-      setUser(userData);
-      localStorage.setItem("flipit_user", JSON.stringify(userData));
-      localStorage.setItem("flipit_token", authToken);
+      // Do NOT set user or token after registration
+      // User must log in after registering
+      return await response.json();
     } catch (error) {
       console.error("Registration failed:", error);
       throw error;

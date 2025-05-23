@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
@@ -63,9 +62,9 @@ const LoginPage = () => {
       await registerWithEmail(email, password, name);
       toast({
         title: "Registered successfully",
-        description: "Welcome to FlipIt!",
+        description: "Please log in to continue.",
       });
-      navigate("/");
+      navigate("/login"); // Redirect to login after registration
     } catch (error: any) {
       toast({
         title: "Registration Failed",
