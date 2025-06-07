@@ -106,7 +106,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       description: "Your item has been published successfully",
     });
 
-    window.location.href = '/';
+    window.location.href = '/app';
 
   } catch (error) {
     console.error('Error publishing item:', error);
