@@ -59,10 +59,15 @@ const handleSubmit = async (e: React.FormEvent) => {
       throw new Error('Invalid price format');
     }
 
+
+    
     // Prepare FormData
     const formData = new FormData();
     // Append images as files
     data.images.forEach((img: any) => {
+      if (data.catalog_path) {
+        formData.append('catalog_path', data.catalog_path);
+    }
       // If your image object has a File, use it; otherwise, fetch and convert the URL to a Blob/File
       if (img.file) {
         formData.append('images', img.file);
@@ -106,7 +111,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       description: "Your item has been published successfully",
     });
 
-    window.location.href = '/app';
+    window.location.href = '/app/';
 
   } catch (error) {
     console.error('Error publishing item:', error);

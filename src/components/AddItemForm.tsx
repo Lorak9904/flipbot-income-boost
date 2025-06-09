@@ -19,6 +19,7 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<ItemImage[]>([]);
+  const [catalogPath, setCatalogPath] = useState('');
   const { user } = useAuth();
   
   const { register, handleSubmit, formState: { errors } } = useForm<ItemFormData>({
@@ -51,6 +52,9 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
       if (data.category) formData.append('category', data.category);
       if (data.price !== undefined && data.price !== null && data.price !== '') {
         formData.append('price', String(data.price));
+      }
+      if (catalogPath) {
+        formData.append('catalog_path', catalogPath);
       }
 
       // Compress and add images
@@ -100,6 +104,7 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
         condition: generatedData.condition || data.condition,
         category: generatedData.category || data.category,
         price: generatedData.price?.toString() || data.price,
+        catalog_path: generatedData.catalog_path || catalogPath,
         priceRange: {
           min: minPrice?.toString() || '',
           max: maxPrice?.toString() || '',
@@ -111,7 +116,8 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
             url,
             isUploaded: true
           }))
-        ] : images
+        ] : images,
+        // catalog_path: generatedData.catalog_path || catalogPath || '',
       };
 
       onComplete(transformedData);
@@ -213,6 +219,9 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
           </div>
         </div>
       </div>
+      
+      {/* Hidden input for catalog_path */}
+      <input type="hidden" name="catalog_path" value={catalogPath} readOnly />
       
       <Button type="submit" disabled={isSubmitting || images.length === 0} className="w-full">
         {isSubmitting ? (

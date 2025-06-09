@@ -23,6 +23,7 @@ export interface GeneratedItemData {
   condition: string;
   category: string;
   price: string;
+  catalog_path?: string;
   priceRange: {
     min: string;
     max: string;
