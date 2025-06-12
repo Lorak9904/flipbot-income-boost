@@ -54,9 +54,29 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
   const [showManual, setShowManual] = useState(false);
   const [manualCookies, setManualCookies] = useState("");
   const [manualDtsg, setManualDtsg] = useState("");
-  const [showInstructions, setShowInstructions] = useState(false);
   const [showCookieInstructions, setShowCookieInstructions] = useState(false);
   const [showDtsgInstructions, setShowDtsgInstructions] = useState(false);
+
+  
+  // Add platform-specific configuration
+  const platformConfig = {
+    facebook: {
+      showDtsg: true,
+      cookieInstructions: "Facebook",
+      cookiePlaceholder: "Paste Facebook cookies here..."
+    },
+    olx: {
+      showDtsg: false,
+      cookieInstructions: "OLX",
+      cookiePlaceholder: "Paste OLX cookies here..."
+    },
+    vinted: {
+      showDtsg: false,
+      cookieInstructions: "Vinted",
+      cookiePlaceholder: "Paste Vinted cookies here..."
+    }
+  };
+
 
 
   const { user } = useAuth();
@@ -201,7 +221,7 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => setShowInstructions(!showInstructions)}
+                  onClick={() => setShowCookieInstructions(!showCookieInstructions)}
                   className="flex items-center text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 transition-colors w-full justify-between px-4 py-2 rounded-lg"
                 >
                   <span className="flex items-center gap-2">
@@ -209,14 +229,14 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                     <span className="font-medium">How to get {platformName} cookies?</span>
                   </span>
                   <motion.div
-                    animate={{ rotate: showInstructions ? 90 : 0 }}
+                    animate={{ rotate: showCookieInstructions ? 90 : 0 }}
                     transition={{ duration: 0.2 }}
                   >
                     <ArrowRight className="h-4 w-4" />
                   </motion.div>
                 </Button>
                 
-                {showInstructions && (
+                {showCookieInstructions && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
@@ -239,7 +259,7 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">2</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal">
-                              Go to <span className="font-medium text-white">facebook.com</span> and log in to your account.
+                              Go to <span className="font-medium text-white">{platformName}</span> and log in to your account.
                             </p>
                           </div>
                         </div>
@@ -249,7 +269,6 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                             <p className="text-slate-200 text-sm break-words whitespace-normal">
                               Click the Cookie-Editor extension icon, then click the <b>Export</b> button (bottom right), choose <b>Export → Header String</b>, and copy the result.
                             </p>
-                            <p className="text-slate-200 text-xs mt-1">Paste this string into the cookies field below.</p>
                           </div>
                         </div>
                         <div className="flex gap-3">
@@ -273,7 +292,7 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                 <textarea
                   className="w-full p-3 border border-slate-600 bg-slate-800/60 rounded-lg text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   rows={4}
-                  placeholder={`Paste ${platformName} cookies here...`}
+                  placeholder={platformConfig[platform].cookiePlaceholder}
                   value={manualCookies}
                   onChange={e => setManualCookies(e.target.value)}
                   required
@@ -281,26 +300,28 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                 <Clipboard className="absolute right-3 top-3 text-slate-400 h-5 w-5" />
               </div>
 
-              {/* DTSG tutorial and input */}
-              <div className="mb-6">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setShowInstructions(!showInstructions)}
-                  className="flex items-center text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 transition-colors w-full justify-between px-4 py-2 rounded-lg"
-                >
-                  <span className="flex items-center gap-2">
-                    <Info className="h-5 w-5" />
-                    <span className="font-medium">How to get dtsg token?</span>
-                  </span>
-                  <motion.div
-                    animate={{ rotate: showInstructions ? 90 : 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ArrowRight className="h-4 w-4" />
-                  </motion.div>
-                </Button>
-                {showInstructions && (
+              {/* DTSG section - conditionally shown based on platform */}
+              {platformConfig[platform].showDtsg && (
+                <>
+                  <div className="mb-6">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowDtsgInstructions(!showDtsgInstructions)}
+                      className="flex items-center text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 transition-colors w-full justify-between px-4 py-2 rounded-lg"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Info className="h-5 w-5" />
+                        <span className="font-medium">How to get dtsg token?</span>
+                      </span>
+                      <motion.div
+                        animate={{ rotate: showDtsgInstructions ? 90 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                      </motion.div>
+                    </Button>
+                {showDtsgInstructions && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
@@ -376,17 +397,20 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                     </div>
                   </motion.div>
                 )}
-              </div>
-              <div className="relative mb-4">
-                <input
-                  type="text"
-                  className="w-full p-3 border border-slate-600 bg-slate-800/60 rounded-lg text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                  placeholder="Paste your dtsg token here..."
-                  value={manualDtsg}
-                  onChange={e => setManualDtsg(e.target.value)}
-                  required
-                />
-              </div>
+                </div>
+
+                  <div className="relative mb-4">
+                    <input
+                      type="text"
+                      className="w-full p-3 border border-slate-600 bg-slate-800/60 rounded-lg text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder="Paste your dtsg token here..."
+                      value={manualDtsg}
+                      onChange={e => setManualDtsg(e.target.value)}
+                      required={platformConfig[platform].showDtsg}
+                    />
+                  </div>
+                </>
+              )}
               <div className="flex gap-2">
                 <Button 
                   type="submit" 

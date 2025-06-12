@@ -21,27 +21,50 @@ const AddItemPage = () => {
   });
   
   useEffect(() => {
-    // Redirect if not authenticated
+    // Immediately redirect if token is missing
+    const token = localStorage.getItem('flipit_token');
+    if (!token) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to add items",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+
+    // Redirect if not authenticated (as before)
     if (!isLoading && !isAuthenticated) {
       toast({
         title: "Authentication Required",
         description: "Please log in to add items",
       });
       navigate('/login');
+      return;
     }
-    
+
     // Fetch connected platforms
     const fetchConnectedPlatforms = async () => {
       try {
-        const token = localStorage.getItem('flipit_token');
-        if (!token) return;
-        
-        const response = await fetch('/api/FlipIt/api/connected-platforms', {
+        const response = await fetch("/api/FlipIt/api/connected-platforms", {
+          method: "GET",
           headers: {
-            'Authorization': `Bearer ${token}`
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
           }
         });
-        
+        if (!response.ok) {
+          if (response.status === 401) {
+            toast({
+              title: "Session Expired",
+              description: "Your session has expired. Please log in again.",
+              variant: "destructive",
+            });
+            navigate("/login");
+            return;
+          }
+          throw new Error("Failed to fetch connected platforms");
+        }
         if (response.ok) {
           const data = await response.json();
           setConnectedPlatforms(data);
@@ -50,7 +73,7 @@ const AddItemPage = () => {
         console.error('Error fetching connected platforms:', error);
       }
     };
-    
+
     if (isAuthenticated) {
       fetchConnectedPlatforms();
     }
