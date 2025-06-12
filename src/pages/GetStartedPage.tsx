@@ -3,28 +3,82 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, Users } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { useEffect } from 'react';
+
 
 const GetStartedPage = () => {
+  const { user } = useAuth(); // Get current user if authenticated
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Simulate API request
-    setTimeout(() => {
-      setIsSubmitting(false);
+  
+  
+    useEffect(() => {
+    fetch("/api/waitlist/token")
+      .then(res => res.json())
+      .then(data => setToken(data.token))
+      .catch(() => toast({ title: "Error", variant: "destructive", description: "Cannot get waitlist token" }));
+    }, []);
+  
+const submitWaitlistEntry = async (entry: { name: string; email: string }) => {
+  if (!token) throw new Error("Missing waitlist token");
+  const response = await fetch("/api/waitlist", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...entry, token }),   // ← token here
+  });
+
+  if (!response.ok) {
+      let errorMsg = "Failed to join waitlist";
+      try {
+        const error = await response.json();
+        // FastAPI validation errors are in error.detail (array or string)
+        if (Array.isArray(error.detail)) {
+          errorMsg = error.detail.map((d: any) => d.msg).join(" ");
+        } else if (typeof error.detail === "string") {
+          errorMsg = error.detail;
+        }
+      } catch {
+        // fallback
+        errorMsg = response.statusText;
+      }
+      throw new Error(errorMsg);
+    }
+    return response.json();
+  };
+
+  const waitlistMutation = useMutation({
+    mutationFn: submitWaitlistEntry,
+    onSuccess: () => {
       setIsSubmitted(true);
       toast({
         title: "You're on the waitlist!",
         description: "We'll notify you when FlipIt launches.",
       });
-    }, 1500);
-  };
+    },
+    onError: (error: Error) => {
+      setIsSubmitting(false);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
+
+const handleSubmit = (e: React.FormEvent) => {
+  
+  e.preventDefault();
+  setIsSubmitting(true);  // Set loading state
+  waitlistMutation.mutate({ name, email });  // Use the mutation instead of direct call
+};
 
   return (
     <div>

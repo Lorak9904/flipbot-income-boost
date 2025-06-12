@@ -34,6 +34,7 @@ const Footer = () => {
               <li><Link to="/faq" className="text-gray-600 hover:text-flipbot-teal transition-colors">FAQ</Link></li>
               <li><a href="#" className="text-gray-600 hover:text-flipbot-teal transition-colors">Contact Us</a></li>
               <li><a href="#" className="text-gray-600 hover:text-flipbot-teal transition-colors">Privacy Policy</a></li>
+              <li><Link to="/terms" className="text-gray-600 hover:text-flipbot-teal transition-colors">Terms</Link></li>
             </ul>
           </div>
 
@@ -43,12 +44,12 @@ const Footer = () => {
               Be the first to know when FlipIt launches.
             </p>
             <form className="flex flex-col sm:flex-row gap-2">
-              <input 
+              {/* <input 
                 type="email" 
                 placeholder="Your email" 
                 className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-flipbot-teal"
                 required
-              />
+              /> */}
               <button type="submit" className="secondary-btn whitespace-nowrap">
                 Join Now
               </button>

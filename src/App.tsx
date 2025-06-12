@@ -21,6 +21,8 @@ import ConnectAccountsPage from "./pages/ConnectAccountsPage";
 import AddItemPage from "./pages/AddItemPage";
 import NotFound from "./pages/NotFound";
 import FacebookCallbackPage from "./pages/FacebookCallbackPage";
+import TermsPage from "./pages/Terms";
+
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,8 @@ const App = () => (
                 <Route path="/connect-accounts" element={<ConnectAccountsPage />} />
                 <Route path="/add-item" element={<AddItemPage />} />
                 <Route path="/facebook-callback" element={<FacebookCallbackPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
