@@ -1,16 +1,41 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Facebook, Mail, Loader2 } from 'lucide-react';
+import { Mail, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
-const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID"; // Replace with real client ID
-const FACEBOOK_APP_ID = "YOUR_APP_ID"; // Replace with real app ID
+
+// Common password list (short, for demo; expand as needed)
+const COMMON_PASSWORDS = [
+  'password', '123456', '12345678', 'qwerty', 'abc123', '111111', '123456789', '12345', '123123', '000000',
+];
+
+function validatePassword(password: string, name: string, email: string): string[] {
+  const errors: string[] = [];
+  if (password.length < 8) {
+    errors.push('Password must be at least 8 characters long.');
+  }
+  if (name && password.toLowerCase().includes(name.toLowerCase())) {
+    errors.push('Password is too similar to your name.');
+  }
+  if (email) {
+    const emailPart = email.split('@')[0];
+    if (password.toLowerCase().includes(emailPart.toLowerCase())) {
+      errors.push('Password is too similar to your email address.');
+    }
+  }
+  if (COMMON_PASSWORDS.includes(password.toLowerCase())) {
+    errors.push('Password is too common.');
+  }
+  if (/^\d+$/.test(password)) {
+    errors.push('Password cannot be entirely numeric.');
+  }
+  return errors;
+}
 
 const LoginPage = () => {
   const { loginWithProvider, loginWithEmail, registerWithEmail } = useAuth();
@@ -21,6 +46,7 @@ const LoginPage = () => {
   const [name, setName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +72,7 @@ const LoginPage = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name.trim()) {
       toast({
         title: "Registration Failed",
@@ -55,7 +81,18 @@ const LoginPage = () => {
       });
       return;
     }
-    
+
+    const errors = validatePassword(password, name, email);
+    setPasswordErrors(errors);
+    if (errors.length > 0) {
+      toast({
+        title: "Password does not meet requirements",
+        description: errors.join(' '),
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -64,8 +101,12 @@ const LoginPage = () => {
         title: "Registered successfully",
         description: "Please log in to continue.",
       });
-      navigate("/login"); // Redirect to login after registration
-    } catch (error: any) {
+    // Reset form and switch to login
+      setIsSignUp(false);
+      setPassword('');
+      setPasswordErrors([]);
+    } 
+    catch (error: any) {
       toast({
         title: "Registration Failed",
         description: error.message || "Unable to register. Please try again.",
@@ -76,40 +117,7 @@ const LoginPage = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse: any) => {
-    try {
-      await loginWithProvider("google", credentialResponse.credential);
-      toast({
-        title: "Logged in with Google",
-        description: "Welcome to FlipIt!",
-      });
-      navigate("/");
-    } catch (error) {
-      toast({
-        title: "Login Failed",
-        description: "Unable to login with Google",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleFacebookLogin = async () => {
-    try {
-      // Redirect to Facebook OAuth
-      const appId = FACEBOOK_APP_ID; // Replace with your Facebook App ID
-      const redirectUri = encodeURIComponent("http://localhost:3000/facebook-callback");
-      const facebookLoginUrl = `https://www.facebook.com/v13.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&scope=email,public_profile`;
-
-      window.location.href = facebookLoginUrl;
-    } catch (error) {
-      toast({
-        title: "Login Failed",
-        description: "Unable to login with Facebook",
-        variant: "destructive",
-      });
-    }
-  };
-
+  
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-800 py-12">
       <div className="w-full max-w-md px-4">
@@ -168,6 +176,13 @@ const LoginPage = () => {
                   className="bg-white/10 border-white/10 text-white placeholder:text-slate-400"
                 />
               </div>
+              {isSignUp && passwordErrors.length > 0 && (
+                <div className="text-red-500 text-sm space-y-1">
+                  {passwordErrors.map((err, idx) => (
+                    <div key={idx}>{err}</div>
+                  ))}
+                </div>
+              )}
               <Button
                 type="submit"
                 className="w-full bg-teal-500 hover:bg-teal-600"
@@ -188,47 +203,6 @@ const LoginPage = () => {
               </Button>
             </form>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-white/10" />
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="bg-slate-800 px-2 text-slate-400">or continue with</span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {/* Google Login */}
-              <div className="flex justify-center">
-                <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={() => {
-                      toast({
-                        title: "Login Failed",
-                        description: "Google login failed. Please try again.",
-                        variant: "destructive",
-                      });
-                    }}
-                    theme="filled_black"
-                    size="large"
-                    shape="pill"
-                    text={isSignUp ? "signup_with" : "signin_with"}
-                    width="270px"
-                  />
-                </GoogleOAuthProvider>
-              </div>
-
-              {/* Facebook Login */}
-              <Button
-                variant="outline"
-                className="w-full bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-white border-white/10"
-                onClick={handleFacebookLogin}
-              >
-                <Facebook className="mr-2 h-4 w-4 text-[#1877F2]" />
-                {isSignUp ? 'Sign Up' : 'Log In'} with Facebook
-              </Button>
-            </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button

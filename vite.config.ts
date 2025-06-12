@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const isOffline = env.DEBUG_OFFLINE === "True";
   const target = isOffline ? "http://localhost:8000" : "http://backend:8000";
+  // const target = isOffline ? "http://localhost:8001" : "http://backend:8000";
 
   return {
     base: '/app/',

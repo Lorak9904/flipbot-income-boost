@@ -12,6 +12,7 @@ type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  refreshToken: () => Promise<void>;
   login: (userData: User, token: string) => void;
   loginWithProvider: (provider: 'google' | 'facebook', token: string) => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
@@ -24,6 +25,49 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const refreshToken = async () => {
+    const refreshToken = localStorage.getItem("flipit_refresh_token");
+    if (!refreshToken) throw new Error("No refresh token available");
+    
+    try {
+      const response = await fetch("/api/auth/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("flipit_token", data.token);
+      } else {
+        throw new Error("Token refresh failed");
+      }
+    } catch (error) {
+      logout();
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const checkTokenExpiration = async () => {
+      const token = localStorage.getItem("flipit_token");
+      if (!token) return;
+
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp * 1000 < Date.now() + 300000) { // 5 min before expiration
+          await refreshToken();
+        }
+      } catch (error) {
+        console.error("Token check failed:", error);
+      }
+    };
+
+    const interval = setInterval(checkTokenExpiration, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -165,6 +209,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         isAuthenticated: !!user,
         isLoading,
+        refreshToken,
         login,
         loginWithProvider,
         loginWithEmail,
