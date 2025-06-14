@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
   // const target = isOffline ? "http://localhost:8001" : "http://backend:8000";
 
   return {
-    base: '/app/',
+    base: '/',
     server: {
       historyApiFallback: true,
       host: "0.0.0.0",
