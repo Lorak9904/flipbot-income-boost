@@ -6,8 +6,12 @@ COPY package.json package-lock.json ./
 RUN npm config set registry https://registry.npmmirror.com
 RUN npm install
 
+RUN npm install -g serve
+
 COPY . .
 
-EXPOSE 5173
+RUN npm run build
 
-CMD ["npm", "run", "build", "--", "--host", "0.0.0.0", "--port", "5173"]
+EXPOSE 3000
+
+CMD ["serve", "-s", "dist", "-l", "3000"]
