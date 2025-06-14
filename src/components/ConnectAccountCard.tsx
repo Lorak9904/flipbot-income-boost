@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Lock, Check, AlertCircle, Loader2, X, Copy, Info, Clipboard, ArrowRight } from 'lucide-react';
+import { Check, AlertCircle, Loader2, X, Copy, Info, Clipboard, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,37 +14,7 @@ interface ConnectAccountCardProps {
   isConnected: boolean;
 }
 
-import { useExtensionCheck } from "@/hooks/useExtensionCheck";
 
-const EXTENSION_ID = "your_extension_id_here"; // from Chrome Web Store URL
-
-export function Dashboard() {
-  const extensionInstalled = useExtensionCheck(EXTENSION_ID);
-
-  return (
-    <div>
-      <h1>Welcome to FlipIt</h1>
-
-      {extensionInstalled === false && (
-        <div className="bg-yellow-100 text-yellow-900 p-4 rounded-md mt-4">
-          🚫 Our extension isn’t detected. Please{" "}
-          <a
-            href={`https://chrome.google.com/webstore/detail/legmgkojkpeflgbamlebigjffgmiiiej`}
-            target="_blank"
-            className="underline text-blue-600"
-          >
-            install it from the Chrome Web Store
-          </a>{" "}
-          and visit Facebook.
-        </div>
-      )}
-
-      {extensionInstalled === true && (
-        <p className="text-green-600 mt-4">✅ Extension is active!</p>
-      )}
-    </div>
-  );
-}
 
 const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: initialConnected, onConnected }: ConnectAccountCardProps) => {
   const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>(
@@ -57,8 +27,6 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
   const [showCookieInstructions, setShowCookieInstructions] = useState(false);
   const [showDtsgInstructions, setShowDtsgInstructions] = useState(false);
 
-  
-  // Add platform-specific configuration
   const platformConfig = {
     facebook: {
       showDtsg: true,
@@ -77,9 +45,16 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
     }
   };
 
-
-
   const { user } = useAuth();
+
+  // Require authentication to connect accounts
+  if (!user) {
+    return (
+      <div className="p-4 text-center text-red-500 bg-slate-800 rounded-lg">
+        You must be logged in to connect your {platformName} account.
+      </div>
+    );
+  }
 
   const handleConnect = async () => {
     if (!user) {
@@ -90,36 +65,29 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
     setStatus('connecting');
     
     try {
-      if (platform === 'facebook') {
-        // Redirect to Facebook OAuth
-        const appId = "YOUR_FACEBOOK_APP_ID"; // Replace with your Facebook App ID
-        const redirectUri = encodeURIComponent("http://localhost:3000/facebook-callback");
-        window.location.href = `https://www.facebook.com/v13.0/dialog/oauth?client_id=${appId}&redirect_uri=${redirectUri}&scope=email,public_profile`;
-      } else {
-        // For demo purposes, simulate connecting to other platforms
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // In a real app, you'd save the connection to the backend
-        const response = await fetch(`/api/FlipIt/api/connect/${platform}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('flipit_token')}`
-          },
-          body: JSON.stringify({ platform })
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to connect ${platformName}`);
-        }
-        
-        setIsConnected(true);
-        setStatus('connected');
-        toast.success(`Successfully connected to ${platformName}`);
-        
-        if (onConnected) {
-          onConnected();
-        }
+      // For demo purposes, simulate connecting to other platforms
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // In a real app, you'd save the connection to the backend
+      const response = await fetch(`/api/FlipIt/api/connect/${platform}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('flipit_token')}`
+        },
+        body: JSON.stringify({ platform })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to connect ${platformName}`);
+      }
+      
+      setIsConnected(true);
+      setStatus('connected');
+      toast.success(`Successfully connected to ${platformName}`);
+      
+      if (onConnected) {
+        onConnected();
       }
     } catch (error) {
       console.error(`Error connecting to ${platformName}:`, error);
@@ -436,22 +404,6 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                 Connect your {platformName} account to let FlipIt find and flip items automatically.
               </p>
               <div className="flex flex-col gap-2">
-                <Button 
-                  onClick={handleConnect} 
-                  className="w-full bg-teal-500 hover:bg-teal-600 text-white"
-                  disabled={status === 'connecting'}
-                >
-                  {status === 'connecting' ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Connecting...
-                    </>
-                  ) : (
-                    <>
-                      Automated Connect
-                    </>
-                  )}
-                </Button>
                 <Button
                   variant="outline"
                   className="text-teal-500 border-teal-500"
