@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import ImageUploader from './ImageUploader';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ReviewItemFormProps {
   initialData: GeneratedItemData;
@@ -21,6 +22,7 @@ const ReviewItemForm = ({ initialData, connectedPlatforms, onBack }: ReviewItemF
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [data, setData] = useState<GeneratedItemData>(initialData);
+  const navigate = useNavigate();
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(
     Object.entries(connectedPlatforms)
       .filter(([_, isConnected]) => isConnected)
@@ -111,8 +113,10 @@ const handleSubmit = async (e: React.FormEvent) => {
       description: "Your item has been published successfully",
     });
 
-    window.location.href = '/app/';
-
+    setTimeout(() => {
+      navigate('/');
+    }, 1500); // 1.5 seconds, adjust as needed
+    
   } catch (error) {
     console.error('Error publishing item:', error);
     toast({
