@@ -171,16 +171,24 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
                       duration: "7d",
                     }),
                   });
-                  if (!response.ok) throw new Error("Failed to connect manually");
+                  if (!response.ok) {
+                    // Try to parse backend error message
+                    let errorMsg = "Failed to connect manually";
+                    try {
+                      const errorData = await response.json();
+                      if (errorData.detail) errorMsg = errorData.detail;
+                    } catch {}
+                    throw new Error(errorMsg);
+                  }
                   setIsConnected(true);
                   setStatus('connected');
                   toast.success(`Manually connected to ${platformName}`);
                   setShowManual(false);
                   setManualCookies("");
                   if (onConnected) onConnected();
-                } catch (error) {
+                } catch (error: any) {
                   setStatus('error');
-                  toast.error("Manual connection failed. Please check your cookies and try again.");
+                  toast.error(error.message || "Manual connection failed. Please check your cookies and try again.");
                 }
               }}
               className="space-y-6"
