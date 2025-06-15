@@ -93,6 +93,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     selectedPlatforms.forEach(p => formData.append('platforms', p));
 
     const token = localStorage.getItem('flipit_token');
+    
     const response = await fetch('/api/FlipIt/api/items/publish', {
       method: 'POST',
       headers: {
@@ -102,16 +103,34 @@ const handleSubmit = async (e: React.FormEvent) => {
       body: formData,
     });
 
+
     if (!response.ok) {
       throw new Error('Failed to publish item');
     }
 
     const result = await response.json();
 
-    toast({
-      title: "Success!",
-      description: "Your item has been published successfully",
-    });
+    if (result.platforms) {
+      Object.entries(result.platforms).forEach(([platform, status]) => {
+        if (status === "success") {
+          toast({
+            title: `Success!`,
+            description: `Published to ${platform} successfully.`,
+          });
+        } else {
+          toast({
+            title: `Error publishing to ${platform}`,
+            description: String(status),
+            variant: "destructive",
+          });
+        }
+      });
+    } else {
+      toast({
+        title: "Success!",
+        description: "Your item has been published successfully",
+      });
+    }
 
     setTimeout(() => {
       navigate('/');
