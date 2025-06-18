@@ -22,6 +22,11 @@ import AddItemPage from "./pages/AddItemPage";
 import NotFound from "./pages/NotFound";
 // import FacebookCallbackPage from "./pages/FacebookCallbackPage";
 import TermsPage from "./pages/Terms";
+import PrivacyPolicyPage from "./pages/PrivacyPolicy";
+import CookiesPolicyPage from "./pages/CookiesPolicy"
+import CookieBanner from "./components/CookieBanner";
+import ScrollToTop from "./components/ScrollToTop";
+
 
 
 const queryClient = new QueryClient();
@@ -33,6 +38,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter basename="/">
+        <ScrollToTop />
           <div className="flex flex-col min-h-screen">
             <Navbar />
             <main className="flex-grow">
@@ -46,13 +52,15 @@ const App = () => (
                 <Route path="/get-started" element={<GetStartedPage />} />
                 <Route path="/connect-accounts" element={<ConnectAccountsPage />} />
                 <Route path="/add-item" element={<AddItemPage />} />
-                {/* <Route path="/facebook-callback" element={<FacebookCallbackPage />} /> */}
                 <Route path="/terms" element={<TermsPage />} />
+                <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                <Route path="/cookies" element={<CookiesPolicyPage />} />
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
             <Footer />
+            <CookieBanner />
             <WaitlistBadge />
           </div>
         </BrowserRouter>
