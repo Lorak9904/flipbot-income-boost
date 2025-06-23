@@ -94,13 +94,15 @@ const UserMenu = () => {
               <span>Connected Accounts</span>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          {/* <DropdownMenuItem>
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
+          </DropdownMenuItem> */}
+          <DropdownMenuItem asChild>
+            <Link to="#"> {/* TODO settings */}
+            <Package className="mr-2 h-4 w-4" />
             <span>Settings</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

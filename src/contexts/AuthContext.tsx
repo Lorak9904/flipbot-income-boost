@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { googleLogout } from '@react-oauth/google'; // <-- Add this import
 
 export type User = {
   id: string;
@@ -18,6 +19,7 @@ type AuthContextType = {
   loginWithEmail: (email: string, password: string) => Promise<void>;
   registerWithEmail: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
+  setUserAndTokens: (userData: User, token: string, refreshToken: string) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,6 +27,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  
+  const setUserAndTokens = (userData: User, token: string, refreshToken: string) => {
+  setUser(userData);
+  localStorage.setItem("flipit_user", JSON.stringify(userData));
+  localStorage.setItem("flipit_token", token);
+  localStorage.setItem("flipit_refresh_token", refreshToken);
+};
 
   const refreshToken = async () => {
     const refreshToken = localStorage.getItem("flipit_refresh_token");
@@ -198,9 +207,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
+    if (user?.provider === 'google') {
+      googleLogout(); // <-- Google logout
+    }
     setUser(null);
     localStorage.removeItem("flipit_user");
     localStorage.removeItem("flipit_token");
+    localStorage.removeItem("flipit_refresh_token");
   };
 
   return (
@@ -215,6 +228,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loginWithEmail,
         registerWithEmail,
         logout,
+        setUserAndTokens, // ← Add this
       }}
     >
       {children}

@@ -26,6 +26,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicy";
 import CookiesPolicyPage from "./pages/CookiesPolicy"
 import CookieBanner from "./components/CookieBanner";
 import ScrollToTop from "./components/ScrollToTop";
+import SettingsPage from "./pages/SettingsPage";
 
 
 
@@ -46,22 +47,23 @@ const App = () => (
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/how-it-works" element={<HowItWorksPage />} />
-                <Route path="/success-stories" element={<SuccessStoriesPage />} />
-                <Route path="/features" element={<FeaturesPage />} />
-                <Route path="/faq" element={<FAQPage />} />
+                {/* <Route path="/success-stories" element={<SuccessStoriesPage />} /> */}
+                {/* <Route path="/features" element={<FeaturesPage />} /> */}
+                {/* <Route path="/faq" element={<FAQPage />} /> */}
                 <Route path="/get-started" element={<GetStartedPage />} />
                 <Route path="/connect-accounts" element={<ConnectAccountsPage />} />
                 <Route path="/add-item" element={<AddItemPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPolicyPage />} />
                 <Route path="/cookies" element={<CookiesPolicyPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
             <Footer />
             <CookieBanner />
-            <WaitlistBadge />
+            {/* <WaitlistBadge /> */}
           </div>
         </BrowserRouter>
       </TooltipProvider>

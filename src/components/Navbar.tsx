@@ -1,115 +1,134 @@
-
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Plus } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/contexts/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { isAuthenticated } = useAuth();
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
-
   const baseNavItems = [
-    { name: 'Home', path: '/' },
+    // { name: 'Home', path: '/' },
     { name: 'How It Works', path: '/how-it-works' },
-    { name: 'Success Stories', path: '/success-stories' },
-    { name: 'Features', path: '/features' },
-    { name: 'FAQ', path: '/faq' },
-    { name: 'Connect Accounts', path: '/connect-accounts' },
+    // { name: 'Success Stories', path: '/success-stories' },
+    // { name: 'Features', path: '/features' },
+    // { name: 'FAQ', path: '/faq' },
   ];
   
-  // Only show Add Item to authenticated users
-  const navItems = isAuthenticated 
-    ? [...baseNavItems, { name: 'Add Item', path: '/add-item' }] 
+  const navItems = isAuthenticated
+  ? [...baseNavItems, 
+    { name: 'Add Item', path: '/add-item' },
+    { name: 'Connect Accounts', path: '/connect-accounts' },
+    ]
     : baseNavItems;
 
-  const isActive = (path: string) => {
-    return location.pathname === path ? 'text-teal-400 font-medium' : 'text-gray-300 hover:text-teal-400';
-  };
+  const isActive = (path: string) => location.pathname === path;
+
+  const linkClass = (path: string) =>
+    `relative px-2 py-1 text-sm transition-colors ${
+      isActive(path)
+        ? 'text-cyan-400 font-semibold'
+        : 'text-neutral-300 hover:text-white'
+    }`;
 
   return (
-    <nav className="py-4 border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-green-400 flex items-center justify-center text-white font-bold">
-            FI
-          </div>
-          <span className="font-heading font-semibold text-xl text-white">FlipIt</span>
+    <nav className="bg-neutral-950/95 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
+      {/* Subtle top glow for enhanced visual appeal */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent"></div>
+      
+      <div className="container mx-auto px-4 flex items-center justify-between h-16">
+        {/* Enhanced logo with better gradient and shadow */}
+        <Link to="/" className="flex items-center gap-2 font-bold text-xl text-white">
+          <span className="bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent drop-shadow-sm">
+            FlipIt
+          </span>
         </Link>
 
-        {/* Desktop Menu */}
+        {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
           {navItems.map((item) => (
             <Link
-              key={item.path}
+              key={item.name}
               to={item.path}
-              className={`${isActive(item.path)} transition-colors`}
+              className={linkClass(item.path)}
             >
               {item.name}
             </Link>
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-4">
-          {isAuthenticated && (
-            <Button asChild variant="success" size="sm" className="mr-2">
-              <Link to="/add-item">
-                <Plus size={16} />
-                Add Item
-              </Link>
-            </Button>
+        {/* Right side: Auth/User - Enhanced button styling */}
+        <div className="hidden md:flex items-center gap-2">
+          {isAuthenticated ? (
+            <UserMenu />
+          ) : (
+            <>
+              <Button asChild variant="ghost" className="text-cyan-400 hover:bg-cyan-400/10">
+                <Link to="/login">Log in</Link>
+              </Button>
+              <Button asChild className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white hover:to-fuchsia-600 shadow-md shadow-fuchsia-500/20">
+                <Link to="/login?register=1">Sign up</Link>
+              </Button>
+            </>
           )}
-          <UserMenu />
-          <Button asChild variant="accent" rounded="xl" size="default" className="animate-hover">
-            <Link to="/get-started">Get Started</Link>
-          </Button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button className="md:hidden text-white" onClick={toggleMenu}>
-          {isOpen ? <X /> : <Menu />}
+        {/* Mobile menu button - Enhanced styling */}
+        <button
+          className="md:hidden p-2 rounded-lg hover:bg-neutral-800/50 transition-colors backdrop-blur-sm"
+          onClick={() => setIsOpen((v) => !v)}
+          aria-label="Toggle menu"
+        >
+          {isOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-800 shadow-lg z-50 animate-scale-in">
-          <div className="container mx-auto py-4 flex flex-col gap-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`${isActive(item.path)} py-2 transition-colors`}
-                onClick={toggleMenu}
-              >
-                {item.name}
-              </Link>
-            ))}
-            <div className="flex flex-col gap-3 pt-2">
-              {isAuthenticated && (
-                <Button asChild variant="success" size="sm" className="w-full">
-                  <Link to="/add-item" onClick={toggleMenu}>
-                    <Plus size={16} />
-                    Add Item
-                  </Link>
-                </Button>
-              )}
-              <UserMenu />
-              <Button asChild variant="accent" rounded="xl">
-                <Link to="/get-started" onClick={toggleMenu}>Get Started</Link>
-              </Button>
+      {/* Mobile menu - Enhanced background */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="md:hidden bg-neutral-950/98 backdrop-blur-md border-t border-white/5"
+          >
+            <div className="flex flex-col gap-2 px-4 py-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className={linkClass(item.path)}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
+              <div className="mt-4 flex flex-col gap-2">
+                {isAuthenticated ? (
+                  <UserMenu />
+                ) : (
+                  <>
+                    <Button asChild variant="ghost" className="text-cyan-400 hover:bg-cyan-400/10 w-full">
+                      <Link to="/login" onClick={() => setIsOpen(false)}>Log in</Link>
+                    </Button>
+                    <Button asChild className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white hover:to-fuchsia-600 shadow-md shadow-fuchsia-500/20 w-full">
+                      <Link to="/login?register=1" onClick={() => setIsOpen(false)}>Sign up</Link>
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };
 
 export default Navbar;
+

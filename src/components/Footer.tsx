@@ -1,64 +1,112 @@
-
 import { Link } from 'react-router-dom';
 
+/**
+ * Footer — neon‑on‑dark theme to match the new FlipIt aesthetic.
+ * Gradient blobs sit behind a glass‑dark panel; text adapts to mobile.
+ */
 const Footer = () => {
   return (
-    <footer className="bg-gray-50 pt-16 pb-8">
-      <div className="container mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+    <footer className="relative overflow-hidden bg-neutral-950 text-white">
+      {/* Neon gradient blobs */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute left-1/3 -top-24 h-80 w-80 -translate-x-1/2 rotate-45 rounded-full bg-fuchsia-600 opacity-20 blur-3xl" />
+        <div className="absolute right-1/4 bottom-0 h-72 w-72 translate-x-1/2 rounded-full bg-cyan-500 opacity-20 blur-3xl" />
+      </div>
+
+      <div className="container mx-auto px-4 py-16">
+        <div className="grid gap-12 md:grid-cols-4">
+          {/* Logo & tagline */}
           <div>
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-full bg-flipbot-teal flex items-center justify-center text-white font-bold text-sm">
-                FB
+            <Link to="/" className="mb-4 flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 font-bold">
+                FI
               </div>
-              <span className="font-heading font-semibold text-lg">FlipIt</span>
+              <span className="font-heading text-xl font-semibold">FlipIt</span>
             </Link>
-            <p className="text-gray-600 mb-4">
+            <p className="max-w-xs text-sm text-neutral-300">
               The intelligent agent that helps you earn extra income through resale arbitrage.
             </p>
-            <div className="badge">Coming Soon</div>
+            <span className="mt-4 inline-block rounded-full bg-white/10 px-3 py-1 text-xs text-white backdrop-blur">
+              🚀 Coming&nbsp;Soon
+            </span>
           </div>
 
-          <div>
-            <h4 className="text-base font-semibold mb-4">Product</h4>
-            <ul className="space-y-2">
-              <li><Link to="/features" className="text-gray-600 hover:text-flipbot-teal transition-colors">Features</Link></li>
-              <li><Link to="/how-it-works" className="text-gray-600 hover:text-flipbot-teal transition-colors">How It Works</Link></li>
-              <li><Link to="/success-stories" className="text-gray-600 hover:text-flipbot-teal transition-colors">Success Stories</Link></li>
+          {/* Product links */}
+          <nav>
+            <h4 className="mb-4 text-sm font-semibold text-neutral-100">Product</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/features" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  Features
+                </Link>
+              </li>
+              <li>
+                <Link to="/how-it-works" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  How&nbsp;It&nbsp;Works
+                </Link>
+              </li>
+              <li>
+                <Link to="/success-stories" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  Success&nbsp;Stories
+                </Link>
+              </li>
             </ul>
-          </div>
+          </nav>
 
-          <div>
-            <h4 className="text-base font-semibold mb-4">Support</h4>
-            <ul className="space-y-2">
-              <li><Link to="/faq" className="text-gray-600 hover:text-flipbot-teal transition-colors">FAQ</Link></li>
-              <li><a href="#" className="text-gray-600 hover:text-flipbot-teal transition-colors">Contact Us</a></li>
-              <li><Link to="/privacy" className="text-gray-600 hover:text-flipbot-teal transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="text-gray-600 hover:text-flipbot-teal transition-colors">Terms</Link></li>
-              <li><Link to="/cookies" className="text-gray-600 hover:text-flipbot-teal transition-colors">Cookies Policy</Link></li>
+          {/* Support links */}
+          <nav>
+            <h4 className="mb-4 text-sm font-semibold text-neutral-100">Support</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/faq" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <a href="mailto:hello@flipit.ai" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  Contact&nbsp;Us
+                </a>
+              </li>
+              <li>
+                <Link to="/privacy" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  Privacy&nbsp;Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  Terms
+                </Link>
+              </li>
+              <li>
+                <Link to="/cookies" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  Cookies&nbsp;Policy
+                </Link>
+              </li>
             </ul>
-          </div>
+          </nav>
 
+          {/* Waitlist */}
           <div>
-            <h4 className="text-base font-semibold mb-4">Join Waitlist</h4>
-            <p className="text-gray-600 mb-4">
-              Be the first to know when FlipIt launches.
-            </p>
-            <form className="flex flex-col sm:flex-row gap-2">
-              {/* <input 
-                type="email" 
-                placeholder="Your email" 
-                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-flipbot-teal"
+            <h4 className="mb-4 text-sm font-semibold text-neutral-100">Join Waitlist</h4>
+            <p className="mb-4 text-sm text-neutral-300">Be the first to know when FlipIt launches.</p>
+            <form className="flex flex-col gap-3 sm:flex-row" onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="email"
+                placeholder="Your email"
+                className="w-full rounded-lg bg-neutral-800 px-4 py-2 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 required
-              /> */}
-              <button type="submit" className="secondary-btn whitespace-nowrap">
-                Join Now
+              />
+              <button
+                type="submit"
+                className="rounded-lg bg-gradient-to-r from-cyan-500 to-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-fuchsia-500/20 hover:to-fuchsia-600"
+              >
+                Join&nbsp;Now
               </button>
             </form>
           </div>
         </div>
 
-        <div className="border-t border-gray-200 pt-8 mt-8 text-center text-sm text-gray-500">
+        <div className="mt-16 border-t border-white/10 pt-8 text-center text-xs text-neutral-500">
           <p>&copy; {new Date().getFullYear()} FlipIt. All rights reserved.</p>
         </div>
       </div>
