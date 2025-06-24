@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 /**
  * Footer — neon‑on‑dark theme to match the new FlipIt aesthetic.
@@ -90,18 +91,21 @@ const Footer = () => {
             <h4 className="mb-4 text-sm font-semibold text-neutral-100">Join Waitlist</h4>
             <p className="mb-4 text-sm text-neutral-300">Be the first to know when FlipIt launches.</p>
             <form className="flex flex-col gap-3 sm:flex-row" onSubmit={(e) => e.preventDefault()}>
-              <input
+              {/* <input
                 type="email"
                 placeholder="Your email"
                 className="w-full rounded-lg bg-neutral-800 px-4 py-2 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 required
-              />
-              <button
+              /> */}
+              <Button
+                asChild
                 type="submit"
                 className="rounded-lg bg-gradient-to-r from-cyan-500 to-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-fuchsia-500/20 hover:to-fuchsia-600"
               >
-                Join&nbsp;Now
-              </button>
+                <Link to="/get-started" className="flex items-center gap-2">
+                  Join&nbsp;Now
+                </Link>
+              </Button>
             </form>
           </div>
         </div>

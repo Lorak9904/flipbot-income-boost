@@ -195,7 +195,7 @@ const HowItWorksPage = () => {
           size="lg"
           className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/20 hover:to-fuchsia-600"
         >
-          <Link to="/get-started" className="flex items-center gap-2">
+          <Link to="/add-item" className="flex items-center gap-2">
             Get started <ArrowRight className="h-5 w-5" />
           </Link>
         </Button>

@@ -154,7 +154,7 @@ const HomePage = () => {
                   size="lg"
                   className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/20"
                 >
-                  <Link to="/get-started">Start flipping today</Link>
+                  <Link to="/add-item">Start flipping today</Link>
                 </Button>
                 <Button
                   asChild
@@ -247,10 +247,10 @@ const HomePage = () => {
       <section className="relative py-12">
         <div className="container mx-auto px-4 relative z-10 flex flex-col items-center justify-center">
           <div className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center">
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-white drop-shadow-lg">
+            <h2 className="text-3xl md:text-5xl font-extrabold mb-6 text-white drop-shadow-lg">
               Secure your free spot today!
             </h2>
-            <p className="text-lg md:text-xl text-neutral-100 mb-8">
+            <p className="md:text-lg text-neutral-300 mb-8">
               Join thousands of smart sellers using FlipIt to multiply their reach and profits. One upload, every marketplace. Start your journey now!
             </p>
             <Button
@@ -258,7 +258,7 @@ const HomePage = () => {
               size="xl"
               className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 text-white text-xl px-10 py-5 shadow-lg shadow-fuchsia-500/30 font-bold rounded-full"
             >
-              <Link to="/get-started">Get Started — It’s Free</Link>
+              <Link to="/add-item">Get Started — It’s Free</Link>
             </Button>
           </div>
         </div>
