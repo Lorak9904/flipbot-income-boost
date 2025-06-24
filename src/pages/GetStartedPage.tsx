@@ -7,8 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-
-
+import { getTranslations } from '../components/language-utils';
+import { getStartedTranslations } from './getstarted-translations';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -27,13 +27,18 @@ const GetStartedPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const t = getTranslations(getStartedTranslations);
 
   useEffect(() => {
     fetch("/api/waitlist/token")
       .then(res => res.json())
       .then(data => setToken(data.token))
-      .catch(() => toast({ title: "Error", variant: "destructive", description: "Cannot get waitlist token" }));
-  }, []);
+      .catch(() => toast({ 
+        title: t.toastErrorTitle, 
+        variant: "destructive", 
+        description: t.tokenErrorDescription 
+      }));
+  }, [toast, t]);
 
   const submitWaitlistEntry = async (entry: { name: string; email: string }) => {
     if (!token) throw new Error("Missing waitlist token");
@@ -65,14 +70,14 @@ const GetStartedPage = () => {
     onSuccess: () => {
       setIsSubmitted(true);
       toast({
-        title: "You're on the waitlist!",
-        description: "We'll notify you when FlipIt launches.",
+        title: t.toastSuccessTitle,
+        description: t.toastSuccessDescription,
       });
     },
     onError: (error: Error) => {
       setIsSubmitting(false);
       toast({
-        title: "Error",
+        title: t.toastErrorTitle,
         description: error.message,
         variant: "destructive"
       });
@@ -84,6 +89,25 @@ const GetStartedPage = () => {
     setIsSubmitting(true);
     waitlistMutation.mutate({ name, email });
   };
+
+  const benefits = [
+    {
+      title: t.benefit1Title,
+      desc: t.benefit1Description
+    },
+    {
+      title: t.benefit2Title,
+      desc: t.benefit2Description
+    },
+    {
+      title: t.benefit3Title,
+      desc: t.benefit3Description
+    },
+    {
+      title: t.benefit4Title,
+      desc: t.benefit4Description
+    }
+  ];
 
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
@@ -201,7 +225,7 @@ const GetStartedPage = () => {
             variants={fadeUp}
             className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6"
           >
-            Join the <span className="text-cyan-400">FlipIt</span> Waitlist
+            {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight}</span> {t.heroTitleEnd}
           </motion.h1>
           <motion.p
             custom={1}
@@ -210,7 +234,7 @@ const GetStartedPage = () => {
             variants={fadeUp}
             className="max-w-2xl mx-auto text-lg text-neutral-300"
           >
-            Be among the first to access FlipIt and start earning extra income through resale arbitrage.
+            {t.heroDescription}
           </motion.p>
         </div>
       </section>
@@ -229,17 +253,17 @@ const GetStartedPage = () => {
               {!isSubmitted ? (
                 <div>
                   <h2 className="text-2xl md:text-3xl font-bold mb-6">
-                    Get Early Access to FlipIt
+                    {t.formTitle}
                   </h2>
                   <div className="flex items-center gap-2 text-cyan-400 mb-8">
                     <Users className="h-5 w-5" />
-                    <span className="font-medium">143 people already on the waitlist</span>
+                    <span className="font-medium">143 {t.waitlistCount}</span>
                   </div>
                   
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
                       <label htmlFor="name" className="block font-medium text-neutral-300">
-                        Your Name
+                        {t.nameLabel}
                       </label>
                       <input
                         id="name"
@@ -247,14 +271,14 @@ const GetStartedPage = () => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white"
-                        placeholder="Enter your name"
+                        placeholder={t.namePlaceholder}
                         required
                       />
                     </div>
                     
                     <div className="space-y-2">
                       <label htmlFor="email" className="block font-medium text-neutral-300">
-                        Email Address
+                        {t.emailLabel}
                       </label>
                       <input
                         id="email"
@@ -262,7 +286,7 @@ const GetStartedPage = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white"
-                        placeholder="you@example.com"
+                        placeholder={t.emailPlaceholder}
                         required
                       />
                     </div>
@@ -272,12 +296,12 @@ const GetStartedPage = () => {
                       className="w-full py-6 text-lg bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? 'Joining...' : 'Join the Waitlist'}
+                      {isSubmitting ? t.joiningButton : t.joinButton}
                     </Button>
                   </form>
                   
                   <p className="text-sm text-neutral-500 mt-6 text-center">
-                    We respect your privacy and will never share your information.
+                    {t.privacyText}
                   </p>
                 </div>
               ) : (
@@ -286,18 +310,18 @@ const GetStartedPage = () => {
                     <CheckCircle className="h-8 w-8 text-green-500" />
                   </div>
                   <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                    You're on the Waitlist!
+                    {t.successTitle}
                   </h2>
                   <p className="text-lg text-neutral-300 mb-6">
-                    Thank you for your interest in FlipIt. We'll notify you when we launch!
+                    {t.successDescription}
                   </p>
                   <div className="bg-neutral-800/50 p-6 rounded-lg border border-cyan-400/20 mx-auto max-w-md">
-                    <h4 className="font-medium mb-2 text-cyan-400">While you wait...</h4>
+                    <h4 className="font-medium mb-2 text-cyan-400">{t.whileYouWaitTitle}</h4>
                     <p className="text-neutral-300 mb-4">
-                      Start thinking about what items you'd like to flip and which marketplaces you're most familiar with.
+                      {t.whileYouWaitText1}
                     </p>
                     <p className="text-neutral-300">
-                      The average FlipIt user makes their first profit within 7 days of getting access!
+                      {t.whileYouWaitText2}
                     </p>
                   </div>
                 </div>
@@ -318,28 +342,11 @@ const GetStartedPage = () => {
               variants={fadeUp}
               className="text-2xl md:text-3xl font-bold mb-10 text-center"
             >
-              What You'll Get As An Early User
+              {t.benefitsTitle}
             </motion.h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                {
-                  title: "Priority Access",
-                  desc: "Be among the first to use FlipIt when we launch, ahead of the general public."
-                },
-                {
-                  title: "Founding Member Discount",
-                  desc: "Enjoy special pricing that will be grandfathered in even after we increase prices."
-                },
-                {
-                  title: "Direct Support",
-                  desc: "Get personalized onboarding and direct access to our team to maximize your success."
-                },
-                {
-                  title: "Feature Influence",
-                  desc: "Help shape the future of FlipIt by providing feedback that influences our development roadmap."
-                }
-              ].map((benefit, i) => (
+              {benefits.map((benefit, i) => (
                 <motion.div
                   key={benefit.title}
                   custom={i+1}
@@ -375,7 +382,7 @@ const GetStartedPage = () => {
           className="max-w-3xl mx-auto"
         >
           <h2 className="text-2xl md:text-3xl font-bold mb-6">
-            Ready to start flipping with AI?
+            {t.finalCtaTitle}
           </h2>
           <Button
             asChild
@@ -383,7 +390,7 @@ const GetStartedPage = () => {
             className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/20 hover:to-fuchsia-600"
           >
             <Link to="/get-started" className="flex items-center gap-2">
-              Join Waitlist <ArrowRight className="h-5 w-5" />
+              {t.finalCtaButton} <ArrowRight className="h-5 w-5" />
             </Link>
           </Button>
         </motion.div>
@@ -393,3 +400,4 @@ const GetStartedPage = () => {
 };
 
 export default GetStartedPage;
+

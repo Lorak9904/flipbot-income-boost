@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Users, Zap, BadgeCheck } from 'lucide-react';
-
+import { getTranslations } from '../components/language-utils';
+import { homePageTranslations } from './homepage-translations';
 
 // Simple fade-up animation variant
 const fadeUp = {
@@ -16,6 +17,8 @@ const fadeUp = {
 };
 
 const HomePage = () => {
+  const t = getTranslations(homePageTranslations);
+
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
       {/* Unified Animated Gradient Background */}
@@ -139,14 +142,14 @@ const HomePage = () => {
               className="space-y-8"
             >
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-sm font-medium text-white backdrop-blur-md">
-                🚀 New Release
+                {t.newRelease}
               </span>
               <h1 className="my-custom-font text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-loose">
-                Turn one upload into a <span className="text-cyan-400">multi-marketplace</span> sales&nbsp;
-                <span className="text-fuchsia-400">machine</span>.
+                {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight1}</span> {t.heroTitleEnd}&nbsp;
+                <span className="text-fuchsia-400">{t.heroTitleHighlight2}</span>.
               </h1>
               <p className="max-w-xl text-lg/relaxed text-neutral-300">
-              FlipIt’s AI posts and syncs your item on OLX, Vinted & Facebook — more channels coming soon.              
+                {t.heroDescription}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-2 justify-center">
                 <Button
@@ -154,7 +157,7 @@ const HomePage = () => {
                   size="lg"
                   className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/20"
                 >
-                  <Link to="/add-item">Start flipping today</Link>
+                  <Link to="/add-item">{t.startFlipping}</Link>
                 </Button>
                 <Button
                   asChild
@@ -163,7 +166,7 @@ const HomePage = () => {
                   className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
                 >
                   <Link to="/how-it-works" className="flex items-center">
-                    See how it works <ArrowRight className="ml-2 h-5 w-5" />
+                    {t.seeHowItWorks} <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
               </div>
@@ -196,9 +199,9 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-20"
           >
-            <h2 className="text-3xl md:text-4xl font-bold">Why You'll Love FlipIt</h2>
+            <h2 className="text-3xl md:text-4xl font-bold">{t.whyLoveTitle}</h2>
             <p className="mt-4 text-neutral-300 max-w-3xl mx-auto p-8">
-              AI-driven insights, automated negotiations, and smart pricing tools that supercharge your flipping game.
+              {t.whyLoveSubtitle}
             </p>
           </motion.div>
 
@@ -206,18 +209,18 @@ const HomePage = () => {
             {[
               {
                   Icon: Users,
-                  title: 'Reach Every Buyer',
-                  desc: 'Your listing appears on OLX, Facebook & Vinted — no manual reposting.',
+                  title: t.feature1Title,
+                  desc: t.feature1Desc,
                 },
                 {
                   Icon: Zap,
-                  title: 'Hands-Off Selling',
-                  desc: 'FlipIt suggests the best price, title and category, then keeps everything in sync.',
+                  title: t.feature2Title,
+                  desc: t.feature2Desc,
                 },
                 {
                   Icon: BadgeCheck,
-                  title: 'Free During Beta',
-                  desc: 'Early access means full features, zero fees while we fine-tune.',
+                  title: t.feature3Title,
+                  desc: t.feature3Desc,
                 },
             ].map(({ Icon, title, desc }, i) => (
               <motion.div
@@ -248,17 +251,17 @@ const HomePage = () => {
         <div className="container mx-auto px-4 relative z-10 flex flex-col items-center justify-center">
           <div className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center">
             <h2 className="text-3xl md:text-5xl font-extrabold mb-6 text-white drop-shadow-lg">
-              Secure your free spot today!
+              {t.ctaTitle}
             </h2>
             <p className="md:text-lg text-neutral-300 mb-8">
-              Join thousands of smart sellers using FlipIt to multiply their reach and profits. One upload, every marketplace. Start your journey now!
+              {t.ctaDescription}
             </p>
             <Button
               asChild
               size="xl"
               className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 text-white text-xl px-10 py-5 shadow-lg shadow-fuchsia-500/30 font-bold rounded-full"
             >
-              <Link to="/add-item">Get Started — It’s Free</Link>
+              <Link to="/add-item">{t.ctaButton}</Link>
             </Button>
           </div>
         </div>
