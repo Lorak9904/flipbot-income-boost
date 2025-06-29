@@ -27,7 +27,7 @@ export default function CookieBanner() {
     }
 
     // Optional: notify backend if needed
-    console.log("new fucking Visitor ID. Fetch should be done now :", visitorId);
+    // console.log("new fucking Visitor ID. Fetch should be done now :", visitorId);
     fetch("/api/cookies/consent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

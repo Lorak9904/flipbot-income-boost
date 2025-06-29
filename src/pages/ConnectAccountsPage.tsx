@@ -6,6 +6,7 @@ import { CheckCircle, ArrowRight, Lock, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { ConnectOlxButton } from '@/pages/ConnectOlxButton';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -338,6 +339,7 @@ const ConnectAccountsPage = () => {
               logoSrc="https://images.seeklogo.com/logo-png/39/1/olx-logo-png_seeklogo-390322.png"
               isConnected={connectedPlatforms.olx}
               onConnected={() => handleAccountConnected('olx')}
+              action={!connectedPlatforms.olx && <ConnectOlxButton />}
             />
             <ConnectAccountCard
               platform="vinted"

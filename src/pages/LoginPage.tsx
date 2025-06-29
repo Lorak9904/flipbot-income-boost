@@ -80,6 +80,7 @@ const LoginPage = () => {
       setEmail('');
       setPassword('');
       setName('');
+      // window.location.reload();
     } catch (err: any) {
       setError(err.message || "Registration failed.");
     } finally {

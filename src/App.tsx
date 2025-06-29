@@ -28,6 +28,8 @@ import CookieBanner from "./components/CookieBanner";
 import ScrollToTop from "./components/ScrollToTop";
 import SettingsPage from "./pages/SettingsPage";
 import VisitorPing from "./components/useVisitorPing"; // This should resolve to useVisitorPing.tsx
+import { ConnectOlxButton } from "./pages/ConnectOlxButton";
+import { OlxSuccessPage } from "./pages/OlxSuccessPage";
 
 
 
@@ -60,6 +62,7 @@ const App = () => {
                   <Route path="/privacy" element={<PrivacyPolicyPage />} />
                   <Route path="/cookies" element={<CookiesPolicyPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/olx/success" element={<OlxSuccessPage />} />
                   
                   <Route path="*" element={<NotFound />} />
                 </Routes>

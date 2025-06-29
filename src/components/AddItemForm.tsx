@@ -92,7 +92,7 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
       }
 
       const generatedData = await response.json();
-      console.log('Generated item:', generatedData);
+      // console.log('Generated item:', generatedData);
 
       // Transform API response to match our expected format
       const [minPrice, maxPrice] = generatedData.price_range || [];

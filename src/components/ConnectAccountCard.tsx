@@ -12,12 +12,19 @@ interface ConnectAccountCardProps {
   logoSrc: string;
   onConnected?: () => void;
   isConnected: boolean;
+  action?: React.ReactNode;
 }
 
 
 
-const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: initialConnected, onConnected }: ConnectAccountCardProps) => {
-  const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>(
+const ConnectAccountCard = ({
+  platform,
+  platformName,
+  logoSrc,
+  isConnected: initialConnected,
+  onConnected,
+  action,                      //  ←  DODAJ
+}: ConnectAccountCardProps) => {  const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>(
     initialConnected ? 'connected' : 'idle'
   );
   const [isConnected, setIsConnected] = useState(initialConnected);
@@ -407,20 +414,22 @@ const ConnectAccountCard = ({ platform, platformName, logoSrc, isConnected: init
               </div>
             </form>
           ) : (
-            <div className="space-y-4">
-              <p className="text-slate-300">
-                Connect your {platformName} account to let FlipIt find and flip items automatically.
-              </p>
-              <div className="flex flex-col gap-2">
-                <Button
-                  variant="outline"
-                  className="text-teal-500 border-teal-500"
-                  onClick={() => setShowManual(true)}
-                >
-                  Manual Connect
-                </Button>
+            action || (
+              <div className="space-y-4">
+                <p className="text-slate-300">
+                  Connect your {platformName} account to let FlipIt find and flip items automatically.
+                </p>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    variant="outline"
+                    className="text-teal-500 border-teal-500"
+                    onClick={() => setShowManual(true)}
+                  >
+                    Manual Connect
+                  </Button>
+                </div>
               </div>
-            </div>
+            )
           )}
         </CardContent>
       </Card>

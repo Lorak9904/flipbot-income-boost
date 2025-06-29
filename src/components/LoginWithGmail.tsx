@@ -29,7 +29,7 @@ export default function LoginWithGmail() {
         width="370"
         onSuccess={async (credentialResponse) => {
           const credential = credentialResponse.credential;
-          console.log(jwtDecode(credentialResponse.credential));
+          // console.log(jwtDecode(credentialResponse.credential));
           if (!credential) return;
 
           try {
@@ -40,6 +40,7 @@ export default function LoginWithGmail() {
             const { token, refresh_token, userData } = response.data;
             setUserAndTokens(userData, token, refresh_token);
             navigate("/");
+            window.location.reload();
           } catch (err) {
             console.error("Google login error", err);
           }
