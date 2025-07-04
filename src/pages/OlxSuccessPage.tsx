@@ -5,7 +5,11 @@ export function OlxSuccessPage() {
   const [connected, setConnected] = useState<boolean | null>(null);
 
   useEffect(() => {
-    api.get<{ connected: boolean }>("/olx/status")
+    api.get<{ connected: boolean }>("/olx/status", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("flipit_token")}`,
+      },
+    })
        .then(res => setConnected(res.data.connected))
        .catch(() => setConnected(false));
   }, []);
@@ -15,3 +19,4 @@ export function OlxSuccessPage() {
     ? <p>✔ Konto OLX zostało podłączone!</p>
     : <p>❌ Nie udało się podłączyć konta.</p>;
 }
+
