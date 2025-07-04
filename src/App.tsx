@@ -62,7 +62,7 @@ const App = () => {
                   <Route path="/privacy" element={<PrivacyPolicyPage />} />
                   <Route path="/cookies" element={<CookiesPolicyPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/olx/success" element={<OlxSuccessPage />} />
+                  {/* <Route path="/olx/success" element={<OlxSuccessPage />} /> */}
                   
                   <Route path="*" element={<NotFound />} />
                 </Routes>

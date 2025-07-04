@@ -424,8 +424,9 @@ const ConnectAccountCard = ({
                     variant="outline"
                     className="text-teal-500 border-teal-500"
                     onClick={() => setShowManual(true)}
+                    style={{ padding: "0.6rem 1rem", fontSize: "1rem" }}
                   >
-                    Manual Connect
+                    {platform === "olx" ? "Reload the page if you see this" : "Manual Connect"}
                   </Button>
                 </div>
               </div>
