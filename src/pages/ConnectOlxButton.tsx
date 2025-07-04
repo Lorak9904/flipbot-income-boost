@@ -1,11 +1,19 @@
 import { api } from "../hooks/olx-api";
 import { Button } from '@/components/ui/button';
 
-
 export function ConnectOlxButton() {
   const handleClick = async () => {
-    const { data } = await api.get<{ auth_url: string }>("/olx/connect");
-    window.location.href = data.auth_url;      // skok na olx.pl (krok 1 OAuth)
+    const token = localStorage.getItem('flipit_token');
+    if (!token) {
+      // Optionally handle missing token (e.g., redirect to login)
+      return;
+    }
+    const { data } = await api.get<{ auth_url: string }>("/olx/connect", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    window.location.href = data.auth_url;
   };
 
   return (
@@ -19,11 +27,3 @@ export function ConnectOlxButton() {
     </Button>
   );
 }
-
-
-
-    // variant="outline"
-    // className="text-teal-500 border-teal-500"
-    // onClick={() => setShowManual(true)}
-    // >
-    // Manual Connect
