@@ -4,7 +4,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import ConnectAccountCard from '@/components/ConnectAccountCard';
 import { CheckCircle, ArrowRight, Lock, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { ConnectOlxButton } from '@/pages/ConnectOlxButton';
 import { useToast } from '@/hooks/use-toast';
@@ -26,14 +25,29 @@ const ConnectAccountsPage = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated, user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  // const { toast } = useToast();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      toast.error("Please log in to connect your accounts");
-      navigate("/login");
+    const token = localStorage.getItem('flipit_token');
+    if (!token) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to add items",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to add items",
+        variant: "destructive",
+      });
+      navigate('/login');
       return;
     }
 
@@ -52,7 +66,11 @@ const ConnectAccountsPage = () => {
 
         if (!response.ok) {
           if (response.status === 401) {
-            toast.error("Your session has expired. Please log in again.");
+            toast({
+              title: "Session Expired",
+              description: "Your session has expired. Please log in again.",
+              variant: "destructive",
+            });
             navigate("/login");
             return;
           }
@@ -63,7 +81,11 @@ const ConnectAccountsPage = () => {
         setConnectedPlatforms(data);
       } catch (error) {
         console.error("Error fetching connected platforms:", error);
-        toast.error("Failed to load connected platforms. Please try again.");
+        toast({
+          title: "Error",
+          description: "Failed to load connected platforms. Please try again.",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -77,9 +99,11 @@ const ConnectAccountsPage = () => {
     const platform = params.get("platform");
     const status = params.get("status");
     if (platform === "olx" && status === "connected") {
-      toast.success("Successfully connected to OLX!");
-      // Optionally, you can refresh connected platforms here
-      // Optionally, remove the query params from the URL
+      toast({
+        title: "OLX Connected!",
+        description: "Successfully connected to OLX!",
+        variant: "default",
+      });
       window.history.replaceState({}, document.title, location.pathname);
     }
   }, [location, toast]);
