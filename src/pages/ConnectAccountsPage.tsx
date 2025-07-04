@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import ConnectAccountCard from '@/components/ConnectAccountCard';
 import { CheckCircle, ArrowRight, Lock, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { ConnectOlxButton } from '@/pages/ConnectOlxButton';
+import { useToast } from '@/hooks/use-toast';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -26,6 +27,8 @@ const ConnectAccountsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // const { toast } = useToast();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -68,6 +71,18 @@ const ConnectAccountsPage = () => {
 
     fetchConnectedPlatforms();
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const platform = params.get("platform");
+    const status = params.get("status");
+    if (platform === "olx" && status === "connected") {
+      toast.success("Successfully connected to OLX!");
+      // Optionally, you can refresh connected platforms here
+      // Optionally, remove the query params from the URL
+      window.history.replaceState({}, document.title, location.pathname);
+    }
+  }, [location, toast]);
 
   const handleAccountConnected = (platform: 'facebook' | 'olx' | 'vinted') => {
     setConnectedPlatforms(prev => ({
