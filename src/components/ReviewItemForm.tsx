@@ -21,7 +21,8 @@ const ReviewItemForm = ({ initialData, connectedPlatforms, onBack }: ReviewItemF
   const { toast } = useToast();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [data, setData] = useState<GeneratedItemData>(initialData);
+  // Ensure draft_id is preserved in state
+  const [data, setData] = useState<GeneratedItemData & { draft_id?: string }>(initialData);
   const navigate = useNavigate();
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(
     Object.entries(connectedPlatforms)
@@ -29,8 +30,9 @@ const ReviewItemForm = ({ initialData, connectedPlatforms, onBack }: ReviewItemF
       .map(([platform]) => platform as Platform)
   );
   
+  // Make sure draft_id is never lost when updating fields
   const updateField = (field: keyof GeneratedItemData, value: any) => {
-    setData(prev => ({ ...prev, [field]: value }));
+    setData(prev => ({ ...prev, [field]: value, draft_id: prev.draft_id }));
   };
   
   const handlePlatformToggle = (platform: Platform) => {
@@ -61,48 +63,37 @@ const handleSubmit = async (e: React.FormEvent) => {
       throw new Error('Invalid price format');
     }
 
-
     
-    // Prepare FormData
-    const formData = new FormData();
-    // Append images as files
-    data.images.forEach((img: any) => {
-      if (data.catalog_path) {
-        formData.append('catalog_path', data.catalog_path);
-    }
-      // If your image object has a File, use it; otherwise, fetch and convert the URL to a Blob/File
-      if (img.file) {
-        formData.append('images', img.file);
-      } else if (img.url && img.url.startsWith('blob:')) {
-        // If you only have a blob URL, fetch it and convert to File
-        // (This is needed if you use canvas or similar in the uploader)
-        // Example:
-        // const blob = await fetch(img.url).then(r => r.blob());
-        // formData.append('images', new File([blob], 'image.jpg', { type: blob.type }));
-      } else if (img.url) {
-        // If you have a server path, you can't re-upload it as a file
-        // You must keep the File reference from the original upload step!
-      }
-    });
-    formData.append('title', data.title);
-    formData.append('brand', data.brand || '');
-    formData.append('condition', data.condition || '');
-    formData.append('price', numericPrice.toString());
-    formData.append('description', data.description);
-    formData.append('category', data.category);
-    selectedPlatforms.forEach(p => formData.append('platforms', p));
 
     const token = localStorage.getItem('flipit_token');
     
+    // Build a clean payload the API will accept
+    const payload = {
+      draft_id: data.draft_id,
+      images: data.images.map(img => img.url),
+      title: data.title,
+      brand: data.brand,
+      condition: data.condition,
+      category: data.category,
+      size: data.size,
+      gender: data.gender,
+      price: numericPrice,
+      description: data.description,
+      catalog_path: data.catalog_path,
+      platforms: selectedPlatforms,
+    };
+    console.log(data.draft_id)
+    console.log(payload)
+
+
     const response = await fetch('/api/FlipIt/api/items/publish', {
       method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
-        // Do NOT set Content-Type here; browser will set it for FormData
       },
-      body: formData,
+      body: JSON.stringify(payload),
     });
-
 
     if (!response.ok) {
       throw new Error('Failed to publish item');
@@ -151,7 +142,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium mb-4">Images</h3>
+        <h3 className="text-lg font-medium mb-4 text-neutral-300">Images</h3>
         <ImageUploader 
           images={data.images} 
           onChange={(images) => updateField('images', images)} 
@@ -159,11 +150,11 @@ const handleSubmit = async (e: React.FormEvent) => {
         />
       </div>
       
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Item Details</h3>
+      <div className="space-y-4 ">
+        <h3 className="text-lg font-medium text-neutral-300">Item Details</h3>
         
         <div>
-          <Label htmlFor="title">Title</Label>
+          <Label htmlFor="title" className="text-neutral-300">Title</Label>
           <Input 
             id="title"
             value={data.title}
@@ -174,7 +165,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
         
         <div>
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description" className="text-neutral-300">Description</Label>
           <Textarea 
             id="description" 
             value={data.description}
@@ -187,7 +178,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="brand">Brand</Label>
+            <Label htmlFor="brand" className="text-neutral-300">Brand</Label>
             <Input 
               id="brand" 
               value={data.brand}
@@ -197,7 +188,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
           
           <div>
-            <Label htmlFor="condition">Condition</Label>
+            <Label htmlFor="condition" className="text-neutral-300">Condition</Label>
             <Input 
               id="condition" 
               value={data.condition}
@@ -207,9 +198,9 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category" className="text-neutral-300">Category</Label>
             <Input 
               id="category" 
               value={data.category}
@@ -218,9 +209,29 @@ const handleSubmit = async (e: React.FormEvent) => {
               required
             />
           </div>
+          <div>
+            <Label htmlFor="size" className="text-neutral-300">Size</Label>
+            <Input 
+              id="size" 
+              value={data.size}
+              onChange={(e) => updateField('size', e.target.value)}
+              disabled={isSubmitting}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="gender" className="text-neutral-300">Gender</Label>
+            <Input 
+              id="gender" 
+              value={data.gender}
+              onChange={(e) => updateField('gender', e.target.value)}
+              disabled={isSubmitting}
+              required
+            />
+          </div>
           
           <div>
-            <Label htmlFor="price">Price</Label>
+            <Label htmlFor="price" className="text-neutral-300">Price</Label>
             <Input 
               id="price" 
               value={data.price}
@@ -238,13 +249,13 @@ const handleSubmit = async (e: React.FormEvent) => {
       </div>
       
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Publish to Platforms</h3>
+        <h3 className="text-lg font-medium text-neutral-300">Publish to Platforms</h3>
         
         <div className="flex flex-col gap-3">
           {Object.entries(connectedPlatforms).map(([platform, isConnected]) => {
             const typedPlatform = platform as Platform;
             return (
-              <div key={platform} className="flex items-center space-x-2">
+              <div key={platform} className="flex items-center space-x-2 text-neutral-300">
                 <Checkbox 
                   id={`platform-${platform}`}
                   checked={selectedPlatforms.includes(typedPlatform)}
@@ -253,7 +264,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 />
                 <Label 
                   htmlFor={`platform-${platform}`}
-                  className={!isConnected ? "text-slate-400" : ""}
+                  className={!isConnected ? "text-slate-400 " : ""}
                 >
                   {platform.charAt(0).toUpperCase() + platform.slice(1)}
                   {!isConnected && " (not connected)"}

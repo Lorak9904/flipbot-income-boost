@@ -14,6 +14,7 @@ export function ConnectOlxButton() {
       },
     });
     window.location.href = data.auth_url;
+    console.log(data);
   };
 
   return (
