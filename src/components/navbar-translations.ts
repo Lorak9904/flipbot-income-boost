@@ -1,8 +1,9 @@
-import { Translations } from './language-utils';
+﻿import { Translations } from './language-utils';
 
 export const navbarTranslations: Translations = {
   en: {
     howItWorks: 'How It Works',
+    guide: 'Guide',
     addItem: 'Add Item',
     connectAccounts: 'Connect Accounts',
     login: 'Log in',
@@ -11,6 +12,7 @@ export const navbarTranslations: Translations = {
   },
   pl: {
     howItWorks: 'Jak to działa',
+    guide: 'Poradnik',
     addItem: 'Dodaj przedmiot',
     connectAccounts: 'Połącz konta',
     login: 'Zaloguj się',
@@ -18,4 +20,5 @@ export const navbarTranslations: Translations = {
     languageToggle: 'EN' // Shows what language to switch TO
   }
 };
+
 

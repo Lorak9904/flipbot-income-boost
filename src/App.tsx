@@ -1,9 +1,10 @@
-import { Toaster } from "@/components/ui/toaster";
+﻿import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import { HelmetProvider } from "react-helmet-async";
 
 
 import Navbar from "./components/Navbar";
@@ -20,6 +21,7 @@ import GetStartedPage from "./pages/GetStartedPage";
 import ConnectAccountsPage from "./pages/ConnectAccountsPage";
 import AddItemPage from "./pages/AddItemPage";
 import NotFound from "./pages/NotFound";
+import AutomatedResellingPlatformGuide from "./pages/AutomatedResellingPlatformGuide";
 // import FacebookCallbackPage from "./pages/FacebookCallbackPage";
 import TermsPage from "./pages/Terms";
 import PrivacyPolicyPage from "./pages/PrivacyPolicy";
@@ -38,11 +40,12 @@ const queryClient = new QueryClient();
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter basename="/">
+      <HelmetProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter basename="/">
             <ScrollToTop />
             <VisitorPing />
             <div className="flex flex-col min-h-screen">
@@ -50,6 +53,7 @@ const App = () => {
               <main className="flex-grow">
                 <Routes>
                   <Route path="/" element={<HomePage />} />
+                  <Route path="/automated-reselling-platform-guide" element={<AutomatedResellingPlatformGuide />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/how-it-works" element={<HowItWorksPage />} />
                   {/* <Route path="/success-stories" element={<SuccessStoriesPage />} /> */}
@@ -74,7 +78,10 @@ const App = () => {
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
+    </HelmetProvider>
     </QueryClientProvider>
   );
 };
 export default App;
+
+

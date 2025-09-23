@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 /**
@@ -37,6 +37,11 @@ const Footer = () => {
             <h4 className="mb-4 text-sm font-semibold text-neutral-100">Product</h4>
             <ul className="space-y-2 text-sm">
               <li>
+                <Link to="/automated-reselling-platform-guide" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  Automated Reselling Guide
+                </Link>
+              </li>
+              <li>
                 <Link to="/features" className="text-neutral-300 transition-colors hover:text-cyan-400">
                   Features
                 </Link>
@@ -64,7 +69,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="mailto:hello@flipit.ai" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <a href="mailto:info@arrpo.com" className="text-neutral-300 transition-colors hover:text-cyan-400">
                   Contact&nbsp;Us
                 </a>
               </li>

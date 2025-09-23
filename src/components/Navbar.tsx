@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Globe } from 'lucide-react';
@@ -16,6 +16,7 @@ const Navbar = () => {
 
   const baseNavItems = [
     { name: t.howItWorks, path: '/how-it-works' },
+    { name: t.guide, path: '/automated-reselling-platform-guide' },
   ];
   
   const navItems = isAuthenticated
@@ -157,4 +158,5 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
 

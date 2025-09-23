@@ -1,4 +1,4 @@
-User-agent: Googlebot
+﻿User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
@@ -12,3 +12,6 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://myflipit.live/sitemap.xml
+
