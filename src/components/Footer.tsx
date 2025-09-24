@@ -1,11 +1,14 @@
 ﻿import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { getTranslations, getCurrentLanguage } from './language-utils';
+import { footerTranslations } from './footer-translations';
 
 /**
  * Footer — neon‑on‑dark theme to match the new FlipIt aesthetic.
  * Gradient blobs sit behind a glass‑dark panel; text adapts to mobile.
  */
 const Footer = () => {
+  const t = getTranslations(footerTranslations);
   return (
     <footer className="relative overflow-hidden bg-neutral-950 text-white">
       {/* Neon gradient blobs */}
@@ -25,20 +28,20 @@ const Footer = () => {
               <span className="font-heading text-xl font-semibold">FlipIt</span>
             </Link>
             <p className="max-w-xs text-sm text-neutral-300">
-              The intelligent agent that helps you earn extra income through resale arbitrage.
+              {t.tagline}
             </p>
             <span className="mt-4 inline-block rounded-full bg-white/10 px-3 py-1 text-xs text-white backdrop-blur">
-              🚀 Coming&nbsp;Soon
+              {t.comingSoon}
             </span>
           </div>
 
           {/* Product links */}
           <nav>
-            <h4 className="mb-4 text-sm font-semibold text-neutral-100">Product</h4>
+            <h4 className="mb-4 text-sm font-semibold text-neutral-100">{t.productTitle}</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link to="/automated-reselling-platform-guide" className="text-neutral-300 transition-colors hover:text-cyan-400">
-                  Automated Reselling Guide
+                  {t.automatedResellingGuide}
                 </Link>
               </li>
               {/* <li>
@@ -48,12 +51,12 @@ const Footer = () => {
               </li> */}
               <li>
                 <Link to="/how-it-works" className="text-neutral-300 transition-colors hover:text-cyan-400">
-                  How&nbsp;It&nbsp;Works
+                  {t.howItWorks}
                 </Link>
               </li>
               <li>
                 <Link to="/success-stories" className="text-neutral-300 transition-colors hover:text-cyan-400">
-                  Success&nbsp;Stories
+                  {t.successStories}
                 </Link>
               </li>
             </ul>
@@ -61,31 +64,31 @@ const Footer = () => {
 
           {/* Support links */}
           <nav>
-            <h4 className="mb-4 text-sm font-semibold text-neutral-100">Support</h4>
+            <h4 className="mb-4 text-sm font-semibold text-neutral-100">{t.supportTitle}</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link to="/faq" className="text-neutral-300 transition-colors hover:text-cyan-400">
-                  FAQ
+                  {t.faq}
                 </Link>
               </li>
               <li>
                 <a href="mailto:info@arrpo.com" className="text-neutral-300 transition-colors hover:text-cyan-400">
-                  Contact&nbsp;Us
+                  {t.contactUs}
                 </a>
               </li>
               <li>
                 <Link to="/privacy" className="text-neutral-300 transition-colors hover:text-cyan-400">
-                  Privacy&nbsp;Policy
+                  {t.privacyPolicy}
                 </Link>
               </li>
               <li>
                 <Link to="/terms" className="text-neutral-300 transition-colors hover:text-cyan-400">
-                  Terms
+                  {t.terms}
                 </Link>
               </li>
               <li>
                 <Link to="/cookies" className="text-neutral-300 transition-colors hover:text-cyan-400">
-                  Cookies&nbsp;Policy
+                  {t.cookiesPolicy}
                 </Link>
               </li>
             </ul>
@@ -93,8 +96,8 @@ const Footer = () => {
 
           {/* Waitlist */}
           <div>
-            <h4 className="mb-4 text-sm font-semibold text-neutral-100">Join Waitlist</h4>
-            <p className="mb-4 text-sm text-neutral-300">Be the first to know when FlipIt launches.</p>
+            <h4 className="mb-4 text-sm font-semibold text-neutral-100">{t.joinWaitlistTitle}</h4>
+            <p className="mb-4 text-sm text-neutral-300">{t.joinWaitlistDesc}</p>
             <form className="flex flex-col gap-3 sm:flex-row" onSubmit={(e) => e.preventDefault()}>
               {/* <input
                 type="email"
@@ -108,7 +111,7 @@ const Footer = () => {
                 className="rounded-lg bg-gradient-to-r from-cyan-500 to-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-fuchsia-500/20 hover:to-fuchsia-600"
               >
                 <Link to="/get-started" className="flex items-center gap-2">
-                  Join&nbsp;Now
+                  {t.joinNow}
                 </Link>
               </Button>
             </form>
@@ -116,7 +119,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-16 border-t border-white/10 pt-8 text-center text-xs text-neutral-500">
-          <p>&copy; {new Date().getFullYear()} FlipIt. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {t.copyright}</p>
         </div>
       </div>
     </footer>

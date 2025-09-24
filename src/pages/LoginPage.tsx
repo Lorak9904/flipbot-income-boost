@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginWithGmail from '@/components/LoginWithGmail';
 import { SEOHead } from '@/components/SEOHead';
+import { getTranslations, getCurrentLanguage } from '../components/language-utils';
+import { loginTranslations } from './login-translations';
 
 // Fade‑up motion reused across inputs / header
 const fadeUp = {
@@ -17,6 +19,7 @@ const fadeUp = {
 };
 
 const LoginPage = () => {
+  const t = getTranslations(loginTranslations);
   const navigate = useNavigate();
   const location = useLocation();
   const { loginWithEmail, registerWithEmail } = useAuth();
@@ -33,10 +36,10 @@ const LoginPage = () => {
   // Registration password validation (matches backend)
   const validatePassword = (password: string, name: string, email: string) => {
     const errors: string[] = [];
-    if (password.length < 8) errors.push('Password must be at least 8 characters long');
-    if (name && password.toLowerCase().includes(name.toLowerCase())) errors.push('Password is too similar to your name');
+    if (password.length < 8) errors.push(t.passwordMinLength);
+    if (name && password.toLowerCase().includes(name.toLowerCase())) errors.push(t.passwordSimilarName);
     const emailPart = email.split('@')[0];
-    if (emailPart && password.toLowerCase().includes(emailPart.toLowerCase())) errors.push('Password is too similar to your email address');
+    if (emailPart && password.toLowerCase().includes(emailPart.toLowerCase())) errors.push(t.passwordSimilarEmail);
     const COMMON_PASSWORDS = [
       'password',
       '123456',
@@ -49,8 +52,8 @@ const LoginPage = () => {
       '123123',
       '000000',
     ];
-    if (COMMON_PASSWORDS.includes(password.toLowerCase())) errors.push('Password is too common');
-    if (/^\d+$/.test(password)) errors.push('Password cannot be entirely numeric');
+    if (COMMON_PASSWORDS.includes(password.toLowerCase())) errors.push(t.passwordTooCommon);
+    if (/^\d+$/.test(password)) errors.push(t.passwordNumericOnly);
     return errors;
   };
 
@@ -62,7 +65,7 @@ const LoginPage = () => {
       await loginWithEmail(email, password);
       navigate('/');
     } catch (err: any) {
-      setError(err.message || 'Failed to log in');
+      setError(err.message || t.loginFailed);
       setLoading(false);
     }
   };
@@ -74,7 +77,7 @@ const LoginPage = () => {
     setPasswordErrors([]);
     const errors = validatePassword(password, name, email);
     if (!email || !name || !password) {
-      setError('All fields are required.');
+      setError(t.allFieldsRequired);
       return;
     }
     if (errors.length > 0) {
@@ -84,14 +87,14 @@ const LoginPage = () => {
     setLoading(true);
     try {
       await registerWithEmail(email, password, name);
-      setRegisterSuccess('Registration successful! You can now log in.');
+      setRegisterSuccess(t.registrationSuccess);
       setIsSignUp(false);
       setEmail('');
       setPassword('');
       setName('');
       // window.location.reload();
     } catch (err: any) {
-      setError(err.message || 'Registration failed.');
+      setError(err.message || t.registrationFailed);
     } finally {
       setLoading(false);
     }
@@ -157,12 +160,12 @@ const LoginPage = () => {
           variants={fadeUp}
           className="flex flex-col items-center text-center lg:items-start lg:text-left max-w-xl"
         >
-          <span className="text-xs uppercase tracking-[0.4em] text-cyan-300">FlipIt Access</span>
+          <span className="text-xs uppercase tracking-[0.4em] text-cyan-300">{t.pageAccess}</span>
           <h1 className="mt-4 text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
-            Sign in to your automated crosslisting hub
+            {t.heroTitle}
           </h1>
           <p className="mt-4 text-neutral-300 max-w-lg">
-            Manage listings, respond to buyers, and keep OLX, Vinted, and Facebook in sync without the copy-paste grind.
+            {t.heroDescription}
           </p>
         </motion.div>
 
@@ -174,9 +177,9 @@ const LoginPage = () => {
         >
           <motion.h2 variants={fadeUp} className="mb-8 text-center text-2xl md:text-3xl font-extrabold tracking-tight">
             {isSignUp ? (
-              <>Create&nbsp;<span className="text-cyan-400">Account</span></>
+              <>{t.createAccount.split(' ')[0]}&nbsp;<span className="text-cyan-400">{t.createAccount.split(' ')[1]}</span></>
             ) : (
-              <>Welcome&nbsp;<span className="text-cyan-400">Back</span></>
+              <>{t.welcomeBack.split(' ')[0]}&nbsp;<span className="text-cyan-400">{t.welcomeBack.split(' ')[1]}</span></>
             )}
           </motion.h2>
 
@@ -195,7 +198,7 @@ const LoginPage = () => {
             <form onSubmit={handleRegister} className="space-y-6">
               <motion.div variants={fadeUp} custom={2}>
                 <label htmlFor="register-name" className="mb-1 block text-sm font-medium">
-                  Name
+                  {t.nameLabel}
                 </label>
                 <input
                   id="register-name"
@@ -204,13 +207,13 @@ const LoginPage = () => {
                   onChange={(e) => setName(e.target.value)}
                   required
                   autoComplete="name"
-                  placeholder="Your name"
+                  placeholder={t.namePlaceholder}
                   className="w-full rounded-lg bg-neutral-800/60 px-6 py-3 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               </motion.div>
               <motion.div variants={fadeUp} custom={3}>
                 <label htmlFor="register-email" className="mb-1 block text-sm font-medium">
-                  Email
+                  {t.emailLabel}
                 </label>
                 <input
                   id="register-email"
@@ -219,13 +222,13 @@ const LoginPage = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  placeholder="you@example.com"
+                  placeholder={t.emailPlaceholder}
                   className="w-full rounded-lg bg-neutral-800/60 px-6 py-3 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               </motion.div>
               <motion.div variants={fadeUp} custom={4}>
                 <label htmlFor="register-password" className="mb-1 block text-sm font-medium">
-                  Password
+                  {t.passwordLabel}
                 </label>
                 <input
                   id="register-password"
@@ -234,7 +237,7 @@ const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="new-password"
-                  placeholder="••••••••"
+                  placeholder={t.passwordPlaceholder}
                   className="w-full rounded-lg bg-neutral-800/60 px-6 py-3 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               </motion.div>
@@ -251,7 +254,7 @@ const LoginPage = () => {
                   className="text-neutral-400 transition-colors hover:text-cyan-400"
                   onClick={() => setIsSignUp(false)}
                 >
-                  Already have an account? Sign in
+                  {t.backToSignIn}
                 </button>
               </motion.div>
               <motion.div variants={fadeUp} custom={6}>
@@ -261,13 +264,13 @@ const LoginPage = () => {
                   size="lg"
                   className="w-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-md shadow-fuchsia-500/20 hover:to-fuchsia-600 disabled:opacity-50"
                 >
-                  {loading ? 'Creating account…' : 'Create Account'}
+                  {loading ? t.creatingAccountButton : t.createAccountButton}
                 </Button>
               </motion.div>
 
               <div className="my-8 flex items-center">
                 <hr className="flex-1 border-t border-neutral-700" />
-                <span className="px-6 text-xs text-neutral-400">or</span>
+                <span className="px-6 text-xs text-neutral-400">{t.orDivider}</span>
                 <hr className="flex-1 border-t border-neutral-700" />
               </div>
               <LoginWithGmail />
@@ -277,7 +280,7 @@ const LoginPage = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <motion.div variants={fadeUp} custom={2}>
                   <label htmlFor="email" className="mb-1 block text-sm font-medium">
-                    Email
+                    {t.emailLabel}
                   </label>
                   <input
                     id="email"
@@ -286,14 +289,14 @@ const LoginPage = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     autoComplete="email"
-                    placeholder="you@example.com"
+                    placeholder={t.emailPlaceholder}
                     className="w-full rounded-lg bg-neutral-800/60 px-6 py-3 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </motion.div>
 
                 <motion.div variants={fadeUp} custom={3}>
                   <label htmlFor="password" className="mb-1 block text-sm font-medium">
-                    Password
+                    {t.passwordLabel}
                   </label>
                   <input
                     id="password"
@@ -302,21 +305,21 @@ const LoginPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
-                    placeholder="••••••••"
+                    placeholder={t.passwordPlaceholder}
                     className="w-full rounded-lg bg-neutral-800/60 px-6 py-3 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </motion.div>
 
                 <motion.div variants={fadeUp} custom={4} className="flex items-center justify-between text-xs">
                   <Link to="/forgot-password" className="text-neutral-400 transition-colors hover:text-cyan-400">
-                    Forgot password?
+                    {t.forgotPassword}
                   </Link>
                   <button
                     type="button"
                     className="text-neutral-400 transition-colors hover:text-cyan-400"
                     onClick={() => setIsSignUp(true)}
                   >
-                    Create account
+                    {t.createAccountLink}
                   </button>
                 </motion.div>
 
@@ -327,13 +330,13 @@ const LoginPage = () => {
                     size="lg"
                     className="w-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-md shadow-fuchsia-500/20 hover:to-fuchsia-600 disabled:opacity-50"
                   >
-                    {loading ? 'Signing in…' : 'Sign In'}
+                    {loading ? t.signingInButton : t.signInButton}
                   </Button>
                 </motion.div>
               </form>
               <div className="my-8 flex items-center">
                 <hr className="flex-1 border-t border-neutral-700" />
-                <span className="px-6 text-xs text-neutral-400">or</span>
+                <span className="px-6 text-xs text-neutral-400">{t.orDivider}</span>
                 <hr className="flex-1 border-t border-neutral-700" />
               </div>
               <LoginWithGmail />
