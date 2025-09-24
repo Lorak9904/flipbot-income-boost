@@ -1,10 +1,29 @@
 import termsMd from '@/legal/cookies_policy.md?raw';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { SEOHead } from '@/components/SEOHead';
+
+const pageTitle = 'Cookies Policy | FlipIt - AI Crosslisting Platform';
+const pageDescription = 'Learn about how FlipIt uses cookies to enhance your experience with our AI-powered crosslisting automation platform.';
+const keywords = [
+  'FlipIt cookies policy',
+  'crosslisting platform cookies',
+  'AI automation cookies',
+  'website cookies policy',
+  'privacy cookies',
+  'cookie consent',
+];
 
 export default function CookiesPolicyPage() {
   return (
-    <section className="mx-auto max-w-screen-md px-4 py-8">
+    <>
+      <SEOHead
+        title={pageTitle}
+        description={pageDescription}
+        canonicalUrl="https://myflipit.live/cookies"
+        keywords={keywords}
+      />
+      <section className="mx-auto max-w-screen-md px-4 py-8">
       <div className="prose prose-sm text-xs" style={{ lineHeight: 2 }}>
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
@@ -23,5 +42,6 @@ export default function CookiesPolicyPage() {
         </ReactMarkdown>
       </div>
     </section>
+    </>
   );
 }

@@ -1,10 +1,29 @@
 import termsMd from '@/legal/flipit_privacy_policy_simple.md?raw';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { SEOHead } from '@/components/SEOHead';
+
+const pageTitle = 'Privacy Policy | FlipIt - AI Crosslisting Platform';
+const pageDescription = 'Learn how FlipIt protects your privacy while providing AI-powered crosslisting automation for OLX, Vinted, and Facebook marketplaces.';
+const keywords = [
+  'FlipIt privacy policy',
+  'crosslisting platform privacy',
+  'AI automation privacy',
+  'marketplace privacy',
+  'data protection policy',
+  'user privacy rights',
+];
 
 export default function PrivacyPolicyPage() {
   return (
-    <section className="mx-auto max-w-screen-md px-4 py-8">
+    <>
+      <SEOHead
+        title={pageTitle}
+        description={pageDescription}
+        canonicalUrl="https://myflipit.live/privacy"
+        keywords={keywords}
+      />
+      <section className="mx-auto max-w-screen-md px-4 py-8">
       <div className="prose prose-sm text-xs" style={{ lineHeight: 2 }}>
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
@@ -23,5 +42,6 @@ export default function PrivacyPolicyPage() {
         </ReactMarkdown>
       </div>
     </section>
+    </>
   );
 }

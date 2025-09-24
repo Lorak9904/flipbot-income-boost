@@ -1,10 +1,29 @@
 import termsMd from '@/legal/flipit_regulamin.md?raw';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { SEOHead } from '@/components/SEOHead';
+
+const pageTitle = 'Terms of Service | FlipIt - AI Crosslisting Platform';
+const pageDescription = 'Read FlipIt\'s terms of service for our AI-powered crosslisting platform that automates OLX, Vinted, and Facebook marketplace listings.';
+const keywords = [
+  'FlipIt terms of service',
+  'crosslisting platform terms',
+  'AI automation terms',
+  'marketplace terms',
+  'reselling platform legal',
+  'terms and conditions',
+];
 
 export default function TermsPage() {
   return (
-    <section className="mx-auto max-w-screen-md px-4 py-8">
+    <>
+      <SEOHead
+        title={pageTitle}
+        description={pageDescription}
+        canonicalUrl="https://myflipit.live/terms"
+        keywords={keywords}
+      />
+      <section className="mx-auto max-w-screen-md px-4 py-8">
       <div className="prose prose-sm text-xs" style={{ lineHeight: 2 }}>
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
@@ -23,5 +42,6 @@ export default function TermsPage() {
         </ReactMarkdown>
       </div>
     </section>
+    </>
   );
 }
