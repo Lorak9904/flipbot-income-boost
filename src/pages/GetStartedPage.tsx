@@ -1,5 +1,6 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { SEOHead } from '@/components/SEOHead';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, Users, ArrowRight } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
@@ -28,6 +29,34 @@ const GetStartedPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const t = getTranslations(getStartedTranslations);
+  const pageTitle = 'Join the myflipit.live automated reselling platform waitlist';
+  const pageDescription = 'Reserve early access to the automated reselling platform that streamlines OLX and Vinted flipping.';
+  const keywords = [
+    'automated reselling platform waitlist',
+    'OLX reselling automation',
+    'Vinted flipping tools',
+    'marketplace automation',
+    'online arbitrage software',
+    'reselling side hustle',
+  ];
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'FlipIt',
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'PLN',
+      availability: 'https://schema.org/PreOrder',
+    },
+    potentialAction: {
+      '@type': 'RegisterAction',
+      target: 'https://myflipit.live/get-started',
+      name: 'Join the FlipIt automated reselling waitlist',
+    },
+  };
 
   useEffect(() => {
     fetch("/api/waitlist/token")
@@ -111,6 +140,13 @@ const GetStartedPage = () => {
 
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
+      <SEOHead
+        title={pageTitle}
+        description={pageDescription}
+        canonicalUrl="https://myflipit.live/get-started"
+        keywords={keywords}
+        structuredData={structuredData}
+      />
       {/* Unified Animated Gradient Background */}
       <div className="fixed inset-0 -z-20">
         <div className="absolute inset-0 bg-neutral-950"></div>
@@ -400,4 +436,11 @@ const GetStartedPage = () => {
 };
 
 export default GetStartedPage;
+
+
+
+
+
+
+
 

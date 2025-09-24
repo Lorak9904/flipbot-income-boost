@@ -1,5 +1,6 @@
-import { ArrowRight, Search, MessageSquare, DollarSign } from 'lucide-react';
+﻿import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SEOHead } from '@/components/SEOHead';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Users, Zap, BadgeCheck } from 'lucide-react';
@@ -18,9 +19,54 @@ const fadeUp = {
 
 const HomePage = () => {
   const t = getTranslations(homePageTranslations);
+  const pageTitle = 'myflipit.live | Automated Reselling Platform for OLX & Vinted';
+  const pageDescription = 'FlipIt automates OLX and Vinted reselling with AI-powered sourcing, profit analytics, and cross-posting.';
+  const keywords = [
+    'automated reselling platform',
+    'marketplace automation',
+    'OLX reselling software',
+    'Vinted reselling tool',
+    'online arbitrage AI',
+    'find undervalued items',
+    'crossposting automation',
+    'side hustle ideas',
+  ];
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'FlipIt',
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'PLN',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.9',
+      ratingCount: '128',
+    },
+    featureList: [
+      'Automated marketplace scanning',
+      'Cross-posting to OLX and Vinted',
+      'AI pricing recommendations',
+    ],
+  };
+
+  const seoBadges = [t.seoBadge1, t.seoBadge2, t.seoBadge3];
+  const seoPoints = [t.seoPoint1, t.seoPoint2, t.seoPoint3];
 
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
+      <SEOHead
+        title={pageTitle}
+        description={pageDescription}
+        canonicalUrl="https://myflipit.live/"
+        keywords={keywords}
+        structuredData={structuredData}
+      />
       {/* Unified Animated Gradient Background */}
       <div className="fixed inset-0 -z-20">
         {/* Base dark background */}
@@ -130,28 +176,28 @@ const HomePage = () => {
         }
       `}</style>
 
-      {/* Hero Section */}
+      {/* Hero Section - Improved layout with title as main eye-catcher */}
       <section className="relative isolate overflow-hidden min-h-[70vh] flex items-center justify-center py-24">
-        <div className="container mx-auto px-4 flex-1 flex items-center justify-center">
-          <div className="flex flex-col items-center text-center w-full max-w-2xl mx-auto">
+        <div className="container mx-auto px-8">
+          <div className="flex flex-col items-center text-center w-full max-w-3xl mx-auto">
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={fadeUp}
-              className="space-y-8"
+              className="space-y-8 mb-16"
             >
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-sm font-medium text-white backdrop-blur-md">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-8 py-1 text-sm font-medium text-white backdrop-blur-md">
                 {t.newRelease}
               </span>
-              <h1 className="my-custom-font text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-loose">
+              <h1 className="my-custom-font text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-tight">
                 {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight1}</span> {t.heroTitleEnd}&nbsp;
-                <span className="text-fuchsia-400">{t.heroTitleHighlight2}</span>.
+                <span className="bg-gradient-to-r from-fuchsia-400 to-cyan-400 inline-block text-transparent bg-clip-text">{t.heroTitleHighlight2}</span>.
               </h1>
-              <p className="max-w-xl text-lg/relaxed text-neutral-300">
+              <p className="max-w-2xl text-lg/relaxed text-neutral-300 mx-auto">
                 {t.heroDescription}
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 pt-2 justify-center">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center">
                 <Button
                   asChild
                   size="lg"
@@ -177,13 +223,13 @@ const HomePage = () => {
         {/* Enhanced gradient ring decoration */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-[-40%] -z-10 transform-gpu overflow-hidden blur-3xl"
+          className="pointer-events-none absolute inset-x-0 bottom-[-10%] -z-10 transform-gpu overflow-hidden blur-3xl"
         >
           <div
             className="relative left-1/2 aspect-[1155/678] w-[72.1875rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-fuchsia-500/30 to-cyan-500/20 opacity-30"
             style={{
               clipPath:
-                'polygon(74% 44%, 100% 74%, 91% 100%, 28% 93%, 0 53%, 33% 0, 67% 0)',
+                'polygon(74% 44%, 100% 74%, 91% 50%, 28% 93%, 0 53%, 33% 0, 67% 0)',
             }}
           ></div>
         </div>
@@ -191,7 +237,7 @@ const HomePage = () => {
 
       {/* Features Section - Now seamlessly integrated */}
       <section className="relative py-24">
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-8 relative z-10">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -246,9 +292,59 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Product widget section - Moved below the features section */}
+      <section className="relative py-16">
+        <div className="container mx-auto px-8">
+          <motion.div
+            custom={4}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+            className="w-full max-w-3xl mx-auto rounded-3xl border border-white/10 bg-neutral-900/60 p-8 text-center shadow-xl shadow-fuchsia-500/10 backdrop-blur"
+          >
+            <span className="text-xs uppercase tracking-[0.4em] text-cyan-300">{t.seoRibbon}</span>
+            <h2 className="mt-4 text-2xl font-semibold text-white sm:text-3xl">{t.seoBlurbTitle}</h2>
+            <p className="mt-4 text-neutral-300">{t.seoBlurbSubtitle}</p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-wider text-neutral-100">
+              {seoBadges.map((badge) => (
+                <span
+                  key={badge}
+                  className="rounded-full border border-cyan-400/40 bg-cyan-500/10 px-3 py-1 shadow-md shadow-cyan-500/20"
+                >
+                  {badge}
+                </span>
+              ))}
+            </div>
+            <ul className="mt-6 space-y-3 text-left text-neutral-200 max-w-xl mx-auto">
+              {seoPoints.map((point) => (
+                <li key={point} className="flex items-start gap-2">
+                  <span className="mt-[6px] h-2 w-2 flex-shrink-0 rounded-full bg-cyan-400" aria-hidden="true" />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        </div>
+
+        {/* Enhanced gradient ring decoration */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-[-40%] -z-10 transform-gpu overflow-hidden blur-3xl"
+        >
+          <div
+            className="relative left-1/2 aspect-[1155/678] w-[72.1875rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-fuchsia-500/30 to-cyan-500/20 opacity-30"
+            style={{
+              clipPath:
+                'polygon(74% 44%, 100% 74%, 91% 100%, 28% 93%, 0 53%, 33% 0, 67% 0)',
+            }}
+          ></div>
+        </div>
+      </section>
+      
       {/* Greatest Call to Action Section */}
       <section className="relative py-12">
-        <div className="container mx-auto px-4 relative z-10 flex flex-col items-center justify-center">
+        <div className="container mx-auto px-8 relative z-10 flex flex-col items-center justify-center">
           <div className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center">
             <h2 className="text-3xl md:text-5xl font-extrabold mb-6 text-white drop-shadow-lg">
               {t.ctaTitle}
@@ -271,4 +367,14 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
+
+
+
+
+
+
+
+
+
 

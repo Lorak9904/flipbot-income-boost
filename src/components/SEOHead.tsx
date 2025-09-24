@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+﻿import { Helmet } from 'react-helmet-async';
 
 interface SEOProps {
   title?: string;
@@ -6,6 +6,9 @@ interface SEOProps {
   canonicalUrl?: string;
   ogImage?: string;
   type?: 'website' | 'article';
+  keywords?: string | string[];
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
+  language?: string;
 }
 
 export function SEOHead({
@@ -14,11 +17,33 @@ export function SEOHead({
   canonicalUrl = 'https://myflipit.live',
   ogImage = '/og-image.jpg',
   type = 'website',
+  keywords,
+  structuredData,
+  language = 'en',
 }: SEOProps) {
   const siteTitle = title.includes('FlipIt') ? title : `${title} | FlipIt`;
+  const keywordContent = Array.isArray(keywords)
+    ? keywords.join(', ')
+    : keywords ?? 'online reselling, flipit, marketplace automation, profit automation, olx automation, vinted automation, ecommerce tools, reselling automation, online arbitrage, reselling bot';
+
+  const websiteStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'FlipIt',
+    description,
+    url: canonicalUrl,
+  };
+
+  const structuredDataList = Array.isArray(structuredData)
+    ? [websiteStructuredData, ...structuredData]
+    : structuredData
+      ? [websiteStructuredData, structuredData]
+      : [websiteStructuredData];
+
+  const locale = language === 'pl' ? 'pl_PL' : 'en_US';
 
   return (
-    <Helmet>
+    <Helmet htmlAttributes={{ lang: language }}>
       {/* Primary Meta Tags */}
       <title>{siteTitle}</title>
       <meta name="title" content={siteTitle} />
@@ -30,6 +55,7 @@ export function SEOHead({
       <meta property="og:title" content={siteTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={ogImage} />
+      <meta property="og:locale" content={locale} />
 
       {/* Twitter */}
       <meta property="twitter:card" content="summary_large_image" />
@@ -40,18 +66,14 @@ export function SEOHead({
 
       {/* Additional SEO tags */}
       <link rel="canonical" href={canonicalUrl} />
-      <meta name="keywords" content="online reselling, flipit, marketplace automation, profit automation, olx automation, vinted automation, ecommerce tools, reselling automation, online arbitrage, reselling bot" />
-      
+      <meta name="keywords" content={keywordContent} />
+
       {/* Structured Data */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'WebSite',
-          name: 'FlipIt',
-          description,
-          url: canonicalUrl,
-        })}
-      </script>
+      {structuredDataList.map((data, index) => (
+        <script key={index} type="application/ld+json">
+          {JSON.stringify(data)}
+        </script>
+      ))}
     </Helmet>
   );
 }

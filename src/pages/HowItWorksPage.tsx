@@ -1,5 +1,6 @@
-import { ArrowRight, Plug, Upload, Repeat } from 'lucide-react';
+﻿import { ArrowRight, Plug, Upload, Repeat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SEOHead } from '@/components/SEOHead';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getTranslations } from '../components/language-utils';
@@ -18,6 +19,17 @@ const iconMap = [Plug, Upload, Repeat]; // keep icons aligned with steps order
 
 const HowItWorksPage = () => {
   const t = getTranslations(howItWorksTranslations);
+  const pageTitle = 'How the myflipit.live AI crosslisting flow works';
+  const pageDescription = 'See how myflipit.live turns a single photo into synchronized OLX, Vinted, and Facebook listings with AI.';
+  const keywords = [
+    'automated reselling platform',
+    'OLX reselling automation',
+    'Vinted automation',
+    'marketplace automation software',
+    'online arbitrage workflows',
+    'find undervalued items',
+  ];
+  const heroBadges = [t.badge1, t.badge2, t.badge3];
 
   const steps = [
     { title: t.step1Title, description: t.step1Description },
@@ -25,8 +37,28 @@ const HowItWorksPage = () => {
     { title: t.step3Title, description: t.step3Description },
   ];
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: pageTitle,
+    description: pageDescription,
+    step: steps.map((step, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: step.title,
+      text: step.description,
+    })),
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
+      <SEOHead
+        title={pageTitle}
+        description={pageDescription}
+        canonicalUrl="https://myflipit.live/how-it-works"
+        keywords={keywords}
+        structuredData={structuredData}
+      />
       {/* Background blocks stay exactly as they were */}
       <div className="fixed inset-0 -z-20">
         <div className="absolute inset-0 bg-neutral-950" />
@@ -81,12 +113,12 @@ const HowItWorksPage = () => {
       </div>
 
       {/* Hero */}
-      <section className="relative py-24 text-center">
+      <section className="relative py-16 md:py-24 text-center px-4">
         <motion.h1
           initial="hidden"
           animate="visible"
           variants={fadeUp}
-          className="mx-auto mb-6 max-w-4xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl"
+          className="mx-auto mb-6 max-w-4xl text-3xl md:text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl"
         >
           {t.heroTitle}
         </motion.h1>
@@ -95,15 +127,15 @@ const HowItWorksPage = () => {
           initial="hidden"
           animate="visible"
           variants={fadeUp}
-          className="mx-auto max-w-xl text-lg text-neutral-300"
+          className="mx-auto max-w-xl text-base md:text-lg text-neutral-300 px-2"
         >
           {t.heroDescription}
         </motion.p>
       </section>
 
       {/* Steps */}
-      <section className="relative isolate overflow-hidden py-24">
-        <div className="container relative z-10 mx-auto grid gap-10 px-4 md:grid-cols-3">
+      <section className="relative isolate overflow-hidden py-16 md:py-24">
+        <div className="container relative z-10 mx-auto grid gap-8 md:gap-10 px-6 md:px-8 md:grid-cols-3">
           {steps.map(({ title, description }, i) => {
             const Icon = iconMap[i];
             return (
@@ -114,13 +146,13 @@ const HowItWorksPage = () => {
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeUp}
-                className="flex flex-col items-center gap-4 rounded-2xl bg-neutral-900/50 p-8 text-center backdrop-blur-sm ring-1 ring-cyan-400/20"
+                className="flex flex-col items-center gap-4 rounded-2xl bg-neutral-900/50 p-6 md:p-8 text-center backdrop-blur-sm ring-1 ring-cyan-400/20 mx-2"
               >
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-cyan-400/10 ring-1 ring-cyan-400/20">
                   <Icon className="h-8 w-8 text-cyan-400" />
                 </div>
-                <h3 className="text-xl font-semibold">{title}</h3>
-                <p className="text-neutral-300">{description}</p>
+                <h3 className="text-lg md:text-xl font-semibold px-2">{title}</h3>
+                <p className="text-neutral-300 text-sm md:text-base px-2">{description}</p>
               </motion.div>
             );
           })}
@@ -128,12 +160,12 @@ const HowItWorksPage = () => {
       </section>
 
       {/* CTA */}
-      <section className="relative py-24 text-center">
+      <section className="relative py-16 md:py-24 text-center px-4">
         <motion.h2
           initial="hidden"
           whileInView="visible"
           variants={fadeUp}
-          className="mb-8 text-3xl font-bold md:text-4xl"
+          className="mb-8 text-2xl md:text-3xl font-bold lg:text-4xl px-2"
         >
           {t.ctaTitle}
         </motion.h2>
@@ -152,4 +184,22 @@ const HowItWorksPage = () => {
 };
 
 export default HowItWorksPage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

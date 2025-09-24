@@ -1,4 +1,4 @@
-import { Translations } from '../components/language-utils';
+﻿import { Translations } from '../components/language-utils';
 
 export const homePageTranslations: Translations = {
   en: {
@@ -7,20 +7,29 @@ export const homePageTranslations: Translations = {
     heroTitleHighlight1: 'multi-marketplace',
     heroTitleEnd: 'sales',
     heroTitleHighlight2: 'machine',
-    heroDescription: "FlipIt's AI posts and syncs your item on OLX, Vinted & Facebook — more channels coming soon.",
+    heroDescription: "FlipIt's AI crosslisting platform transforms one photo into optimized listings on OLX, Vinted & Facebook — no copy-paste required.",
     startFlipping: 'Start flipping today',
     seeHowItWorks: 'See how it works',
-    whyLoveTitle: 'Why You\'ll Love FlipIt',
-    whyLoveSubtitle: 'AI-driven insights, automated negotiations, and smart pricing tools that supercharge your flipping game.',
+    seoRibbon: 'AI crosslisting in minutes',
+    seoBlurbTitle: 'One photo, everywhere you sell',
+    seoBlurbSubtitle: 'Upload once and let myflipit.live craft listings, pricing, and buyer replies across OLX, Vinted, and Facebook.',
+    seoPoint1: 'AI turns a single image into marketplace-ready titles, descriptions, and hashtags.',
+    seoPoint2: 'Inventory, pricing, and availability stay synced across every marketplace automatically.',
+    seoPoint3: 'Smart autoresponders keep buyers engaged while you focus on pickups and packing.',
+    seoBadge1: 'AI crosslisting',
+    seoBadge2: 'One-photo upload',
+    seoBadge3: 'Smart messaging',
+    whyLoveTitle: "Why You'll Love FlipIt",
+    whyLoveSubtitle: 'AI-driven crosslisting, automated buyer messaging, and smart pricing tools that supercharge your reselling business.',
     feature1Title: 'Reach Every Buyer',
-    feature1Desc: 'Your listing appears on OLX, Facebook & Vinted — no manual reposting.',
+    feature1Desc: 'Publish on OLX, Facebook & Vinted simultaneously — no manual reposting.',
     feature2Title: 'Hands-Off Selling',
-    feature2Desc: 'FlipIt suggests the best price, title and category, then keeps everything in sync.',
+    feature2Desc: 'FlipIt suggests the best price, title, and category, then keeps everything in sync.',
     feature3Title: 'Free During Beta',
     feature3Desc: 'Early access means full features, zero fees while we fine-tune.',
     ctaTitle: 'Secure your free spot today!',
     ctaDescription: 'Join thousands of smart sellers using FlipIt to multiply their reach and profits. One upload, every marketplace. Start your journey now!',
-    ctaButton: 'Get Started — It\'s Free'
+    ctaButton: "Get Started — It's Free"
   },
   pl: {
     newRelease: '🚀 Nowe wydanie',
@@ -28,20 +37,28 @@ export const homePageTranslations: Translations = {
     heroTitleHighlight1: 'wieloplatformową',
     heroTitleEnd: 'maszynę do',
     heroTitleHighlight2: 'sprzedaży',
-    heroDescription: 'AI FlipIt publikuje i synchronizuje Twój przedmiot na OLX, Vinted i Facebook — więcej kanałów już wkrótce.',
+    heroDescription: 'Platforma crosslistingowa FlipIt z AI zamienia jedno zdjęcie w zoptymalizowane ogłoszenia na OLX, Vinted i Facebooku — bez przepisywania treści.',
     startFlipping: 'Zacznij sprzedawać już dziś',
     seeHowItWorks: 'Zobacz jak to działa',
+    seoRibbon: 'Crosslisting z AI w kilka minut',
+    seoBlurbTitle: 'Jedno zdjęcie, wszystkie marketplace’y',
+    seoBlurbSubtitle: 'Wgraj produkt raz, a myflipit.live przygotuje opisy, ceny i odpowiedzi dla OLX, Vinted i Facebooka.',
+    seoPoint1: 'AI tworzy gotowe do publikacji tytuły, opisy i hashtagi na podstawie jednego zdjęcia.',
+    seoPoint2: 'Stany magazynowe, ceny i dostępność synchronizują się automatycznie na wszystkich marketplace’ach.',
+    seoPoint3: 'Inteligentne autorespondery podtrzymują rozmowy z kupującymi, a Ty skupiasz się na odbiorach i pakowaniu.',
+    seoBadge1: 'AI do crosslistingu',
+    seoBadge2: 'Jedno zdjęcie',
+    seoBadge3: 'Sprytne wiadomości',
     whyLoveTitle: 'Dlaczego pokochasz FlipIt',
-    whyLoveSubtitle: 'Wglądy oparte na AI, automatyczne negocjacje i inteligentne narzędzia cenowe, które napędzają Twoją grę w odsprzedaży.',
-    feature1Title: 'Dotrzij do każdego kupującego',
-    feature1Desc: 'Twoje ogłoszenie pojawia się na OLX, Facebook i Vinted — bez ręcznego przepisywania.',
+    whyLoveSubtitle: 'Crosslisting wspierany przez AI, automatyczne wiadomości do kupujących i inteligentne wyceny, które skalują Twój biznes odsprzedaży.',
+    feature1Title: 'Dotrzyj do każdego kupującego',
+    feature1Desc: 'Publikuj na OLX, Facebooku i Vinted jednocześnie — bez ręcznego przepisywania.',
     feature2Title: 'Sprzedaż bez wysiłku',
     feature2Desc: 'FlipIt sugeruje najlepszą cenę, tytuł i kategorię, a następnie utrzymuje wszystko w synchronizacji.',
     feature3Title: 'Darmowe podczas beta',
     feature3Desc: 'Wczesny dostęp oznacza pełne funkcje, zero opłat podczas gdy dopracowujemy szczegóły.',
     ctaTitle: 'Zabezpiecz swoje darmowe miejsce już dziś!',
-    ctaDescription: 'Dołącz do tysięcy inteligentnych sprzedawców używających FlipIt do zwiększenia zasięgu i zysków. Jedno ogłoszenie, każdy marketplace. Rozpocznij swoją podróż teraz!',
+    ctaDescription: 'Dołącz do tysięcy sprzedawców używających FlipIt do zwiększenia zasięgu i zysków. Jedno ogłoszenie, każdy marketplace. Rozpocznij swoją podróż teraz!',
     ctaButton: 'Rozpocznij — To darmowe'
   }
 };
-
