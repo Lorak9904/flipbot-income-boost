@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, Save, Facebook, Store } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -44,6 +45,12 @@ const SettingsPage = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
+      <SEOHead
+        title="Settings | FlipIt"
+        description="Manage your FlipIt account and marketplace connections."
+        canonicalUrl="https://myflipit.live/settings"
+        robots="noindex, nofollow"
+      />
       {/* Unified Animated Gradient Background (reuse HomePage pattern) */}
       <div className="fixed inset-0 -z-20">
         <div className="absolute inset-0 bg-neutral-950" />

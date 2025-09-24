@@ -2,6 +2,7 @@ import termsMd from '@/legal/cookies_policy.md?raw';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { SEOHead } from '@/components/SEOHead';
+import { getCurrentLanguage } from '@/components/language-utils';
 
 const pageTitle = 'Cookies Policy | FlipIt - AI Crosslisting Platform';
 const pageDescription = 'Learn about how FlipIt uses cookies to enhance your experience with our AI-powered crosslisting automation platform.';
@@ -22,6 +23,7 @@ export default function CookiesPolicyPage() {
         description={pageDescription}
         canonicalUrl="https://myflipit.live/cookies"
         keywords={keywords}
+        language={getCurrentLanguage()}
       />
       <section className="mx-auto max-w-screen-md px-4 py-8">
       <div className="prose prose-sm text-xs" style={{ lineHeight: 2 }}>

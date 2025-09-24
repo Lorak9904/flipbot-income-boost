@@ -1,6 +1,7 @@
 
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { SEOHead } from '@/components/SEOHead';
 
 const testimonials = [
   {
@@ -44,6 +45,12 @@ const testimonials = [
 const SuccessStoriesPage = () => {
   return (
     <div>
+      <SEOHead
+        title="Success Stories | FlipIt"
+        description="Real users generating profits with FlipIt's crosslisting and automation tools."
+        canonicalUrl="https://myflipit.live/success-stories"
+        keywords={['flipit success stories','reselling profits','crosslisting results']}
+      />
       {/* Hero Section */}
       <section className="py-16 md:py-20 bg-gradient-to-b from-white to-blue-50">
         <div className="container mx-auto text-center">

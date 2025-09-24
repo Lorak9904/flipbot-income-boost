@@ -41,21 +41,21 @@ const Footer = () => {
                   Automated Reselling Guide
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to="/features" className="text-neutral-300 transition-colors hover:text-cyan-400">
                   Features
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link to="/how-it-works" className="text-neutral-300 transition-colors hover:text-cyan-400">
                   How&nbsp;It&nbsp;Works
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to="/success-stories" className="text-neutral-300 transition-colors hover:text-cyan-400">
                   Success&nbsp;Stories
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </nav>
 

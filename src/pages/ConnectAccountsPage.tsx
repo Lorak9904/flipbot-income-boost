@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { ConnectOlxButton } from '@/pages/ConnectOlxButton';
 import { useToast } from '@/hooks/use-toast';
+import { SEOHead } from '@/components/SEOHead';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -118,6 +119,12 @@ const ConnectAccountsPage = () => {
   if (isLoading) {
     return (
       <div className="relative min-h-screen text-white overflow-hidden">
+        <SEOHead
+          title="Connect Accounts | FlipIt"
+          description="Connect your marketplaces to enable crosslisting."
+          canonicalUrl="https://myflipit.live/connect-accounts"
+          robots="noindex, nofollow"
+        />
         {/* Background from HomePage */}
         <div className="fixed inset-0 -z-20">
           <div className="absolute inset-0 bg-neutral-950"></div>
@@ -235,6 +242,12 @@ const ConnectAccountsPage = () => {
 
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
+      <SEOHead
+        title="Connect Accounts | FlipIt"
+        description="Connect your marketplaces to enable crosslisting."
+        canonicalUrl="https://myflipit.live/connect-accounts"
+        robots="noindex, nofollow"
+      />
       {/* Unified Animated Gradient Background */}
       <div className="fixed inset-0 -z-20">
         <div className="absolute inset-0 bg-neutral-950"></div>

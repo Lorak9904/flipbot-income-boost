@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginWithGmail from '@/components/LoginWithGmail';
+import { SEOHead } from '@/components/SEOHead';
 
 // Fade‑up motion reused across inputs / header
 const fadeUp = {
@@ -105,6 +106,12 @@ const LoginPage = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-neutral-950 text-white">
+      <SEOHead
+        title="Login | FlipIt"
+        description="Log in or create your FlipIt account to manage crosslisting."
+        canonicalUrl="https://myflipit.live/login"
+        robots="noindex, nofollow"
+      />
       <div className="pointer-events-none fixed inset-0 -z-20">
         <div className="absolute inset-0 bg-neutral-950" />
         <motion.div

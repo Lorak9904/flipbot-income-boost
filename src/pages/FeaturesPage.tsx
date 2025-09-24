@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { Search, MessageSquare, Image, DollarSign, Shield, TrendingUp, Clock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SEOHead } from '@/components/SEOHead';
 
 const FeaturesPage = () => {
   const features = [
@@ -49,6 +50,17 @@ const FeaturesPage = () => {
 
   return (
     <div>
+      <SEOHead
+        title="FlipIt Features | Crosslisting & Automation"
+        description="Explore FlipIt's AI crosslisting, pricing insights, messaging automation, and more."
+        canonicalUrl="https://myflipit.live/features"
+        keywords={[
+          'FlipIt features',
+          'crosslisting automation',
+          'OLX Vinted Facebook',
+          'reselling software',
+        ]}
+      />
       {/* Hero Section */}
       <section className="py-16 md:py-20 bg-gradient-to-b from-white to-blue-50">
         <div className="container mx-auto text-center">

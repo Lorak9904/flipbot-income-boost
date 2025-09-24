@@ -2,6 +2,7 @@ import termsMd from '@/legal/flipit_privacy_policy_simple.md?raw';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { SEOHead } from '@/components/SEOHead';
+import { getCurrentLanguage } from '@/components/language-utils';
 
 const pageTitle = 'Privacy Policy | FlipIt - AI Crosslisting Platform';
 const pageDescription = 'Learn how FlipIt protects your privacy while providing AI-powered crosslisting automation for OLX, Vinted, and Facebook marketplaces.';
@@ -22,6 +23,7 @@ export default function PrivacyPolicyPage() {
         description={pageDescription}
         canonicalUrl="https://myflipit.live/privacy"
         keywords={keywords}
+        language={getCurrentLanguage()}
       />
       <section className="mx-auto max-w-screen-md px-4 py-8">
       <div className="prose prose-sm text-xs" style={{ lineHeight: 2 }}>

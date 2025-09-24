@@ -8,6 +8,7 @@ import ReviewItemForm from '@/components/ReviewItemForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
+import { SEOHead } from '@/components/SEOHead';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -98,6 +99,12 @@ const AddItemPage = () => {
   if (isLoading) {
     return (
       <div className="relative min-h-screen text-white overflow-hidden">
+        <SEOHead
+          title="Add Item | FlipIt"
+          description="Add a new item to crosslist across OLX, Vinted and Facebook."
+          canonicalUrl="https://myflipit.live/add-item"
+          robots="noindex, nofollow"
+        />
         {/* Unified Animated Gradient Background */}
         <div className="fixed inset-0 -z-20">
           <div className="absolute inset-0 bg-neutral-950"></div>
@@ -214,6 +221,12 @@ const AddItemPage = () => {
 
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
+      <SEOHead
+        title="Add Item | FlipIt"
+        description="Add a new item to crosslist across OLX, Vinted and Facebook."
+        canonicalUrl="https://myflipit.live/add-item"
+        robots="noindex, nofollow"
+      />
       {/* Unified Animated Gradient Background */}
       <div className="fixed inset-0 -z-20">
         <div className="absolute inset-0 bg-neutral-950"></div>

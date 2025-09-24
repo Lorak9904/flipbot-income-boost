@@ -1,6 +1,7 @@
 ﻿import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
+import { getCurrentLanguage } from '@/components/language-utils';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -39,7 +40,7 @@ const articleStructuredData = {
     name: 'FlipIt',
     logo: {
       '@type': 'ImageObject',
-      url: 'https://myflipit.live/og-image.jpg',
+      url: 'https://myflipit.live/placeholder.svg',
     },
   },
   mainEntityOfPage: {
@@ -79,6 +80,7 @@ const AutomatedResellingPlatformGuide = () => {
         type="article"
         keywords={keywords}
         structuredData={articleStructuredData}
+        language={getCurrentLanguage()}
       />
 
       {/* Unified Animated Gradient Background */}

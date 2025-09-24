@@ -2,6 +2,7 @@ import termsMd from '@/legal/flipit_regulamin.md?raw';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { SEOHead } from '@/components/SEOHead';
+import { getCurrentLanguage } from '@/components/language-utils';
 
 const pageTitle = 'Terms of Service | FlipIt - AI Crosslisting Platform';
 const pageDescription = 'Read FlipIt\'s terms of service for our AI-powered crosslisting platform that automates OLX, Vinted, and Facebook marketplace listings.';
@@ -22,6 +23,7 @@ export default function TermsPage() {
         description={pageDescription}
         canonicalUrl="https://myflipit.live/terms"
         keywords={keywords}
+        language={getCurrentLanguage()}
       />
       <section className="mx-auto max-w-screen-md px-4 py-8">
       <div className="prose prose-sm text-xs" style={{ lineHeight: 2 }}>

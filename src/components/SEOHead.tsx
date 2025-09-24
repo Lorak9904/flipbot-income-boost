@@ -9,17 +9,19 @@ interface SEOProps {
   keywords?: string | string[];
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
   language?: string;
+  robots?: string;
 }
 
 export function SEOHead({
   title = 'FlipIt - Turn Online Finds into Real Profits',
   description = 'FlipIt scans marketplaces, finds undervalued items, and helps you resell them for profit — all on autopilot. Start earning extra income today!',
   canonicalUrl = 'https://myflipit.live',
-  ogImage = '/og-image.jpg',
+  ogImage = '/placeholder.svg',
   type = 'website',
   keywords,
   structuredData,
   language = 'en',
+  robots,
 }: SEOProps) {
   const siteTitle = title.includes('FlipIt') ? title : `${title} | FlipIt`;
   const keywordContent = Array.isArray(keywords)
@@ -55,6 +57,7 @@ export function SEOHead({
       <meta property="og:title" content={siteTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={ogImage} />
+      <meta property="og:site_name" content="FlipIt" />
       <meta property="og:locale" content={locale} />
 
       {/* Twitter */}
@@ -63,10 +66,12 @@ export function SEOHead({
       <meta property="twitter:title" content={siteTitle} />
       <meta property="twitter:description" content={description} />
       <meta property="twitter:image" content={ogImage} />
+      <meta name="twitter:site" content="@flipbotai" />
 
       {/* Additional SEO tags */}
       <link rel="canonical" href={canonicalUrl} />
       <meta name="keywords" content={keywordContent} />
+      {robots && <meta name="robots" content={robots} />}
 
       {/* Structured Data */}
       {structuredDataList.map((data, index) => (

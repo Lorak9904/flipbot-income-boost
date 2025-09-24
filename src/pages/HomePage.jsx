@@ -4,7 +4,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Users, Zap, BadgeCheck } from 'lucide-react';
-import { getTranslations } from '../components/language-utils';
+import { getTranslations, getCurrentLanguage } from '../components/language-utils';
 import { homePageTranslations } from './homepage-translations';
 
 // Simple fade-up animation variant
@@ -66,6 +66,7 @@ const HomePage = () => {
         canonicalUrl="https://myflipit.live/"
         keywords={keywords}
         structuredData={structuredData}
+        language={getCurrentLanguage()}
       />
       {/* Unified Animated Gradient Background */}
       <div className="fixed inset-0 -z-20">

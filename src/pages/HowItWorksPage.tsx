@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { SEOHead } from '@/components/SEOHead';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getTranslations } from '../components/language-utils';
+import { getTranslations, getCurrentLanguage } from '../components/language-utils';
 import { howItWorksTranslations } from './howitworks-translations';
 
 const fadeUp = {
@@ -58,6 +58,7 @@ const HowItWorksPage = () => {
         canonicalUrl="https://myflipit.live/how-it-works"
         keywords={keywords}
         structuredData={structuredData}
+        language={getCurrentLanguage()}
       />
       {/* Background blocks stay exactly as they were */}
       <div className="fixed inset-0 -z-20">
