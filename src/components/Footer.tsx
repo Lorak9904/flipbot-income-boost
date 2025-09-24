@@ -51,11 +51,11 @@ const Footer = () => {
                   How&nbsp;It&nbsp;Works
                 </Link>
               </li>
-              {/* <li>
+              <li>
                 <Link to="/success-stories" className="text-neutral-300 transition-colors hover:text-cyan-400">
                   Success&nbsp;Stories
                 </Link>
-              </li> */}
+              </li>
             </ul>
           </nav>
 

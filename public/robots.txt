@@ -1,4 +1,7 @@
-﻿User-agent: Googlebot
+﻿# Robots.txt for myflipit.live
+
+# Główne wyszukiwarki
+User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
@@ -10,8 +13,28 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+# Zezwalamy także na AI crawlers (GPT, Claude, Perplexity itd.)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Domyślne ustawienie dla innych
 User-agent: *
 Allow: /
 
+# Mapa strony
 Sitemap: https://myflipit.live/sitemap.xml
-
