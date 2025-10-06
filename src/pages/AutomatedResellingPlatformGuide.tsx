@@ -1,7 +1,8 @@
 ﻿import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
-import { getCurrentLanguage } from '@/components/language-utils';
+import { getCurrentLanguage, getTranslations } from '@/components/language-utils';
+import { guideTranslations } from './guide-translations';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -12,8 +13,6 @@ const fadeUp = {
   }),
 };
 
-const pageTitle = 'Automated Reselling Platform Playbook: Crosslist Faster with myflipit.live';
-const pageDescription = 'See how myflipit.live turns a single photo into synchronized OLX and Vinted listings today—and what crosslisting automation features are coming next.';
 const keywords = [
   'automated reselling platform',
   'AI crosslisting',
@@ -25,57 +24,46 @@ const keywords = [
   'future sourcing alerts',
 ];
 
-const articleStructuredData = {
-  '@context': 'https://schema.org',
-  '@type': 'Article',
-  headline: pageTitle,
-  description: pageDescription,
-  author: {
-    '@type': 'Organization',
-    name: 'FlipIt',
-    url: 'https://myflipit.live',
-  },
-  publisher: {
-    '@type': 'Organization',
-    name: 'FlipIt',
-    logo: {
-      '@type': 'ImageObject',
-      url: 'https://myflipit.live/placeholder.svg',
-    },
-  },
-  mainEntityOfPage: {
-    '@type': 'WebPage',
-    '@id': 'https://myflipit.live/automated-reselling-platform-guide',
-  },
-  datePublished: '2025-09-23',
-  dateModified: '2025-09-23',
-  keywords,
-};
-
-const heroBadges = [
-  'AI crosslisting automation',
-  'One-photo listings',
-  'Auto-synced messaging',
-];
-
-const crosslistingHighlights = [
-  'Upload a single product photo and FlipIt drafts marketplace-ready copy for OLX, Vinted, and Facebook.',
-  'Inventory, pricing, and availability stay in lockstep across every channel without spreadsheets.',
-  'AI-powered replies keep buyers engaged while you focus on sourcing, packing, and delivery.',
-];
-
-const futureHighlights = [
-  'Automated sourcing alerts will soon flag undervalued OLX and Vinted deals tailored to your filters.',
-  'AI negotiation templates will help secure better buy prices without writing every message from scratch.',
-  'Smart relist reminders will keep profitable inventory circulating across each marketplace automatically.',
-];
-
 const AutomatedResellingPlatformGuide = () => {
-  return (
+  const t = getTranslations(guideTranslations);
+  
+  const pageTitle = t.pageTitle;
+  const pageDescription = t.pageDescription;
+  
+  const articleStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: pageTitle,
+    description: pageDescription,
+    author: {
+      '@type': 'Organization',
+      name: 'FlipIt',
+      url: 'https://myflipit.live',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'FlipIt',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://myflipit.live/placeholder.svg',
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': 'https://myflipit.live/automated-reselling-platform-guide',
+    },
+    datePublished: '2025-09-23',
+    dateModified: '2025-09-23',
+    keywords,
+  };
+  
+  const heroBadges = [t.heroBadge1, t.heroBadge2, t.heroBadge3];
+  const crosslistingHighlights = [t.crosslistingPoint1, t.crosslistingPoint2, t.crosslistingPoint3];
+  const futureHighlights = [t.futurePoint1, t.futurePoint2, t.futurePoint3];  return (
     <div className="relative overflow-hidden bg-neutral-950 text-white">
       <SEOHead
-        title={pageTitle}
-        description={pageDescription}
+        title={t.pageTitle}
+        description={t.pageDescription}
         canonicalUrl="https://myflipit.live/automated-reselling-platform-guide"
         type="article"
         keywords={keywords}
@@ -212,13 +200,13 @@ const AutomatedResellingPlatformGuide = () => {
               className="space-y-8"
             >
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-8 py-1 text-sm font-medium text-white backdrop-blur-md">
-                Automated Reselling Platform Guide
+                {t.guideLabel}
               </span>
               <h1 className="my-custom-font text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
-                Automated Reselling Platform <span className="text-cyan-400">Playbook:</span> Crosslist Faster with <span className="bg-gradient-to-r from-fuchsia-400 to-cyan-400 inline-block text-transparent bg-clip-text">myflipit.live</span>
+                {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight}</span> {t.heroTitleEnd} <span className="bg-gradient-to-r from-fuchsia-400 to-cyan-400 inline-block text-transparent bg-clip-text">{t.heroTitleBrand}</span>
               </h1>
               <p className="max-w-2xl text-lg/relaxed text-neutral-300 mx-auto">
-                It's 1 a.m., you're juggling OLX, Vinted, and Facebook tabs trying to keep listings in sync. FlipIt's AI crosslisting platform turns one photo into polished listings across every marketplace—so you can reclaim your time without sacrificing reach.
+                {t.heroDescription}
               </p>
               <motion.div
                 custom={4}
@@ -264,8 +252,8 @@ const AutomatedResellingPlatformGuide = () => {
           variants={fadeUp}
           className="mb-16 w-full max-w-3xl mx-auto rounded-3xl border border-white/10 bg-neutral-900/60 p-8 text-center shadow-xl shadow-fuchsia-500/10 backdrop-blur"
         >
-          <span className="text-xs uppercase tracking-[0.4em] text-cyan-300">One photo. Every marketplace.</span>
-          <h2 className="mt-4 text-2xl font-semibold text-white sm:text-3xl">Why automated crosslisting beats manual copy-paste</h2>
+          <span className="text-xs uppercase tracking-[0.4em] text-cyan-300">{t.widgetLabel}</span>
+          <h2 className="mt-4 text-2xl font-semibold text-white sm:text-3xl">{t.widgetTitle}</h2>
           <ul className="mt-6 space-y-3 text-left text-neutral-200 max-w-xl mx-auto">
             {crosslistingHighlights.map((point) => (
               <li key={point} className="flex items-start gap-2">
@@ -284,12 +272,12 @@ const AutomatedResellingPlatformGuide = () => {
           variants={fadeUp}
           className="mb-16 p-8 rounded-2xl bg-neutral-900/40 backdrop-blur-sm ring-1 ring-white/5"
         >
-          <h2 className="text-2xl font-bold text-white mb-6">The Hidden Grind of Manual Crosslisting</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">{t.section1Title}</h2>
           <p className="text-neutral-300 mb-4">
-            Manual crossposting means retyping titles, resizing photos, and updating prices in multiple dashboards every time demand shifts. It's easy to double-sell stock or leave buyers waiting while you copy answers between OLX and Vinted threads.
+            {t.section1Para1}
           </p>
           <p className="text-neutral-300">
-            Even seasoned resellers lose hours keeping marketplaces aligned. Without automation you're stuck maintaining spreadsheets instead of scaling your shop, onboarding new inventory, or delighting repeat buyers.
+            {t.section1Para2}
           </p>
         </motion.section>
 
@@ -301,12 +289,12 @@ const AutomatedResellingPlatformGuide = () => {
           variants={fadeUp}
           className="mb-16 p-8 rounded-2xl bg-gradient-to-br from-neutral-900/80 to-neutral-900/40 backdrop-blur-sm ring-1 ring-cyan-500/10 shadow-lg shadow-cyan-500/5"
         >
-          <h2 className="text-2xl font-bold text-white mb-6">What is an Automated Reselling Platform?</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">{t.section2Title}</h2>
           <p className="text-neutral-300 mb-4">
-            An automated reselling platform centralizes your listings, buyers, and pricing rules in one dashboard. Drop in product photos and details once—AI turns them into optimized listings, routes buyer messages, and keeps stock levels synced across marketplaces.
+            {t.section2Para1}
           </p>
           <p className="text-neutral-300">
-            With FlipIt you stay in control of approvals while the system handles repetitive crosslisting tasks. And because automation scales up with your catalog, you can grow to new marketplaces without growing your workload.
+            {t.section2Para2}
           </p>
         </motion.section>
 
@@ -318,12 +306,12 @@ const AutomatedResellingPlatformGuide = () => {
           variants={fadeUp}
           className="mb-16 p-8 rounded-2xl bg-gradient-to-br from-neutral-900/60 via-fuchsia-900/10 to-neutral-900/40 backdrop-blur-sm ring-1 ring-fuchsia-500/10 shadow-lg shadow-fuchsia-500/5"
         >
-          <h2 className="text-2xl font-bold text-white mb-6">Introducing myflipit.live: Your Crosslisting Co-pilot</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">{t.section3Title}</h2>
           <p className="text-neutral-300 mb-4">
-            myflipit.live learns your item categories, preferred price thresholds, and buyer tone to keep every listing consistent. AI-generated descriptions, titles, and hashtags give you a professional voice on OLX, Vinted, and Facebook—no manual editing required.
+            {t.section3Para1}
           </p>
           <p className="text-neutral-300">
-            The platform also routes buyer messages into a shared inbox, suggests quick replies, and mirrors availability the moment an item sells. Curious how it fits into your workflow? Explore the product tour at <Link to="/how-it-works" className="text-cyan-300 underline hover:text-cyan-200">how it works</Link>.
+            {t.section3Para2} <Link to="/how-it-works" className="text-cyan-300 underline hover:text-cyan-200">{t.section3LinkText}</Link>.
           </p>
         </motion.section>
 
@@ -335,7 +323,7 @@ const AutomatedResellingPlatformGuide = () => {
           variants={fadeUp}
           className="mb-16"
         >
-          <h2 className="text-2xl font-bold text-white mb-8 text-center">How to Maximize Your Profits with myflipit.live in 4 Simple Steps</h2>
+          <h2 className="text-2xl font-bold text-white mb-8 text-center">{t.stepsTitle}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="group relative overflow-hidden rounded-2xl bg-neutral-900/50 backdrop-blur-sm p-6 shadow-lg ring-1 ring-cyan-400/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:ring-cyan-400/40">
               <div className="absolute inset-0 -z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
@@ -344,9 +332,9 @@ const AutomatedResellingPlatformGuide = () => {
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-cyan-400/10 mb-4 ring-1 ring-cyan-400/20">
                 <span className="font-bold text-xl text-cyan-400">1</span>
               </div>
-              <p className="font-semibold text-white text-lg mb-2">Connect Your Marketplaces</p>
+              <p className="font-semibold text-white text-lg mb-2">{t.step1Title}</p>
               <p className="text-neutral-300">
-                Securely link OLX, Vinted, Facebook, and other channels so FlipIt can sync your inboxes, listings, and pricing rules. New users can finish setup via the <Link to="/login" className="text-cyan-300 underline hover:text-cyan-200">secure login portal</Link> in minutes.
+                {t.step1Description} <Link to="/login" className="text-cyan-300 underline hover:text-cyan-200">{t.step1LinkText}</Link> {t.step1DescriptionEnd}
               </p>
             </div>
             
@@ -357,9 +345,9 @@ const AutomatedResellingPlatformGuide = () => {
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-cyan-400/10 mb-4 ring-1 ring-cyan-400/20">
                 <span className="font-bold text-xl text-cyan-400">2</span>
               </div>
-              <p className="font-semibold text-white text-lg mb-2">Upload One Photo</p>
+              <p className="font-semibold text-white text-lg mb-2">{t.step2Title}</p>
               <p className="text-neutral-300">
-                Drag in product images and let AI draft titles, descriptions, and localized keywords while recommending competitive pricing for each marketplace.
+                {t.step2Description}
               </p>
             </div>
             
@@ -370,9 +358,9 @@ const AutomatedResellingPlatformGuide = () => {
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-cyan-400/10 mb-4 ring-1 ring-cyan-400/20">
                 <span className="font-bold text-xl text-cyan-400">3</span>
               </div>
-              <p className="font-semibold text-white text-lg mb-2">Approve & Crosslist</p>
+              <p className="font-semibold text-white text-lg mb-2">{t.step3Title}</p>
               <p className="text-neutral-300">
-                Review the suggested copy, adjust anything you like, and publish everywhere at once. FlipIt keeps stock counts, pricing, and messaging aligned automatically.
+                {t.step3Description}
               </p>
             </div>
             
@@ -383,9 +371,9 @@ const AutomatedResellingPlatformGuide = () => {
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-cyan-400/10 mb-4 ring-1 ring-cyan-400/20">
                 <span className="font-bold text-xl text-cyan-400">4</span>
               </div>
-              <p className="font-semibold text-white text-lg mb-2">Respond & Relist with AI</p>
+              <p className="font-semibold text-white text-lg mb-2">{t.step4Title}</p>
               <p className="text-neutral-300">
-                Built-in smart replies handle common buyer questions while relist nudges ensure popular items never go dark between marketplaces.
+                {t.step4Description}
               </p>
             </div>
           </div>
@@ -399,12 +387,12 @@ const AutomatedResellingPlatformGuide = () => {
           variants={fadeUp}
           className="mb-16 p-8 rounded-2xl bg-neutral-900/40 backdrop-blur-sm ring-1 ring-white/5"
         >
-          <h2 className="text-2xl font-bold text-white mb-6">Who Can Benefit from Automated Crosslisting?</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">{t.whoBenefitsTitle}</h2>
           <p className="text-neutral-300 mb-4">
-            Students flipping sneakers, parents selling kids' gear, and professional resellers alike get their evenings back. myflipit.live keeps OLX, Vinted, and Facebook in sync so you can focus on photography, packaging, and delivering standout service.
+            {t.whoBenefitsText1}
           </p>
           <p className="text-neutral-300">
-            If you rely on consistent cash flow from reselling, automation makes sure every listing stays accurate—and buyers always hear back fast.
+            {t.whoBenefitsText2}
           </p>
         </motion.section>
 
@@ -417,19 +405,25 @@ const AutomatedResellingPlatformGuide = () => {
           variants={fadeUp}
           className="mb-16"
         >
-          <h2 className="text-2xl font-bold text-white mb-8 text-center">What's Next for myflipit.live?</h2>
+          <h2 className="text-2xl font-bold text-white mb-8 text-center">{t.futureTitle}</h2>
           <div className="w-full max-w-3xl mx-auto rounded-3xl border border-white/10 bg-gradient-to-br from-neutral-900/80 via-fuchsia-900/5 to-neutral-900/60 p-8 text-center shadow-xl shadow-fuchsia-500/10 backdrop-blur">
-            <span className="text-xs uppercase tracking-[0.4em] text-cyan-300">Roadmap Highlights</span>
+            <span className="text-xs uppercase tracking-[0.4em] text-cyan-300">{t.roadmapHighlights}</span>
             <p className="mt-4 text-neutral-300">
-              Crosslisting is just the start. We're actively building the next wave of automation so you can source smarter and sell faster.
+              {t.futureDescription}
             </p>
             <ul className="mt-6 space-y-4 text-left text-neutral-200 max-w-2xl mx-auto">
-              {futureHighlights.map((point) => (
-                <li key={point} className="flex items-start gap-3">
-                  <span className="mt-[6px] h-3 w-3 flex-shrink-0 rounded-full bg-gradient-to-r from-cyan-400 to-fuchsia-400" aria-hidden="true" />
-                  <span>{point}</span>
-                </li>
-              ))}
+              <li className="flex items-start gap-3">
+                <span className="mt-[6px] h-3 w-3 flex-shrink-0 rounded-full bg-gradient-to-r from-cyan-400 to-fuchsia-400" aria-hidden="true" />
+                <span>{t.futurePoint1}</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-[6px] h-3 w-3 flex-shrink-0 rounded-full bg-gradient-to-r from-cyan-400 to-fuchsia-400" aria-hidden="true" />
+                <span>{t.futurePoint2}</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-[6px] h-3 w-3 flex-shrink-0 rounded-full bg-gradient-to-r from-cyan-400 to-fuchsia-400" aria-hidden="true" />
+                <span>{t.futurePoint3}</span>
+              </li>
             </ul>
           </div>
         </motion.section>
@@ -442,30 +436,30 @@ const AutomatedResellingPlatformGuide = () => {
           variants={fadeUp}
           className="mb-16"
         >
-          <h2 className="text-2xl font-bold text-white mb-8 text-center">Frequently Asked Questions (FAQ)</h2>
+          <h2 className="text-2xl font-bold text-white mb-8 text-center">{t.faqTitle}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="group rounded-2xl border border-white/5 bg-neutral-900/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-400/20">
-              <p className="font-semibold text-white text-lg mb-3">Is online reselling still profitable?</p>
+              <p className="font-semibold text-white text-lg mb-3">{t.faq1Question}</p>
               <p className="text-neutral-300">
-                Yes. Demand for quality second-hand goods keeps rising, and an automated crosslisting platform like myflipit.live helps you reach more buyers without burning out.
+                {t.faq1Answer}
               </p>
             </div>
             <div className="group rounded-2xl border border-white/5 bg-neutral-900/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-400/20">
-              <p className="font-semibold text-white text-lg mb-3">How can I keep listings consistent across marketplaces?</p>
+              <p className="font-semibold text-white text-lg mb-3">{t.faq2Question}</p>
               <p className="text-neutral-300">
-                Upload once inside myflipit.live. AI handles copy, pricing, and sync so every change flows to OLX, Vinted, and Facebook instantly.
+                {t.faq2Answer}
               </p>
             </div>
             <div className="group rounded-2xl border border-white/5 bg-neutral-900/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-400/20">
-              <p className="font-semibold text-white text-lg mb-3">Will FlipIt help me find inventory in the future?</p>
+              <p className="font-semibold text-white text-lg mb-3">{t.faq3Question}</p>
               <p className="text-neutral-300">
-                Absolutely. Automated sourcing alerts and negotiation helpers are on the roadmap so the platform can spot undervalued items for you.
+                {t.faq3Answer}
               </p>
             </div>
             <div className="group rounded-2xl border border-white/5 bg-neutral-900/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-400/20">
-              <p className="font-semibold text-white text-lg mb-3">Is myflipit.live easy to learn?</p>
+              <p className="font-semibold text-white text-lg mb-3">{t.faq4Question}</p>
               <p className="text-neutral-300">
-                Designed for simplicity. The intuitive dashboard makes crosslisting as easy as uploading a single photo, and our guides walk you through each step of the process.
+                {t.faq4Answer}
               </p>
             </div>
           </div>
@@ -479,73 +473,34 @@ const AutomatedResellingPlatformGuide = () => {
           variants={fadeUp}
           className="mb-16"
         >
-          <h2 className="text-2xl font-bold text-white mb-8 text-center">Frequently Asked Questions (FAQ)</h2>
+          <h2 className="text-2xl font-bold text-white mb-8 text-center">{t.faqTitle}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="group rounded-2xl border border-white/5 bg-neutral-900/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-400/20">
-              <p className="font-semibold text-white text-lg mb-3">Is online reselling still profitable?</p>
+              <p className="font-semibold text-white text-lg mb-3">{t.faq1Question}</p>
               <p className="text-neutral-300">
-                Yes. Demand for quality second-hand goods keeps rising, and an automated crosslisting platform like myflipit.live helps you reach more buyers without burning out.
+                {t.faq1Answer}
               </p>
             </div>
             <div className="group rounded-2xl border border-white/5 bg-neutral-900/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-400/20">
-              <p className="font-semibold text-white text-lg mb-3">How can I keep listings consistent across marketplaces?</p>
+              <p className="font-semibold text-white text-lg mb-3">{t.faq2Question}</p>
               <p className="text-neutral-300">
-                Upload once inside myflipit.live. AI handles copy, pricing, and sync so every change flows to OLX, Vinted, and Facebook instantly.
+                {t.faq2Answer}
               </p>
             </div>
             <div className="group rounded-2xl border border-white/5 bg-neutral-900/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-400/20">
-              <p className="font-semibold text-white text-lg mb-3">Will FlipIt help me find inventory in the future?</p>
+              <p className="font-semibold text-white text-lg mb-3">{t.faq3Question}</p>
               <p className="text-neutral-300">
-                Absolutely. Automated sourcing alerts and negotiation helpers are on the roadmap so the platform can spot undervalued items for you.
+                {t.faq3Answer}
               </p>
             </div>
             <div className="group rounded-2xl border border-white/5 bg-neutral-900/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-400/20">
-              <p className="font-semibold text-white text-lg mb-3">Is myflipit.live easy to learn?</p>
+              <p className="font-semibold text-white text-lg mb-3">{t.faq4Question}</p>
               <p className="text-neutral-300">
-                Designed for simplicity. The intuitive dashboard makes crosslisting as easy as uploading a single photo, and our guides walk you through each step of the process.
+                {t.faq4Answer}
               </p>
             </div>
           </div>
-        </motion.section>        <section className="mt-12 space-y-6">
-          <h2 className="text-2xl font-bold text-white">What’s Next for myflipit.live?</h2>
-          <div className="rounded-3xl border border-white/10 bg-neutral-900/60 p-8 shadow-xl shadow-fuchsia-500/10 backdrop-blur">
-            <p className="text-neutral-300">
-              Crosslisting is just the start. We’re actively building the next wave of automation so you can source smarter and sell faster.
-            </p>
-            <ul className="mt-6 space-y-3 text-neutral-200">
-              {futureHighlights.map((point) => (
-                <li key={point} className="flex items-start gap-2">
-                  <span className="mt-[6px] h-2 w-2 flex-shrink-0 rounded-full bg-cyan-400" aria-hidden="true" />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <section className="mt-12 space-y-4">
-          <h2 className="text-2xl font-bold text-white">Frequently Asked Questions (FAQ)</h2>
-          <div className="space-y-6 text-neutral-300">
-            <div className="rounded-2xl border border-white/5 bg-neutral-900/60 p-5">
-              <p className="font-semibold text-white">Is online reselling still profitable?</p>
-              <p>
-                Yes. Demand for quality second-hand goods keeps rising, and an automated crosslisting platform like myflipit.live helps you reach more buyers without burning out.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/5 bg-neutral-900/60 p-5">
-              <p className="font-semibold text-white">How can I keep listings consistent across marketplaces?</p>
-              <p>
-                Upload once inside myflipit.live. AI handles copy, pricing, and sync so every change flows to OLX, Vinted, and Facebook instantly.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/5 bg-neutral-900/60 p-5">
-              <p className="font-semibold text-white">Will FlipIt help me find inventory in the future?</p>
-              <p>
-                Absolutely. Automated sourcing alerts and negotiation helpers are on the roadmap so the platform can spot undervalued items for you.
-              </p>
-            </div>
-          </div>
-        </section>
+        </motion.section>
 
         {/* Call to Action Section */}
         <motion.section
@@ -557,25 +512,25 @@ const AutomatedResellingPlatformGuide = () => {
         >
           <div className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center">
             <h2 className="text-3xl md:text-4xl font-extrabold mb-6 text-white drop-shadow-lg">
-              Ready to Start Flipping?
+              {t.ctaTitle}
             </h2>
             <p className="md:text-lg text-neutral-300 mb-8">
-              Trade endless copy-paste for an automated reselling platform that keeps your listings, buyers, and pricing aligned. Create your free account, link your marketplaces, and let myflipit.live guide your next flip.
+              {t.ctaDescription}
             </p>
             <Link
               to="/get-started"
               className="inline-flex items-center rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 px-8 py-4 font-semibold text-white text-lg shadow-lg shadow-fuchsia-500/30 transition hover:to-fuchsia-600"
             >
-              Start with myflipit.live
+              {t.ctaButton}
             </Link>
             <p className="mt-6 text-sm text-neutral-400">
-              Already using the platform? Jump back into the dashboard via{' '}
+              {t.ctaFooterText}{' '}
               <Link to="/login" className="text-cyan-300 underline hover:text-cyan-200">
-                your login
+                {t.ctaLoginLink}
               </Link>
-              , or explore more automation tips in the{' '}
+              {t.ctaFooterMiddle}{' '}
               <Link to="/how-it-works" className="text-cyan-300 underline hover:text-cyan-200">
-                how it works guide
+                {t.ctaHowItWorksLink}
               </Link>
               .
             </p>
