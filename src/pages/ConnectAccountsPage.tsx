@@ -121,7 +121,7 @@ const ConnectAccountsPage = () => {
       <div className="relative min-h-screen text-white overflow-hidden">
         <SEOHead
           title="Connect Accounts | FlipIt"
-          description="Connect your marketplaces to enable crosslisting."
+          description="Connect OLX, Vinted, and Facebook to power marketplace automation — AI crosslisting without manual descriptions, pricing, or categories."
           canonicalUrl="https://myflipit.live/connect-accounts"
           robots="noindex, nofollow"
         />

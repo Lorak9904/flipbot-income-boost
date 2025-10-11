@@ -4,8 +4,8 @@ import remarkGfm from "remark-gfm";
 import { SEOHead } from '@/components/SEOHead';
 import { getCurrentLanguage } from '@/components/language-utils';
 
-const pageTitle = 'Terms of Service | FlipIt - AI Crosslisting Platform';
-const pageDescription = 'Read FlipIt\'s terms of service for our AI-powered crosslisting platform that automates OLX, Vinted, and Facebook marketplace listings.';
+const pageTitle = 'Terms of Service | FlipIt — AI Marketplace Automation';
+const pageDescription = 'Read FlipIt\'s terms for our marketplace automation platform: AI crosslisting that removes the hassle of writing descriptions, choosing categories, and pricing across OLX, Vinted, and Facebook.';
 const keywords = [
   'FlipIt terms of service',
   'crosslisting platform terms',

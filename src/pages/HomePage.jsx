@@ -19,12 +19,18 @@ const fadeUp = {
 
 const HomePage = () => {
   const t = getTranslations(homePageTranslations);
-  const pageTitle = 'myflipit.live | Automated Reselling Platform for OLX & Vinted';
-  const pageDescription = 'FlipIt automates OLX and Vinted reselling with AI-powered sourcing, profit analytics, and cross-posting.';
+  const pageTitle = 'AI Marketplace Automation for OLX, Vinted & Facebook | myflipit.live';
+  const pageDescription = 'FlipIt provides automation for marketplaces: OLX automation, Vinted automation (Vinted app), Facebook Marketplace automation, AI crosslisting, profit analytics, and ecommerce automation tools.';
   const keywords = [
     'automated reselling platform',
     'marketplace automation',
+    'automation for marketplaces',
+    'ecommerce automation',
+    'OLX automation',
     'OLX reselling software',
+    'Vinted automation',
+    'Vinted app',
+    'Facebook Marketplace automation',
     'Vinted reselling tool',
     'online arbitrage AI',
     'find undervalued items',
@@ -50,7 +56,7 @@ const HomePage = () => {
     },
     featureList: [
       'Automated marketplace scanning',
-      'Cross-posting to OLX and Vinted',
+      'Cross-posting to OLX, Vinted & Facebook',
       'AI pricing recommendations',
     ],
   };

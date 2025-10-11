@@ -4,7 +4,7 @@ import { Translations } from '../components/language-utils';
 export const guideTranslations: Translations = {
   en: {
     pageTitle: 'Automated Reselling Platform Playbook: Crosslist Faster with myflipit.live',
-    pageDescription: 'See how myflipit.live turns a single photo into synchronized OLX and Vinted listings today—and what crosslisting automation features are coming next.',
+    pageDescription: 'See how myflipit.live turns a single photo into synchronized OLX, Vinted, and Facebook listings today—and what crosslisting automation features are coming next.',
     guideLabel: 'Automated Reselling Platform Guide',
     heroTitle: 'Automated Reselling Platform',
     heroTitleHighlight: 'Playbook:',
@@ -20,7 +20,7 @@ export const guideTranslations: Translations = {
     crosslistingPoint2: 'Inventory, pricing, and availability stay in lockstep across every channel without spreadsheets.',
     crosslistingPoint3: 'AI-powered replies keep buyers engaged while you focus on sourcing, packing, and delivery.',
     section1Title: 'The Hidden Grind of Manual Crosslisting',
-    section1Para1: 'Manual crossposting means retyping titles, resizing photos, and updating prices in multiple dashboards every time demand shifts. It\'s easy to double-sell stock or leave buyers waiting while you copy answers between OLX and Vinted threads.',
+    section1Para1: 'Manual crossposting means retyping titles, resizing photos, and updating prices in multiple dashboards every time demand shifts. It\'s easy to double-sell stock or leave buyers waiting while you copy answers between OLX, Vinted, and Facebook threads.',
     section1Para2: 'Even seasoned resellers lose hours keeping marketplaces aligned. Without automation you\'re stuck maintaining spreadsheets instead of scaling your shop, onboarding new inventory, or delighting repeat buyers.',
     section2Title: 'What is an Automated Reselling Platform?',
     section2Para1: 'An automated reselling platform centralizes your listings, buyers, and pricing rules in one dashboard. Drop in product photos and details once—AI turns them into optimized listings, routes buyer messages, and keeps stock levels synced across marketplaces.',
@@ -46,7 +46,7 @@ export const guideTranslations: Translations = {
     roadmapHighlights: 'Roadmap Highlights',
     futureTitle: 'What\'s Coming Next: AI-Powered Sourcing Alerts',
     futureDescription: 'While automated crosslisting streamlines selling, myflipit.live is evolving into a complete profit optimization tool. Here\'s what early access members will see first:',
-    futurePoint1: 'Automated sourcing alerts will soon flag undervalued OLX and Vinted deals tailored to your filters.',
+    futurePoint1: 'Automated sourcing alerts will soon flag undervalued OLX, Vinted, and Facebook Marketplace deals tailored to your filters.',
     futurePoint2: 'AI negotiation templates will help secure better buy prices without writing every message from scratch.',
     futurePoint3: 'Smart relist reminders will keep profitable inventory circulating across each marketplace automatically.',
     faqTitle: 'Frequently Asked Questions (FAQ)',

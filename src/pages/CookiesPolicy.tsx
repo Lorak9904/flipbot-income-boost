@@ -4,8 +4,8 @@ import remarkGfm from "remark-gfm";
 import { SEOHead } from '@/components/SEOHead';
 import { getCurrentLanguage } from '@/components/language-utils';
 
-const pageTitle = 'Cookies Policy | FlipIt - AI Crosslisting Platform';
-const pageDescription = 'Learn about how FlipIt uses cookies to enhance your experience with our AI-powered crosslisting automation platform.';
+const pageTitle = 'Cookies Policy | FlipIt — AI Marketplace Automation';
+const pageDescription = 'Learn how FlipIt uses cookies to support marketplace automation and AI crosslisting features that eliminate manual descriptions, pricing, and category selection.';
 const keywords = [
   'FlipIt cookies policy',
   'crosslisting platform cookies',

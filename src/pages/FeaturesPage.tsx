@@ -51,11 +51,14 @@ const FeaturesPage = () => {
   return (
     <div>
       <SEOHead
-        title="FlipIt Features | Crosslisting & Automation"
-        description="Explore FlipIt's AI crosslisting, pricing insights, messaging automation, and more."
+        title="FlipIt Features | Marketplace Automation & AI Crosslisting"
+        description="Explore FlipIt's marketplace automation: AI crosslisting, pricing insights, automated messaging, and tools that remove manual descriptions, pricing, and category selection."
         canonicalUrl="https://myflipit.live/features"
         keywords={[
           'FlipIt features',
+          'marketplace automation',
+          'automation for marketplaces',
+          'ecommerce automation',
           'crosslisting automation',
           'OLX Vinted Facebook',
           'reselling software',

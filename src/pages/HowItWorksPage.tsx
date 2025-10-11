@@ -19,12 +19,16 @@ const iconMap = [Plug, Upload, Repeat]; // keep icons aligned with steps order
 
 const HowItWorksPage = () => {
   const t = getTranslations(howItWorksTranslations);
-  const pageTitle = 'How the myflipit.live AI crosslisting flow works';
-  const pageDescription = 'See how myflipit.live turns a single photo into synchronized OLX, Vinted, and Facebook listings with AI.';
+  const pageTitle = 'How AI Marketplace Automation Works (OLX, Vinted, Facebook)';
+  const pageDescription = 'Learn how automation for marketplaces turns one photo into synchronized OLX, Vinted (Vinted app), and Facebook listings with AI and ecommerce automation.';
   const keywords = [
     'automated reselling platform',
-    'OLX reselling automation',
+    'marketplace automation',
+    'automation for marketplaces',
+    'ecommerce automation',
+    'OLX automation',
     'Vinted automation',
+    'Vinted app',
     'marketplace automation software',
     'online arbitrage workflows',
     'find undervalued items',

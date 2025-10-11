@@ -4,8 +4,8 @@ import remarkGfm from "remark-gfm";
 import { SEOHead } from '@/components/SEOHead';
 import { getCurrentLanguage } from '@/components/language-utils';
 
-const pageTitle = 'Privacy Policy | FlipIt - AI Crosslisting Platform';
-const pageDescription = 'Learn how FlipIt protects your privacy while providing AI-powered crosslisting automation for OLX, Vinted, and Facebook marketplaces.';
+const pageTitle = 'Privacy Policy | FlipIt — AI Marketplace Automation';
+const pageDescription = 'Learn how FlipIt protects your privacy while providing marketplace automation and AI crosslisting that speeds up selling without manual descriptions, pricing, or category selection.';
 const keywords = [
   'FlipIt privacy policy',
   'crosslisting platform privacy',

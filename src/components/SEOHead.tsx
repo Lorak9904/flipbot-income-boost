@@ -26,7 +26,7 @@ export function SEOHead({
   const siteTitle = title.includes('FlipIt') ? title : `${title} | FlipIt`;
   const keywordContent = Array.isArray(keywords)
     ? keywords.join(', ')
-    : keywords ?? 'online reselling, flipit, marketplace automation, profit automation, olx automation, vinted automation, ecommerce tools, reselling automation, online arbitrage, reselling bot';
+    : keywords ?? 'online reselling, flipit, marketplace automation, automation for marketplaces, ecommerce automation, facebook marketplace automation, profit automation, olx automation, vinted automation, vinted app, ecommerce tools, reselling automation, online arbitrage, reselling bot';
 
   const websiteStructuredData = {
     '@context': 'https://schema.org',
@@ -34,13 +34,26 @@ export function SEOHead({
     name: 'FlipIt',
     description,
     url: canonicalUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${canonicalUrl}?q={search_term_string}`,
+      'query-input': 'required name=search_term_string'
+    }
+  };
+
+  const organizationStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'FlipIt',
+    url: 'https://myflipit.live',
+    logo: 'https://myflipit.live/favicon.ico'
   };
 
   const structuredDataList = Array.isArray(structuredData)
-    ? [websiteStructuredData, ...structuredData]
+    ? [websiteStructuredData, organizationStructuredData, ...structuredData]
     : structuredData
-      ? [websiteStructuredData, structuredData]
-      : [websiteStructuredData];
+      ? [websiteStructuredData, organizationStructuredData, structuredData]
+      : [websiteStructuredData, organizationStructuredData];
 
   const locale = language === 'pl' ? 'pl_PL' : 'en_US';
 
@@ -66,7 +79,6 @@ export function SEOHead({
       <meta property="twitter:title" content={siteTitle} />
       <meta property="twitter:description" content={description} />
       <meta property="twitter:image" content={ogImage} />
-      <meta name="twitter:site" content="@flipbotai" />
 
       {/* Additional SEO tags */}
       <link rel="canonical" href={canonicalUrl} />

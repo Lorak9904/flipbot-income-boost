@@ -101,7 +101,7 @@ const AddItemPage = () => {
       <div className="relative min-h-screen text-white overflow-hidden">
         <SEOHead
           title="Add Item | FlipIt"
-          description="Add a new item to crosslist across OLX, Vinted and Facebook."
+          description="Add an item for marketplace automation — FlipIt generates descriptions, pricing, and categories, then crosslists to OLX, Vinted, and Facebook."
           canonicalUrl="https://myflipit.live/add-item"
           robots="noindex, nofollow"
         />

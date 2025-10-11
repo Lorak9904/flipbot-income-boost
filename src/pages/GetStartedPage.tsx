@@ -29,8 +29,8 @@ const GetStartedPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const t = getTranslations(getStartedTranslations);
-  const pageTitle = 'Join the myflipit.live automated reselling platform waitlist';
-  const pageDescription = 'Reserve early access to the automated reselling platform that streamlines OLX and Vinted flipping.';
+  const pageTitle = 'Join the myflipit.live marketplace automation waitlist';
+  const pageDescription = 'Reserve early access to FlipIt — marketplace automation that speeds up selling on OLX, Vinted, and Facebook by automatically generating descriptions, pricing, and categories.';
   const keywords = [
     'automated reselling platform waitlist',
     'OLX reselling automation',

@@ -22,6 +22,11 @@ const keywords = [
   'one photo crosslisting',
   'seller automation',
   'future sourcing alerts',
+  'automation for marketplaces',
+  'ecommerce automation',
+  'OLX automation',
+  'Vinted automation',
+  'Vinted app',
 ];
 
 const AutomatedResellingPlatformGuide = () => {

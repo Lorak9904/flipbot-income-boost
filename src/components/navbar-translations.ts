@@ -3,7 +3,7 @@
 export const navbarTranslations: Translations = {
   en: {
     howItWorks: 'How It Works',
-    guide: 'Guide',
+    guide: 'Marketplace Automation Guide',
     addItem: 'Add Item',
     connectAccounts: 'Connect Accounts',
     login: 'Log in',
@@ -12,7 +12,7 @@ export const navbarTranslations: Translations = {
   },
   pl: {
     howItWorks: 'Jak to działa',
-    guide: 'Poradnik',
+    guide: 'Przewodnik Automatyzacji Marketplace',
     addItem: 'Dodaj przedmiot',
     connectAccounts: 'Połącz konta',
     login: 'Zaloguj się',

@@ -111,7 +111,7 @@ const LoginPage = () => {
     <div className="relative min-h-screen overflow-hidden bg-neutral-950 text-white">
       <SEOHead
         title="Login | FlipIt"
-        description="Log in or create your FlipIt account to manage crosslisting."
+        description="Log in to FlipIt — your marketplace automation workspace for AI crosslisting that removes manual descriptions, pricing, and category selection."
         canonicalUrl="https://myflipit.live/login"
         robots="noindex, nofollow"
       />

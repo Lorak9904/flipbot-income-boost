@@ -15,12 +15,17 @@ const fadeUp = {
   }),
 };
 
-const pageTitle = 'myflipit.live FAQ | Automated Crosslisting Questions Answered';
-const pageDescription = 'Get answers about FlipIt’s AI crosslisting platform, from one-photo uploads to our upcoming sourcing automation features.';
+const pageTitle = 'FlipIt FAQ | AI Marketplace Automation & Crosslisting';
+const pageDescription = 'Answers about automation for marketplaces: OLX automation, Vinted automation (Vinted app), AI crosslisting, and ecommerce automation features.';
 const keywords = [
   'AI crosslisting FAQ',
-  'automated reselling questions',
+  'marketplace automation',
+  'automation for marketplaces',
+  'ecommerce automation',
+  'OLX automation',
   'OLX crosslisting help',
+  'Vinted automation',
+  'Vinted app',
   'Vinted crossposting automation',
   'seller automation support',
   'marketplace sync FAQ',
@@ -281,7 +286,7 @@ const FAQPage = () => {
         >
           <h2 className="text-2xl md:text-3xl font-bold text-white">Still have questions?</h2>
           <p className="mt-4 text-neutral-300">
-            Email us anytime at <a href="mailto:hello@flipit.ai" className="text-cyan-300 underline hover:text-cyan-200">hello@flipit.ai</a> and we’ll help tailor FlipIt to your workflow.
+            Email us anytime at <a href="mailto:info@arrpo.com" className="text-cyan-300 underline hover:text-cyan-200">info@arrpo.com</a> and we’ll help tailor FlipIt to your workflow.
           </p>
         </motion.div>
       </section>
