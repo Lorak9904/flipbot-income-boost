@@ -138,45 +138,53 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
   const uploadImages = async (newImages: ItemImage[]) => {
     setUploading(true);
 
-    // Start with the most up‑to‑date list that includes the *new* images.
+    // Start with the most up-to-date list that includes the *new* images.
     let updatedImages: ItemImage[] = [...images, ...newImages];
 
     try {
-      for (const image of newImages) {
-        // 1. Request a pre‑signed PUT URL
-        const { data: presigned } = await axios.post(
-          "/api/get-presigned-url",
-          {
-            filename: image.file!.name,
-            content_type: image.file!.type,
-          },
-          {
-            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-          }
-        );
+      const uploads = await Promise.all(
+        // Kick off presign + upload per image concurrently
+        newImages.map(async (image) => {
+          const originalUrl = image.url;
 
-        const { url: putUrl, key } = presigned;
+          const { data: presigned } = await axios.post(
+            "/api/get-presigned-url",
+            {
+              filename: image.file!.name,
+              content_type: image.file!.type,
+            },
+            {
+              headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+            }
+          );
 
-        // 2. PUT the file to R2
-        await axios.put(putUrl, image.file, {
-          headers: { "Content-Type": image.file!.type },
-        });
+          const { url: putUrl, key } = presigned;
 
-        // 3. Build the public URL that never expires
-        const publicUrl = `https://images.myflipit.live/${key}`;
+          await axios.put(putUrl, image.file, {
+            headers: { "Content-Type": image.file!.type },
+          });
 
-        // 4. Update our local copy (replace blob URL, set isUploaded = true)
-        updatedImages = updatedImages.map((img) =>
-          img.id === image.id ? { ...img, url: publicUrl, isUploaded: true } : img
-        );
+          return {
+            id: image.id,
+            publicUrl: `https://images.myflipit.live/${key}`,
+            originalUrl,
+          };
+        })
+      );
 
-        // 5. Release the temporary blob URL from memory
-        if (image.url.startsWith("blob:")) {
-          URL.revokeObjectURL(image.url);
+      const uploadedMap = new Map(uploads.map((result) => [result.id, result]));
+
+      updatedImages = updatedImages.map((img) => {
+        const uploadResult = uploadedMap.get(img.id);
+        if (!uploadResult) return img;
+
+        if (uploadResult.originalUrl.startsWith("blob:")) {
+          URL.revokeObjectURL(uploadResult.originalUrl);
         }
-      }
 
-      // Push the final list to the parent so it can persist the data (e.g. DB, URL param, Zustand store …)
+        return { ...img, url: uploadResult.publicUrl, isUploaded: true };
+      });
+
       onChange(updatedImages);
 
       toast({
@@ -271,3 +279,4 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
 };
 
 export default ImageUploader;
+
