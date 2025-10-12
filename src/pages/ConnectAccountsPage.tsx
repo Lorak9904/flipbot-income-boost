@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import ConnectAccountCard from '@/components/ConnectAccountCard';
@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ConnectOlxButton } from '@/pages/ConnectOlxButton';
 import { useToast } from '@/hooks/use-toast';
 import { SEOHead } from '@/components/SEOHead';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -19,16 +20,71 @@ const fadeUp = {
 };
 
 const ConnectAccountsPage = () => {
-  const [connectedPlatforms, setConnectedPlatforms] = useState<Record<string, boolean>>({
-    facebook: false,
-    olx: false,
-    vinted: false
-  });
-  const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
+
+  const fetchConnectedPlatforms = async (): Promise<Record<string, any>> => {
+    const token = localStorage.getItem('flipit_token');
+    const response = await fetch("/api/FlipIt/api/connected-platforms", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('unauthorized');
+      }
+      throw new Error("Failed to fetch connected platforms");
+    }
+
+    const data = await response.json();
+    // Preserve whether a session exists in DB for Vinted
+    const vinted_has_session = !!data.vinted;
+    // Validate Vinted connection live if session exists
+    let vintedConnected = data.vinted;
+    let vinted_status_code: number | null = null;
+    if (vinted_has_session) {
+      try {
+        const statusResp = await fetch("/api/FlipIt/api/vinted/status", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        vinted_status_code = statusResp.status;
+        if (statusResp.ok) {
+          const st = await statusResp.json();
+          vintedConnected = !!st.connected;
+          if (typeof st.status_code === 'number') vinted_status_code = st.status_code;
+        } else {
+          vintedConnected = false;
+        }
+      } catch {
+        vintedConnected = false;
+      }
+    }
+    return { ...data, vinted: vintedConnected, vinted_has_session, vinted_status_code };
+  };
+
+  const {
+    data: connectedPlatforms,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ['connected-platforms'],
+    queryFn: fetchConnectedPlatforms,
+    enabled: !!localStorage.getItem('flipit_token') && !!isAuthenticated,
+    refetchInterval: 8000,
+    refetchOnWindowFocus: true,
+    retry: 1,
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('flipit_token');
@@ -41,80 +97,15 @@ const ConnectAccountsPage = () => {
       navigate('/login');
       return;
     }
-
-    if (!isLoading && !isAuthenticated) {
+    if (!!user && isAuthenticated === false) {
       toast({
         title: "Authentication Required",
         description: "Please log in to add items",
         variant: "destructive",
       });
       navigate('/login');
-      return;
     }
-
-    const fetchConnectedPlatforms = async () => {
-      try {
-        setIsLoading(true);
-        const token = localStorage.getItem('flipit_token');
-        
-        const response = await fetch("/api/FlipIt/api/connected-platforms", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            toast({
-              title: "Session Expired",
-              description: "Your session has expired. Please log in again.",
-              variant: "destructive",
-            });
-            navigate("/login");
-            return;
-          }
-          throw new Error("Failed to fetch connected platforms");
-        }
-
-        const data = await response.json();
-        // Validate Vinted connection live if session exists
-        let vintedConnected = data.vinted;
-        if (data.vinted) {
-          try {
-            const statusResp = await fetch("/api/FlipIt/api/vinted/status", {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-              }
-            });
-            if (statusResp.ok) {
-              const st = await statusResp.json();
-              vintedConnected = !!st.connected;
-            } else {
-              vintedConnected = false;
-            }
-          } catch {
-            vintedConnected = false;
-          }
-        }
-        setConnectedPlatforms({ ...data, vinted: vintedConnected });
-      } catch (error) {
-        console.error("Error fetching connected platforms:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load connected platforms. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchConnectedPlatforms();
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, toast, user]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -126,18 +117,18 @@ const ConnectAccountsPage = () => {
         description: "Successfully connected to OLX!",
         variant: "default",
       });
+      // Immediately refetch to reflect status without manual refresh
+      refetch();
       window.history.replaceState({}, document.title, location.pathname);
     }
-  }, [location, toast]);
+  }, [location, toast, refetch]);
 
-  const handleAccountConnected = (platform: 'facebook' | 'olx' | 'vinted') => {
-    setConnectedPlatforms(prev => ({
-      ...prev,
-      [platform]: true
-    }));
+  const handleAccountConnected = () => {
+    // Ensure page status syncs with backend
+    queryClient.invalidateQueries({ queryKey: ['connected-platforms'] });
   };
 
-  if (isLoading) {
+  if (isLoading || !connectedPlatforms) {
     return (
       <div className="relative min-h-screen text-white overflow-hidden">
         <SEOHead
@@ -403,24 +394,24 @@ const ConnectAccountsPage = () => {
               platform="facebook"
               platformName="Facebook"
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png"
-              isConnected={connectedPlatforms.facebook}
-              onConnected={() => handleAccountConnected('facebook')}
+              isConnected={!!connectedPlatforms?.facebook}
+              onConnected={handleAccountConnected}
             />
             <ConnectAccountCard
               platform="olx"
               platformName="OLX"
               logoSrc="https://images.seeklogo.com/logo-png/39/1/olx-logo-png_seeklogo-390322.png"
-              isConnected={connectedPlatforms.olx}
-              onConnected={() => handleAccountConnected('olx')}
-              action={!connectedPlatforms.olx && <ConnectOlxButton />}
+              isConnected={!!connectedPlatforms?.olx}
+              onConnected={handleAccountConnected}
+              action={!connectedPlatforms?.olx && <ConnectOlxButton />}
             />
             <ConnectAccountCard
               platform="vinted"
               platformName="Vinted"
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/2/29/Vinted_logo.png"
-              isConnected={connectedPlatforms.vinted}
-              onConnected={() => handleAccountConnected('vinted')}
-              action={!connectedPlatforms.vinted && (
+              isConnected={!!connectedPlatforms?.vinted}
+              onConnected={handleAccountConnected}
+              action={connectedPlatforms?.vinted_has_session && !connectedPlatforms?.vinted ? (
                 <div className="space-y-3">
                   <p className="text-slate-300 text-sm">
                     We couldn’t verify your Vinted connection. Try refreshing your cookies.
@@ -442,7 +433,7 @@ const ConnectAccountsPage = () => {
                         }
                         const body = await resp.json();
                         if (body.connected) {
-                          setConnectedPlatforms(prev => ({ ...prev, vinted: true }));
+                          await refetch();
                           toast({ title: 'Vinted Connected', description: 'Cookies refreshed successfully.' });
                         } else {
                           toast({ title: 'Vinted Not Connected', description: `Status ${body.status_code || ''}`, variant: 'destructive' });
@@ -455,8 +446,28 @@ const ConnectAccountsPage = () => {
                   >
                     Refresh Vinted Cookies
                   </Button>
+                  <Button
+                    variant="outline"
+                    className="text-red-500 border-red-300 hover:bg-red-50 hover:text-red-700 transition"
+                    onClick={async () => {
+                      const token = localStorage.getItem('flipit_token');
+                      try {
+                        const response = await fetch(`/api/FlipIt/api/delete-session/vinted`, {
+                          method: 'DELETE',
+                          headers: { 'Authorization': `Bearer ${token}` },
+                        });
+                        if (!response.ok) throw new Error('Failed to disconnect Vinted');
+                        await refetch();
+                        toast({ title: 'Vinted Disconnected', description: 'Stored cookies removed.' });
+                      } catch (err: any) {
+                        toast({ title: 'Disconnect Failed', description: err.message, variant: 'destructive' });
+                      }
+                    }}
+                  >
+                    Disconnect
+                  </Button>
                 </div>
-              )}
+              ) : undefined}
             />
           </div>
           
@@ -468,7 +479,7 @@ const ConnectAccountsPage = () => {
             className="mt-12 text-center"
           >
             <p className="text-neutral-400 mb-6">
-              {Object.values(connectedPlatforms).some(connected => connected) 
+              {connectedPlatforms && Object.values(connectedPlatforms).some(connected => connected) 
                 ? "Great! You've connected at least one platform. FlipIt will start analyzing for flipping opportunities."
                 : "Connect at least one marketplace account to get started with FlipIt."}
             </p>

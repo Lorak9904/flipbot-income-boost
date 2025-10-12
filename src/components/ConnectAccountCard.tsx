@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Check, AlertCircle, Loader2, X, Copy, Info, Clipboard, ArrowRight } from 'lucide-react';
@@ -54,6 +54,12 @@ const ConnectAccountCard = ({
 
   const { user } = useAuth();
 
+  // Keep internal state in sync with prop updates (live status updates without refresh)
+  useEffect(() => {
+    setIsConnected(initialConnected);
+    setStatus(initialConnected ? 'connected' : 'idle');
+  }, [initialConnected]);
+
   // Require authentication to connect accounts
   if (!user) {
     return (
@@ -108,13 +114,19 @@ const ConnectAccountCard = ({
       whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 300 }}
     >
-      <Card className="w-full overflow-hidden h-full border border-slate-700 bg-slate-700">
+      <Card className="w-full overflow-hidden h-full border border-slate-700/80 bg-slate-800/60">
         <CardHeader className="pb-0">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
-              <img src={logoSrc} alt={`${platformName} logo`} className="h-8 w-auto" />
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
+                <img src={logoSrc} alt={`${platformName} logo`} className="h-8 w-auto" />
+              </div>
+              <h3 className="font-semibold text-lg text-white">{platformName}</h3>
             </div>
-            <h3 className="font-semibold text-lg text-white">{platformName}</h3>
+            <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium border ${isConnected ? 'bg-emerald-500/10 text-emerald-300 border-emerald-700/50' : 'bg-slate-700/60 text-slate-300 border-slate-600/60'}`}>
+              <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-slate-400'}`} />
+              {isConnected ? 'Connected' : status === 'connecting' ? 'Connecting…' : 'Not Connected'}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="pt-4">
@@ -124,7 +136,7 @@ const ConnectAccountCard = ({
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200 }}
-                className="mx-auto bg-teal-500/10 w-16 h-16 rounded-full flex items-center justify-center"
+                className="mx-auto bg-emerald-500/10 w-16 h-16 rounded-full flex items-center justify-center"
               >
                 <Check className="h-8 w-8 text-teal-400" />
               </motion.div>
@@ -422,11 +434,11 @@ const ConnectAccountCard = ({
                 <div className="flex flex-col gap-2">
                   <Button
                     variant="outline"
-                    className="text-teal-500 border-teal-500"
+                    className="text-teal-400 border-teal-500/70 hover:bg-teal-500/10"
                     onClick={() => setShowManual(true)}
                     style={{ padding: "0.6rem 1rem", fontSize: "1rem" }}
                   >
-                    {platform === "olx" ? "Reload the page if you see this" : "Manual Connect"}
+                    Manual Connect
                   </Button>
                 </div>
               </div>
