@@ -79,7 +79,28 @@ const ConnectAccountsPage = () => {
         }
 
         const data = await response.json();
-        setConnectedPlatforms(data);
+        // Validate Vinted connection live if session exists
+        let vintedConnected = data.vinted;
+        if (data.vinted) {
+          try {
+            const statusResp = await fetch("/api/FlipIt/api/vinted/status", {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+              }
+            });
+            if (statusResp.ok) {
+              const st = await statusResp.json();
+              vintedConnected = !!st.connected;
+            } else {
+              vintedConnected = false;
+            }
+          } catch {
+            vintedConnected = false;
+          }
+        }
+        setConnectedPlatforms({ ...data, vinted: vintedConnected });
       } catch (error) {
         console.error("Error fetching connected platforms:", error);
         toast({
@@ -399,6 +420,43 @@ const ConnectAccountsPage = () => {
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/2/29/Vinted_logo.png"
               isConnected={connectedPlatforms.vinted}
               onConnected={() => handleAccountConnected('vinted')}
+              action={!connectedPlatforms.vinted && (
+                <div className="space-y-3">
+                  <p className="text-slate-300 text-sm">
+                    We couldn’t verify your Vinted connection. Try refreshing your cookies.
+                  </p>
+                  <Button
+                    onClick={async () => {
+                      const token = localStorage.getItem('flipit_token');
+                      try {
+                        const resp = await fetch('/api/FlipIt/api/vinted/refresh', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                          },
+                        });
+                        if (!resp.ok) {
+                          const err = await resp.json().catch(() => ({}));
+                          throw new Error(err.detail || 'Failed to refresh Vinted cookies');
+                        }
+                        const body = await resp.json();
+                        if (body.connected) {
+                          setConnectedPlatforms(prev => ({ ...prev, vinted: true }));
+                          toast({ title: 'Vinted Connected', description: 'Cookies refreshed successfully.' });
+                        } else {
+                          toast({ title: 'Vinted Not Connected', description: `Status ${body.status_code || ''}`, variant: 'destructive' });
+                        }
+                      } catch (e: any) {
+                        toast({ title: 'Refresh Failed', description: e.message, variant: 'destructive' });
+                      }
+                    }}
+                    className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white"
+                  >
+                    Refresh Vinted Cookies
+                  </Button>
+                </div>
+              )}
             />
           </div>
           
