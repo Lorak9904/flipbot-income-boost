@@ -111,6 +111,16 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
       // Transform API response to match our UI representation
       const [minPrice, maxPrice] = generatedData.price_range || [];
 
+      // Avoid duplicating images: some backends echo the same URLs back
+      const existingUrls = new Set(images.map((img) => img.url));
+      const aiImages: ItemImage[] = (generatedData.images || [])
+        .filter((url: string) => !existingUrls.has(url))
+        .map((url: string, idx: number) => ({
+          id: `generated-${idx}`,
+          url,
+          isUploaded: true,
+        }));
+
       const transformedData: GeneratedItemData = {
         title: generatedData.title || data.title,
         description: generatedData.description || data.description,
@@ -126,16 +136,7 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
           min: minPrice?.toString() || '',
           max: maxPrice?.toString() || '',
         },
-        images: [
-          // Preserve originals
-          ...images,
-          // Append any AI‑generated images (string URLs → ItemImage objects)
-          ...(generatedData.images || []).map((url: string, idx: number) => ({
-            id: `generated-${idx}`,
-            url,
-            isUploaded: true,
-          })),
-        ],
+        images: [...images, ...aiImages],
       };
 
       onComplete(transformedData);

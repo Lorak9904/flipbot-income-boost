@@ -68,9 +68,11 @@ const handleSubmit = async (e: React.FormEvent) => {
     const token = localStorage.getItem('flipit_token');
     
     // Build a clean payload the API will accept
+    // Deduplicate image URLs to avoid accidental duplicates
+    const uniqueImageUrls = Array.from(new Set(data.images.map(img => img.url)));
     const payload = {
       draft_id: data.draft_id,
-      images: data.images.map(img => img.url),
+      images: uniqueImageUrls,
       title: data.title,
       brand: data.brand,
       condition: data.condition,
