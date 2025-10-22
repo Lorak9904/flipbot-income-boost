@@ -22,6 +22,7 @@ const Navbar = () => {
   const navItems = isAuthenticated
   ? [...baseNavItems, 
     { name: t.addItem, path: '/add-item' },
+    { name: t.myItems, path: '/user/items' },
     { name: t.connectAccounts, path: '/connect-accounts' },
     ]
     : baseNavItems;

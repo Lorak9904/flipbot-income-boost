@@ -38,3 +38,49 @@ export interface GeneratedItemData {
 }
 
 export type Platform = 'facebook' | 'olx' | 'vinted';
+
+// Backend API types for user items
+export type ItemStage = 'draft' | 'published';
+
+export interface PlatformPublishResult {
+  platform: Platform;
+  success: boolean;
+  post_id?: string;
+  error_message?: string;
+  published_at?: string;
+}
+
+export interface UserItem {
+  uuid: string;
+  title: string;
+  description: string;
+  price: string;
+  brand?: string;
+  condition?: string;
+  category?: string;
+  size?: string;
+  gender?: string;
+  stage: ItemStage;
+  images: string[];
+  platforms: Platform[];
+  publish_results?: PlatformPublishResult[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserItemsListResponse {
+  items: UserItem[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface ItemStats {
+  total_items: number;
+  draft_items: number;
+  published_items: number;
+  by_platform: Record<Platform, number>;
+  publish_success_rate: number;
+  total_errors: number;
+}

@@ -20,6 +20,8 @@ import FAQPage from "./pages/FAQPage";
 import GetStartedPage from "./pages/GetStartedPage";
 import ConnectAccountsPage from "./pages/ConnectAccountsPage";
 import AddItemPage from "./pages/AddItemPage";
+import UserItemsPage from "./pages/UserItemsPage";
+import ItemDetailPage from "./pages/ItemDetailPage";
 import NotFound from "./pages/NotFound";
 import AutomatedResellingPlatformGuide from "./pages/AutomatedResellingPlatformGuide";
 // import FacebookCallbackPage from "./pages/FacebookCallbackPage";
@@ -62,6 +64,8 @@ const App = () => {
                   <Route path="/get-started" element={<GetStartedPage />} />
                   <Route path="/connect-accounts" element={<ConnectAccountsPage />} />
                   <Route path="/add-item" element={<AddItemPage />} />
+                  <Route path="/user/items" element={<UserItemsPage />} />
+                  <Route path="/user/items/:uuid" element={<ItemDetailPage />} />
                   <Route path="/terms" element={<TermsPage />} />
                   <Route path="/privacy" element={<PrivacyPolicyPage />} />
                   <Route path="/cookies" element={<CookiesPolicyPage />} />
