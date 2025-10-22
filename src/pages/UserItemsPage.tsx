@@ -150,29 +150,86 @@ const UserItemsPage = () => {
         title="My Items - FlipIt"
         description="View and manage all your listed items"
       />
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="mb-8"
-        >
-          <h1 className="text-4xl font-bold mb-2">My Items</h1>
-          <p className="text-muted-foreground">
-            View and manage all your listings across platforms
-          </p>
-        </motion.div>
+      <div className="relative min-h-screen text-white overflow-hidden">
+        {/* Unified Animated Gradient Background */}
+        <div className="fixed inset-0 -z-20">
+          <div className="absolute inset-0 bg-neutral-950"></div>
+          <div className="absolute inset-0 pointer-events-none">
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: [1, 0.7, 1] }}
+              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+              style={{
+                background:
+                  "radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)",
+              }}
+            />
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 0.7 }}
+              animate={{ opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+              style={{
+                background:
+                  "radial-gradient(circle at 80% 40%, rgba(6, 182, 212, 0.25) 0%, transparent 50%)",
+              }}
+            />
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 0.5 }}
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+              style={{
+                background:
+                  "radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
+              }}
+            />
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 0.3 }}
+              animate={{ opacity: [0.3, 0.7, 0.3] }}
+              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+              style={{
+                background:
+                  "radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)",
+              }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)",
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="relative container mx-auto px-4 py-12 md:py-16">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="mb-8 text-center md:text-left"
+          >
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-3 bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+              My Items
+            </h1>
+            <p className="text-neutral-300 text-lg">
+              View and manage all your listings across platforms
+            </p>
+          </motion.div>
 
         {/* Statistics Cards */}
         {statsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             {[...Array(4)].map((_, i) => (
-              <Card key={i}>
+              <Card key={i} className="bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
                 <CardHeader className="pb-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin text-cyan-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="h-8 bg-muted animate-pulse rounded" />
+                  <div className="h-8 bg-neutral-800 animate-pulse rounded" />
                 </CardContent>
               </Card>
             ))}
@@ -185,36 +242,38 @@ const UserItemsPage = () => {
             custom={1}
             className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           >
-            <Card>
+            <Card className="bg-gradient-to-br from-neutral-900/80 to-neutral-900/50 border-neutral-800 backdrop-blur-sm hover:border-cyan-500/50 transition-all">
               <CardHeader className="pb-2">
-                <CardDescription>Total Items</CardDescription>
+                <CardDescription className="text-neutral-400">Total Items</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{stats.total_items}</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+                  {stats.total_items}
+                </p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-gradient-to-br from-neutral-900/80 to-neutral-900/50 border-neutral-800 backdrop-blur-sm hover:border-cyan-500/50 transition-all">
               <CardHeader className="pb-2">
-                <CardDescription>Published</CardDescription>
+                <CardDescription className="text-neutral-400">Published</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{stats.published_items}</p>
+                <p className="text-3xl font-bold text-cyan-400">{stats.published_items}</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-gradient-to-br from-neutral-900/80 to-neutral-900/50 border-neutral-800 backdrop-blur-sm hover:border-cyan-500/50 transition-all">
               <CardHeader className="pb-2">
-                <CardDescription>Drafts</CardDescription>
+                <CardDescription className="text-neutral-400">Drafts</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{stats.draft_items}</p>
+                <p className="text-3xl font-bold text-fuchsia-400">{stats.draft_items}</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-gradient-to-br from-neutral-900/80 to-neutral-900/50 border-neutral-800 backdrop-blur-sm hover:border-cyan-500/50 transition-all">
               <CardHeader className="pb-2">
-                <CardDescription>Success Rate</CardDescription>
+                <CardDescription className="text-neutral-400">Success Rate</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">
+                <p className="text-3xl font-bold text-emerald-400">
                   {stats.publish_success_rate.toFixed(1)}%
                 </p>
               </CardContent>
@@ -228,20 +287,20 @@ const UserItemsPage = () => {
           animate="visible"
           variants={fadeUp}
           custom={2}
-          className="flex flex-wrap gap-4 mb-6"
+          className="flex flex-wrap gap-4 mb-6 items-center bg-neutral-900/30 backdrop-blur-sm border border-neutral-800 rounded-lg p-4"
         >
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Filters:</span>
+            <Filter className="h-4 w-4 text-cyan-400" />
+            <span className="text-sm font-medium text-white">Filters:</span>
           </div>
           <Select
             value={stageFilter || 'all'}
             onValueChange={(value) => handleFilterChange('stage', value)}
           >
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-[150px] bg-neutral-800/50 border-neutral-700 text-white">
               <SelectValue placeholder="All stages" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-neutral-900 border-neutral-800">
               <SelectItem value="all">All stages</SelectItem>
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="published">Published</SelectItem>
@@ -251,10 +310,10 @@ const UserItemsPage = () => {
             value={platformFilter || 'all'}
             onValueChange={(value) => handleFilterChange('platform', value)}
           >
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-[150px] bg-neutral-800/50 border-neutral-700 text-white">
               <SelectValue placeholder="All platforms" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-neutral-900 border-neutral-800">
               <SelectItem value="all">All platforms</SelectItem>
               <SelectItem value="facebook">Facebook</SelectItem>
               <SelectItem value="olx">OLX</SelectItem>
@@ -266,13 +325,18 @@ const UserItemsPage = () => {
         {/* Items List */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
           </div>
         ) : error ? (
-          <Card className="p-12">
+          <Card className="p-12 bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
             <div className="text-center">
-              <p className="text-destructive mb-4">{error}</p>
-              <Button onClick={() => window.location.reload()}>Retry</Button>
+              <p className="text-red-400 mb-4">{error}</p>
+              <Button 
+                onClick={() => window.location.reload()}
+                className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-600 hover:to-fuchsia-600"
+              >
+                Retry
+              </Button>
             </div>
           </Card>
         ) : items.length === 0 ? (
@@ -282,16 +346,21 @@ const UserItemsPage = () => {
             variants={fadeUp}
             custom={3}
           >
-            <Card className="p-12">
+            <Card className="p-12 bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
               <div className="text-center">
-                <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">No items found</h3>
-                <p className="text-muted-foreground mb-4">
+                <Package className="h-16 w-16 mx-auto mb-4 text-neutral-500" />
+                <h3 className="text-xl font-semibold mb-2 text-white">No items found</h3>
+                <p className="text-neutral-400 mb-4">
                   {stageFilter || platformFilter
                     ? 'Try adjusting your filters'
                     : 'Start by adding your first item'}
                 </p>
-                <Button onClick={() => navigate('/add-item')}>Add Item</Button>
+                <Button 
+                  onClick={() => navigate('/add-item')}
+                  className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-600 hover:to-fuchsia-600"
+                >
+                  Add Item
+                </Button>
               </div>
             </Card>
           </motion.div>
@@ -307,21 +376,23 @@ const UserItemsPage = () => {
               {items.map((item) => (
                 <Card
                   key={item.uuid}
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                  className="cursor-pointer hover:shadow-xl hover:shadow-cyan-500/10 hover:border-cyan-500/50 transition-all bg-neutral-900/50 border-neutral-800 backdrop-blur-sm"
                   onClick={() => handleItemClick(item.uuid)}
                 >
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2">
-                      <CardTitle className="text-lg line-clamp-2">
+                      <CardTitle className="text-lg line-clamp-2 text-white">
                         {item.title}
                       </CardTitle>
                       <Badge
-                        variant={item.stage === 'published' ? 'default' : 'secondary'}
+                        className={item.stage === 'published' 
+                          ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' 
+                          : 'bg-neutral-700/50 text-neutral-300 border-neutral-600'}
                       >
                         {item.stage}
                       </Badge>
                     </div>
-                    <CardDescription className="line-clamp-2">
+                    <CardDescription className="line-clamp-2 text-neutral-400">
                       {item.description}
                     </CardDescription>
                   </CardHeader>
@@ -330,21 +401,26 @@ const UserItemsPage = () => {
                       <img
                         src={item.images[0]}
                         alt={item.title}
-                        className="w-full h-48 object-cover rounded-md mb-4"
+                        className="w-full h-48 object-cover rounded-md mb-4 border border-neutral-800"
                       />
                     )}
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-2xl font-bold">${item.price}</span>
+                      <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+                        ${item.price}
+                      </span>
                       <div className="flex gap-1">
                         {item.platforms.map((platform) => (
-                          <Badge key={platform} variant="outline">
+                          <Badge 
+                            key={platform} 
+                            className="bg-neutral-800/50 text-neutral-300 border-neutral-700"
+                          >
                             {platform}
                           </Badge>
                         ))}
                       </div>
                     </div>
                     {item.brand && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-neutral-400">
                         Brand: {item.brand}
                       </p>
                     )}
@@ -367,11 +443,12 @@ const UserItemsPage = () => {
                   size="sm"
                   onClick={() => handlePageChange(page - 1)}
                   disabled={page <= 1}
+                  className="bg-neutral-800/50 border-neutral-700 text-white hover:bg-neutral-800 disabled:opacity-50"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   Previous
                 </Button>
-                <span className="text-sm">
+                <span className="text-sm text-neutral-300">
                   Page {page} of {totalPages} ({total} items)
                 </span>
                 <Button
@@ -379,6 +456,7 @@ const UserItemsPage = () => {
                   size="sm"
                   onClick={() => handlePageChange(page + 1)}
                   disabled={page >= totalPages}
+                  className="bg-neutral-800/50 border-neutral-700 text-white hover:bg-neutral-800 disabled:opacity-50"
                 >
                   Next
                   <ChevronRight className="h-4 w-4" />
@@ -387,6 +465,7 @@ const UserItemsPage = () => {
             )}
           </>
         )}
+        </div>
       </div>
     </>
   );

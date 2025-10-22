@@ -73,21 +73,28 @@ const ItemDetailPage = () => {
 
   if (authLoading || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="relative min-h-screen bg-neutral-950 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
       </div>
     );
   }
 
   if (error || !item) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Card className="p-12">
-          <div className="text-center">
-            <p className="text-destructive mb-4">{error || 'Item not found'}</p>
-            <Button onClick={() => navigate('/user/items')}>Back to Items</Button>
-          </div>
-        </Card>
+      <div className="relative min-h-screen bg-neutral-950 text-white">
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <Card className="p-12 bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
+            <div className="text-center">
+              <p className="text-red-400 mb-4">{error || 'Item not found'}</p>
+              <Button 
+                onClick={() => navigate('/user/items')}
+                className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-600 hover:to-fuchsia-600"
+              >
+                Back to Items
+              </Button>
+            </div>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -98,22 +105,77 @@ const ItemDetailPage = () => {
         title={`${item.title} - My Items - FlipIt`}
         description={item.description}
       />
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="mb-6"
-        >
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/user/items')}
-            className="mb-4"
+      <div className="relative min-h-screen text-white overflow-hidden">
+        {/* Unified Animated Gradient Background */}
+        <div className="fixed inset-0 -z-20">
+          <div className="absolute inset-0 bg-neutral-950"></div>
+          <div className="absolute inset-0 pointer-events-none">
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: [1, 0.7, 1] }}
+              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+              style={{
+                background:
+                  "radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)",
+              }}
+            />
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 0.7 }}
+              animate={{ opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+              style={{
+                background:
+                  "radial-gradient(circle at 80% 40%, rgba(6, 182, 212, 0.25) 0%, transparent 50%)",
+              }}
+            />
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 0.5 }}
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+              style={{
+                background:
+                  "radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
+              }}
+            />
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 0.3 }}
+              animate={{ opacity: [0.3, 0.7, 0.3] }}
+              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+              style={{
+                background:
+                  "radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)",
+              }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)",
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="relative container mx-auto px-4 py-8 max-w-5xl">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="mb-6"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Items
-          </Button>
-        </motion.div>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/user/items')}
+              className="mb-4 text-white hover:bg-neutral-800/50"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Items
+            </Button>
+          </motion.div>
 
         <motion.div
           initial="hidden"
@@ -121,18 +183,19 @@ const ItemDetailPage = () => {
           variants={fadeUp}
           custom={1}
         >
-          <Card>
+          <Card className="bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
             <CardHeader>
               <div className="flex justify-between items-start mb-2">
-                <CardTitle className="text-3xl">{item.title}</CardTitle>
+                <CardTitle className="text-3xl text-white">{item.title}</CardTitle>
                 <Badge
-                  variant={item.stage === 'published' ? 'default' : 'secondary'}
-                  className="text-lg px-3 py-1"
+                  className={item.stage === 'published' 
+                    ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50 text-lg px-3 py-1' 
+                    : 'bg-neutral-700/50 text-neutral-300 border-neutral-600 text-lg px-3 py-1'}
                 >
                   {item.stage}
                 </Badge>
               </div>
-              <CardDescription className="text-base">
+              <CardDescription className="text-base text-neutral-400">
                 {item.description}
               </CardDescription>
             </CardHeader>
@@ -140,76 +203,78 @@ const ItemDetailPage = () => {
               {/* Images */}
               {item.images && item.images.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3">Images</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-white">Images</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {item.images.map((image, index) => (
                       <img
                         key={index}
                         src={image}
                         alt={`${item.title} - ${index + 1}`}
-                        className="w-full h-48 object-cover rounded-md"
+                        className="w-full h-48 object-cover rounded-md border border-neutral-800"
                       />
                     ))}
                   </div>
                 </div>
               )}
 
-              <Separator className="my-6" />
+              <Separator className="my-6 bg-neutral-800" />
 
               {/* Item Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Details</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-white">Details</h3>
                   <dl className="space-y-2">
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Price:</dt>
-                      <dd className="font-semibold text-xl">${item.price}</dd>
+                      <dt className="text-neutral-400">Price:</dt>
+                      <dd className="font-semibold text-xl bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+                        ${item.price}
+                      </dd>
                     </div>
                     {item.brand && (
                       <div className="flex justify-between">
-                        <dt className="text-muted-foreground">Brand:</dt>
-                        <dd className="font-medium">{item.brand}</dd>
+                        <dt className="text-neutral-400">Brand:</dt>
+                        <dd className="font-medium text-white">{item.brand}</dd>
                       </div>
                     )}
                     {item.condition && (
                       <div className="flex justify-between">
-                        <dt className="text-muted-foreground">Condition:</dt>
-                        <dd className="font-medium">{item.condition}</dd>
+                        <dt className="text-neutral-400">Condition:</dt>
+                        <dd className="font-medium text-white">{item.condition}</dd>
                       </div>
                     )}
                     {item.category && (
                       <div className="flex justify-between">
-                        <dt className="text-muted-foreground">Category:</dt>
-                        <dd className="font-medium">{item.category}</dd>
+                        <dt className="text-neutral-400">Category:</dt>
+                        <dd className="font-medium text-white">{item.category}</dd>
                       </div>
                     )}
                     {item.size && (
                       <div className="flex justify-between">
-                        <dt className="text-muted-foreground">Size:</dt>
-                        <dd className="font-medium">{item.size}</dd>
+                        <dt className="text-neutral-400">Size:</dt>
+                        <dd className="font-medium text-white">{item.size}</dd>
                       </div>
                     )}
                     {item.gender && (
                       <div className="flex justify-between">
-                        <dt className="text-muted-foreground">Gender:</dt>
-                        <dd className="font-medium">{item.gender}</dd>
+                        <dt className="text-neutral-400">Gender:</dt>
+                        <dd className="font-medium text-white">{item.gender}</dd>
                       </div>
                     )}
                   </dl>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Timestamps</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-white">Timestamps</h3>
                   <dl className="space-y-2">
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Created:</dt>
-                      <dd className="font-medium">
+                      <dt className="text-neutral-400">Created:</dt>
+                      <dd className="font-medium text-white">
                         {format(new Date(item.created_at), 'PPp')}
                       </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Updated:</dt>
-                      <dd className="font-medium">
+                      <dt className="text-neutral-400">Updated:</dt>
+                      <dd className="font-medium text-white">
                         {format(new Date(item.updated_at), 'PPp')}
                       </dd>
                     </div>
@@ -217,14 +282,17 @@ const ItemDetailPage = () => {
                 </div>
               </div>
 
-              <Separator className="my-6" />
+              <Separator className="my-6 bg-neutral-800" />
 
               {/* Platforms */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-3">Target Platforms</h3>
+                <h3 className="text-lg font-semibold mb-3 text-white">Target Platforms</h3>
                 <div className="flex gap-2">
                   {item.platforms.map((platform) => (
-                    <Badge key={platform} variant="outline" className="text-base px-3 py-1">
+                    <Badge 
+                      key={platform} 
+                      className="text-base px-3 py-1 bg-neutral-800/50 text-neutral-300 border-neutral-700"
+                    >
                       {platform}
                     </Badge>
                   ))}
@@ -234,43 +302,48 @@ const ItemDetailPage = () => {
               {/* Publish Results */}
               {item.publish_results && item.publish_results.length > 0 && (
                 <>
-                  <Separator className="my-6" />
+                  <Separator className="my-6 bg-neutral-800" />
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Publish Results</h3>
+                    <h3 className="text-lg font-semibold mb-3 text-white">Publish Results</h3>
                     <div className="space-y-3">
                       {item.publish_results.map((result) => (
-                        <Card key={result.platform}>
+                        <Card 
+                          key={result.platform}
+                          className="bg-neutral-800/30 border-neutral-700"
+                        >
                           <CardContent className="pt-4">
                             <div className="flex items-start justify-between">
                               <div className="flex items-start gap-3 flex-1">
                                 {result.success ? (
-                                  <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+                                  <CheckCircle2 className="h-5 w-5 text-emerald-400 mt-0.5" />
                                 ) : result.error_message ? (
-                                  <XCircle className="h-5 w-5 text-destructive mt-0.5" />
+                                  <XCircle className="h-5 w-5 text-red-400 mt-0.5" />
                                 ) : (
-                                  <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+                                  <Clock className="h-5 w-5 text-neutral-400 mt-0.5" />
                                 )}
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-semibold capitalize">
+                                    <span className="font-semibold capitalize text-white">
                                       {result.platform}
                                     </span>
                                     {result.success && (
-                                      <Badge variant="default">Published</Badge>
+                                      <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/50">
+                                        Published
+                                      </Badge>
                                     )}
                                   </div>
                                   {result.post_id && (
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm text-neutral-400">
                                       Post ID: {result.post_id}
                                     </p>
                                   )}
                                   {result.published_at && (
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm text-neutral-400">
                                       Published: {format(new Date(result.published_at), 'PPp')}
                                     </p>
                                   )}
                                   {result.error_message && (
-                                    <p className="text-sm text-destructive mt-1">
+                                    <p className="text-sm text-red-400 mt-1">
                                       Error: {result.error_message}
                                     </p>
                                   )}
@@ -287,6 +360,7 @@ const ItemDetailPage = () => {
             </CardContent>
           </Card>
         </motion.div>
+        </div>
       </div>
     </>
   );
