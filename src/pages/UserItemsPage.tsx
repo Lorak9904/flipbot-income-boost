@@ -274,7 +274,7 @@ const UserItemsPage = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold text-emerald-400">
-                  {stats.publish_success_rate.toFixed(1)}%
+                  {(stats.publish_success_rate ?? 0).toFixed(1)}%
                 </p>
               </CardContent>
             </Card>
