@@ -4,9 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, Save, Facebook, Store } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Mail, Lock, Save, Facebook, Store, Trash2, AlertTriangle } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 
 const fadeUp = {
@@ -19,27 +31,167 @@ const fadeUp = {
 };
 
 const SettingsPage = () => {
-  const { user} = useAuth();
+  const { user, logout } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [displayName, setDisplayName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [password, setPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [connectFacebook, setConnectFacebook] = useState(!!user);
   const [connectAllegro, setConnectAllegro] = useState(!!user);
   const [newsletter, setNewsletter] = useState(user ?? true);
   const [saving, setSaving] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-    //   await updateProfile({ displayName, email, password, connectFacebook, connectAllegro, newsletter });
-      toast({ title: 'Settings saved', description: 'Your changes have been applied.' });
-      setPassword('');
+      const token = localStorage.getItem('flipit_token');
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch('/api/FlipIt/api/user/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: displayName,
+          email: email,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+
+      toast({ 
+        title: 'Settings saved', 
+        description: 'Your profile has been updated successfully.' 
+      });
     } catch (e: any) {
-      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+      toast({ 
+        title: 'Error', 
+        description: e.message || 'Failed to save settings', 
+        variant: 'destructive' 
+      });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast({
+        title: 'Missing fields',
+        description: 'Please fill in all password fields',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: 'Passwords do not match',
+        description: 'New password and confirmation must match',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast({
+        title: 'Password too short',
+        description: 'Password must be at least 8 characters',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      const token = localStorage.getItem('flipit_token');
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch('/api/FlipIt/api/user/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.detail || 'Failed to change password');
+      }
+
+      toast({
+        title: 'Password changed',
+        description: 'Your password has been updated successfully',
+      });
+
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (e: any) {
+      toast({
+        title: 'Error',
+        description: e.message || 'Failed to change password',
+        variant: 'destructive',
+      });
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      const token = localStorage.getItem('flipit_token');
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch('/api/FlipIt/api/user/delete-account', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete account');
+      }
+
+      toast({
+        title: 'Account deleted',
+        description: 'Your account has been permanently deleted',
+      });
+
+      // Logout and redirect
+      logout();
+      navigate('/');
+    } catch (e: any) {
+      toast({
+        title: 'Error',
+        description: e.message || 'Failed to delete account',
+        variant: 'destructive',
+      });
+      setDeletingAccount(false);
     }
   };
 
@@ -82,10 +234,57 @@ const SettingsPage = () => {
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-neutral-800" />
               </div>
+            </div>
+          </motion.div>
+
+          {/* Password Change */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-12 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20">
+            <h2 className="mb-6 text-xl font-semibold flex items-center gap-2">
+              <Lock className="h-5 w-5 text-cyan-400" />
+              Change Password
+            </h2>
+            <div className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="password">New Password</Label>
-                <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-neutral-800" />
+                <Label htmlFor="currentPassword">Current Password</Label>
+                <Input 
+                  id="currentPassword" 
+                  type="password" 
+                  placeholder="Enter current password" 
+                  value={currentPassword} 
+                  onChange={(e) => setCurrentPassword(e.target.value)} 
+                  className="bg-neutral-800" 
+                />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">New Password</Label>
+                <Input 
+                  id="newPassword" 
+                  type="password" 
+                  placeholder="Enter new password (min 8 characters)" 
+                  value={newPassword} 
+                  onChange={(e) => setNewPassword(e.target.value)} 
+                  className="bg-neutral-800" 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <Input 
+                  id="confirmPassword" 
+                  type="password" 
+                  placeholder="Confirm new password" 
+                  value={confirmPassword} 
+                  onChange={(e) => setConfirmPassword(e.target.value)} 
+                  className="bg-neutral-800" 
+                />
+              </div>
+              <Button 
+                onClick={handlePasswordChange}
+                disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
+                className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600"
+              >
+                <Lock className="mr-2 h-4 w-4" />
+                {changingPassword ? 'Changing Password...' : 'Change Password'}
+              </Button>
             </div>
           </motion.div>
 
@@ -113,11 +312,64 @@ const SettingsPage = () => {
             </div>
           </motion.div>
 
-          <div className="text-center">
+          <div className="text-center mb-12">
             <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 shadow-lg shadow-fuchsia-500/20" onClick={handleSave} disabled={saving}>
-              <Save className="mr-2 h-5 w-5" /> {saving ? 'Saving…' : 'Save Settings'}
+              <Save className="mr-2 h-5 w-5" /> {saving ? 'Saving…' : 'Save Profile Settings'}
             </Button>
           </div>
+
+          {/* Danger Zone */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="rounded-2xl bg-red-950/20 p-8 backdrop-blur-sm ring-1 ring-red-500/30">
+            <h2 className="mb-6 text-xl font-semibold flex items-center gap-2 text-red-400">
+              <AlertTriangle className="h-5 w-5" />
+              Danger Zone
+            </h2>
+            <div className="space-y-4">
+              <p className="text-neutral-300 text-sm">
+                Once you delete your account, there is no going back. This action will permanently delete your account, all your items, and all associated data.
+              </p>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="destructive" 
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Account
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-neutral-900 border-red-500/30">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-red-400 flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5" />
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-neutral-300">
+                      This action cannot be undone. This will permanently delete your account and remove all your data from our servers, including:
+                      <ul className="list-disc list-inside mt-2 space-y-1">
+                        <li>All your listed items</li>
+                        <li>Your profile information</li>
+                        <li>All marketplace connections</li>
+                        <li>All item statistics and history</li>
+                      </ul>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="bg-neutral-800 hover:bg-neutral-700">
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteAccount}
+                      disabled={deletingAccount}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      {deletingAccount ? 'Deleting...' : 'Yes, delete my account'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </motion.div>
         </div>
       </section>
     </div>
