@@ -64,11 +64,16 @@ Detailed visual specifications including:
 6. **TrustSection** - Testimonials/social proof
 7. **PricingPage** - Main page assembly
 
-### Phase 3: Polish
-8. Animations and transitions
-9. Accessibility improvements
-10. Performance optimization
-11. SEO implementation
+### Phase 3: Payment Integration
+8. **Stripe Setup** - Configure products and prices in Stripe Dashboard
+9. **Checkout Flow** - Integrate Stripe Checkout for Pro/Business plans
+10. **Success/Cancel Pages** - Handle post-payment flows
+
+### Phase 4: Polish
+11. Animations and transitions
+12. Accessibility improvements
+13. Performance optimization
+14. SEO implementation
 
 ## 💻 Technical Stack (Already Available)
 
@@ -79,6 +84,10 @@ All required dependencies are already installed:
 - ✅ Radix UI (Accordion, Tooltip, etc.)
 - ✅ Lucide React 0.462.0 (icons)
 - ✅ React Router Dom 6.26.2 (routing)
+
+### Additional Dependencies for Payment (To Be Added)
+- 🔄 **@stripe/stripe-js** - Stripe JavaScript SDK for checkout
+- 🔄 **@stripe/react-stripe-js** - React components for Stripe (optional)
 
 ## 📝 Suggested File Structure
 

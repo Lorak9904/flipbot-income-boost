@@ -152,20 +152,29 @@ This comprehensive design package contains everything needed to implement FlipIt
 - [ ] Build `PricingFAQ` component
 - [ ] Add `TrustSection` with testimonials
 
-### Phase 3: Polish & Testing (Day 5)
+### Phase 3: Stripe Payment Integration (Day 5)
+- [ ] Install Stripe dependencies (`@stripe/stripe-js`)
+- [ ] Configure Stripe products in Dashboard (Pro & Business)
+- [ ] Set up monthly/annual price IDs
+- [ ] Implement Stripe Checkout flow in CTA buttons
+- [ ] Create success/cancel redirect pages
+- [ ] Add "Secure payment by Stripe" badges
+
+### Phase 4: Polish & Testing (Day 6)
 - [ ] Add animations using Framer Motion
 - [ ] Test responsive layouts
 - [ ] Validate accessibility
 - [ ] Optimize performance
 - [ ] Add SEO metadata
 
-### Phase 4: Launch (Day 6)
+### Phase 5: Launch (Day 7)
 - [ ] Final QA testing
+- [ ] Test Stripe checkout flow (test mode)
 - [ ] User acceptance testing
 - [ ] Deploy to production
 - [ ] Monitor analytics
 
-**Estimated Timeline**: 6 days for complete implementation
+**Estimated Timeline**: 7 days for complete implementation (including payment integration)
 
 ---
 
@@ -178,6 +187,16 @@ This comprehensive design package contains everything needed to implement FlipIt
 - Radix UI (Accordion, Tooltip)
 - Lucide React 0.462.0 (icons)
 - React Router Dom 6.26.2
+
+### Additional Dependencies (To Be Added)
+- **@stripe/stripe-js** - For Stripe payment integration
+- **@stripe/react-stripe-js** - React components for Stripe (optional)
+
+### Payment Integration
+- **Provider**: Stripe
+- **Implementation**: Stripe Checkout for Pro & Business subscriptions
+- **Features**: Recurring subscriptions, free trial support, automatic invoicing
+- **Setup Required**: Stripe Dashboard configuration (products, prices, webhooks)
 
 ### Browser Support
 - Chrome/Edge (latest 2 versions)

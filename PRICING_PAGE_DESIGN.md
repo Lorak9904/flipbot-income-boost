@@ -304,6 +304,32 @@ interface FAQItem {
 - Smooth expand/collapse animations
 - Icon rotation on open/close
 
+**Suggested FAQ Content:**
+
+1. **Can I switch plans at any time?**
+   - Yes! You can upgrade or downgrade your plan at any time from your account settings. Changes take effect immediately, and you'll only pay the prorated difference when upgrading.
+
+2. **How does the free trial work?**
+   - All paid plans include a 14-day free trial. No credit card required to start. You'll only be charged when the trial ends if you decide to continue.
+
+3. **What payment methods do you accept?**
+   - We accept all major credit and debit cards (Visa, Mastercard, American Express, Discover) through our secure payment processor Stripe. You can also pay using Google Pay or Apple Pay.
+
+4. **Can I cancel anytime?**
+   - Absolutely. You can cancel your subscription at any time from your account settings. You'll continue to have access until the end of your current billing period.
+
+5. **How does billing work for annual plans?**
+   - Annual plans are billed once per year and save you 20% compared to monthly billing. You'll receive an invoice at the start of each year.
+
+6. **Is my payment information secure?**
+   - Yes. All payments are processed through Stripe, a PCI-compliant payment processor trusted by millions of businesses worldwide. We never store your payment information on our servers.
+
+7. **What happens if I exceed my listing limit?**
+   - If you reach your listing limit, you'll be prompted to upgrade to a higher tier. Your existing listings will remain active, but you won't be able to add new ones until you upgrade or remove old listings.
+
+8. **Do you offer refunds?**
+   - We offer a 14-day money-back guarantee. If you're not satisfied within the first 14 days, contact us for a full refund.
+
 ---
 
 ## Animation Strategy
@@ -538,6 +564,61 @@ src/
   ]}
 />
 ```
+
+### Payment Integration (Stripe)
+
+**Note**: FlipIt will use **Stripe** for payment processing.
+
+#### Integration Considerations
+
+**Stripe Pricing Table (Recommended)**
+- Use Stripe's embeddable Pricing Table for seamless checkout
+- Allows dynamic pricing updates from Stripe Dashboard
+- Handles subscription management, upgrades/downgrades automatically
+- Built-in support for multiple currencies (PLN, EUR, USD, etc.)
+
+**Implementation Approach:**
+```typescript
+// Option 1: Stripe Pricing Table (No-code approach)
+<stripe-pricing-table 
+  pricing-table-id="prctbl_xxx"
+  publishable-key="pk_xxx">
+</stripe-pricing-table>
+
+// Option 2: Custom Checkout with Stripe API
+// Pro CTA button onClick:
+const handleSubscribe = async (priceId: string) => {
+  const stripe = await loadStripe(publishableKey);
+  const { error } = await stripe.redirectToCheckout({
+    lineItems: [{ price: priceId, quantity: 1 }],
+    mode: 'subscription',
+    successUrl: 'https://myflipit.live/success',
+    cancelUrl: 'https://myflipit.live/pricing',
+  });
+};
+```
+
+**Stripe Product Setup:**
+- **Starter Plan**: No Stripe product needed (free tier)
+- **Pro Plan**: Create Stripe product with monthly/annual prices
+  - Monthly: 99 PLN/month (price_pro_monthly_pln)
+  - Annual: 950 PLN/year (price_pro_annual_pln)
+- **Business Plan**: Create Stripe product with monthly/annual prices
+  - Monthly: 299 PLN/month (price_business_monthly_pln)
+  - Annual: 2,850 PLN/year (price_business_annual_pln)
+
+**Design Considerations:**
+- CTA buttons should trigger Stripe Checkout
+- Show "Secure payment by Stripe" badge for trust
+- Display accepted payment methods (Cards, Google Pay, Apple Pay)
+- Add loading state during redirect to Stripe
+- Handle post-payment success/cancel flows
+
+**Additional Features:**
+- 14-day free trial (configure in Stripe product settings)
+- Proration on plan changes (automatic in Stripe)
+- Tax calculation (Stripe Tax integration)
+- Invoice generation (automatic via Stripe)
 
 ---
 
