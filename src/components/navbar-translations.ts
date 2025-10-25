@@ -4,6 +4,7 @@ export const navbarTranslations: Translations = {
   en: {
     howItWorks: 'How It Works',
     guide: 'Marketplace Automation Guide',
+    pricing: 'Pricing',
     addItem: 'Add Item',
     myItems: 'My Items',
     connectAccounts: 'Connect Accounts',
@@ -14,6 +15,7 @@ export const navbarTranslations: Translations = {
   pl: {
     howItWorks: 'Jak to działa',
     guide: 'Przewodnik Automatyzacji Marketplace',
+    pricing: 'Cennik',
     addItem: 'Dodaj przedmiot',
     myItems: 'Moje przedmioty',
     connectAccounts: 'Połącz konta',
