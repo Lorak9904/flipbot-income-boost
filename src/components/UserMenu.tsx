@@ -99,9 +99,9 @@ const UserMenu = () => {
             <span>Profile</span>
           </DropdownMenuItem> */}
           <DropdownMenuItem asChild>
-            <Link to="#"> {/* TODO settings */}
-            <Package className="mr-2 h-4 w-4" />
-            <span>Settings</span>
+            <Link to="/settings">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
