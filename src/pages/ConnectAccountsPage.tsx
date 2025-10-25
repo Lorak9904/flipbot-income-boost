@@ -81,7 +81,6 @@ const ConnectAccountsPage = () => {
     queryKey: ['connected-platforms'],
     queryFn: fetchConnectedPlatforms,
     enabled: !!localStorage.getItem('flipit_token') && !!isAuthenticated,
-    refetchInterval: 8000,
     refetchOnWindowFocus: true,
     retry: 1,
   });
