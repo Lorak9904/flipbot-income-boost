@@ -111,6 +111,9 @@ const ConnectAccountsPage = () => {
     const params = new URLSearchParams(location.search);
     const platform = params.get("platform");
     const status = params.get("status");
+    const reconnect = params.get("reconnect");
+    const message = params.get("message");
+    
     if (platform === "olx" && status === "connected") {
       toast({
         title: "OLX Connected!",
@@ -119,6 +122,17 @@ const ConnectAccountsPage = () => {
       });
       // Immediately refetch to reflect status without manual refresh
       refetch();
+      window.history.replaceState({}, document.title, location.pathname);
+    }
+    
+    // Handle reconnect requests (expired token)
+    if (reconnect === "olx") {
+      toast({
+        title: "OLX Reconnection Required",
+        description: message || "Your OLX token has expired. Please reconnect your account.",
+        variant: "destructive",
+      });
+      // Clear URL params but keep user on page to reconnect
       window.history.replaceState({}, document.title, location.pathname);
     }
   }, [location, toast, refetch]);
