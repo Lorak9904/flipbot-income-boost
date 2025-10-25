@@ -18,6 +18,7 @@ import SuccessStoriesPage from "./pages/SuccessStoriesPage";
 import FeaturesPage from "./pages/FeaturesPage";
 import FAQPage from "./pages/FAQPage";
 import GetStartedPage from "./pages/GetStartedPage";
+import PricingPage from "./pages/PricingPage";
 import ConnectAccountsPage from "./pages/ConnectAccountsPage";
 import AddItemPage from "./pages/AddItemPage";
 import UserItemsPage from "./pages/UserItemsPage";
@@ -59,6 +60,7 @@ const App = () => {
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/how-it-works" element={<HowItWorksPage />} />
                   <Route path="/success-stories" element={<SuccessStoriesPage />} />
+                  <Route path="/pricing" element={<PricingPage />} />
                   {/* <Route path="/features" element={<FeaturesPage />} /> */}
                   <Route path="/faq" element={<FAQPage />} />
                   <Route path="/get-started" element={<GetStartedPage />} />
