@@ -17,7 +17,7 @@ import {
 import { Loader2, Package, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
-import { cdnGrid } from '@/lib/images';
+import { cdnGrid, resolveItemImageUrl } from '@/lib/images';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -374,61 +374,66 @@ const UserItemsPage = () => {
               custom={3}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"
             >
-              {items.map((item) => (
-                <Card
-                  key={item.uuid}
-                  className="cursor-pointer hover:shadow-xl hover:shadow-cyan-500/10 hover:border-cyan-500/50 transition-all bg-neutral-900/50 border-neutral-800 backdrop-blur-sm"
-                  onClick={() => handleItemClick(item.uuid)}
-                >
-                  <CardHeader>
-                    <div className="flex justify-between items-start mb-2">
-                      <CardTitle className="text-lg line-clamp-2 text-white">
-                        {item.title}
-                      </CardTitle>
-                      <Badge
-                        className={item.stage === 'published' 
-                          ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' 
-                          : 'bg-neutral-700/50 text-neutral-300 border-neutral-600'}
-                      >
-                        {item.stage}
-                      </Badge>
-                    </div>
-                    <CardDescription className="line-clamp-2 text-neutral-400">
-                      {item.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {item.images && item.images.length > 0 && (
-                      <img
-                        src={cdnGrid(item.images[0])}
-                        alt={item.title}
-                        className="w-full h-48 object-cover rounded-md mb-4 border border-neutral-800"
-                        loading="lazy"
-                      />
-                    )}
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
-                        ${item.price}
-                      </span>
-                      <div className="flex gap-1">
-                        {item.platforms.map((platform) => (
-                          <Badge 
-                            key={platform} 
-                            className="bg-neutral-800/50 text-neutral-300 border-neutral-700"
-                          >
-                            {platform}
-                          </Badge>
-                        ))}
+              {items.map((item) => {
+                const primaryImage = resolveItemImageUrl(item.images?.[0]);
+                const platforms = Array.isArray(item.platforms) ? item.platforms : [];
+
+                return (
+                  <Card
+                    key={item.uuid}
+                    className="cursor-pointer hover:shadow-xl hover:shadow-cyan-500/10 hover:border-cyan-500/50 transition-all bg-neutral-900/50 border-neutral-800 backdrop-blur-sm"
+                    onClick={() => handleItemClick(item.uuid)}
+                  >
+                    <CardHeader>
+                      <div className="flex justify-between items-start mb-2">
+                        <CardTitle className="text-lg line-clamp-2 text-white">
+                          {item.title}
+                        </CardTitle>
+                        <Badge
+                          className={item.stage === 'published' 
+                            ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' 
+                            : 'bg-neutral-700/50 text-neutral-300 border-neutral-600'}
+                        >
+                          {item.stage}
+                        </Badge>
                       </div>
-                    </div>
-                    {item.brand && (
-                      <p className="text-sm text-neutral-400">
-                        Brand: {item.brand}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+                      <CardDescription className="line-clamp-2 text-neutral-400">
+                        {item.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {primaryImage && (
+                        <img
+                          src={cdnGrid(primaryImage)}
+                          alt={item.title}
+                          className="w-full h-48 object-cover rounded-md mb-4 border border-neutral-800"
+                          loading="lazy"
+                        />
+                      )}
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+                          ${item.price}
+                        </span>
+                        <div className="flex gap-1">
+                          {platforms.map((platform) => (
+                            <Badge 
+                              key={platform} 
+                              className="bg-neutral-800/50 text-neutral-300 border-neutral-700"
+                            >
+                              {platform}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      {item.brand && (
+                        <p className="text-sm text-neutral-400">
+                          Brand: {item.brand}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </motion.div>
 
             {/* Pagination */}

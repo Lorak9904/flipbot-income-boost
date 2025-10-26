@@ -41,7 +41,28 @@ export async function fetchUserItems(params: FetchItemsParams = {}): Promise<Use
     throw new Error(`Failed to fetch items: ${response.statusText}`);
   }
 
-  return response.json();
+  const data: any = await response.json();
+  
+  // Transform backend response to frontend format (map 'id' to 'uuid')
+  if (data.items && Array.isArray(data.items)) {
+    data.items = data.items.map((item: any) => {
+      const transformed = {
+        ...item,
+        uuid: item.id || item.uuid,
+      };
+      
+      // Debug logging
+      if (!transformed.uuid) {
+        console.warn('Item missing UUID:', item);
+      }
+      
+      return transformed;
+    });
+  }
+  
+  console.log('Fetched items:', data.items?.length || 0, 'items');
+  
+  return data;
 }
 
 /**
@@ -71,7 +92,17 @@ export async function fetchItemDetail(uuid: string): Promise<UserItem> {
     throw new Error(`Failed to fetch item: ${response.statusText}`);
   }
 
-  return response.json();
+  const item: any = await response.json();
+  
+  // Transform backend response to frontend format (map 'id' to 'uuid')
+  const transformed = {
+    ...item,
+    uuid: item.id || item.uuid,
+  };
+  
+  console.log('Fetched item detail:', transformed.uuid, transformed.title);
+  
+  return transformed;
 }
 
 /**

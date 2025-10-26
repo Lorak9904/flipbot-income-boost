@@ -12,7 +12,7 @@ import { Loader2, ArrowLeft, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
 import { format } from 'date-fns';
-import { cdnLarge, cdnThumb } from '@/lib/images';
+import { cdnThumb, resolveItemImageUrl } from '@/lib/images';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -206,15 +206,19 @@ const ItemDetailPage = () => {
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-3 text-white">Images</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {item.images.map((image, index) => (
-                      <img
-                        key={index}
-                        src={cdnThumb(image)}
-                        alt={`${item.title} - ${index + 1}`}
-                        className="w-full h-48 object-cover rounded-md border border-neutral-800"
-                        loading="lazy"
-                      />
-                    ))}
+                    {item.images.map((image, index) => {
+                      const imageUrl = resolveItemImageUrl(image);
+                      if (!imageUrl) return null;
+                      return (
+                        <img
+                          key={`${imageUrl}-${index}`}
+                          src={cdnThumb(imageUrl)}
+                          alt={`${item.title} - ${index + 1}`}
+                          className="w-full h-48 object-cover rounded-md border border-neutral-800"
+                          loading="lazy"
+                        />
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -226,6 +230,21 @@ const ItemDetailPage = () => {
                 <div>
                   <h3 className="text-lg font-semibold mb-3 text-white">Details</h3>
                   <dl className="space-y-2">
+                    <div className="flex justify-between">
+                      <dt className="text-neutral-400">UUID:</dt>
+                      <dd className="font-mono text-xs text-neutral-300 break-all">{item.uuid}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-neutral-400">Stage:</dt>
+                      <dd className="font-medium text-white">
+                        <Badge className={item.stage === 'published' 
+                          ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' 
+                          : 'bg-neutral-700/50 text-neutral-300 border-neutral-600'}
+                        >
+                          {item.stage}
+                        </Badge>
+                      </dd>
+                    </div>
                     <div className="flex justify-between">
                       <dt className="text-neutral-400">Price:</dt>
                       <dd className="font-semibold text-xl bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
@@ -268,29 +287,102 @@ const ItemDetailPage = () => {
                 <div>
                   <h3 className="text-lg font-semibold mb-3 text-white">Timestamps</h3>
                   <dl className="space-y-2">
-                    <div className="flex justify-between">
-                      <dt className="text-neutral-400">Created:</dt>
-                      <dd className="font-medium text-white">
-                        {format(new Date(item.created_at), 'PPp')}
-                      </dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-neutral-400">Updated:</dt>
-                      <dd className="font-medium text-white">
-                        {format(new Date(item.updated_at), 'PPp')}
-                      </dd>
-                    </div>
+                    {item.created_at && (
+                      <div className="flex justify-between">
+                        <dt className="text-neutral-400">Created:</dt>
+                        <dd className="font-medium text-white">
+                          {format(new Date(item.created_at), 'PPp')}
+                        </dd>
+                      </div>
+                    )}
+                    {item.updated_at && (
+                      <div className="flex justify-between">
+                        <dt className="text-neutral-400">Updated:</dt>
+                        <dd className="font-medium text-white">
+                          {format(new Date(item.updated_at), 'PPp')}
+                        </dd>
+                      </div>
+                    )}
+                    {item.published_at && (
+                      <div className="flex justify-between">
+                        <dt className="text-neutral-400">Published:</dt>
+                        <dd className="font-medium text-white">
+                          {format(new Date(item.published_at), 'PPp')}
+                        </dd>
+                      </div>
+                    )}
                   </dl>
                 </div>
               </div>
 
               <Separator className="my-6 bg-neutral-800" />
 
+              {/* Enriched Analysis Data */}
+              {(item.description_full || item.weight_kg || item.dimensions_cm || item.shipping_advice || item.catalog_path) && (
+                <>
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-3 text-white">Enriched Analysis</h3>
+                    
+                    {item.description_full && (
+                      <div className="mb-4">
+                        <h4 className="text-sm font-medium text-neutral-400 mb-2">Full Description</h4>
+                        <p className="text-white whitespace-pre-wrap">{item.description_full}</p>
+                      </div>
+                    )}
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {item.weight_kg && (
+                        <div>
+                          <h4 className="text-sm font-medium text-neutral-400 mb-1">Weight</h4>
+                          <p className="text-white">{item.weight_kg} kg</p>
+                        </div>
+                      )}
+                      
+                      {item.dimensions_cm && (
+                        <div>
+                          <h4 className="text-sm font-medium text-neutral-400 mb-1">Dimensions (cm)</h4>
+                          <pre className="text-white text-xs bg-neutral-900/50 p-2 rounded border border-neutral-800 overflow-auto">
+                            {JSON.stringify(item.dimensions_cm, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+                      
+                      {item.catalog_path && (
+                        <div>
+                          <h4 className="text-sm font-medium text-neutral-400 mb-1">Catalog Path</h4>
+                          <p className="text-white text-sm">{item.catalog_path}</p>
+                        </div>
+                      )}
+                      
+                      {item.shipping_advice && (
+                        <div className="md:col-span-2">
+                          <h4 className="text-sm font-medium text-neutral-400 mb-1">Shipping Advice</h4>
+                          <pre className="text-white text-xs bg-neutral-900/50 p-2 rounded border border-neutral-800 overflow-auto">
+                            {JSON.stringify(item.shipping_advice, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+                      
+                      {item.analysis && (
+                        <div className="md:col-span-2">
+                          <h4 className="text-sm font-medium text-neutral-400 mb-1">AI Analysis</h4>
+                          <pre className="text-white text-xs bg-neutral-900/50 p-2 rounded border border-neutral-800 overflow-auto max-h-96">
+                            {JSON.stringify(item.analysis, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <Separator className="my-6 bg-neutral-800" />
+                </>
+              )}
+
               {/* Platforms */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-3 text-white">Target Platforms</h3>
                 <div className="flex gap-2">
-                  {item.platforms.map((platform) => (
+                  {(Array.isArray(item.platforms) ? item.platforms : []).map((platform) => (
                     <Badge 
                       key={platform} 
                       className="text-base px-3 py-1 bg-neutral-800/50 text-neutral-300 border-neutral-700"
@@ -308,53 +400,114 @@ const ItemDetailPage = () => {
                   <div>
                     <h3 className="text-lg font-semibold mb-3 text-white">Publish Results</h3>
                     <div className="space-y-3">
-                      {item.publish_results.map((result) => (
-                        <Card 
-                          key={result.platform}
-                          className="bg-neutral-800/30 border-neutral-700"
-                        >
-                          <CardContent className="pt-4">
-                            <div className="flex items-start justify-between">
-                              <div className="flex items-start gap-3 flex-1">
-                                {result.success ? (
-                                  <CheckCircle2 className="h-5 w-5 text-emerald-400 mt-0.5" />
-                                ) : result.error_message ? (
-                                  <XCircle className="h-5 w-5 text-red-400 mt-0.5" />
-                                ) : (
-                                  <Clock className="h-5 w-5 text-neutral-400 mt-0.5" />
-                                )}
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-semibold capitalize text-white">
-                                      {result.platform}
-                                    </span>
-                                    {result.success && (
-                                      <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/50">
-                                        Published
-                                      </Badge>
+                      {item.publish_results.map((result) => {
+                        const isSuccess = result.status === 'success' || result.success;
+                        const isPending = result.status === 'pending';
+                        const isError = result.status === 'error' || result.error_message;
+                        
+                        return (
+                          <Card 
+                            key={result.platform}
+                            className="bg-neutral-800/30 border-neutral-700"
+                          >
+                            <CardContent className="pt-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-start gap-3 flex-1">
+                                  {isSuccess ? (
+                                    <CheckCircle2 className="h-5 w-5 text-emerald-400 mt-0.5" />
+                                  ) : isError ? (
+                                    <XCircle className="h-5 w-5 text-red-400 mt-0.5" />
+                                  ) : (
+                                    <Clock className="h-5 w-5 text-neutral-400 mt-0.5" />
+                                  )}
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <span className="font-semibold capitalize text-white">
+                                        {result.platform}
+                                      </span>
+                                      {isSuccess && (
+                                        <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/50">
+                                          Published
+                                        </Badge>
+                                      )}
+                                      {isPending && (
+                                        <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/50">
+                                          Pending
+                                        </Badge>
+                                      )}
+                                      {isError && (
+                                        <Badge className="bg-red-500/20 text-red-400 border-red-500/50">
+                                          Error
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    
+                                    {/* Listing URL */}
+                                    {result.listing_url && (
+                                      <div className="mt-2">
+                                        <a 
+                                          href={result.listing_url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-sm text-cyan-400 hover:text-cyan-300 hover:underline"
+                                        >
+                                          View listing on {result.platform} →
+                                        </a>
+                                      </div>
                                     )}
+                                    
+                                    {/* External ID */}
+                                    {result.external_id && (
+                                      <p className="text-sm text-neutral-400 mt-1">
+                                        ID: {result.external_id}
+                                      </p>
+                                    )}
+                                    
+                                    {/* Legacy post_id */}
+                                    {!result.external_id && result.post_id && (
+                                      <p className="text-sm text-neutral-400 mt-1">
+                                        Post ID: {result.post_id}
+                                      </p>
+                                    )}
+                                    
+                                    {/* Status message */}
+                                    {result.message && (
+                                      <p className={`text-sm mt-1 ${isError ? 'text-red-400' : 'text-neutral-400'}`}>
+                                        {result.message}
+                                      </p>
+                                    )}
+                                    
+                                    {/* Legacy error_message */}
+                                    {!result.message && result.error_message && (
+                                      <p className="text-sm text-red-400 mt-1">
+                                        Error: {result.error_message}
+                                      </p>
+                                    )}
+                                    
+                                    {/* Timestamp */}
+                                    {(result.updated_at || result.published_at) && (() => {
+                                      try {
+                                        const dateStr = result.updated_at || result.published_at;
+                                        const date = new Date(dateStr!);
+                                        if (!isNaN(date.getTime())) {
+                                          return (
+                                            <p className="text-xs text-neutral-500 mt-1">
+                                              {format(date, 'PPp')}
+                                            </p>
+                                          );
+                                        }
+                                      } catch (e) {
+                                        console.warn('Invalid date:', result);
+                                      }
+                                      return null;
+                                    })()}
                                   </div>
-                                  {result.post_id && (
-                                    <p className="text-sm text-neutral-400">
-                                      Post ID: {result.post_id}
-                                    </p>
-                                  )}
-                                  {result.published_at && (
-                                    <p className="text-sm text-neutral-400">
-                                      Published: {format(new Date(result.published_at), 'PPp')}
-                                    </p>
-                                  )}
-                                  {result.error_message && (
-                                    <p className="text-sm text-red-400 mt-1">
-                                      Error: {result.error_message}
-                                    </p>
-                                  )}
                                 </div>
                               </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
                     </div>
                   </div>
                 </>

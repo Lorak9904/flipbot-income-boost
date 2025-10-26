@@ -10,6 +10,15 @@ export interface ItemImage {
   progress?: number;
 }
 
+export type UserItemImage =
+  | string
+  | {
+      url?: string;
+      preview?: string;
+      cdn_url?: string;
+      [key: string]: unknown;
+    };
+
 export interface ItemFormData {
   title: string;
   description: string;
@@ -48,7 +57,16 @@ export type ItemStage = 'draft' | 'published';
 
 export interface PlatformPublishResult {
   platform: Platform;
-  success: boolean;
+  status: 'pending' | 'success' | 'error';
+  status_code?: number;
+  message?: string;
+  external_id?: string;
+  listing_url?: string;
+  response?: Record<string, unknown>;
+  created_at?: string;
+  updated_at?: string;
+  // Legacy fields for backwards compatibility
+  success?: boolean;
   post_id?: string;
   error_message?: string;
   published_at?: string;
@@ -65,11 +83,19 @@ export interface UserItem {
   size?: string;
   gender?: string;
   stage: ItemStage;
-  images: string[];
+  images: UserItemImage[];
   platforms: Platform[];
   publish_results?: PlatformPublishResult[];
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
+  published_at?: string;
+  // Enriched analysis fields
+  analysis?: Record<string, unknown>;
+  description_full?: string;
+  dimensions_cm?: Record<string, unknown>;
+  weight_kg?: number;
+  shipping_advice?: Record<string, unknown>;
+  catalog_path?: string;
 }
 
 export interface UserItemsListResponse {

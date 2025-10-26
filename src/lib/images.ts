@@ -1,3 +1,5 @@
+import { UserItemImage } from '@/types/item';
+
 /**
  * Utilities for building Cloudflare Image Resizing URLs.
  * Works only when the image URL is served from our configured public images domain.
@@ -66,3 +68,19 @@ export function cdnImage(url: string, opts: ResizeOptions = {}): string {
 export const cdnThumb = (url: string) => cdnImage(url, { width: 310, quality: 85 });
 export const cdnGrid = (url: string) => cdnImage(url, { width: 480, quality: 85 });
 export const cdnLarge = (url: string) => cdnImage(url, { width: 1024, quality: 90 });
+
+/**
+ * Accepts mixed image representations (string URLs or stored objects) and returns a usable URL.
+ * Falls back to empty string when nothing suitable is found.
+ */
+export function resolveItemImageUrl(image?: UserItemImage | null): string {
+  if (!image) return '';
+  if (typeof image === 'string') return image;
+
+  return (
+    image.url ||
+    image.preview ||
+    image.cdn_url ||
+    ''
+  );
+}
