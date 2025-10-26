@@ -2,7 +2,7 @@
  * User-related API client functions
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://api.myflipit.live';
+const API_BASE = '/api/FlipIt/api';
 
 export interface UpdateLanguageRequest {
   language: string;
@@ -17,12 +17,12 @@ export interface UpdateLanguageResponse {
  * Saves to database and updates cookie via backend
  */
 export async function updateUserLanguage(language: string): Promise<UpdateLanguageResponse> {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('flipit_token');
   if (!token) {
     throw new Error('Authentication required');
   }
 
-  const response = await fetch(`${API_BASE}/FlipIt/api/user/language/`, {
+  const response = await fetch(`${API_BASE}/user/language/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

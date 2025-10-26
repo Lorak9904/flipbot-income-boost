@@ -11,13 +11,14 @@ export const getCurrentLanguage = (): Language => {
 
 // Set language in cookie (internal helper)
 const setLanguageCookie = (lang: Language): void => {
-  console.log("anything")
   document.cookie = `lang=${lang}; path=/; max-age=31536000`; // 1 year
 };
 
 // Set language - handles both cookie and backend persistence for authenticated users
 export const setLanguage = async (lang: Language): Promise<void> => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('flipit_token');
+  console.log("setting language to", lang);
+  console.log("token is", token);
   
   // If user is authenticated, persist to backend first
 
@@ -41,7 +42,9 @@ export const setLanguage = async (lang: Language): Promise<void> => {
 // Toggle between languages (async to support backend persistence)
 export const toggleLanguage = async (): Promise<void> => {
   const currentLang = getCurrentLanguage();
+  console.log("current language is", currentLang);
   const newLang = currentLang === 'en' ? 'pl' : 'en';
+  console.log("toggling language to", newLang);
   await setLanguage(newLang);
 };
 
