@@ -4,6 +4,8 @@ export interface ItemImage {
   url: string;
   file?: File;
   isUploaded: boolean;
+  isCompressing?: boolean;
+  isUploading?: boolean;
 }
 
 export interface ItemFormData {

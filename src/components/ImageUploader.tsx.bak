@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { ItemImage } from "@/types/item";
-import { Image, Trash, Upload, Loader2 } from "lucide-react";
+import { Image, Trash, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
@@ -69,7 +69,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
       if (file.size > 10 * 1024 * 1024) {
         toast({
           title: "File too large",
-          description: `${file.name} exceeds 10 MB`,
+          description: `${file.name} exceeds 10 MB`,
           variant: "destructive",
         });
         return false;
@@ -77,39 +77,22 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
       return true;
     });
 
-    // Create placeholder images with compressing state
-    const placeholders: ItemImage[] = validFiles.map(() => ({
-      id: uuidv4(),
-      url: '', // Will be set after compression
-      isUploaded: false,
-      isCompressing: true,
-      isUploading: false,
-    }));
-
-    // Show placeholders immediately
-    onChange([...images, ...placeholders]);
-
     // Compress in parallel
     const compressedFiles = await Promise.all(validFiles.map((f) => compressImage(f)));
 
-    // Update placeholders with compressed data
-    const compressed = compressedFiles.map((file, index) => ({
-      id: placeholders[index].id,
+    return compressedFiles.map((file) => ({
+      id: uuidv4(),
       url: URL.createObjectURL(file), // preview URL (compressed)
       file,
       isUploaded: false,
-      isCompressing: false,
-      isUploading: false,
     }));
-
-    return compressed;
   };
 
   /** Wrapper around the actual upload logic */
   const handleNewImages = async (incoming: ItemImage[]) => {
     if (!incoming.length) return;
 
-    // 10-image hard-limit check
+    // 10‑image hard‑limit check
     if (images.length + incoming.length > 10) {
       toast({
         title: "Too many images",
@@ -119,13 +102,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
       return;
     }
 
-    // Replace placeholders with compressed images
-    const updatedImages = [...images];
-    const startIndex = updatedImages.length - incoming.length;
-    incoming.forEach((img, idx) => {
-      updatedImages[startIndex + idx] = img;
-    });
-    onChange(updatedImages);
+    // Optimistically show previews
+    onChange([...images, ...incoming]);
 
     // Upload to R2 and replace blob URLs with permanent URLs
     await uploadImages(incoming);
@@ -135,7 +113,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
     if (!e.target.files?.length) return;
     const incoming = await processFiles(e.target.files);
     await handleNewImages(incoming);
-    e.target.value = ""; // allow re-selecting same file later
+    e.target.value = ""; // allow re‑selecting same file later
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -160,14 +138,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
   const uploadImages = async (newImages: ItemImage[]) => {
     setUploading(true);
 
-    // Mark images as uploading
-    let updatedImages = images.map((img) => {
-      if (newImages.some((newImg) => newImg.id === img.id)) {
-        return { ...img, isUploading: true };
-      }
-      return img;
-    });
-    onChange(updatedImages);
+    // Start with the most up-to-date list that includes the *new* images.
+    let updatedImages: ItemImage[] = [...images, ...newImages];
 
     try {
       const uploads = await Promise.all(
@@ -210,7 +182,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
           URL.revokeObjectURL(uploadResult.originalUrl);
         }
 
-        return { ...img, url: uploadResult.publicUrl, isUploaded: true, isUploading: false };
+        return { ...img, url: uploadResult.publicUrl, isUploaded: true };
       });
 
       onChange(updatedImages);
@@ -219,25 +191,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
         title: "Success",
         description: "Images uploaded successfully",
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error("Upload error:", error);
-      const errorMessage = error && typeof error === 'object' && 'response' in error 
-        ? (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data?.detail || (error as { message?: string }).message
-        : 'Unknown error';
       toast({
         title: "Upload failed",
-        description: errorMessage,
+        description: error.response?.data?.detail || error.message,
         variant: "destructive",
       });
-      
-      // Reset uploading state on error
-      updatedImages = updatedImages.map((img) => {
-        if (newImages.some((newImg) => newImg.id === img.id)) {
-          return { ...img, isUploading: false };
-        }
-        return img;
-      });
-      onChange(updatedImages);
     } finally {
       setUploading(false);
     }
@@ -260,28 +220,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
         {images.map((image) => (
           <div key={image.id} className="relative group">
             <AspectRatio ratio={1} className="bg-slate-100 rounded-lg overflow-hidden">
-              {image.url ? (
-                <img
-                  src={image.url}
-                  alt="Item photo"
-                  className="w-full h-full object-cover"
-                  onError={() => console.error(`Failed to load image: ${image.url}`)}
-                />
-              ) : (
-                <div className="w-full h-full bg-slate-200" />
-              )}
-              {(image.isCompressing || image.isUploading) && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                  <div className="text-white text-center">
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
-                    <p className="text-xs">
-                      {image.isCompressing ? 'Compressing...' : 'Uploading...'}
-                    </p>
-                  </div>
-                </div>
-              )}
+              <img
+                src={image.url}
+                alt="Item photo"
+                className="w-full h-full object-cover"
+                onError={() => console.error(`Failed to load image: ${image.url}`)}
+              />
             </AspectRatio>
-            {!isDisabled && !image.isCompressing && !image.isUploading && (
+            {!isDisabled && (
               <Button
                 variant="destructive"
                 size="icon"
@@ -317,7 +263,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
             />
             <Upload className="h-8 w-8 text-slate-400 mb-2" />
             <p className="text-sm text-slate-600 text-center">
-              {uploading ? "Processing..." : "Drag & drop images or click to browse"}
+              {uploading ? "Uploading…" : "Drag & drop images or click to browse"}
             </p>
             <p className="text-xs text-slate-400 mt-1 text-center">JPG, PNG, WEBP • Max 10MB each</p>
           </div>
@@ -333,3 +279,4 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
 };
 
 export default ImageUploader;
+
