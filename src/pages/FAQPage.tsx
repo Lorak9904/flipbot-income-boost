@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { ChevronDown, ChevronUp, MessageCircle, Sparkles, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SEOHead } from '@/components/SEOHead';
-import { getCurrentLanguage } from '@/components/language-utils';
+import { getCurrentLanguage, getTranslations } from '@/components/language-utils';
+import { faqTranslations } from './faq-translations';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -15,8 +16,6 @@ const fadeUp = {
   }),
 };
 
-const pageTitle = 'FlipIt FAQ | AI Marketplace Automation & Crosslisting';
-const pageDescription = 'Answers about automation for marketplaces: OLX automation, Vinted automation (Vinted app), AI crosslisting, and ecommerce automation features.';
 const keywords = [
   'AI crosslisting FAQ',
   'marketplace automation',
@@ -29,74 +28,6 @@ const keywords = [
   'Vinted crossposting automation',
   'seller automation support',
   'marketplace sync FAQ',
-];
-
-const heroBadges = ['Upload once', 'AI listings', 'Synced messaging'];
-
-const faqSections = [
-  {
-    icon: Upload,
-    title: 'Crosslisting Basics',
-    items: [
-      {
-        question: 'How does one-photo crosslisting work in FlipIt?',
-        answer:
-          'Upload your product images and details once. FlipIt uses AI to craft optimized titles, descriptions, and hashtags tailored for OLX, Vinted, and Facebook, then posts them simultaneously.',
-      },
-      {
-        question: 'Do I need to rewrite listings for each marketplace?',
-        answer:
-          'No. The platform adapts copy to each channel automatically, including category suggestions, localized keywords, and pricing guidance so every listing fits marketplace norms.',
-      },
-      {
-        question: 'Will FlipIt keep my inventory synced?',
-        answer:
-          'Yes. When an item sells or you pause a listing, FlipIt mirrors the change across connected marketplaces to prevent double-selling and stale offers.',
-      },
-    ],
-  },
-  {
-    icon: MessageCircle,
-    title: 'Automation & Messaging',
-    items: [
-      {
-        question: 'Can FlipIt reply to buyers for me?',
-        answer:
-          'Smart reply suggestions help you respond quickly. You stay in control—approve or personalize replies, and FlipIt keeps all chat threads organized in one inbox.',
-      },
-      {
-        question: 'Does automation work if I list in multiple languages?',
-        answer:
-          'FlipIt supports multilingual listings. Provide your preferred language inputs and the AI will mirror tone and terminology across marketplaces and buyer conversations.',
-      },
-      {
-        question: 'How much time will automation actually save?',
-        answer:
-          'Most sellers reclaim 5–8 hours each week that were previously spent rewriting listings, updating prices, or copying chats between platforms.',
-      },
-    ],
-  },
-  {
-    icon: Sparkles,
-    title: 'Roadmap & Future Features',
-    items: [
-      {
-        question: 'Will FlipIt help me find undervalued items?',
-        answer:
-          'Yes—automated sourcing alerts are on the roadmap. You will be able to set filters and receive AI-picked OLX and Vinted deals that match your profit targets.',
-      },
-      {
-        question: 'Are there plans for automated negotiations?',
-        answer:
-          'We are designing negotiation templates and AI-assisted responses so you can counter offers faster and secure better buy prices without manual scripting.',
-      },
-      {
-        question: 'What other upgrades are coming next?',
-        answer:
-          'Expect smarter relist reminders, deeper analytics, and expanded marketplace support to keep your inventory circulating with minimal touchpoints.',
-      },
-    ],
-  },
 ];
 
 const faqStructuredData = {
@@ -116,16 +47,64 @@ const faqStructuredData = {
 
 const FAQPage = () => {
   const [openQuestion, setOpenQuestion] = useState<string | null>(null);
+  const t = getTranslations(faqTranslations);
 
   const toggleQuestion = (id: string) => {
     setOpenQuestion((prev) => (prev === id ? null : id));
   };
 
+  const heroBadges = [t.heroBadge1, t.heroBadge2, t.heroBadge3];
+
+  const faqSections = [
+    {
+      icon: Upload,
+      title: t.crosslistingTitle,
+      items: [
+        { question: t.q1, answer: t.a1 },
+        { question: t.q2, answer: t.a2 },
+        { question: t.q3, answer: t.a3 },
+      ],
+    },
+    {
+      icon: MessageCircle,
+      title: t.automationTitle,
+      items: [
+        { question: t.q4, answer: t.a4 },
+        { question: t.q5, answer: t.a5 },
+        { question: t.q6, answer: t.a6 },
+      ],
+    },
+    {
+      icon: Sparkles,
+      title: t.roadmapTitle,
+      items: [
+        { question: t.q7, answer: t.a7 },
+        { question: t.q8, answer: t.a8 },
+        { question: t.q9, answer: t.a9 },
+      ],
+    },
+  ];
+
+  const faqStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqSections.flatMap((section) =>
+      section.items.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.answer,
+        },
+      }))
+    ),
+  };
+
   return (
     <div className="relative overflow-hidden bg-neutral-950 text-white">
       <SEOHead
-        title={pageTitle}
-        description={pageDescription}
+        title={t.pageTitle}
+        description={t.pageDescription}
         canonicalUrl="https://myflipit.live/faq"
         keywords={keywords}
         structuredData={faqStructuredData}
@@ -177,7 +156,7 @@ const FAQPage = () => {
           variants={fadeUp}
           className="mx-auto max-w-4xl text-3xl md:text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl"
         >
-          Your FlipIt FAQ Hub
+          {t.heroTitle}
         </motion.h1>
         <motion.p
           custom={2}
@@ -186,7 +165,7 @@ const FAQPage = () => {
           variants={fadeUp}
           className="mx-auto mt-6 max-w-2xl text-base md:text-lg text-neutral-300 px-2"
         >
-          Everything you need to know about AI-powered crosslisting, synced messaging, and the automation roadmap for myflipit.live.
+          {t.heroDescription}
         </motion.p>
         <motion.div
           custom={3}
@@ -261,16 +240,16 @@ const FAQPage = () => {
           variants={fadeUp}
           className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-neutral-900/60 p-6 md:p-8 text-center shadow-xl shadow-fuchsia-500/10 backdrop-blur"
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-white">Need a deeper dive?</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-white">{t.deepDiveTitle}</h2>
           <p className="mt-4 text-sm md:text-base text-neutral-300 px-2">
-            Explore how AI crosslisting works in detail, or jump into the guide for growth ideas.
+            {t.deepDiveDescription}
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             <Button asChild className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/20 hover:to-fuchsia-600">
-              <Link to="/how-it-works">How FlipIt Works</Link>
+              <Link to="/how-it-works">{t.howItWorksButton}</Link>
             </Button>
             <Button asChild variant="outline" className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10">
-              <Link to="/automated-reselling-platform-guide">Read the Playbook</Link>
+              <Link to="/automated-reselling-platform-guide">{t.readPlaybookButton}</Link>
             </Button>
           </div>
         </motion.div>
@@ -299,16 +278,16 @@ const FAQPage = () => {
           variants={fadeUp}
           className="mx-auto max-w-3xl rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-10 shadow-2xl"
         >
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white">Ready to automate your crosslisting?</h2>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white">{t.ctaTitle}</h2>
           <p className="mt-4 text-neutral-100">
-            Join the waitlist and turn a single photo into listings everywhere buyers shop.
+            {t.ctaDescription}
           </p>
           <Button
             asChild
             size="lg"
             className="mt-6 bg-gradient-to-r from-cyan-500 to-fuchsia-500 px-8 py-6 text-lg font-semibold text-white hover:to-fuchsia-600"
           >
-            <Link to="/get-started">Join the FlipIt waitlist</Link>
+            <Link to="/get-started">{t.ctaButton}</Link>
           </Button>
         </motion.div>
       </section>
