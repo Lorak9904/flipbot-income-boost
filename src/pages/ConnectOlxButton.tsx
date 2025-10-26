@@ -1,7 +1,11 @@
 import { api } from "../hooks/olx-api";
 import { Button } from '@/components/ui/button';
+import { getTranslations } from '@/components/language-utils';
+import { connectOlxTranslations } from './connectolx-translations';
 
 export function ConnectOlxButton() {
+  const t = getTranslations(connectOlxTranslations);
+  
   const handleClick = async () => {
     const token = localStorage.getItem('flipit_token');
     if (!token) {
@@ -20,7 +24,7 @@ export function ConnectOlxButton() {
   return (
   <div className="space-y-4">
     <p className="text-slate-300">
-      Connect your OLX account to let FlipIt find and flip items automatically.
+      {t.description}
     </p>
     <div className="flex flex-col gap-2">
       <Button
@@ -29,7 +33,7 @@ export function ConnectOlxButton() {
           onClick={handleClick}
           style={{ padding: "0.6rem 1rem", fontSize: "1rem" }}
       >
-        Connect with OLX
+        {t.connectButton}
       </Button>
     </div>
     </div>
