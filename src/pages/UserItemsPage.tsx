@@ -225,7 +225,7 @@ const UserItemsPage = () => {
         {statsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             {[...Array(4)].map((_, i) => (
-              <Card key={i} className="bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
+              <Card key={i} className="bg-gradient-to-br from-slate-900/90 to-gray-900/75 border border-zinc-700/60 backdrop-blur-md">
                 <CardHeader className="pb-2">
                   <Loader2 className="h-4 w-4 animate-spin text-cyan-400" />
                 </CardHeader>
@@ -243,9 +243,9 @@ const UserItemsPage = () => {
             custom={1}
             className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           >
-            <Card className="bg-gradient-to-br from-neutral-900/80 to-neutral-900/50 border-neutral-800 backdrop-blur-sm hover:border-cyan-500/50 transition-all">
+            <Card className="!bg-gradient-to-br from-cyan-500/30 via-cyan-500/10 to-neutral-900/70 border-cyan-400/40 backdrop-blur-sm hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-2">
-                <CardDescription className="text-neutral-400">Total Items</CardDescription>
+                <CardDescription className="text-neutral-200 font-medium">Total Items</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
@@ -253,25 +253,25 @@ const UserItemsPage = () => {
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-neutral-900/80 to-neutral-900/50 border-neutral-800 backdrop-blur-sm hover:border-cyan-500/50 transition-all">
+            <Card className="!bg-gradient-to-br from-cyan-500/30 via-cyan-500/10 to-neutral-900/70 border-cyan-400/40 backdrop-blur-sm hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-2">
-                <CardDescription className="text-neutral-400">Published</CardDescription>
+                <CardDescription className="text-neutral-200 font-medium">Published</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold text-cyan-400">{stats.published_items}</p>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-neutral-900/80 to-neutral-900/50 border-neutral-800 backdrop-blur-sm hover:border-cyan-500/50 transition-all">
+            <Card className="!bg-gradient-to-br from-fuchsia-500/30 via-fuchsia-500/10 to-neutral-900/70 border-fuchsia-400/40 backdrop-blur-sm hover:border-fuchsia-400/70 hover:shadow-xl hover:shadow-fuchsia-500/30 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-2">
-                <CardDescription className="text-neutral-400">Drafts</CardDescription>
+                <CardDescription className="text-neutral-200 font-medium">Drafts</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold text-fuchsia-400">{stats.draft_items}</p>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-neutral-900/80 to-neutral-900/50 border-neutral-800 backdrop-blur-sm hover:border-cyan-500/50 transition-all">
+            <Card className="!bg-gradient-to-br from-emerald-500/30 via-emerald-500/10 to-neutral-900/70 border-emerald-400/40 backdrop-blur-sm hover:border-emerald-400/70 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-2">
-                <CardDescription className="text-neutral-400">Success Rate</CardDescription>
+                <CardDescription className="text-neutral-200 font-medium">Success Rate</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold text-emerald-400">

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Items - Stat Cards Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+            min-height: 100vh;
+        }
+        .stat-card-cyan {
+            background: linear-gradient(to bottom right, rgba(6, 182, 212, 0.3), rgba(6, 182, 212, 0.1), rgba(23, 23, 23, 0.7));
+            border: 1px solid rgba(34, 211, 238, 0.4);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s;
+        }
+        .stat-card-cyan:hover {
+            border-color: rgba(34, 211, 238, 0.7);
+            box-shadow: 0 20px 25px -5px rgba(6, 182, 212, 0.3);
+            transform: translateY(-4px);
+        }
+        .stat-card-fuchsia {
+            background: linear-gradient(to bottom right, rgba(217, 70, 239, 0.3), rgba(217, 70, 239, 0.1), rgba(23, 23, 23, 0.7));
+            border: 1px solid rgba(232, 121, 249, 0.4);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s;
+        }
+        .stat-card-fuchsia:hover {
+            border-color: rgba(232, 121, 249, 0.7);
+            box-shadow: 0 20px 25px -5px rgba(217, 70, 239, 0.3);
+            transform: translateY(-4px);
+        }
+        .stat-card-emerald {
+            background: linear-gradient(to bottom right, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1), rgba(23, 23, 23, 0.7));
+            border: 1px solid rgba(52, 211, 153, 0.4);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s;
+        }
+        .stat-card-emerald:hover {
+            border-color: rgba(52, 211, 153, 0.7);
+            box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.3);
+            transform: translateY(-4px);
+        }
+    </style>
+</head>
+<body class="bg-neutral-950 text-white p-8">
+    <div class="container mx-auto max-w-7xl">
+        <div class="mb-8">
+            <h1 class="text-5xl font-extrabold mb-3 bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+                My Items
+            </h1>
+            <p class="text-neutral-300 text-lg">View and manage all your listings across platforms</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <!-- Total Items Card -->
+            <div class="stat-card-cyan rounded-lg p-6">
+                <p class="text-neutral-200 text-sm font-medium mb-2">Total Items</p>
+                <p class="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+                    0
+                </p>
+            </div>
+
+            <!-- Published Card -->
+            <div class="stat-card-cyan rounded-lg p-6">
+                <p class="text-neutral-200 text-sm font-medium mb-2">Published</p>
+                <p class="text-3xl font-bold text-cyan-400">0</p>
+            </div>
+
+            <!-- Drafts Card -->
+            <div class="stat-card-fuchsia rounded-lg p-6">
+                <p class="text-neutral-200 text-sm font-medium mb-2">Drafts</p>
+                <p class="text-3xl font-bold text-fuchsia-400">0</p>
+            </div>
+
+            <!-- Success Rate Card -->
+            <div class="stat-card-emerald rounded-lg p-6">
+                <p class="text-neutral-200 text-sm font-medium mb-2">Success Rate</p>
+                <p class="text-3xl font-bold text-emerald-400">0.0%</p>
+            </div>
+        </div>
+
+        <div class="mt-8 p-4 bg-neutral-900/40 rounded-lg border border-neutral-700/50">
+            <p class="text-sm text-neutral-300">
+                ✅ <strong>Enhanced with vibrant gradients:</strong><br>
+                • Cyan cards: 30% opacity gradient (Total Items, Published)<br>
+                • Fuchsia card: 30% opacity gradient (Drafts)<br>
+                • Emerald card: 30% opacity gradient (Success Rate)<br>
+                • Hover effects: Brighter borders, colored shadows, lift animation
+            </p>
+        </div>
+    </div>
+</body>
+</html>

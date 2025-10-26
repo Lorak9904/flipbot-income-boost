@@ -17,6 +17,7 @@ const Navbar = () => {
   const baseNavItems = [
     { name: t.howItWorks, path: '/how-it-works' },
     { name: t.guide, path: '/automated-reselling-platform-guide' },
+    { name: t.pricing, path: '/pricing' },
   ];
   
   const navItems = isAuthenticated
