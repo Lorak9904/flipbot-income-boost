@@ -17,6 +17,7 @@ import {
 import { Loader2, Package, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
+import { cdnGrid } from '@/lib/images';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -399,9 +400,10 @@ const UserItemsPage = () => {
                   <CardContent>
                     {item.images && item.images.length > 0 && (
                       <img
-                        src={item.images[0]}
+                        src={cdnGrid(item.images[0])}
                         alt={item.title}
                         className="w-full h-48 object-cover rounded-md mb-4 border border-neutral-800"
+                        loading="lazy"
                       />
                     )}
                     <div className="flex justify-between items-center mb-2">

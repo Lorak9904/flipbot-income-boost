@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { ItemImage } from "@/types/item";
@@ -6,19 +6,9 @@ import { Image, Trash, Upload, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
-import imageCompression from "browser-image-compression";
 
-const compressImage = async (file: File) => {
-  return imageCompression(file, {
-    maxWidthOrHeight: 1280,      // 1-2 MP is enough for marketplaces
-    maxSizeMB: 0.6,              // ~600 kB hard-cap
-    useWebWorker: true,
-    alwaysKeepResolution: false, // let it down-scale
-  });
-};
-
-// Safeguard when running during SSR
-const token = typeof window !== "undefined" ? localStorage.getItem("flipit_token") : null;
+// Public base for served images (configure via VITE_IMAGES_BASE_URL)
+const PUBLIC_IMAGES_BASE = (import.meta as any)?.env?.VITE_IMAGES_BASE_URL || 'https://images.myflipit.live/';
 
 interface ImageUploaderProps {
   images: ItemImage[];
@@ -38,20 +28,35 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
   const { toast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const imagesRef = useRef<ItemImage[]>(images);
+
+  useEffect(() => {
+    imagesRef.current = images;
+  }, [images]);
+
+  const syncUpdate = (next: ItemImage[]) => {
+    imagesRef.current = next;
+    onChange(next);
+  };
 
   // Clean up temporary URLs on unmount
   useEffect(() => {
     return () => {
       images.forEach((img) => {
-        if (!img.isUploaded && img.url.startsWith("blob:")) {
-          URL.revokeObjectURL(img.url);
-        }
+        try {
+          if (img.preview && img.preview.startsWith('blob:')) {
+            URL.revokeObjectURL(img.preview);
+          }
+          if (!img.isUploaded && img.url && img.url.startsWith('blob:')) {
+            URL.revokeObjectURL(img.url);
+          }
+        } catch {}
       });
     };
   }, [images]);
 
   // ────────────────────────────────────────────────────────────────────────────
-  // File → ItemImage[] helper (validation + compression)
+  // File → ItemImage[] helper (validation + preparation)
   // ────────────────────────────────────────────────────────────────────────────
   const processAndUploadFiles = async (fileList: FileList) => {
     const files = Array.from(fileList);
@@ -89,51 +94,25 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
       return;
     }
 
-    // Create placeholder images with compressing state
-    const placeholders: ItemImage[] = validFiles.map(() => ({
-      id: uuidv4(),
-      url: '', // Will be set after compression
-      isUploaded: false,
-      isCompressing: true,
-      isUploading: false,
-    }));
-
-    // Capture current images and add placeholders
-    const imagesWithPlaceholders = [...images, ...placeholders];
-    
-    // Show placeholders immediately
-    onChange(imagesWithPlaceholders);
-
-    // Compress in parallel
-    const compressedFiles = await Promise.all(validFiles.map((f) => compressImage(f)));
-
-    // Update placeholders with compressed data (update in place by ID)
-    const updatedImages = imagesWithPlaceholders.map((img) => {
-      const placeholderIndex = placeholders.findIndex(p => p.id === img.id);
-      if (placeholderIndex !== -1) {
-        // This is a placeholder, update it with compressed data
-        const compressedFile = compressedFiles[placeholderIndex];
-        return {
-          id: img.id,
-          url: URL.createObjectURL(compressedFile), // preview URL (compressed)
-          file: compressedFile,
-          isUploaded: false,
-          isCompressing: false,
-          isUploading: false,
-        };
-      }
-      // This is an existing image, keep it as is
-      return img;
+    // Prepare client-side previews for immediate feedback
+    const newImages: ItemImage[] = validFiles.map((file) => {
+      const blobUrl = URL.createObjectURL(file);
+      return {
+        id: uuidv4(),
+        url: blobUrl,      // temporary until upload finishes
+        preview: blobUrl,  // persist preview even after upload
+        file,
+        isUploaded: false,
+        isUploading: false,
+        progress: 0,
+      };
     });
 
-    // Update state with compressed images
-    onChange(updatedImages);
+    const updatedImages = [...images, ...newImages];
+    syncUpdate(updatedImages);
 
-    // Now upload to R2
-    const imagesToUpload = updatedImages.filter(img => 
-      placeholders.some(p => p.id === img.id)
-    );
-    await uploadImages(imagesToUpload);
+    // Upload originals without compression
+    await uploadImages(newImages);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,14 +142,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
   const uploadImages = async (newImages: ItemImage[]) => {
     setUploading(true);
 
-    // Mark images as uploading
-    let updatedImages = images.map((img) => {
+    // Mark images as uploading - use imagesRef.current to get latest state
+    let updatedImages = imagesRef.current.map((img) => {
       if (newImages.some((newImg) => newImg.id === img.id)) {
         return { ...img, isUploading: true };
       }
       return img;
     });
-    onChange(updatedImages);
+    syncUpdate(updatedImages);
 
     try {
       const uploads = await Promise.all(
@@ -178,6 +157,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
         newImages.map(async (image) => {
           const originalUrl = image.url;
 
+          const authToken = typeof window !== 'undefined' ? localStorage.getItem('flipit_token') : null;
           const { data: presigned } = await axios.post(
             "/api/get-presigned-url",
             {
@@ -185,7 +165,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
               content_type: image.file!.type,
             },
             {
-              headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+              headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
             }
           );
 
@@ -193,11 +173,21 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
 
           await axios.put(putUrl, image.file, {
             headers: { "Content-Type": image.file!.type },
+            onUploadProgress: (evt) => {
+              if (!evt.total) return;
+              const pct = Math.round((evt.loaded / evt.total) * 100);
+              const next = imagesRef.current.map((img) =>
+                img.id === image.id
+                  ? { ...img, isUploading: true, progress: pct }
+                  : img
+              );
+              syncUpdate(next);
+            },
           });
 
           return {
             id: image.id,
-            publicUrl: `https://images.myflipit.live/${key}`,
+            publicUrl: `${PUBLIC_IMAGES_BASE.replace(/\/$/, '')}/${key}`,
             originalUrl,
           };
         })
@@ -209,14 +199,23 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
         const uploadResult = uploadedMap.get(img.id);
         if (!uploadResult) return img;
 
-        if (uploadResult.originalUrl.startsWith("blob:")) {
-          URL.revokeObjectURL(uploadResult.originalUrl);
+        // Clean up blob preview URL after successful upload
+        if (img.preview && img.preview.startsWith('blob:')) {
+          try { URL.revokeObjectURL(img.preview); } catch {}
         }
 
-        return { ...img, url: uploadResult.publicUrl, isUploaded: true, isUploading: false };
+        // Replace with final CDN URL and clear blob preview
+        return { 
+          ...img, 
+          url: uploadResult.publicUrl, 
+          preview: uploadResult.publicUrl,  // Use CDN URL for preview too
+          isUploaded: true, 
+          isUploading: false, 
+          progress: 100 
+        };
       });
 
-      onChange(updatedImages);
+      syncUpdate(updatedImages);
 
       toast({
         title: "Success",
@@ -240,7 +239,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
         }
         return img;
       });
-      onChange(updatedImages);
+      syncUpdate(updatedImages);
     } finally {
       setUploading(false);
     }
@@ -251,10 +250,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
 
     // Clean up any blob URLs we generated for images that were never uploaded
     images
-      .filter((img) => img.id === id && !img.isUploaded && img.url.startsWith("blob:"))
-      .forEach((img) => URL.revokeObjectURL(img.url));
+      .filter((img) => img.id === id)
+      .forEach((img) => {
+        if (img.preview && img.preview.startsWith('blob:')) {
+          try { URL.revokeObjectURL(img.preview); } catch {}
+        }
+        if (!img.isUploaded && img.url && img.url.startsWith('blob:')) {
+          try { URL.revokeObjectURL(img.url); } catch {}
+        }
+      });
 
-    onChange(remaining);
+    syncUpdate(remaining);
   };
 
   return (
@@ -263,28 +269,28 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
         {images.map((image) => (
           <div key={image.id} className="relative group">
             <AspectRatio ratio={1} className="bg-slate-100 rounded-lg overflow-hidden">
-              {image.url ? (
+              { (image.url || image.preview) ? (
                 <img
-                  src={image.url}
+                  src={image.url || image.preview}
                   alt="Item photo"
                   className="w-full h-full object-cover"
-                  onError={() => console.error(`Failed to load image: ${image.url}`)}
+                  onError={() => console.error(`Failed to load image: ${image.url || image.preview}`)}
                 />
               ) : (
                 <div className="w-full h-full bg-slate-200" />
               )}
-              {(image.isCompressing || image.isUploading) && (
+              {image.isUploading && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <div className="text-white text-center">
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                     <p className="text-xs">
-                      {image.isCompressing ? 'Compressing...' : 'Uploading...'}
+                      {`Uploading${typeof image.progress === 'number' ? ` ${image.progress}%` : '...'}`}
                     </p>
                   </div>
                 </div>
               )}
             </AspectRatio>
-            {!isDisabled && !image.isCompressing && !image.isUploading && (
+            {!isDisabled && !image.isUploading && (
               <Button
                 variant="destructive"
                 size="icon"
@@ -320,7 +326,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
             />
             <Upload className="h-8 w-8 text-slate-400 mb-2" />
             <p className="text-sm text-slate-600 text-center">
-              {uploading ? "Processing..." : "Drag & drop images or click to browse"}
+              {uploading ? "Uploading..." : "Drag & drop images or click to browse"}
             </p>
             <p className="text-xs text-slate-400 mt-1 text-center">JPG, PNG, WEBP • Max 10MB each</p>
           </div>

@@ -12,6 +12,7 @@ import { Loader2, ArrowLeft, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
 import { format } from 'date-fns';
+import { cdnLarge, cdnThumb } from '@/lib/images';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -208,9 +209,10 @@ const ItemDetailPage = () => {
                     {item.images.map((image, index) => (
                       <img
                         key={index}
-                        src={image}
+                        src={cdnThumb(image)}
                         alt={`${item.title} - ${index + 1}`}
                         className="w-full h-48 object-cover rounded-md border border-neutral-800"
+                        loading="lazy"
                       />
                     ))}
                   </div>

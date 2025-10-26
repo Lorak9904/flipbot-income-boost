@@ -2,10 +2,12 @@
 export interface ItemImage {
   id: string;
   url: string;
+  // Local preview (blob:) to keep image visible even if CDN URL fails
+  preview?: string;
   file?: File;
   isUploaded: boolean;
-  isCompressing?: boolean;
   isUploading?: boolean;
+  progress?: number;
 }
 
 export interface ItemFormData {
