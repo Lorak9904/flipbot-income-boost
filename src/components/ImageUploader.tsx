@@ -53,7 +53,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
   // ────────────────────────────────────────────────────────────────────────────
   // File → ItemImage[] helper (validation + compression)
   // ────────────────────────────────────────────────────────────────────────────
-  const processFiles = async (fileList: FileList): Promise<ItemImage[]> => {
+  const processAndUploadFiles = async (fileList: FileList) => {
     const files = Array.from(fileList);
 
     // Validate type & size first (synchronously)
@@ -77,6 +77,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
       return true;
     });
 
+    if (validFiles.length === 0) return;
+
+    // 10-image hard-limit check
+    if (images.length + validFiles.length > 10) {
+      toast({
+        title: "Too many images",
+        description: "You can only upload up to 10 images",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Create placeholder images with compressing state
     const placeholders: ItemImage[] = validFiles.map(() => ({
       id: uuidv4(),
@@ -93,48 +105,33 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
     const compressedFiles = await Promise.all(validFiles.map((f) => compressImage(f)));
 
     // Update placeholders with compressed data
-    const compressed = compressedFiles.map((file, index) => ({
-      id: placeholders[index].id,
-      url: URL.createObjectURL(file), // preview URL (compressed)
-      file,
-      isUploaded: false,
-      isCompressing: false,
-      isUploading: false,
-    }));
-
-    return compressed;
-  };
-
-  /** Wrapper around the actual upload logic */
-  const handleNewImages = async (incoming: ItemImage[]) => {
-    if (!incoming.length) return;
-
-    // 10-image hard-limit check
-    if (images.length + incoming.length > 10) {
-      toast({
-        title: "Too many images",
-        description: "You can only upload up to 10 images",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Replace placeholders with compressed images
-    const updatedImages = [...images];
-    const startIndex = updatedImages.length - incoming.length;
-    incoming.forEach((img, idx) => {
-      updatedImages[startIndex + idx] = img;
+    const updatedImages = images.map(img => img); // copy existing images
+    placeholders.forEach((placeholder, index) => {
+      const compressedFile = compressedFiles[index];
+      const updatedImage: ItemImage = {
+        id: placeholder.id,
+        url: URL.createObjectURL(compressedFile), // preview URL (compressed)
+        file: compressedFile,
+        isUploaded: false,
+        isCompressing: false,
+        isUploading: false,
+      };
+      updatedImages.push(updatedImage);
     });
+
+    // Update state with compressed images
     onChange(updatedImages);
 
-    // Upload to R2 and replace blob URLs with permanent URLs
-    await uploadImages(incoming);
+    // Now upload to R2
+    const imagesToUpload = updatedImages.filter(img => 
+      placeholders.some(p => p.id === img.id)
+    );
+    await uploadImages(imagesToUpload);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
-    const incoming = await processFiles(e.target.files);
-    await handleNewImages(incoming);
+    await processAndUploadFiles(e.target.files);
     e.target.value = ""; // allow re-selecting same file later
   };
 
@@ -149,8 +146,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
     e.preventDefault();
     setIsDragging(false);
     if (!e.dataTransfer.files?.length) return;
-    const incoming = await processFiles(e.dataTransfer.files);
-    await handleNewImages(incoming);
+    await processAndUploadFiles(e.dataTransfer.files);
   };
 
   /**
