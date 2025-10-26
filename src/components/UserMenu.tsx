@@ -13,19 +13,22 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { LogIn, User, Settings, LogOut, Home, Package, BarChart3, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { getTranslations } from './language-utils';
+import { userMenuTranslations } from './usermenu-translations';
 
 const UserMenu = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const t = getTranslations(userMenuTranslations);
 
   const handleLogout = () => {
     logout();
     setOpen(false);
     toast({
-      title: "Logged out successfully",
-      description: "You have been logged out of your account",
+      title: t.loggedOut,
+      description: t.loggedOutDescription,
     });
     navigate('/');
   };
@@ -35,7 +38,7 @@ const UserMenu = () => {
       <Button asChild variant="default" className="bg-teal-500 hover:bg-teal-600 text-white">
         <Link to="/login">
           <LogIn className="mr-2 h-4 w-4" />
-          Log in
+          {t.login}
         </Link>
       </Button>
     );
@@ -85,23 +88,23 @@ const UserMenu = () => {
           <DropdownMenuItem asChild>
             <Link to="/">
               <Home className="mr-2 h-4 w-4" />
-              <span>Dashboard</span>
+              <span>{t.dashboard}</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to="/connect-accounts">
               <Package className="mr-2 h-4 w-4" />
-              <span>Connected Accounts</span>
+              <span>{t.connectedAccounts}</span>
             </Link>
           </DropdownMenuItem>
           {/* <DropdownMenuItem>
             <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
+            <span>{t.profile}</span>
           </DropdownMenuItem> */}
           <DropdownMenuItem asChild>
             <Link to="/settings">
               <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
+              <span>{t.settings}</span>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -111,7 +114,7 @@ const UserMenu = () => {
           className="text-red-500 focus:text-red-500"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
+          <span>{t.logout}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

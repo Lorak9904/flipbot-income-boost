@@ -1,9 +1,12 @@
 import { useEffect } from "react";
 import { api } from "../hooks/olx-api";
 import { useToast } from "@/hooks/use-toast";
+import { getTranslations } from "@/components/language-utils";
+import { olxSuccessTranslations } from "./olxsuccess-translations";
 
 export function OlxSuccessPage() {
   const { toast } = useToast();
+  const t = getTranslations(olxSuccessTranslations);
 
   useEffect(() => {
     api.get<{ connected: boolean }>("/olx/status", {
@@ -14,22 +17,22 @@ export function OlxSuccessPage() {
       .then(res => {
         if (res.data.connected) {
           toast({
-            title: "OLX Connected!",
-            description: "Konto OLX zostało pomyślnie podłączone.",
+            title: t.connected,
+            description: t.connectedDescription,
             variant: "default",
           });
         } else {
           toast({
-            title: "Błąd połączenia z OLX",
-            description: "Nie udało się podłączyć konta OLX.",
+            title: t.connectionError,
+            description: t.connectionErrorDescription,
             variant: "destructive",
           });
         }
       })
       .catch(() => {
         toast({
-          title: "Błąd połączenia z OLX",
-          description: "Nie udało się podłączyć konta OLX.",
+          title: t.connectionError,
+          description: t.connectionErrorDescription,
           variant: "destructive",
         });
       });
