@@ -242,7 +242,7 @@ const UserItemsPage = () => {
             custom={1}
             className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           >
-            <Card className="bg-gradient-to-br from-cyan-500/30 via-cyan-500/10 to-neutral-900/70 border border-cyan-400/40 backdrop-blur-sm hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:-translate-y-1">
+            <Card className="!bg-gradient-to-br from-cyan-500/30 via-cyan-500/10 to-neutral-900/70 border-cyan-400/40 backdrop-blur-sm hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-2">
                 <CardDescription className="text-neutral-200 font-medium">Total Items</CardDescription>
               </CardHeader>
@@ -252,7 +252,7 @@ const UserItemsPage = () => {
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-cyan-500/30 via-cyan-500/10 to-neutral-900/70 border border-cyan-400/40 backdrop-blur-sm hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:-translate-y-1">
+            <Card className="!bg-gradient-to-br from-cyan-500/30 via-cyan-500/10 to-neutral-900/70 border-cyan-400/40 backdrop-blur-sm hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-2">
                 <CardDescription className="text-neutral-200 font-medium">Published</CardDescription>
               </CardHeader>
@@ -260,7 +260,7 @@ const UserItemsPage = () => {
                 <p className="text-3xl font-bold text-cyan-400">{stats.published_items}</p>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-fuchsia-500/30 via-fuchsia-500/10 to-neutral-900/70 border border-fuchsia-400/40 backdrop-blur-sm hover:border-fuchsia-400/70 hover:shadow-xl hover:shadow-fuchsia-500/30 transition-all duration-300 hover:-translate-y-1">
+            <Card className="!bg-gradient-to-br from-fuchsia-500/30 via-fuchsia-500/10 to-neutral-900/70 border-fuchsia-400/40 backdrop-blur-sm hover:border-fuchsia-400/70 hover:shadow-xl hover:shadow-fuchsia-500/30 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-2">
                 <CardDescription className="text-neutral-200 font-medium">Drafts</CardDescription>
               </CardHeader>
@@ -268,7 +268,7 @@ const UserItemsPage = () => {
                 <p className="text-3xl font-bold text-fuchsia-400">{stats.draft_items}</p>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-emerald-500/30 via-emerald-500/10 to-neutral-900/70 border border-emerald-400/40 backdrop-blur-sm hover:border-emerald-400/70 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1">
+            <Card className="!bg-gradient-to-br from-emerald-500/30 via-emerald-500/10 to-neutral-900/70 border-emerald-400/40 backdrop-blur-sm hover:border-emerald-400/70 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-2">
                 <CardDescription className="text-neutral-200 font-medium">Success Rate</CardDescription>
               </CardHeader>
