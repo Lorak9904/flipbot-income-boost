@@ -310,7 +310,7 @@ const SettingsPage = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-16 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20">
             <h2 className="mb-6 text-xl font-semibold">{t.notificationsTitle}</h2>
             <div className="flex items-center justify-between">
-              <span className="text-neutral-200">Product updates & tips</span>
+              <span className="text-neutral-200">{t.productUpdates}</span>
               <Switch onCheckedChange={setNewsletter} />
             </div>
           </motion.div>
@@ -321,7 +321,6 @@ const SettingsPage = () => {
             </Button>
           </div>
 
-          {/* {t.dangerZoneTitle} */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="rounded-2xl bg-red-950/20 p-8 backdrop-blur-sm ring-1 ring-red-500/30">
             <h2 className="mb-6 text-xl font-semibold flex items-center gap-2 text-red-400">
               <AlertTriangle className="h-5 w-5" />
