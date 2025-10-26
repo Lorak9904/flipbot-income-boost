@@ -98,25 +98,32 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
       isUploading: false,
     }));
 
+    // Capture current images and add placeholders
+    const imagesWithPlaceholders = [...images, ...placeholders];
+    
     // Show placeholders immediately
-    onChange([...images, ...placeholders]);
+    onChange(imagesWithPlaceholders);
 
     // Compress in parallel
     const compressedFiles = await Promise.all(validFiles.map((f) => compressImage(f)));
 
-    // Update placeholders with compressed data
-    const updatedImages = images.map(img => img); // copy existing images
-    placeholders.forEach((placeholder, index) => {
-      const compressedFile = compressedFiles[index];
-      const updatedImage: ItemImage = {
-        id: placeholder.id,
-        url: URL.createObjectURL(compressedFile), // preview URL (compressed)
-        file: compressedFile,
-        isUploaded: false,
-        isCompressing: false,
-        isUploading: false,
-      };
-      updatedImages.push(updatedImage);
+    // Update placeholders with compressed data (update in place by ID)
+    const updatedImages = imagesWithPlaceholders.map((img) => {
+      const placeholderIndex = placeholders.findIndex(p => p.id === img.id);
+      if (placeholderIndex !== -1) {
+        // This is a placeholder, update it with compressed data
+        const compressedFile = compressedFiles[placeholderIndex];
+        return {
+          id: img.id,
+          url: URL.createObjectURL(compressedFile), // preview URL (compressed)
+          file: compressedFile,
+          isUploaded: false,
+          isCompressing: false,
+          isUploading: false,
+        };
+      }
+      // This is an existing image, keep it as is
+      return img;
     });
 
     // Update state with compressed images
