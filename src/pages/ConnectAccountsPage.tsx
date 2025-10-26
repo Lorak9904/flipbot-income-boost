@@ -9,6 +9,8 @@ import { ConnectOlxButton } from '@/pages/ConnectOlxButton';
 import { useToast } from '@/hooks/use-toast';
 import { SEOHead } from '@/components/SEOHead';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getTranslations } from '@/components/language-utils';
+import { connectAccountsTranslations } from './connectaccounts-translations';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -25,6 +27,7 @@ const ConnectAccountsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
+  const t = getTranslations(connectAccountsTranslations);
 
   const fetchConnectedPlatforms = async (): Promise<Record<string, any>> => {
     const token = localStorage.getItem('flipit_token');
@@ -89,8 +92,8 @@ const ConnectAccountsPage = () => {
     const token = localStorage.getItem('flipit_token');
     if (!token) {
       toast({
-        title: "Authentication Required",
-        description: "Please log in to add items",
+        title: t.authRequiredTitle,
+        description: t.authRequiredDesc,
         variant: "destructive",
       });
       navigate('/login');
@@ -98,8 +101,8 @@ const ConnectAccountsPage = () => {
     }
     if (!!user && isAuthenticated === false) {
       toast({
-        title: "Authentication Required",
-        description: "Please log in to add items",
+        title: t.authRequiredTitle,
+        description: t.authRequiredDesc,
         variant: "destructive",
       });
       navigate('/login');
@@ -115,8 +118,8 @@ const ConnectAccountsPage = () => {
     
     if (platform === "olx" && status === "connected") {
       toast({
-        title: "OLX Connected!",
-        description: "Successfully connected to OLX!",
+        title: t.olxConnectedTitle,
+        description: t.olxConnectedDesc,
         variant: "default",
       });
       // Immediately refetch to reflect status without manual refresh
@@ -127,8 +130,8 @@ const ConnectAccountsPage = () => {
     // Handle reconnect requests (expired token)
     if (reconnect === "olx") {
       toast({
-        title: "OLX Reconnection Required",
-        description: message || "Your OLX token has expired. Please reconnect your account.",
+        title: t.olxReconnectTitle,
+        description: message || t.olxReconnectDesc,
         variant: "destructive",
       });
       // Clear URL params but keep user on page to reconnect
@@ -145,8 +148,8 @@ const ConnectAccountsPage = () => {
     return (
       <div className="relative min-h-screen text-white overflow-hidden">
         <SEOHead
-          title="Connect Accounts | FlipIt"
-          description="Connect OLX, Vinted, and Facebook to power marketplace automation — AI crosslisting without manual descriptions, pricing, or categories."
+          title={t.seoTitleLoading}
+          description={t.seoDescriptionLoading}
           canonicalUrl="https://myflipit.live/connect-accounts"
           robots="noindex, nofollow"
         />
@@ -258,7 +261,7 @@ const ConnectAccountsPage = () => {
         <div className="container mx-auto min-h-[70vh] flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-cyan-400" />
-            <p className="text-xl text-neutral-300">Loading your connected platforms...</p>
+            <p className="text-xl text-neutral-300">{t.loadingPlatforms}</p>
           </div>
         </div>
       </div>
@@ -268,8 +271,8 @@ const ConnectAccountsPage = () => {
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
       <SEOHead
-        title="Connect Accounts | FlipIt"
-        description="Connect your marketplaces to enable crosslisting."
+        title={t.seoTitleLoading}
+        description={t.seoDescription}
         canonicalUrl="https://myflipit.live/connect-accounts"
         robots="noindex, nofollow"
       />
@@ -391,28 +394,28 @@ const ConnectAccountsPage = () => {
               variants={fadeUp}
               className="text-3xl md:text-4xl font-bold mb-3"
             >
-              Connect Your Accounts
+              {t.pageTitle}
             </motion.h1>
             <motion.p 
               variants={fadeUp}
               custom={1}
               className="text-neutral-300 text-lg max-w-2xl mx-auto"
             >
-              Connect your marketplace accounts to let FlipIt automatically find and flip items for maximum profit.
+              {t.pageDescription}
             </motion.p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <ConnectAccountCard
               platform="facebook"
-              platformName="Facebook"
+              platformName={t.platformFacebook}
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png"
               isConnected={!!connectedPlatforms?.facebook}
               onConnected={handleAccountConnected}
             />
             <ConnectAccountCard
               platform="olx"
-              platformName="OLX"
+              platformName={t.platformOLX}
               logoSrc="https://images.seeklogo.com/logo-png/39/1/olx-logo-png_seeklogo-390322.png"
               isConnected={!!connectedPlatforms?.olx}
               onConnected={handleAccountConnected}
@@ -420,7 +423,7 @@ const ConnectAccountsPage = () => {
             />
             <ConnectAccountCard
               platform="vinted"
-              platformName="Vinted"
+              platformName={t.platformVinted}
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/2/29/Vinted_logo.png"
               isConnected={!!connectedPlatforms?.vinted}
               onConnected={handleAccountConnected}
@@ -447,17 +450,17 @@ const ConnectAccountsPage = () => {
                         const body = await resp.json();
                         if (body.connected) {
                           await refetch();
-                          toast({ title: 'Vinted Connected', description: 'Cookies refreshed successfully.' });
+                          toast({ title: t.vintedConnectedTitle, description: t.vintedConnectedDesc });
                         } else {
-                          toast({ title: 'Vinted Not Connected', description: `Status ${body.status_code || ''}`, variant: 'destructive' });
+                          toast({ title: t.vintedNotConnectedTitle, description: `Status ${body.status_code || ''}`, variant: 'destructive' });
                         }
                       } catch (e: any) {
-                        toast({ title: 'Refresh Failed', description: e.message, variant: 'destructive' });
+                        toast({ title: t.refreshFailedTitle, description: e.message, variant: 'destructive' });
                       }
                     }}
                     className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white"
                   >
-                    Refresh Vinted Cookies
+                    {t.refreshVintedButton}
                   </Button>
                   <Button
                     variant="outline"
@@ -471,13 +474,13 @@ const ConnectAccountsPage = () => {
                         });
                         if (!response.ok) throw new Error('Failed to disconnect Vinted');
                         await refetch();
-                        toast({ title: 'Vinted Disconnected', description: 'Stored cookies removed.' });
+                        toast({ title: 'Vinted {t.disconnectButton}ed', description: t.vintedDisconnectedDesc });
                       } catch (err: any) {
-                        toast({ title: 'Disconnect Failed', description: err.message, variant: 'destructive' });
+                        toast({ title: '{t.disconnectButton} Failed', description: err.message, variant: 'destructive' });
                       }
                     }}
                   >
-                    Disconnect
+                    {t.disconnectButton}
                   </Button>
                 </div>
               ) : undefined}
@@ -493,15 +496,15 @@ const ConnectAccountsPage = () => {
           >
             <p className="text-neutral-400 mb-6">
               {connectedPlatforms && Object.values(connectedPlatforms).some(connected => connected) 
-                ? "Great! You've connected at least one platform. FlipIt will start analyzing for flipping opportunities."
-                : "Connect at least one marketplace account to get started with FlipIt."}
+                ? t.connectedSuccess
+                : t.connectPrompt}
             </p>
             <Button 
               asChild 
               className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 text-white"
             >
               <Link to="/">
-                Return to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                {t.returnToDashboard} <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </motion.div>
