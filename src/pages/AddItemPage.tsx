@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
+import { getTranslations } from '@/components/language-utils';
+import { addItemTranslations } from './additem-translations';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -23,6 +25,7 @@ const AddItemPage = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const t = getTranslations(addItemTranslations);
   const [step, setStep] = useState<'add' | 'review'>('add');
   const [generatedData, setGeneratedData] = useState<GeneratedItemData | null>(null);
   const [connectedPlatforms, setConnectedPlatforms] = useState<Record<Platform, boolean>>({
@@ -35,8 +38,8 @@ const AddItemPage = () => {
     const token = localStorage.getItem('flipit_token');
     if (!token) {
       toast({
-        title: "Authentication Required",
-        description: "Please log in to add items",
+        title: t.authRequiredTitle,
+        description: t.authRequiredDesc,
         variant: "destructive",
       });
       navigate('/login');
@@ -45,8 +48,8 @@ const AddItemPage = () => {
 
     if (!isLoading && !isAuthenticated) {
       toast({
-        title: "Authentication Required",
-        description: "Please log in to add items",
+        title: t.authRequiredTitle,
+        description: t.authRequiredDesc,
       });
       navigate('/login');
       return;
@@ -64,8 +67,8 @@ const AddItemPage = () => {
         if (!response.ok) {
           if (response.status === 401) {
             toast({
-              title: "Session Expired",
-              description: "Your session has expired. Please log in again.",
+              title: t.sessionExpiredTitle,
+              description: t.sessionExpiredDesc,
               variant: "destructive",
             });
             navigate("/login");
@@ -100,8 +103,8 @@ const AddItemPage = () => {
     return (
       <div className="relative min-h-screen text-white overflow-hidden">
         <SEOHead
-          title="Add Item | FlipIt"
-          description="Add an item for marketplace automation — FlipIt generates descriptions, pricing, and categories, then crosslists to OLX, Vinted, and Facebook."
+          title={t.seoTitle}
+          description={t.seoDescriptionLoading}
           canonicalUrl="https://myflipit.live/add-item"
           robots="noindex, nofollow"
         />
@@ -222,8 +225,8 @@ const AddItemPage = () => {
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
       <SEOHead
-        title="Add Item | FlipIt"
-        description="Add a new item to crosslist across OLX, Vinted and Facebook."
+        title={t.seoTitle}
+        description={t.seoDescription}
         canonicalUrl="https://myflipit.live/add-item"
         robots="noindex, nofollow"
       />
@@ -344,15 +347,15 @@ const AddItemPage = () => {
             variants={fadeUp}
             className="text-3xl font-bold mb-6"
           >
-            {step === 'add' ? 'Add New Item' : 'Review Your Item'}
+            {step === 'add' ? t.addNewItem : t.reviewYourItem}
           </motion.h1>
           
           {step === 'add' ? (
             <Card className="bg-neutral-900/50 backdrop-blur-sm border border-cyan-400/20">
               <CardHeader>
-                <CardTitle className="text-cyan-400">Upload Item</CardTitle>
+                <CardTitle className="text-cyan-400">{t.uploadItemTitle}</CardTitle>
                 <CardDescription className="text-neutral-300">
-                  Start by adding images and basic information. Our AI will help fill in the details.
+                  {t.uploadItemDesc}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -362,9 +365,9 @@ const AddItemPage = () => {
           ) : (
             <Card className="bg-neutral-900/50 backdrop-blur-sm border border-fuchsia-400/20">
               <CardHeader>
-                <CardTitle className="text-fuchsia-400">Review and Publish</CardTitle>
+                <CardTitle className="text-fuchsia-400">{t.reviewPublishTitle}</CardTitle>
                 <CardDescription className="text-neutral-300">
-                  Review the generated information, make any changes, and choose where to publish your item.
+                  {t.reviewPublishDesc}
                 </CardDescription>
               </CardHeader>
               <CardContent>

@@ -2,6 +2,8 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { getTranslations } from '@/components/language-utils';
+import { indexTranslations } from './index-translations';
 
 // Re–usable fade‑up animation
 const fadeUp = {
@@ -14,6 +16,8 @@ const fadeUp = {
 };
 
 const Index = () => {
+  const t = getTranslations(indexTranslations);
+  
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-neutral-950 text-white">
       {/* Neon blobs */}
@@ -30,8 +34,8 @@ const Index = () => {
             variants={fadeUp}
             className="mx-auto max-w-4xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl"
           >
-            Your <span className="text-cyan-400">flipping</span> journey starts&nbsp;
-            <span className="text-fuchsia-400">here</span>
+            {t.heroTitle1} <span className="text-cyan-400">{t.heroTitle2}</span> {t.heroTitle3}&nbsp;
+            <span className="text-fuchsia-400">{t.heroTitle4}</span>
           </motion.h1>
 
           <motion.p
@@ -41,7 +45,7 @@ const Index = () => {
             variants={fadeUp}
             className="mx-auto mt-6 max-w-xl text-lg text-neutral-300"
           >
-            FlipIt scouts marketplaces, negotiates in your name, and flips items for profit while you sit back and collect the wins. Ready in minutes.
+            {t.heroDescription}
           </motion.p>
 
           <motion.div
@@ -56,7 +60,7 @@ const Index = () => {
               size="lg"
               className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/20 hover:to-fuchsia-600"
             >
-              <Link to="/get-started">Get started now</Link>
+              <Link to="/get-started">{t.getStartedButton}</Link>
             </Button>
 
             <Button
@@ -66,7 +70,7 @@ const Index = () => {
               className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
             >
               <Link to="/how-it-works" className="flex items-center gap-2">
-                How it works <ArrowRight className="h-5 w-5" />
+                {t.howItWorksButton} <ArrowRight className="h-5 w-5" />
               </Link>
             </Button>
           </motion.div>

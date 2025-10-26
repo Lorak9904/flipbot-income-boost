@@ -1,9 +1,12 @@
 import { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { getTranslations } from '@/components/language-utils';
+import { notFoundTranslations } from './notfound-translations';
 
 const NotFound = () => {
   const location = useLocation();
+  const t = getTranslations(notFoundTranslations);
 
   useEffect(() => {
     console.error('404 Error: attempted route →', location.pathname);
@@ -19,13 +22,13 @@ const NotFound = () => {
         <div className="absolute right-[5%] top-[25%] h-[35rem] w-[35rem] rounded-full bg-cyan-500 opacity-20 blur-3xl" />
       </div>
 
-      <h1 className="mb-4 text-6xl font-extrabold tracking-tight text-cyan-400">404</h1>
-      <p className="mb-4 text-2xl font-semibold">Oops! Page not found.</p>
+      <h1 className="mb-4 text-6xl font-extrabold tracking-tight text-cyan-400">{t.title}</h1>
+      <p className="mb-4 text-2xl font-semibold">{t.heading}</p>
       <p className="mb-8 max-w-md text-center text-neutral-300">
-        The page you’re looking for doesn’t exist or has been moved.
+        {t.description}
       </p>
       <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/20 hover:to-fuchsia-600">
-        <Link to="/">Return to Home</Link>
+        <Link to="/">{t.returnButton}</Link>
       </Button>
     </div>
   );
