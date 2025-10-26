@@ -41,7 +41,64 @@ export async function fetchUserItems(params: FetchItemsParams = {}): Promise<Use
     throw new Error(`Failed to fetch items: ${response.statusText}`);
   }
 
-  return response.json();
+  const data = await response.json();
+
+  // Normalize API shape to frontend types
+  const rawItems: any[] = data.items || [];
+  const mappedItems: UserItem[] = rawItems.map((it: any) => {
+    // Images may be an array of strings or objects with url
+    let images: string[] = [];
+    if (Array.isArray(it.images)) {
+      if (it.images.length > 0 && typeof it.images[0] === 'string') {
+        images = it.images as string[];
+      } else if (it.images.length > 0 && typeof it.images[0] === 'object' && it.images[0] !== null) {
+        images = (it.images as any[]).map((img: any) => img?.url).filter(Boolean);
+      }
+    }
+
+    // Determine platforms array from various backend shapes
+    const platforms: Platform[] =
+      (it.platforms as Platform[])
+      || (it.platforms_published as Platform[])
+      || [
+        it.platform_facebook ? 'facebook' as Platform : undefined,
+        it.platform_vinted ? 'vinted' as Platform : undefined,
+        it.platform_olx ? 'olx' as Platform : undefined,
+      ].filter(Boolean) as Platform[];
+
+    const uuid: string = String(it.id ?? it.uuid ?? '');
+
+    return {
+      uuid,
+      title: it.title ?? '',
+      description: it.description ?? '',
+      price: String(it.price ?? ''),
+      brand: it.brand ?? undefined,
+      condition: it.condition ?? undefined,
+      category: it.category ?? undefined,
+      size: it.size ?? undefined,
+      gender: it.gender ?? undefined,
+      stage: it.stage ?? 'draft',
+      images,
+      platforms,
+      publish_results: it.publish_results ?? undefined,
+      created_at: it.created_at ?? '',
+      updated_at: it.updated_at ?? it.created_at ?? '',
+    };
+  });
+
+  const total = typeof data.total === 'number' ? data.total : (typeof data.count === 'number' ? data.count : mappedItems.length);
+  const page = params.page ?? 1;
+  const page_size = params.page_size ?? mappedItems.length;
+  const total_pages = typeof data.total_pages === 'number' ? data.total_pages : 1;
+
+  return {
+    items: mappedItems,
+    total,
+    page,
+    page_size,
+    total_pages,
+  };
 }
 
 /**
@@ -71,7 +128,44 @@ export async function fetchItemDetail(uuid: string): Promise<UserItem> {
     throw new Error(`Failed to fetch item: ${response.statusText}`);
   }
 
-  return response.json();
+  const it = await response.json();
+
+  // Normalize single item to expected shape
+  let images: string[] = [];
+  if (Array.isArray(it.images)) {
+    if (it.images.length > 0 && typeof it.images[0] === 'string') {
+      images = it.images as string[];
+    } else if (it.images.length > 0 && typeof it.images[0] === 'object' && it.images[0] !== null) {
+      images = (it.images as any[]).map((img: any) => img?.url).filter(Boolean);
+    }
+  }
+
+  const platforms: Platform[] =
+    (it.platforms as Platform[])
+    || (it.platforms_published as Platform[])
+    || [
+      it.platform_facebook ? 'facebook' as Platform : undefined,
+      it.platform_vinted ? 'vinted' as Platform : undefined,
+      it.platform_olx ? 'olx' as Platform : undefined,
+    ].filter(Boolean) as Platform[];
+
+  return {
+    uuid: String(it.id ?? it.uuid ?? uuid),
+    title: it.title ?? '',
+    description: it.description ?? '',
+    price: String(it.price ?? ''),
+    brand: it.brand ?? undefined,
+    condition: it.condition ?? undefined,
+    category: it.category ?? undefined,
+    size: it.size ?? undefined,
+    gender: it.gender ?? undefined,
+    stage: it.stage ?? 'draft',
+    images,
+    platforms,
+    publish_results: it.publish_results ?? undefined,
+    created_at: it.created_at ?? '',
+    updated_at: it.updated_at ?? it.created_at ?? '',
+  };
 }
 
 /**
