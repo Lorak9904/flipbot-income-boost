@@ -7,6 +7,7 @@ export type User = {
   email: string;
   avatar?: string;
   provider?: 'google' | 'facebook' | 'email';
+  language?: string;
 };
 
 type AuthContextType = {
@@ -24,6 +25,14 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper to sync language cookie from user data
+const syncLanguageCookie = (language?: string) => {
+  if (language && (language === 'en' || language === 'pl')) {
+    document.cookie = `lang=${language}; path=/; max-age=31536000`; // 1 year
+    console.log(`✅ Language cookie synced: ${language}`);
+  }
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -33,6 +42,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   localStorage.setItem("flipit_user", JSON.stringify(userData));
   localStorage.setItem("flipit_token", token);
   localStorage.setItem("flipit_refresh_token", refreshToken);
+  
+  // Sync language cookie from user's saved preference
+  syncLanguageCookie(userData.language);
 };
 
   const refreshToken = async () => {
@@ -100,6 +112,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
+          // Sync language cookie from user's saved preference
+          syncLanguageCookie(userData.language);
         } else {
           localStorage.removeItem("flipit_token");
           localStorage.removeItem("flipit_user");
@@ -168,16 +182,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const data = await response.json();
       const userData = {
-        id: data.id,
-        name: data.name || email.split('@')[0],
-        email: data.email,
-        provider: 'email' as const
+        id: data.userData.id,
+        name: data.userData.name || email.split('@')[0],
+        email: data.userData.email,
+        provider: 'email' as const,
+        language: data.userData.language
       };
       
       const authToken = data.token;
       setUser(userData);
       localStorage.setItem("flipit_user", JSON.stringify(userData));
       localStorage.setItem("flipit_token", authToken);
+      localStorage.setItem("flipit_refresh_token", data.refresh_token);
+      
+      // Sync language cookie from user's saved preference
+      syncLanguageCookie(userData.language);
     } catch (error) {
       console.error("Email login failed:", error);
       throw error;

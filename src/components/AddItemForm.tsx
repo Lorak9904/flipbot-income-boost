@@ -9,9 +9,12 @@ import { ItemFormData, ItemImage, GeneratedItemData } from '@/types/item';
 import ImageUploader from './ImageUploader';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { getTranslations, getCurrentLanguage } from '@/components/language-utils';
+import { addItemFormTranslations } from '@/utils/translations/add-item-form-translations';
 
 interface AddItemFormProps {
   onComplete: (generatedData: GeneratedItemData) => void;
+  language?: string;
 }
 
 /**
@@ -19,12 +22,13 @@ interface AddItemFormProps {
  * backend, instead of re‑uploading binary data. This dramatically reduces
  * payload size and lets the server (or GPT‑4o Vision) fetch the images directly.
  */
-const AddItemForm = ({ onComplete }: AddItemFormProps) => {
+const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<ItemImage[]>([]);
   const [catalogPath, setCatalogPath] = useState('');
   const { user } = useAuth();
+  const t = getTranslations(addItemFormTranslations);
 
   const {
     register,
@@ -53,8 +57,8 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
   const onSubmit = async (data: ItemFormData) => {
     if (images.length === 0) {
       toast({
-        title: 'No images',
-        description: 'Please add at least one image of your item',
+        title: t.toast.noImagesTitle,
+        description: t.toast.noImagesDesc,
         variant: 'destructive',
       });
       return;
@@ -64,8 +68,8 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
     const stillUploading = images.some((img) => !img.isUploaded);
     if (stillUploading) {
       toast({
-        title: 'Upload in progress',
-        description: 'Please wait until all images finish uploading',
+        title: t.toast.uploadInProgressTitle,
+        description: t.toast.uploadInProgressDesc,
         variant: 'destructive',
       });
       return;
@@ -143,8 +147,8 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
     } catch (error) {
       console.error('Error generating item data:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to generate item data. Please try again.',
+        title: t.toast.errorTitle,
+        description: t.toast.errorDesc,
         variant: 'destructive',
       });
     } finally {
@@ -156,30 +160,30 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       {/* Images */}
       <div>
-        <h3 className="text-lg font-medium mb-4 text-neutral-300">Upload Images</h3>
+        <h3 className="text-lg font-medium mb-4 text-neutral-300">{t.sections.uploadImages}</h3>
         <ImageUploader images={images} onChange={setImages} isDisabled={isSubmitting} />
       </div>
 
       {/* Optional details */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-neutral-300">Item Details (Optional)</h3>
-        <p className="text-sm text-slate-500">Fill in what you know. Our system will help generate the rest.</p>
+        <h3 className="text-lg font-medium text-neutral-300">{t.sections.itemDetails}</h3>
+        <p className="text-sm text-slate-500">{t.sections.helperText}</p>
 
         <div className="space-y-4">
           <div>
             <Label htmlFor="title" className="text-neutral-300">
-              Title
+              {t.labels.title}
             </Label>
-            <Input id="title" placeholder="e.g., Nike Air Max 90" {...register('title')} disabled={isSubmitting} />
+            <Input id="title" placeholder={t.placeholders.title} {...register('title')} disabled={isSubmitting} />
           </div>
 
           <div>
             <Label htmlFor="description" className="text-neutral-300">
-              Description
+              {t.labels.description}
             </Label>
             <Textarea
               id="description"
-              placeholder="Describe your item"
+              placeholder={t.placeholders.description}
               className="min-h-[100px]"
               {...register('description')}
               disabled={isSubmitting}
@@ -189,43 +193,46 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="brand" className="text-neutral-300">
-                Brand
+                {t.labels.brand}
               </Label>
-              <Input id="brand" placeholder="e.g., Nike, Samsung, IKEA" {...register('brand')} disabled={isSubmitting} />
+              <Input id="brand" placeholder={t.placeholders.brand} {...register('brand')} disabled={isSubmitting} />
             </div>
 
             <div>
               <Label htmlFor="condition" className="text-neutral-300">
-                Condition
+                {t.labels.condition}
               </Label>
-              <Input id="condition" placeholder="e.g., New, Used - Like New" {...register('condition')} disabled={isSubmitting} />
+              <Label htmlFor="condition" className="text-neutral-300">
+                {t.labels.condition}
+              </Label>
+              <Input id="condition" placeholder={t.placeholders.condition} {...register('condition')} disabled={isSubmitting} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <Label htmlFor="category" className="text-neutral-300">
-                Category
+                {t.labels.category}
               </Label>
-              <Input id="category" placeholder="e.g., Electronics, Clothing" {...register('category')} disabled={isSubmitting} />
+              <Input id="category" placeholder={t.placeholders.category} {...register('category')} disabled={isSubmitting} />
             </div>
             <div>
               <Label htmlFor="price" className="text-neutral-300">
-                Price
+                {t.labels.price}
               </Label>
-              <Input id="price" type="text" placeholder="e.g., 49.99" {...register('price')} disabled={isSubmitting} />
+              <Input id="price" type="text" placeholder={t.placeholders.price} {...register('price')} disabled={isSubmitting} />
             </div>
             <div>
               <Label htmlFor="size" className="text-neutral-300">
-                Size
+                {t.labels.size}
               </Label>
-              <Input id="size" placeholder="e.g., M, L, XL" {...register('size')} disabled={isSubmitting} />
+              <Input id="size" placeholder={t.placeholders.size} {...register('size')} disabled={isSubmitting} />
             </div>
             <div>
               <Label htmlFor="gender" className="text-neutral-300">
-                Gender
+                {t.labels.gender}
               </Label>
-              <Input id="gender" placeholder="e.g., Man, woman, unisex" {...register('gender')} disabled={isSubmitting} />
+              <Input id="gender" placeholder={t.placeholders.gender} {...register('gender')} disabled={isSubmitting} />
             </div>
           </div>
         </div>
@@ -237,10 +244,10 @@ const AddItemForm = ({ onComplete }: AddItemFormProps) => {
       <Button type="submit" disabled={isSubmitting || images.length === 0} className="w-full">
         {isSubmitting ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t.buttons.generating}
           </>
         ) : (
-          'Continue'
+          t.buttons.continue
         )}
       </Button>
     </form>

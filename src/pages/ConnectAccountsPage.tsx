@@ -2,13 +2,15 @@ import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import ConnectAccountCard from '@/components/ConnectAccountCard';
-import { CheckCircle, ArrowRight, Lock, Loader2 } from 'lucide-react';
+import { CheckCircle, ArrowRight, Lock, Loader2, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { ConnectOlxButton } from '@/pages/ConnectOlxButton';
 import { useToast } from '@/hooks/use-toast';
 import { SEOHead } from '@/components/SEOHead';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getTranslations, toggleLanguage, getCurrentLanguage } from '@/components/language-utils';
+import { connectAccountsTranslations } from './connect-accounts-translations';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -25,6 +27,8 @@ const ConnectAccountsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
+  const t = getTranslations(connectAccountsTranslations);
+  const currentLang = getCurrentLanguage();
 
   const fetchConnectedPlatforms = async (): Promise<Record<string, any>> => {
     const token = localStorage.getItem('flipit_token');
@@ -89,8 +93,8 @@ const ConnectAccountsPage = () => {
     const token = localStorage.getItem('flipit_token');
     if (!token) {
       toast({
-        title: "Authentication Required",
-        description: "Please log in to add items",
+        title: t.toastAuthRequiredTitle,
+        description: t.toastAuthRequiredDescription,
         variant: "destructive",
       });
       navigate('/login');
@@ -98,8 +102,8 @@ const ConnectAccountsPage = () => {
     }
     if (!!user && isAuthenticated === false) {
       toast({
-        title: "Authentication Required",
-        description: "Please log in to add items",
+        title: t.toastAuthRequiredTitle,
+        description: t.toastAuthRequiredDescription,
         variant: "destructive",
       });
       navigate('/login');
@@ -115,8 +119,8 @@ const ConnectAccountsPage = () => {
     
     if (platform === "olx" && status === "connected") {
       toast({
-        title: "OLX Connected!",
-        description: "Successfully connected to OLX!",
+        title: t.toastOlxConnectedTitle,
+        description: t.toastOlxConnectedDescription,
         variant: "default",
       });
       // Immediately refetch to reflect status without manual refresh
@@ -127,8 +131,8 @@ const ConnectAccountsPage = () => {
     // Handle reconnect requests (expired token)
     if (reconnect === "olx") {
       toast({
-        title: "OLX Reconnection Required",
-        description: message || "Your OLX token has expired. Please reconnect your account.",
+        title: t.toastOlxReconnectTitle,
+        description: message || t.toastOlxReconnectDescription,
         variant: "destructive",
       });
       // Clear URL params but keep user on page to reconnect
@@ -145,8 +149,8 @@ const ConnectAccountsPage = () => {
     return (
       <div className="relative min-h-screen text-white overflow-hidden">
         <SEOHead
-          title="Connect Accounts | FlipIt"
-          description="Connect OLX, Vinted, and Facebook to power marketplace automation — AI crosslisting without manual descriptions, pricing, or categories."
+          title={t.pageTitle}
+          description={t.pageDescription}
           canonicalUrl="https://myflipit.live/connect-accounts"
           robots="noindex, nofollow"
         />
@@ -258,7 +262,7 @@ const ConnectAccountsPage = () => {
         <div className="container mx-auto min-h-[70vh] flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-cyan-400" />
-            <p className="text-xl text-neutral-300">Loading your connected platforms...</p>
+            <p className="text-xl text-neutral-300">{t.loadingTitle}</p>
           </div>
         </div>
       </div>
@@ -268,8 +272,8 @@ const ConnectAccountsPage = () => {
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
       <SEOHead
-        title="Connect Accounts | FlipIt"
-        description="Connect your marketplaces to enable crosslisting."
+        title={t.pageTitle}
+        description={t.pageDescription}
         canonicalUrl="https://myflipit.live/connect-accounts"
         robots="noindex, nofollow"
       />
@@ -387,32 +391,46 @@ const ConnectAccountsPage = () => {
           className="max-w-4xl mx-auto"
         >
           <div className="mb-8 text-center">
-            <motion.h1 
-              variants={fadeUp}
-              className="text-3xl md:text-4xl font-bold mb-3"
-            >
-              Connect Your Accounts
-            </motion.h1>
+            <div className="flex items-center justify-center gap-4 mb-3">
+              <motion.h1 
+                variants={fadeUp}
+                className="text-3xl md:text-4xl font-bold"
+              >
+                {t.heroTitle}
+              </motion.h1>
+              
+              {/* Language Toggle Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleLanguage}
+                className="text-neutral-300 hover:text-white hover:bg-neutral-800/50 flex items-center gap-2 px-4 py-2"
+                title="Switch language / Zmień język"
+              >
+                <Globe className="h-5 w-5" />
+                <span className="font-semibold">{currentLang === 'en' ? 'PL' : 'EN'}</span>
+              </Button>
+            </div>
             <motion.p 
               variants={fadeUp}
               custom={1}
               className="text-neutral-300 text-lg max-w-2xl mx-auto"
             >
-              Connect your marketplace accounts to let FlipIt automatically find and flip items for maximum profit.
+              {t.heroDescription}
             </motion.p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <ConnectAccountCard
               platform="facebook"
-              platformName="Facebook"
+              platformName={t.platformFacebook}
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png"
               isConnected={!!connectedPlatforms?.facebook}
               onConnected={handleAccountConnected}
             />
             <ConnectAccountCard
               platform="olx"
-              platformName="OLX"
+              platformName={t.platformOLX}
               logoSrc="https://images.seeklogo.com/logo-png/39/1/olx-logo-png_seeklogo-390322.png"
               isConnected={!!connectedPlatforms?.olx}
               onConnected={handleAccountConnected}
@@ -420,14 +438,14 @@ const ConnectAccountsPage = () => {
             />
             <ConnectAccountCard
               platform="vinted"
-              platformName="Vinted"
+              platformName={t.platformVinted}
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/2/29/Vinted_logo.png"
               isConnected={!!connectedPlatforms?.vinted}
               onConnected={handleAccountConnected}
               action={connectedPlatforms?.vinted_has_session && !connectedPlatforms?.vinted ? (
                 <div className="space-y-3">
                   <p className="text-slate-300 text-sm">
-                    We couldn’t verify your Vinted connection. Try refreshing your cookies.
+                    {t.vintedRefreshMessage}
                   </p>
                   <Button
                     onClick={async () => {
@@ -447,17 +465,17 @@ const ConnectAccountsPage = () => {
                         const body = await resp.json();
                         if (body.connected) {
                           await refetch();
-                          toast({ title: 'Vinted Connected', description: 'Cookies refreshed successfully.' });
+                          toast({ title: t.toastVintedConnectedTitle, description: t.toastVintedConnectedDescription });
                         } else {
-                          toast({ title: 'Vinted Not Connected', description: `Status ${body.status_code || ''}`, variant: 'destructive' });
+                          toast({ title: t.toastVintedNotConnectedTitle, description: `Status ${body.status_code || ''}`, variant: 'destructive' });
                         }
                       } catch (e: any) {
-                        toast({ title: 'Refresh Failed', description: e.message, variant: 'destructive' });
+                        toast({ title: t.toastVintedRefreshFailedTitle, description: e.message, variant: 'destructive' });
                       }
                     }}
                     className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white"
                   >
-                    Refresh Vinted Cookies
+                    {t.vintedRefreshButton}
                   </Button>
                   <Button
                     variant="outline"
@@ -471,13 +489,13 @@ const ConnectAccountsPage = () => {
                         });
                         if (!response.ok) throw new Error('Failed to disconnect Vinted');
                         await refetch();
-                        toast({ title: 'Vinted Disconnected', description: 'Stored cookies removed.' });
+                        toast({ title: t.toastVintedDisconnectedTitle, description: t.toastVintedDisconnectedDescription });
                       } catch (err: any) {
-                        toast({ title: 'Disconnect Failed', description: err.message, variant: 'destructive' });
+                        toast({ title: t.toastVintedDisconnectFailedTitle, description: err.message, variant: 'destructive' });
                       }
                     }}
                   >
-                    Disconnect
+                    {t.vintedDisconnectButton}
                   </Button>
                 </div>
               ) : undefined}
@@ -493,15 +511,15 @@ const ConnectAccountsPage = () => {
           >
             <p className="text-neutral-400 mb-6">
               {connectedPlatforms && Object.values(connectedPlatforms).some(connected => connected) 
-                ? "Great! You've connected at least one platform. FlipIt will start analyzing for flipping opportunities."
-                : "Connect at least one marketplace account to get started with FlipIt."}
+                ? t.ctaConnectedMessage
+                : t.ctaNotConnectedMessage}
             </p>
             <Button 
               asChild 
               className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 text-white"
             >
               <Link to="/">
-                Return to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                {t.ctaDashboardButton} <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </motion.div>

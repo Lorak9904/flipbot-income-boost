@@ -14,10 +14,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Package, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Package, Filter, ChevronLeft, ChevronRight, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
 import { cdnGrid, resolveItemImageUrl } from '@/lib/images';
+import { getTranslations, toggleLanguage, getCurrentLanguage } from '@/components/language-utils';
+import { userItemsTranslations } from '@/utils/translations/user-items-translations';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -33,6 +35,8 @@ const UserItemsPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [language, setLanguage] = useState(getCurrentLanguage());
+  const t = getTranslations(userItemsTranslations);
 
   const [items, setItems] = useState<UserItem[]>([]);
   const [stats, setStats] = useState<ItemStats | null>(null);
@@ -49,11 +53,16 @@ const UserItemsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
+  const handleLanguageToggle = () => {
+    toggleLanguage();
+    setLanguage(getCurrentLanguage());
+  };
+
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       toast({
-        title: 'Authentication Required',
-        description: 'Please log in to view your items',
+        title: t.authRequired,
+        description: t.authMessage,
         variant: 'destructive',
       });
       navigate('/login');
@@ -148,8 +157,8 @@ const UserItemsPage = () => {
   return (
     <>
       <SEOHead
-        title="My Items - FlipIt"
-        description="View and manage all your listed items"
+        title={`${t.pageTitle} - FlipIt`}
+        description={t.pageDescription}
       />
       <div className="relative min-h-screen text-white overflow-hidden">
         {/* Unified Animated Gradient Background */}
@@ -211,13 +220,24 @@ const UserItemsPage = () => {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="mb-8 text-center md:text-left"
+            className="mb-8"
           >
-            <h1 className="text-4xl md:text-5xl font-extrabold mb-3 bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
-              My Items
-            </h1>
+            <div className="flex items-center justify-between mb-3">
+              <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+                {t.pageTitle}
+              </h1>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLanguageToggle}
+                className="bg-neutral-800/50 border-neutral-700 text-white hover:bg-neutral-800"
+              >
+                <Globe className="h-4 w-4 mr-2" />
+                {language === 'en' ? 'PL' : 'EN'}
+              </Button>
+            </div>
             <p className="text-neutral-300 text-lg">
-              View and manage all your listings across platforms
+              {t.pageDescription}
             </p>
           </motion.div>
 
@@ -245,7 +265,7 @@ const UserItemsPage = () => {
           >
             <Card className="!bg-gradient-to-br from-cyan-500/30 via-cyan-500/10 to-neutral-900/70 border-cyan-400/40 backdrop-blur-sm hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-2">
-                <CardDescription className="text-neutral-200 font-medium">Total Items</CardDescription>
+                <CardDescription className="text-neutral-200 font-medium">{t.stats.totalItems}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
@@ -255,7 +275,7 @@ const UserItemsPage = () => {
             </Card>
             <Card className="!bg-gradient-to-br from-cyan-500/30 via-cyan-500/10 to-neutral-900/70 border-cyan-400/40 backdrop-blur-sm hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-2">
-                <CardDescription className="text-neutral-200 font-medium">Published</CardDescription>
+                <CardDescription className="text-neutral-200 font-medium">{t.stats.published}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold text-cyan-400">{stats.published_items}</p>
@@ -263,7 +283,7 @@ const UserItemsPage = () => {
             </Card>
             <Card className="!bg-gradient-to-br from-fuchsia-500/30 via-fuchsia-500/10 to-neutral-900/70 border-fuchsia-400/40 backdrop-blur-sm hover:border-fuchsia-400/70 hover:shadow-xl hover:shadow-fuchsia-500/30 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-2">
-                <CardDescription className="text-neutral-200 font-medium">Drafts</CardDescription>
+                <CardDescription className="text-neutral-200 font-medium">{t.stats.drafts}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold text-fuchsia-400">{stats.draft_items}</p>
@@ -271,7 +291,7 @@ const UserItemsPage = () => {
             </Card>
             <Card className="!bg-gradient-to-br from-emerald-500/30 via-emerald-500/10 to-neutral-900/70 border-emerald-400/40 backdrop-blur-sm hover:border-emerald-400/70 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-2">
-                <CardDescription className="text-neutral-200 font-medium">Success Rate</CardDescription>
+                <CardDescription className="text-neutral-200 font-medium">{t.stats.successRate}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold text-emerald-400">
@@ -292,19 +312,19 @@ const UserItemsPage = () => {
         >
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-cyan-400" />
-            <span className="text-sm font-medium text-white">Filters:</span>
+            <span className="text-sm font-medium text-white">{t.filters.label}</span>
           </div>
           <Select
             value={stageFilter || 'all'}
             onValueChange={(value) => handleFilterChange('stage', value)}
           >
             <SelectTrigger className="w-[150px] bg-neutral-800/50 border-neutral-700 text-white">
-              <SelectValue placeholder="All stages" />
+              <SelectValue placeholder={t.filters.allStages} />
             </SelectTrigger>
             <SelectContent className="bg-neutral-900 border-neutral-800">
-              <SelectItem value="all">All stages</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="all">{t.filters.allStages}</SelectItem>
+              <SelectItem value="draft">{t.filters.draft}</SelectItem>
+              <SelectItem value="published">{t.filters.published}</SelectItem>
             </SelectContent>
           </Select>
           <Select
@@ -312,13 +332,13 @@ const UserItemsPage = () => {
             onValueChange={(value) => handleFilterChange('platform', value)}
           >
             <SelectTrigger className="w-[150px] bg-neutral-800/50 border-neutral-700 text-white">
-              <SelectValue placeholder="All platforms" />
+              <SelectValue placeholder={t.filters.allPlatforms} />
             </SelectTrigger>
             <SelectContent className="bg-neutral-900 border-neutral-800">
-              <SelectItem value="all">All platforms</SelectItem>
-              <SelectItem value="facebook">Facebook</SelectItem>
-              <SelectItem value="olx">OLX</SelectItem>
-              <SelectItem value="vinted">Vinted</SelectItem>
+              <SelectItem value="all">{t.filters.allPlatforms}</SelectItem>
+              <SelectItem value="facebook">{t.filters.facebook}</SelectItem>
+              <SelectItem value="olx">{t.filters.olx}</SelectItem>
+              <SelectItem value="vinted">{t.filters.vinted}</SelectItem>
             </SelectContent>
           </Select>
         </motion.div>
@@ -336,7 +356,7 @@ const UserItemsPage = () => {
                 onClick={() => window.location.reload()}
                 className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-600 hover:to-fuchsia-600"
               >
-                Retry
+                {t.retry}
               </Button>
             </div>
           </Card>
@@ -350,17 +370,17 @@ const UserItemsPage = () => {
             <Card className="p-12 bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
               <div className="text-center">
                 <Package className="h-16 w-16 mx-auto mb-4 text-neutral-500" />
-                <h3 className="text-xl font-semibold mb-2 text-white">No items found</h3>
+                <h3 className="text-xl font-semibold mb-2 text-white">{t.empty.title}</h3>
                 <p className="text-neutral-400 mb-4">
                   {stageFilter || platformFilter
-                    ? 'Try adjusting your filters'
-                    : 'Start by adding your first item'}
+                    ? t.empty.description.filtered
+                    : t.empty.description.noItems}
                 </p>
                 <Button 
                   onClick={() => navigate('/add-item')}
                   className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-600 hover:to-fuchsia-600"
                 >
-                  Add Item
+                  {t.empty.addButton}
                 </Button>
               </div>
             </Card>
@@ -427,7 +447,7 @@ const UserItemsPage = () => {
                       </div>
                       {item.brand && (
                         <p className="text-sm text-neutral-400">
-                          Brand: {item.brand}
+                          {t.item.brand} {item.brand}
                         </p>
                       )}
                     </CardContent>
@@ -453,10 +473,13 @@ const UserItemsPage = () => {
                   className="bg-neutral-800/50 border-neutral-700 text-white hover:bg-neutral-800 disabled:opacity-50"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  Previous
+                  {t.pagination.previous}
                 </Button>
                 <span className="text-sm text-neutral-300">
-                  Page {page} of {totalPages} ({total} items)
+                  {t.pagination.pageInfo
+                    .replace('{page}', page.toString())
+                    .replace('{totalPages}', totalPages.toString())
+                    .replace('{total}', total.toString())}
                 </span>
                 <Button
                   variant="outline"
@@ -465,7 +488,7 @@ const UserItemsPage = () => {
                   disabled={page >= totalPages}
                   className="bg-neutral-800/50 border-neutral-700 text-white hover:bg-neutral-800 disabled:opacity-50"
                 >
-                  Next
+                  {t.pagination.next}
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </motion.div>

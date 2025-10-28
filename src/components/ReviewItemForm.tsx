@@ -10,20 +10,24 @@ import ImageUploader from './ImageUploader';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getTranslations, getCurrentLanguage } from '@/components/language-utils';
+import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
 
 interface ReviewItemFormProps {
   initialData: GeneratedItemData;
   connectedPlatforms: Record<Platform, boolean>;
   onBack: () => void;
+  language?: string;
 }
 
-const ReviewItemForm = ({ initialData, connectedPlatforms, onBack }: ReviewItemFormProps) => {
+const ReviewItemForm = ({ initialData, connectedPlatforms, onBack, language }: ReviewItemFormProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Ensure draft_id is preserved in state
   const [data, setData] = useState<GeneratedItemData & { draft_id?: string }>(initialData);
   const navigate = useNavigate();
+  const t = getTranslations(reviewItemFormTranslations);
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(
     Object.entries(connectedPlatforms)
       .filter(([_, isConnected]) => isConnected)
@@ -48,8 +52,8 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   if (selectedPlatforms.length === 0) {
     toast({
-      title: "No platforms selected",
-      description: "Please select at least one platform to publish to",
+      title: t.toast.noPlatformsTitle,
+      description: t.toast.noPlatformsDesc,
       variant: "destructive",
     });
     return;
@@ -107,12 +111,12 @@ const handleSubmit = async (e: React.FormEvent) => {
       Object.entries(result.platforms).forEach(([platform, status]) => {
         if (status === "success") {
           toast({
-            title: `Success!`,
-            description: `Published to ${platform} successfully.`,
+            title: t.toast.successTitle,
+            description: t.toast.publishedSuccess.replace('{platform}', platform),
           });
         } else {
           toast({
-            title: `Error publishing to ${platform}`,
+            title: t.toast.publishError.replace('{platform}', platform),
             description: String(status),
             variant: "destructive",
           });
@@ -120,8 +124,8 @@ const handleSubmit = async (e: React.FormEvent) => {
       });
     } else {
       toast({
-        title: "Success!",
-        description: "Your item has been published successfully",
+        title: t.toast.successTitle,
+        description: t.toast.generalSuccess,
       });
     }
 
@@ -132,8 +136,8 @@ const handleSubmit = async (e: React.FormEvent) => {
   } catch (error) {
     console.error('Error publishing item:', error);
     toast({
-      title: "Error",
-      description: "Failed to publish item. Please try again.",
+      title: t.toast.errorTitle,
+      description: t.toast.errorDesc,
       variant: "destructive",
     });
   } finally {
@@ -144,7 +148,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium mb-4 text-neutral-300">Images</h3>
+        <h3 className="text-lg font-medium mb-4 text-neutral-300">{t.sections.images}</h3>
         <ImageUploader 
           images={data.images} 
           onChange={(images) => updateField('images', images)} 
@@ -153,10 +157,10 @@ const handleSubmit = async (e: React.FormEvent) => {
       </div>
       
       <div className="space-y-4 ">
-        <h3 className="text-lg font-medium text-neutral-300">Item Details</h3>
+        <h3 className="text-lg font-medium text-neutral-300">{t.sections.itemDetails}</h3>
         
         <div>
-          <Label htmlFor="title" className="text-neutral-300">Title</Label>
+          <Label htmlFor="title" className="text-neutral-300">{t.labels.title}</Label>
           <Input 
             id="title"
             value={data.title}
@@ -167,7 +171,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
         
         <div>
-          <Label htmlFor="description" className="text-neutral-300">Description</Label>
+          <Label htmlFor="description" className="text-neutral-300">{t.labels.description}</Label>
           <Textarea 
             id="description" 
             value={data.description}
@@ -180,7 +184,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="brand" className="text-neutral-300">Brand</Label>
+            <Label htmlFor="brand" className="text-neutral-300">{t.labels.brand}</Label>
             <Input 
               id="brand" 
               value={data.brand}
@@ -190,7 +194,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
           
           <div>
-            <Label htmlFor="condition" className="text-neutral-300">Condition</Label>
+            <Label htmlFor="condition" className="text-neutral-300">{t.labels.condition}</Label>
             <Input 
               id="condition" 
               value={data.condition}
@@ -202,7 +206,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <Label htmlFor="category" className="text-neutral-300">Category</Label>
+            <Label htmlFor="category" className="text-neutral-300">{t.labels.category}</Label>
             <Input 
               id="category" 
               value={data.category}
@@ -212,7 +216,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             />
           </div>
           <div>
-            <Label htmlFor="size" className="text-neutral-300">Size</Label>
+            <Label htmlFor="size" className="text-neutral-300">{t.labels.size}</Label>
             <Input 
               id="size" 
               value={data.size}
@@ -222,7 +226,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             />
           </div>
           <div>
-            <Label htmlFor="gender" className="text-neutral-300">Gender</Label>
+            <Label htmlFor="gender" className="text-neutral-300">{t.labels.gender}</Label>
             <Input 
               id="gender" 
               value={data.gender}
@@ -233,7 +237,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
           
           <div>
-            <Label htmlFor="price" className="text-neutral-300">Price</Label>
+            <Label htmlFor="price" className="text-neutral-300">{t.labels.price}</Label>
             <Input 
               id="price" 
               value={data.price}
@@ -243,7 +247,9 @@ const handleSubmit = async (e: React.FormEvent) => {
             />
             {data.priceRange.min && data.priceRange.max && (
               <p className="text-xs text-slate-500 mt-1">
-                Suggested price range: PLN{data.priceRange.min} - PLN{data.priceRange.max}
+                {t.helper.priceRange
+                  .replace('{min}', data.priceRange.min)
+                  .replace('{max}', data.priceRange.max)}
               </p>
             )}
           </div>
@@ -251,11 +257,12 @@ const handleSubmit = async (e: React.FormEvent) => {
       </div>
       
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-neutral-300">Publish to Platforms</h3>
+        <h3 className="text-lg font-medium text-neutral-300">{t.sections.publishPlatforms}</h3>
         
         <div className="flex flex-col gap-3">
           {Object.entries(connectedPlatforms).map(([platform, isConnected]) => {
             const typedPlatform = platform as Platform;
+            const platformName = t.platforms[typedPlatform] || platform.charAt(0).toUpperCase() + platform.slice(1);
             return (
               <div key={platform} className="flex items-center space-x-2 text-neutral-300">
                 <Checkbox 
@@ -268,8 +275,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                   htmlFor={`platform-${platform}`}
                   className={!isConnected ? "text-slate-400 " : ""}
                 >
-                  {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                  {!isConnected && " (not connected)"}
+                  {platformName}
+                  {!isConnected && ` ${t.helper.notConnected}`}
                 </Label>
               </div>
             );
@@ -279,17 +286,17 @@ const handleSubmit = async (e: React.FormEvent) => {
       
       <div className="flex justify-between">
         <Button type="button" variant="outline" onClick={onBack} disabled={isSubmitting}>
-          Back
+          {t.buttons.back}
         </Button>
         
         <Button type="submit" disabled={isSubmitting || selectedPlatforms.length === 0}>
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Publishing...
+              {t.buttons.publishing}
             </>
           ) : (
-            'Publish Item'
+            t.buttons.publish
           )}
         </Button>
       </div>

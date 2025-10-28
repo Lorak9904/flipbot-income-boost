@@ -18,8 +18,10 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Save, Facebook, Store, Trash2, AlertTriangle } from 'lucide-react';
+import { Mail, Lock, Save, Facebook, Store, Trash2, AlertTriangle, Globe } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
+import { getTranslations, toggleLanguage, getCurrentLanguage } from '@/components/language-utils';
+import { settingsTranslations } from './settings-translations';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -34,6 +36,8 @@ const SettingsPage = () => {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const t = getTranslations(settingsTranslations);
+  const currentLang = getCurrentLanguage();
 
   const [displayName, setDisplayName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -72,12 +76,12 @@ const SettingsPage = () => {
       }
 
       toast({ 
-        title: 'Settings saved', 
-        description: 'Your profile has been updated successfully.' 
+        title: t.toastSettingsSavedTitle, 
+        description: t.toastSettingsSavedDescription 
       });
     } catch (e: any) {
       toast({ 
-        title: 'Error', 
+        title: t.toastErrorTitle, 
         description: e.message || 'Failed to save settings', 
         variant: 'destructive' 
       });
@@ -89,8 +93,8 @@ const SettingsPage = () => {
   const handlePasswordChange = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast({
-        title: 'Missing fields',
-        description: 'Please fill in all password fields',
+        title: t.toastMissingFieldsTitle,
+        description: t.toastMissingFieldsDescription,
         variant: 'destructive',
       });
       return;
@@ -98,8 +102,8 @@ const SettingsPage = () => {
 
     if (newPassword !== confirmPassword) {
       toast({
-        title: 'Passwords do not match',
-        description: 'New password and confirmation must match',
+        title: t.toastPasswordsNoMatchTitle,
+        description: t.toastPasswordsNoMatchDescription,
         variant: 'destructive',
       });
       return;
@@ -107,8 +111,8 @@ const SettingsPage = () => {
 
     if (newPassword.length < 8) {
       toast({
-        title: 'Password too short',
-        description: 'Password must be at least 8 characters',
+        title: t.toastPasswordTooShortTitle,
+        description: t.toastPasswordTooShortDescription,
         variant: 'destructive',
       });
       return;
@@ -139,8 +143,8 @@ const SettingsPage = () => {
       }
 
       toast({
-        title: 'Password changed',
-        description: 'Your password has been updated successfully',
+        title: t.toastPasswordChangedTitle,
+        description: t.toastPasswordChangedDescription,
       });
 
       setCurrentPassword('');
@@ -148,7 +152,7 @@ const SettingsPage = () => {
       setConfirmPassword('');
     } catch (e: any) {
       toast({
-        title: 'Error',
+        title: t.toastErrorTitle,
         description: e.message || 'Failed to change password',
         variant: 'destructive',
       });
@@ -178,8 +182,8 @@ const SettingsPage = () => {
       }
 
       toast({
-        title: 'Account deleted',
-        description: 'Your account has been permanently deleted',
+        title: t.toastAccountDeletedTitle,
+        description: t.toastAccountDeletedDescription,
       });
 
       // Logout and redirect
@@ -187,7 +191,7 @@ const SettingsPage = () => {
       navigate('/');
     } catch (e: any) {
       toast({
-        title: 'Error',
+        title: t.toastErrorTitle,
         description: e.message || 'Failed to delete account',
         variant: 'destructive',
       });
@@ -212,26 +216,42 @@ const SettingsPage = () => {
       </div>
 
       <section className="relative py-28 text-center">
-        <motion.h1 initial="hidden" animate="visible" variants={fadeUp} className="text-4xl sm:text-5xl font-extrabold tracking-tight">
-          Account <span className="text-cyan-400">Settings</span>
-        </motion.h1>
-        <motion.p custom={2} initial="hidden" animate="visible" variants={fadeUp} className="mx-auto mt-4 max-w-xl text-neutral-300">
-          Manage your profile, marketplace connections and notifications.
-        </motion.p>
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <motion.h1 initial="hidden" animate="visible" variants={fadeUp} className="text-4xl sm:text-5xl font-extrabold tracking-tight">
+              {t.pageTitle.split(' ')[0]} <span className="text-cyan-400">{t.pageTitle.split(' ')[1]}</span>
+            </motion.h1>
+            
+            {/* Language Toggle Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleLanguage}
+              className="text-neutral-300 hover:text-white hover:bg-neutral-800/50 flex items-center gap-2 px-4 py-2"
+              title="Switch language / Zmień język"
+            >
+              <Globe className="h-5 w-5" />
+              <span className="font-semibold">{currentLang === 'en' ? 'PL' : 'EN'}</span>
+            </Button>
+          </div>
+          <motion.p custom={2} initial="hidden" animate="visible" variants={fadeUp} className="mx-auto mt-4 max-w-xl text-neutral-300">
+            {t.pageDescription}
+          </motion.p>
+        </div>
       </section>
 
       <section className="relative pb-32">
         <div className="container mx-auto max-w-3xl px-4">
           {/* Profile */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-12 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20">
-            <h2 className="mb-6 text-xl font-semibold">Profile</h2>
+            <h2 className="mb-6 text-xl font-semibold">{t.profileTitle}</h2>
             <div className="space-y-6 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
               <div className="space-y-2">
-                <Label htmlFor="name">Display Name</Label>
+                <Label htmlFor="name">{t.displayNameLabel}</Label>
                 <Input id="name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="bg-neutral-800" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t.emailLabel}</Label>
                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-neutral-800" />
               </div>
             </div>
@@ -241,37 +261,37 @@ const SettingsPage = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-12 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20">
             <h2 className="mb-6 text-xl font-semibold flex items-center gap-2">
               <Lock className="h-5 w-5 text-cyan-400" />
-              Change Password
+              {t.passwordTitle}
             </h2>
             <div className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="currentPassword">Current Password</Label>
+                <Label htmlFor="currentPassword">{t.currentPasswordLabel}</Label>
                 <Input 
                   id="currentPassword" 
                   type="password" 
-                  placeholder="Enter current password" 
+                  placeholder={t.currentPasswordPlaceholder} 
                   value={currentPassword} 
                   onChange={(e) => setCurrentPassword(e.target.value)} 
                   className="bg-neutral-800" 
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="newPassword">New Password</Label>
+                <Label htmlFor="newPassword">{t.newPasswordLabel}</Label>
                 <Input 
                   id="newPassword" 
                   type="password" 
-                  placeholder="Enter new password (min 8 characters)" 
+                  placeholder={t.newPasswordPlaceholder} 
                   value={newPassword} 
                   onChange={(e) => setNewPassword(e.target.value)} 
                   className="bg-neutral-800" 
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <Label htmlFor="confirmPassword">{t.confirmPasswordLabel}</Label>
                 <Input 
                   id="confirmPassword" 
                   type="password" 
-                  placeholder="Confirm new password" 
+                  placeholder={t.confirmPasswordPlaceholder} 
                   value={confirmPassword} 
                   onChange={(e) => setConfirmPassword(e.target.value)} 
                   className="bg-neutral-800" 
@@ -283,21 +303,21 @@ const SettingsPage = () => {
                 className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600"
               >
                 <Lock className="mr-2 h-4 w-4" />
-                {changingPassword ? 'Changing Password...' : 'Change Password'}
+                {changingPassword ? t.changingPasswordButton : t.changePasswordButton}
               </Button>
             </div>
           </motion.div>
 
           {/* Marketplace Connections */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-12 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20">
-            <h2 className="mb-6 text-xl font-semibold">Marketplaces</h2>
+            <h2 className="mb-6 text-xl font-semibold">{t.marketplacesTitle}</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-neutral-200"><Facebook className="h-5 w-5 text-cyan-400" /> Facebook Marketplace</div>
+                <div className="flex items-center gap-3 text-neutral-200"><Facebook className="h-5 w-5 text-cyan-400" /> {t.facebookMarketplace}</div>
                 <Switch checked={connectFacebook} onCheckedChange={setConnectFacebook} />
               </div>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-neutral-200"><Store className="h-5 w-5 text-cyan-400" /> Allegro</div>
+                <div className="flex items-center gap-3 text-neutral-200"><Store className="h-5 w-5 text-cyan-400" /> {t.allegro}</div>
                 <Switch checked={connectAllegro} onCheckedChange={setConnectAllegro} />
               </div>
             </div>
@@ -305,16 +325,16 @@ const SettingsPage = () => {
 
           {/* Notifications */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-16 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20">
-            <h2 className="mb-6 text-xl font-semibold">Notifications</h2>
+            <h2 className="mb-6 text-xl font-semibold">{t.notificationsTitle}</h2>
             <div className="flex items-center justify-between">
-              <span className="text-neutral-200">Product updates & tips</span>
+              <span className="text-neutral-200">{t.productUpdates}</span>
               <Switch onCheckedChange={setNewsletter} />
             </div>
           </motion.div>
 
           <div className="text-center mb-12">
             <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 shadow-lg shadow-fuchsia-500/20" onClick={handleSave} disabled={saving}>
-              <Save className="mr-2 h-5 w-5" /> {saving ? 'Saving…' : 'Save Profile Settings'}
+              <Save className="mr-2 h-5 w-5" /> {saving ? t.savingButton : t.saveButton}
             </Button>
           </div>
 
@@ -322,11 +342,11 @@ const SettingsPage = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="rounded-2xl bg-red-950/20 p-8 backdrop-blur-sm ring-1 ring-red-500/30">
             <h2 className="mb-6 text-xl font-semibold flex items-center gap-2 text-red-400">
               <AlertTriangle className="h-5 w-5" />
-              Danger Zone
+              {t.dangerZoneTitle}
             </h2>
             <div className="space-y-4">
               <p className="text-neutral-300 text-sm">
-                Once you delete your account, there is no going back. This action will permanently delete your account, all your items, and all associated data.
+                {t.dangerZoneDescription}
               </p>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -335,35 +355,35 @@ const SettingsPage = () => {
                     className="bg-red-600 hover:bg-red-700"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Account
+                    {t.deleteAccountButton}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="bg-neutral-900 border-red-500/30">
                   <AlertDialogHeader>
                     <AlertDialogTitle className="text-red-400 flex items-center gap-2">
                       <AlertTriangle className="h-5 w-5" />
-                      Are you absolutely sure?
+                      {t.deleteDialogTitle}
                     </AlertDialogTitle>
                     <AlertDialogDescription className="text-neutral-300">
-                      This action cannot be undone. This will permanently delete your account and remove all your data from our servers, including:
+                      {t.deleteDialogDescription}
                       <ul className="list-disc list-inside mt-2 space-y-1">
-                        <li>All your listed items</li>
-                        <li>Your profile information</li>
-                        <li>All marketplace connections</li>
-                        <li>All item statistics and history</li>
+                        <li>{t.deleteDialogListItem1}</li>
+                        <li>{t.deleteDialogListItem2}</li>
+                        <li>{t.deleteDialogListItem3}</li>
+                        <li>{t.deleteDialogListItem4}</li>
                       </ul>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel className="bg-neutral-800 hover:bg-neutral-700">
-                      Cancel
+                      {t.deleteDialogCancel}
                     </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDeleteAccount}
                       disabled={deletingAccount}
                       className="bg-red-600 hover:bg-red-700"
                     >
-                      {deletingAccount ? 'Deleting...' : 'Yes, delete my account'}
+                      {deletingAccount ? t.deletingDialogConfirm : t.deleteDialogConfirm}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

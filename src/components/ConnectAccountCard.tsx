@@ -5,6 +5,8 @@ import { Check, AlertCircle, Loader2, X, Copy, Info, Clipboard, ArrowRight } fro
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { getTranslations } from '@/components/language-utils';
+import { connectCardTranslations } from './connect-card-translations';
 
 interface ConnectAccountCardProps {
   platform: 'facebook' | 'olx' | 'vinted';
@@ -33,6 +35,18 @@ const ConnectAccountCard = ({
   const [manualDtsg, setManualDtsg] = useState("");
   const [showCookieInstructions, setShowCookieInstructions] = useState(false);
   const [showDtsgInstructions, setShowDtsgInstructions] = useState(false);
+  const t = getTranslations(connectCardTranslations);
+  
+  // Helper to replace placeholders like {platform} in translations
+  const tr = (key: string, replacements?: Record<string, string>) => {
+    let text = t[key] || key;
+    if (replacements) {
+      Object.entries(replacements).forEach(([placeholder, value]) => {
+        text = text.replace(`{${placeholder}}`, value);
+      });
+    }
+    return text;
+  };
 
   const platformConfig = {
     facebook: {
@@ -64,14 +78,14 @@ const ConnectAccountCard = ({
   if (!user) {
     return (
       <div className="p-4 text-center text-red-500 bg-slate-800 rounded-lg">
-        You must be logged in to connect your {platformName} account.
+        {tr('authRequiredMessage', { platform: platformName })}
       </div>
     );
   }
 
   const handleConnect = async () => {
     if (!user) {
-      toast.error("Please log in to connect your accounts");
+      toast.error(t.authRequiredToast);
       return;
     }
 
@@ -97,7 +111,7 @@ const ConnectAccountCard = ({
       
       setIsConnected(true);
       setStatus('connected');
-      toast.success(`Successfully connected to ${platformName}`);
+      toast.success(tr('toastConnectedSuccess', { platform: platformName }));
       
       if (onConnected) {
         onConnected();
@@ -105,7 +119,7 @@ const ConnectAccountCard = ({
     } catch (error) {
       console.error(`Error connecting to ${platformName}:`, error);
       setStatus('error');
-      toast.error(`Failed to connect to ${platformName}. Please try again.`);
+      toast.error(tr('toastConnectedError', { platform: platformName }));
     }
   };
 
@@ -125,7 +139,7 @@ const ConnectAccountCard = ({
             </div>
             <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium border ${isConnected ? 'bg-emerald-500/10 text-emerald-300 border-emerald-700/50' : 'bg-slate-700/60 text-slate-300 border-slate-600/60'}`}>
               <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-slate-400'}`} />
-              {isConnected ? 'Connected' : status === 'connecting' ? 'Connecting…' : 'Not Connected'}
+              {isConnected ? t.statusConnected : status === 'connecting' ? t.statusConnecting : t.statusNotConnected}
             </div>
           </div>
         </CardHeader>
@@ -140,9 +154,9 @@ const ConnectAccountCard = ({
               >
                 <Check className="h-8 w-8 text-teal-400" />
               </motion.div>
-              <p className="text-lg font-medium text-teal-400">Successfully Connected!</p>
+              <p className="text-lg font-medium text-teal-400">{t.connectedTitle}</p>
               <p className="text-slate-300">
-                FlipIt is now analyzing {platformName} for flipping opportunities.
+                {tr('connectedDescription', { platform: platformName })}
               </p>
               <Button
                 variant="outline"
@@ -159,14 +173,14 @@ const ConnectAccountCard = ({
                     if (!response.ok) throw new Error('Failed to disconnect');
                     setIsConnected(false);
                     setStatus('idle');
-                    toast.success(`${platformName} disconnected.`);
+                    toast.success(tr('toastDisconnectedSuccess', { platform: platformName }));
                     if (onConnected) onConnected();
                   } catch (error) {
-                    toast.error('Failed to disconnect. Please try again.');
+                    toast.error(t.toastDisconnectedError);
                   }
                 }}
               >
-                <X className="w-4 h-4 mr-2" /> Disconnect
+                <X className="w-4 h-4 mr-2" /> {t.disconnectButton}
               </Button>
             </div>
           ) : showManual ? (
@@ -201,13 +215,13 @@ const ConnectAccountCard = ({
                   }
                   setIsConnected(true);
                   setStatus('connected');
-                  toast.success(`Manually connected to ${platformName}`);
+                  toast.success(tr('toastManualConnectedSuccess', { platform: platformName }));
                   setShowManual(false);
                   setManualCookies("");
                   if (onConnected) onConnected();
                 } catch (error: any) {
                   setStatus('error');
-                  toast.error(error.message || "Manual connection failed. Please check your cookies and try again.");
+                  toast.error(error.message || t.toastManualConnectedError);
                 }
               }}
               className="space-y-6"
@@ -281,7 +295,7 @@ const ConnectAccountCard = ({
               </div>
               
               <p className="text-slate-300">
-                Paste your cookies for <b>{platformName}</b> below. Your user ID will be linked automatically.
+                {tr('manualConnectDescription', { platform: platformName })}
               </p>
               <div className="relative mb-4">
                 <textarea
@@ -429,7 +443,7 @@ const ConnectAccountCard = ({
             action || (
               <div className="space-y-4">
                 <p className="text-slate-300">
-                  Connect your {platformName} account to let FlipIt find and flip items automatically.
+                  {tr('notConnectedDescription', { platform: platformName })}
                 </p>
                 <div className="flex flex-col gap-2">
                   <Button
@@ -438,7 +452,7 @@ const ConnectAccountCard = ({
                     onClick={() => setShowManual(true)}
                     style={{ padding: "0.6rem 1rem", fontSize: "1rem" }}
                   >
-                    Manual Connect
+                    {t.manualConnectButtonCta}
                   </Button>
                 </div>
               </div>
