@@ -2,14 +2,14 @@ import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import ConnectAccountCard from '@/components/ConnectAccountCard';
-import { CheckCircle, ArrowRight, Lock, Loader2, Globe } from 'lucide-react';
+import { CheckCircle, ArrowRight, Lock, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { ConnectOlxButton } from '@/pages/ConnectOlxButton';
 import { useToast } from '@/hooks/use-toast';
 import { SEOHead } from '@/components/SEOHead';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getTranslations, toggleLanguage, getCurrentLanguage } from '@/components/language-utils';
+import { getTranslations } from '@/components/language-utils';
 import { connectAccountsTranslations } from './connect-accounts-translations';
 
 const fadeUp = {
@@ -28,7 +28,6 @@ const ConnectAccountsPage = () => {
   const location = useLocation();
   const queryClient = useQueryClient();
   const t = getTranslations(connectAccountsTranslations);
-  const currentLang = getCurrentLanguage();
 
   const fetchConnectedPlatforms = async (): Promise<Record<string, any>> => {
     const token = localStorage.getItem('flipit_token');
@@ -391,26 +390,12 @@ const ConnectAccountsPage = () => {
           className="max-w-4xl mx-auto"
         >
           <div className="mb-8 text-center">
-            <div className="flex items-center justify-center gap-4 mb-3">
-              <motion.h1 
-                variants={fadeUp}
-                className="text-3xl md:text-4xl font-bold"
-              >
-                {t.heroTitle}
-              </motion.h1>
-              
-              {/* Language Toggle Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleLanguage}
-                className="text-neutral-300 hover:text-white hover:bg-neutral-800/50 flex items-center gap-2 px-4 py-2"
-                title="Switch language / Zmień język"
-              >
-                <Globe className="h-5 w-5" />
-                <span className="font-semibold">{currentLang === 'en' ? 'PL' : 'EN'}</span>
-              </Button>
-            </div>
+            <motion.h1 
+              variants={fadeUp}
+              className="text-3xl md:text-4xl font-bold mb-3"
+            >
+              {t.heroTitle}
+            </motion.h1>
             <motion.p 
               variants={fadeUp}
               custom={1}

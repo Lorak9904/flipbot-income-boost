@@ -18,9 +18,9 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Save, Facebook, Store, Trash2, AlertTriangle, Globe } from 'lucide-react';
+import { Mail, Lock, Save, Facebook, Store, Trash2, AlertTriangle } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
-import { getTranslations, toggleLanguage, getCurrentLanguage } from '@/components/language-utils';
+import { getTranslations } from '@/components/language-utils';
 import { settingsTranslations } from './settings-translations';
 
 const fadeUp = {
@@ -37,7 +37,6 @@ const SettingsPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const t = getTranslations(settingsTranslations);
-  const currentLang = getCurrentLanguage();
 
   const [displayName, setDisplayName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -217,23 +216,9 @@ const SettingsPage = () => {
 
       <section className="relative py-28 text-center">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <motion.h1 initial="hidden" animate="visible" variants={fadeUp} className="text-4xl sm:text-5xl font-extrabold tracking-tight">
-              {t.pageTitle.split(' ')[0]} <span className="text-cyan-400">{t.pageTitle.split(' ')[1]}</span>
-            </motion.h1>
-            
-            {/* Language Toggle Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleLanguage}
-              className="text-neutral-300 hover:text-white hover:bg-neutral-800/50 flex items-center gap-2 px-4 py-2"
-              title="Switch language / Zmień język"
-            >
-              <Globe className="h-5 w-5" />
-              <span className="font-semibold">{currentLang === 'en' ? 'PL' : 'EN'}</span>
-            </Button>
-          </div>
+          <motion.h1 initial="hidden" animate="visible" variants={fadeUp} className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">
+            {t.pageTitle.split(' ')[0]} <span className="text-cyan-400">{t.pageTitle.split(' ')[1]}</span>
+          </motion.h1>
           <motion.p custom={2} initial="hidden" animate="visible" variants={fadeUp} className="mx-auto mt-4 max-w-xl text-neutral-300">
             {t.pageDescription}
           </motion.p>

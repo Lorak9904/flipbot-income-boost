@@ -14,11 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Package, Filter, ChevronLeft, ChevronRight, Globe } from 'lucide-react';
+import { Loader2, Package, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
 import { cdnGrid, resolveItemImageUrl } from '@/lib/images';
-import { getTranslations, toggleLanguage, getCurrentLanguage } from '@/components/language-utils';
+import { getTranslations } from '@/components/language-utils';
 import { userItemsTranslations } from '@/utils/translations/user-items-translations';
 
 const fadeUp = {
@@ -35,7 +35,6 @@ const UserItemsPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [language, setLanguage] = useState(getCurrentLanguage());
   const t = getTranslations(userItemsTranslations);
 
   const [items, setItems] = useState<UserItem[]>([]);
@@ -52,11 +51,6 @@ const UserItemsPage = () => {
 
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-
-  const handleLanguageToggle = () => {
-    toggleLanguage();
-    setLanguage(getCurrentLanguage());
-  };
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -226,15 +220,6 @@ const UserItemsPage = () => {
               <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
                 {t.pageTitle}
               </h1>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLanguageToggle}
-                className="bg-neutral-800/50 border-neutral-700 text-white hover:bg-neutral-800"
-              >
-                <Globe className="h-4 w-4 mr-2" />
-                {language === 'en' ? 'PL' : 'EN'}
-              </Button>
             </div>
             <p className="text-neutral-300 text-lg">
               {t.pageDescription}

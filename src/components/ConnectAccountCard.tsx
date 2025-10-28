@@ -235,7 +235,7 @@ const ConnectAccountCard = ({
                 >
                   <span className="flex items-center gap-2">
                     <Info className="h-5 w-5" />
-                    <span className="font-medium">How to get {platformName} cookies?</span>
+                    <span className="font-medium">{tr('cookieInstructionsToggle', { platform: platformName })}</span>
                   </span>
                   <motion.div
                     animate={{ rotate: showCookieInstructions ? 90 : 0 }}
@@ -254,13 +254,13 @@ const ConnectAccountCard = ({
                     className="mt-3"
                   >
                     <div className="glass-card p-5 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg">
-                      <h4 className="text-base font-semibold mb-4 text-teal-400">Get {platformName} Cookies in 4 Simple Steps</h4>
+                      <h4 className="text-base font-semibold mb-4 text-teal-400">{tr('cookieInstructionsTitle', { platform: platformName })}</h4>
                       <div className="space-y-3 text-left">
                         <div className="flex gap-3">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">1</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal">
-                              <b>Install the <a href="https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" className="underline text-blue-400">Cookie-Editor extension</a></b> in your browser.
+                              <b>{t.cookieStep1.split('{extensionLink}')[0]}<a href="https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" className="underline text-blue-400">{t.cookieExtensionText}</a>{t.cookieStep1.split('{extensionLink}')[1]}</b>
                             </p>
                           </div>
                         </div>
@@ -268,7 +268,7 @@ const ConnectAccountCard = ({
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">2</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal">
-                              Go to <span className="font-medium text-white">{platformName}</span> and log in to your account.
+                              {tr('cookieStep2', { platform: platformName })}
                             </p>
                           </div>
                         </div>
@@ -276,7 +276,7 @@ const ConnectAccountCard = ({
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">3</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal">
-                              Click the Cookie-Editor extension icon, then click the <b>Export</b> button (bottom right), choose <b>Export → Header String</b>, and copy the result.
+                              {tr('cookieStep3', { platform: platformName, exportBtn: t.cookieStep3Export, exportFormat: t.cookieStep3Format })}
                             </p>
                           </div>
                         </div>
@@ -284,7 +284,7 @@ const ConnectAccountCard = ({
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">4</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal">
-                              Paste this string into the cookies field below.
+                              {t.cookieStep4}
                             </p>
                           </div>
                         </div>
