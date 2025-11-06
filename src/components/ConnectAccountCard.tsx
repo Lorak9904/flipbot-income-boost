@@ -321,7 +321,7 @@ const ConnectAccountCard = ({
                     >
                       <span className="flex items-center gap-2">
                         <Info className="h-5 w-5" />
-                        <span className="font-medium">How to get dtsg token?</span>
+                        <span className="font-medium">{t.dtsgInstructionsToggle}</span>
                       </span>
                       <motion.div
                         animate={{ rotate: showDtsgInstructions ? 90 : 0 }}
@@ -339,13 +339,13 @@ const ConnectAccountCard = ({
                     className="mt-3"
                   >
                     <div className="glass-card p-5 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg">
-                      <h4 className="text-base font-semibold mb-4 text-teal-400">Get dtsg Token in 5 Simple Steps</h4>
+                      <h4 className="text-base font-semibold mb-4 text-teal-400">{t.dtsgInstructionsTitle}</h4>
                       <div className="space-y-3 text-left">
                         <div className="flex gap-3">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">1</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal">
-                              Visit <span className="font-medium text-white">facebook.com</span> and log in to your account
+                              {t.dtsgStep1}
                             </p>
                           </div>
                         </div>
@@ -353,13 +353,13 @@ const ConnectAccountCard = ({
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">2</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal w-full mb-1">
-                              Open Developer Tools:
+                              {t.dtsgStep2.split('{keys}')[0]}
                             </p>
                             <div className="flex items-center gap-2 flex-wrap">
                               <kbd className="px-2 py-1 bg-slate-800 rounded text-xs text-white border border-slate-600 shadow">
                                 {navigator.platform.includes('Mac') ? '⌘ + Option + J' : 'F12 or Ctrl + Shift + J'}
                               </kbd>
-                              <span className="text-sm text-slate-300">or right-click → Inspect → Console</span>
+                              <span className="text-sm text-slate-300">{t.dtsgStep2Alternative}</span>
                             </div>
                           </div>
                         </div>
@@ -367,7 +367,7 @@ const ConnectAccountCard = ({
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">3</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal">
-                              Click on the <span className="font-medium text-white">Console</span> tab
+                              {t.dtsgStep3}
                             </p>
                           </div>
                         </div>
@@ -375,7 +375,7 @@ const ConnectAccountCard = ({
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">4</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal w-full mb-1">
-                              Type or paste this command:
+                              {t.dtsgStep4}
                             </p>
                             <div className="flex flex-col bg-slate-800 p-2 rounded-md">
                               <code className="text-teal-300 font-mono text-xs break-words whitespace-pre-wrap">
@@ -385,7 +385,7 @@ const ConnectAccountCard = ({
                                 type="button"
                                 onClick={() => {
                                   navigator.clipboard.writeText('require("DTSG").getToken()');
-                                  toast.success('Command copied to clipboard!');
+                                  toast.success(t.dtsgCommandCopied);
                                 }}
                                 className="mt-2 self-end text-teal-400 hover:text-teal-300 focus:outline-none"
                               >
@@ -398,7 +398,7 @@ const ConnectAccountCard = ({
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">5</div>
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm break-words whitespace-normal">
-                              Press <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-xs text-white border border-slate-600 shadow">Enter</kbd> and copy the value shown, then paste it below.
+                              {t.dtsgStep5}
                             </p>
                           </div>
                         </div>

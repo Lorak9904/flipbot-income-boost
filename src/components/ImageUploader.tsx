@@ -6,6 +6,8 @@ import { Image, Trash, Upload, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
+import imageCompression from "browser-image-compression";
+import heic2any from "heic2any";
 
 // Public base for served images (configure via VITE_IMAGES_BASE_URL)
 const PUBLIC_IMAGES_BASE = (import.meta as any)?.env?.VITE_IMAGES_BASE_URL || 'https://images.myflipit.live/';
@@ -39,6 +41,107 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
     onChange(next);
   };
 
+  /**
+   * Convert image to JPEG format for consistency and compatibility.
+   * Handles HEIC (iPhone), PNG, WebP, and other formats.
+   */
+  const convertToJPEG = async (file: File): Promise<File> => {
+    try {
+      const fileName = file.name.toLowerCase();
+      const fileType = file.type.toLowerCase();
+      
+      // Detect HEIC format (iOS photos)
+      const isHEIC = fileType === 'image/heic' || 
+                     fileType === 'image/heif' || 
+                     fileName.endsWith('.heic') || 
+                     fileName.endsWith('.heif');
+
+      // Convert HEIC to JPEG
+      if (isHEIC) {
+        console.log('Converting HEIC to JPEG:', file.name);
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.9,
+        });
+
+        // heic2any can return Blob or Blob[], handle both
+        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+        const newFileName = file.name.replace(/\.(heic|heif)$/i, '.jpg');
+        return new File([blob], newFileName, { type: 'image/jpeg' });
+      }
+
+      // Convert PNG/WebP to JPEG for consistency (optional but saves space)
+      if (fileType === 'image/png' || fileType === 'image/webp') {
+        console.log('Converting to JPEG:', file.name);
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new window.Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.width;
+              canvas.height = img.height;
+              const ctx = canvas.getContext('2d');
+              if (!ctx) {
+                resolve(file); // Fallback to original
+                return;
+              }
+              ctx.drawImage(img, 0, 0);
+              canvas.toBlob(
+                (blob) => {
+                  if (!blob) {
+                    resolve(file); // Fallback to original
+                    return;
+                  }
+                  const newFileName = file.name.replace(/\.(png|webp)$/i, '.jpg');
+                  resolve(new File([blob], newFileName, { type: 'image/jpeg' }));
+                },
+                'image/jpeg',
+                0.9
+              );
+            };
+            img.onerror = () => resolve(file); // Fallback to original
+            img.src = e.target?.result as string;
+          };
+          reader.onerror = () => resolve(file); // Fallback to original
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // Already JPEG or other supported format, return as-is
+      return file;
+    } catch (error) {
+      console.warn('Format conversion failed, using original:', error);
+      return file; // Fallback to original on any error
+    }
+  };
+
+  /**
+   * Compress image on client-side before upload.
+   * Reduces bandwidth and storage costs while maintaining decent quality.
+   */
+  const compressImage = async (file: File): Promise<File> => {
+    try {
+      const options = {
+        maxWidthOrHeight: 1920,      // Keep reasonable resolution for zoom/detail
+        initialQuality: 0.85,         // Balance quality vs size
+        maxSizeMB: 2,                 // Target max 2MB after compression
+        useWebWorker: true,           // Non-blocking compression
+        fileType: file.type,          // Preserve original format
+      };
+
+      const compressed = await imageCompression(file, options);
+      
+      // Only use compressed if it's actually smaller (edge case: small images might grow)
+      return compressed.size < file.size ? compressed : file;
+    } catch (error) {
+      console.warn("Image compression failed, using original:", error);
+      // Fallback to original file on compression error
+      return file;
+    }
+  };
+
   // Clean up temporary URLs on unmount
   useEffect(() => {
     return () => {
@@ -56,25 +159,32 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
   }, [images]);
 
   // ────────────────────────────────────────────────────────────────────────────
-  // File → ItemImage[] helper (validation + preparation)
+  // File → ItemImage[] helper (validation + preparation + compression)
   // ────────────────────────────────────────────────────────────────────────────
   const processAndUploadFiles = async (fileList: FileList) => {
     const files = Array.from(fileList);
 
     // Validate type & size first (synchronously)
+    // Note: Size check is pre-compression, actual uploads will be smaller
     const validFiles = files.filter((file) => {
-      if (!file.type.startsWith("image/")) {
+      // Check MIME type OR file extension (HEIC files often have empty MIME type)
+      const fileName = file.name.toLowerCase();
+      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif', '.bmp', '.svg'];
+      const hasImageExtension = imageExtensions.some(ext => fileName.endsWith(ext));
+      const hasImageMimeType = file.type.startsWith("image/");
+      
+      if (!hasImageMimeType && !hasImageExtension) {
         toast({
           title: "Invalid file type",
-          description: `${file.name} is not an image`,
+          description: `${file.name} is not a supported image format`,
           variant: "destructive",
         });
         return false;
       }
-      if (file.size > 10 * 1024 * 1024) {
+      if (file.size > 25 * 1024 * 1024) {
         toast({
           title: "File too large",
-          description: `${file.name} exceeds 10 MB`,
+          description: `${file.name} exceeds 25 MB (will be compressed before upload)`,
           variant: "destructive",
         });
         return false;
@@ -94,25 +204,82 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
       return;
     }
 
-    // Prepare client-side previews for immediate feedback
-    const newImages: ItemImage[] = validFiles.map((file) => {
+    // First, create placeholder images with original files for immediate feedback
+    const placeholderImages: ItemImage[] = validFiles.map((file) => {
       const blobUrl = URL.createObjectURL(file);
       return {
         id: uuidv4(),
-        url: blobUrl,      // temporary until upload finishes
-        preview: blobUrl,  // persist preview even after upload
+        url: blobUrl,
+        preview: blobUrl,
         file,
         isUploaded: false,
+        isCompressing: true,  // Show "Compressing..." state
         isUploading: false,
         progress: 0,
       };
     });
 
-    const updatedImages = [...images, ...newImages];
+    // Add placeholders to grid immediately
+    let updatedImages = [...images, ...placeholderImages];
     syncUpdate(updatedImages);
 
-    // Upload originals without compression
-    await uploadImages(newImages);
+    try {
+      // Convert and compress images in parallel (client-side, non-blocking)
+      const compressedFiles = await Promise.all(
+        placeholderImages.map(async (placeholder) => {
+          // Step 1: Convert to JPEG (handles HEIC, PNG, WebP)
+          const converted = await convertToJPEG(placeholder.file!);
+          // Step 2: Compress the JPEG
+          const compressed = await compressImage(converted);
+          return {
+            id: placeholder.id,
+            compressed,
+          };
+        })
+      );
+
+      // Update with compressed files and clear compression state
+      updatedImages = imagesRef.current.map((img) => {
+        const compressed = compressedFiles.find((cf) => cf.id === img.id);
+        if (!compressed) return img;
+
+        // Revoke old blob URL and create new one for compressed file
+        if (img.url && img.url.startsWith('blob:')) {
+          try { URL.revokeObjectURL(img.url); } catch {}
+        }
+
+        const blobUrl = URL.createObjectURL(compressed.compressed);
+        return {
+          ...img,
+          url: blobUrl,
+          preview: blobUrl,
+          file: compressed.compressed,
+          isCompressing: false,  // Compression done
+        };
+      });
+      syncUpdate(updatedImages);
+
+      // Upload compressed images
+      const imagesToUpload = updatedImages.filter((img) => 
+        compressedFiles.some((cf) => cf.id === img.id)
+      );
+      await uploadImages(imagesToUpload);
+    } catch (error) {
+      // Clear compression state on error
+      console.error("Compression error:", error);
+      updatedImages = imagesRef.current.map((img) => 
+        placeholderImages.some((ph) => ph.id === img.id)
+          ? { ...img, isCompressing: false }
+          : img
+      );
+      syncUpdate(updatedImages);
+      
+      toast({
+        title: "Processing failed",
+        description: "Failed to process images. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -279,18 +446,21 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
               ) : (
                 <div className="w-full h-full bg-slate-200" />
               )}
-              {image.isUploading && (
+              {(image.isCompressing || image.isUploading) && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <div className="text-white text-center">
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                     <p className="text-xs">
-                      {`Uploading${typeof image.progress === 'number' ? ` ${image.progress}%` : '...'}`}
+                      {image.isCompressing 
+                        ? 'Compressing...' 
+                        : `Uploading${typeof image.progress === 'number' ? ` ${image.progress}%` : '...'}`
+                      }
                     </p>
                   </div>
                 </div>
               )}
             </AspectRatio>
-            {!isDisabled && !image.isUploading && (
+            {!isDisabled && !image.isCompressing && !image.isUploading && (
               <Button
                 variant="destructive"
                 size="icon"
@@ -328,7 +498,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
             <p className="text-sm text-slate-600 text-center">
               {uploading ? "Uploading..." : "Drag & drop images or click to browse"}
             </p>
-            <p className="text-xs text-slate-400 mt-1 text-center">JPG, PNG, WEBP • Max 10MB each</p>
+            <p className="text-xs text-slate-400 mt-1 text-center">JPG, PNG, WEBP • Auto-compressed before upload</p>
           </div>
         )}
       </div>

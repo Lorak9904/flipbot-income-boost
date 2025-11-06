@@ -6,6 +6,7 @@ export interface ItemImage {
   preview?: string;
   file?: File;
   isUploaded: boolean;
+  isCompressing?: boolean;
   isUploading?: boolean;
   progress?: number;
 }
