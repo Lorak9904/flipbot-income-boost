@@ -20,6 +20,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { cdnGrid, resolveItemImageUrl } from '@/lib/images';
 import { getTranslations } from '@/components/language-utils';
 import { userItemsTranslations } from '@/utils/translations/user-items-translations';
+import { StatCard, StatCardSkeleton } from '@/components/my_items/stat-card';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -230,17 +231,7 @@ const UserItemsPage = () => {
         {statsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             {[...Array(4)].map((_, i) => (
-              <Card
-                key={i}
-                className="bg-transparent border border-white/15 backdrop-blur-md shadow-none"
-              >
-                <CardHeader className="pb-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-white/70" />
-                </CardHeader>
-                <CardContent>
-                  <div className="h-8 bg-white/10 animate-pulse rounded" />
-                </CardContent>
-              </Card>
+              <StatCardSkeleton key={i} />
             ))}
           </div>
         ) : stats ? (
@@ -251,40 +242,26 @@ const UserItemsPage = () => {
             custom={1}
             className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           >
-            <Card className="!bg-transparent border border-white/15 text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/5">
-              <CardHeader className="pb-2">
-                <CardDescription className="text-white/70 font-medium">{t.stats.totalItems}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-white">{stats.total_items}</p>
-              </CardContent>
-            </Card>
-            <Card className="!bg-transparent border border-white/15 text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/5">
-              <CardHeader className="pb-2">
-                <CardDescription className="text-white/70 font-medium">{t.stats.published}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-white">{stats.published_items}</p>
-              </CardContent>
-            </Card>
-            <Card className="!bg-transparent border border-white/15 text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/5">
-              <CardHeader className="pb-2">
-                <CardDescription className="text-white/70 font-medium">{t.stats.drafts}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-white">{stats.draft_items}</p>
-              </CardContent>
-            </Card>
-            <Card className="!bg-transparent border border-white/15 text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/5">
-              <CardHeader className="pb-2">
-                <CardDescription className="text-white/70 font-medium">{t.stats.successRate}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-white">
-                  {(stats.publish_success_rate ?? 0).toFixed(1)}%
-                </p>
-              </CardContent>
-            </Card>
+            <StatCard
+              label={t.stats.totalItems}
+              value={stats.total_items}
+              tint="cyan"
+            />
+            <StatCard
+              label={t.stats.published}
+              value={stats.published_items}
+              tint="fuchsia"
+            />
+            <StatCard
+              label={t.stats.drafts}
+              value={stats.draft_items}
+              tint="violet"
+            />
+            <StatCard
+              label={t.stats.successRate}
+              value={`${(stats.publish_success_rate ?? 0).toFixed(1)}%`}
+              tint="teal"
+            />
           </motion.div>
         ) : null}
 
