@@ -284,7 +284,7 @@ const UserItemsPage = () => {
             <SelectTrigger className="w-[150px] bg-neutral-800/50 border-neutral-700 text-white">
               <SelectValue placeholder={t.filters.allStages} />
             </SelectTrigger>
-            <SelectContent className="bg-neutral-900 border-neutral-800">
+            <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
               <SelectItem value="all">{t.filters.allStages}</SelectItem>
               <SelectItem value="draft">{t.filters.draft}</SelectItem>
               <SelectItem value="published">{t.filters.published}</SelectItem>
@@ -297,7 +297,7 @@ const UserItemsPage = () => {
             <SelectTrigger className="w-[150px] bg-neutral-800/50 border-neutral-700 text-white">
               <SelectValue placeholder={t.filters.allPlatforms} />
             </SelectTrigger>
-            <SelectContent className="bg-neutral-900 border-neutral-800">
+            <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
               <SelectItem value="all">{t.filters.allPlatforms}</SelectItem>
               <SelectItem value="facebook">{t.filters.facebook}</SelectItem>
               <SelectItem value="olx">{t.filters.olx}</SelectItem>
