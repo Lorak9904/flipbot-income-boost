@@ -230,12 +230,15 @@ const UserItemsPage = () => {
         {statsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             {[...Array(4)].map((_, i) => (
-              <Card key={i} className="bg-gradient-to-br from-slate-900/90 to-gray-900/75 border border-zinc-700/60 backdrop-blur-md">
+              <Card
+                key={i}
+                className="bg-transparent border border-white/15 backdrop-blur-md shadow-none"
+              >
                 <CardHeader className="pb-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-cyan-400" />
+                  <Loader2 className="h-4 w-4 animate-spin text-white/70" />
                 </CardHeader>
                 <CardContent>
-                  <div className="h-8 bg-neutral-800 animate-pulse rounded" />
+                  <div className="h-8 bg-white/10 animate-pulse rounded" />
                 </CardContent>
               </Card>
             ))}
@@ -248,38 +251,36 @@ const UserItemsPage = () => {
             custom={1}
             className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           >
-            <Card className="!bg-gradient-to-br from-cyan-500/30 via-cyan-500/10 to-neutral-900/70 border-cyan-400/40 backdrop-blur-sm hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:-translate-y-1">
+            <Card className="!bg-transparent border border-white/15 text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/5">
               <CardHeader className="pb-2">
-                <CardDescription className="text-neutral-200 font-medium">{t.stats.totalItems}</CardDescription>
+                <CardDescription className="text-white/70 font-medium">{t.stats.totalItems}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
-                  {stats.total_items}
-                </p>
+                <p className="text-3xl font-bold text-white">{stats.total_items}</p>
               </CardContent>
             </Card>
-            <Card className="!bg-gradient-to-br from-cyan-500/30 via-cyan-500/10 to-neutral-900/70 border-cyan-400/40 backdrop-blur-sm hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 hover:-translate-y-1">
+            <Card className="!bg-transparent border border-white/15 text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/5">
               <CardHeader className="pb-2">
-                <CardDescription className="text-neutral-200 font-medium">{t.stats.published}</CardDescription>
+                <CardDescription className="text-white/70 font-medium">{t.stats.published}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold text-cyan-400">{stats.published_items}</p>
+                <p className="text-3xl font-bold text-white">{stats.published_items}</p>
               </CardContent>
             </Card>
-            <Card className="!bg-gradient-to-br from-fuchsia-500/30 via-fuchsia-500/10 to-neutral-900/70 border-fuchsia-400/40 backdrop-blur-sm hover:border-fuchsia-400/70 hover:shadow-xl hover:shadow-fuchsia-500/30 transition-all duration-300 hover:-translate-y-1">
+            <Card className="!bg-transparent border border-white/15 text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/5">
               <CardHeader className="pb-2">
-                <CardDescription className="text-neutral-200 font-medium">{t.stats.drafts}</CardDescription>
+                <CardDescription className="text-white/70 font-medium">{t.stats.drafts}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold text-fuchsia-400">{stats.draft_items}</p>
+                <p className="text-3xl font-bold text-white">{stats.draft_items}</p>
               </CardContent>
             </Card>
-            <Card className="!bg-gradient-to-br from-emerald-500/30 via-emerald-500/10 to-neutral-900/70 border-emerald-400/40 backdrop-blur-sm hover:border-emerald-400/70 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1">
+            <Card className="!bg-transparent border border-white/15 text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/5">
               <CardHeader className="pb-2">
-                <CardDescription className="text-neutral-200 font-medium">{t.stats.successRate}</CardDescription>
+                <CardDescription className="text-white/70 font-medium">{t.stats.successRate}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold text-emerald-400">
+                <p className="text-3xl font-bold text-white">
                   {(stats.publish_success_rate ?? 0).toFixed(1)}%
                 </p>
               </CardContent>
