@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { GeneratedItemData, Platform } from '@/types/item';
+import { GeneratedItemDataWithVinted, Platform } from '@/types/item';
 import AddItemForm from '@/components/AddItemForm';
 import ReviewItemForm from '@/components/ReviewItemForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,7 +28,7 @@ const AddItemPage = () => {
   const [language, setLanguage] = useState(getCurrentLanguage());
   const t = getTranslations(addItemTranslations);
   const [step, setStep] = useState<'add' | 'review'>('add');
-  const [generatedData, setGeneratedData] = useState<GeneratedItemData | null>(null);
+  const [generatedData, setGeneratedData] = useState<GeneratedItemDataWithVinted | null>(null);
   const [connectedPlatforms, setConnectedPlatforms] = useState<Record<Platform, boolean>>({
     facebook: false,
     olx: false,
@@ -91,7 +91,7 @@ const AddItemPage = () => {
     }
   }, [isAuthenticated, isLoading, navigate, toast]);
   
-  const handleComplete = (data: GeneratedItemData) => {
+  const handleComplete = (data: GeneratedItemDataWithVinted) => {
     setGeneratedData(data);
     setStep('review');
   };
@@ -141,23 +141,6 @@ const AddItemPage = () => {
               style={{
                 background:
                   "radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
-              }}
-            />
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0.3 }}
-              animate={{ opacity: [0.3, 0.7, 0.3] }}
-              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background:
-                  "radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)",
-              }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)",
               }}
             />
           </div>
@@ -265,23 +248,6 @@ const AddItemPage = () => {
                 "radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
             }}
           />
-          <motion.div
-            className="absolute inset-0"
-            initial={{ opacity: 0.3 }}
-            animate={{ opacity: [0.3, 0.7, 0.3] }}
-            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              background:
-                "radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)",
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)",
-            }}
-          />
         </div>
         
         <div className="absolute inset-0">
@@ -352,7 +318,7 @@ const AddItemPage = () => {
           </motion.h1>
           
           {step === 'add' ? (
-            <Card className="bg-neutral-900/50 backdrop-blur-sm border border-cyan-400/20">
+            <Card className="bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 transition-all duration-300 hover:ring-cyan-400/40 hover:shadow-xl border-0">
               <CardHeader>
                 <CardTitle className="text-cyan-400">{t.addCard.title}</CardTitle>
                 <CardDescription className="text-neutral-300">
@@ -364,7 +330,7 @@ const AddItemPage = () => {
               </CardContent>
             </Card>
           ) : (
-            <Card className="bg-neutral-900/50 backdrop-blur-sm border border-fuchsia-400/20">
+            <Card className="bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 transition-all duration-300 hover:ring-fuchsia-400/40 hover:shadow-xl border-0">
               <CardHeader>
                 <CardTitle className="text-fuchsia-400">{t.reviewCard.title}</CardTitle>
                 <CardDescription className="text-neutral-300">

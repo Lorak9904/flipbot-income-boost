@@ -190,25 +190,60 @@ const UserItemsPage = () => {
                   "radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
               }}
             />
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0.3 }}
-              animate={{ opacity: [0.3, 0.7, 0.3] }}
-              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          </div>
+          
+          {/* Moving orbs for extra dynamism */}
+          <div className="absolute inset-0">
+            <div 
+              className="absolute w-96 h-96 rounded-full bg-gradient-to-r from-cyan-500/20 to-fuchsia-500/20 blur-3xl"
               style={{
-                background:
-                  "radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)",
+                animation: 'float1 25s ease-in-out infinite',
+                left: '10%',
+                top: '10%'
               }}
-            />
-            <div
-              className="absolute inset-0"
+            ></div>
+            <div 
+              className="absolute w-80 h-80 rounded-full bg-gradient-to-r from-fuchsia-500/15 to-cyan-500/15 blur-3xl"
               style={{
-                background:
-                  "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)",
+                animation: 'float2 30s ease-in-out infinite',
+                right: '15%',
+                top: '30%'
               }}
-            />
+            ></div>
+            <div 
+              className="absolute w-72 h-72 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 blur-3xl"
+              style={{
+                animation: 'float3 35s ease-in-out infinite',
+                left: '30%',
+                bottom: '20%'
+              }}
+            ></div>
           </div>
         </div>
+
+        {/* CSS Animations */}
+        <style>{`
+          @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -20px) scale(1.1); }
+            50% { transform: translate(-20px, 30px) scale(0.9); }
+            75% { transform: translate(20px, 10px) scale(1.05); }
+          }
+          
+          @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-25px, 20px) scale(1.1); }
+            66% { transform: translate(15px, -30px) scale(0.95); }
+          }
+          
+          @keyframes float3 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            20% { transform: translate(20px, -15px) scale(1.05); }
+            40% { transform: translate(-30px, 25px) scale(0.9); }
+            60% { transform: translate(25px, 20px) scale(1.1); }
+            80% { transform: translate(-15px, -25px) scale(0.95); }
+          }
+        `}</style>
 
         <div className="relative container mx-auto px-4 py-12 md:py-16">
           <motion.div
@@ -312,7 +347,7 @@ const UserItemsPage = () => {
             <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
           </div>
         ) : error ? (
-          <Card className="p-12 bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
+          <Card className="p-12 bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 border-0">
             <div className="text-center">
               <p className="text-red-400 mb-4">{error}</p>
               <Button 
@@ -330,7 +365,7 @@ const UserItemsPage = () => {
             variants={fadeUp}
             custom={3}
           >
-            <Card className="p-12 bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
+            <Card className="p-12 bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 border-0">
               <div className="text-center">
                 <Package className="h-16 w-16 mx-auto mb-4 text-neutral-500" />
                 <h3 className="text-xl font-semibold mb-2 text-white">{t.empty.title}</h3>
@@ -364,7 +399,7 @@ const UserItemsPage = () => {
                 return (
                   <Card
                     key={item.uuid}
-                    className="cursor-pointer hover:shadow-xl hover:shadow-cyan-500/10 hover:border-cyan-500/50 transition-all bg-neutral-900/50 border-neutral-800 backdrop-blur-sm"
+                    className="cursor-pointer bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 transition-all duration-300 hover:ring-cyan-400/40 hover:shadow-xl hover:-translate-y-1 border-0"
                     onClick={() => handleItemClick(item.uuid)}
                   >
                     <CardHeader>

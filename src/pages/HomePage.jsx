@@ -79,7 +79,7 @@ const HomePage = () => {
         {/* Base dark background */}
         <div className="absolute inset-0 bg-neutral-950"></div>
         
-        {/* Animated gradient overlay - refactored for smooth transitions */}
+        {/* Animated gradient overlay */}
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
             className="absolute inset-0"
@@ -109,23 +109,6 @@ const HomePage = () => {
             style={{
               background:
                 "radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
-            }}
-          />
-          <motion.div
-            className="absolute inset-0"
-            initial={{ opacity: 0.3 }}
-            animate={{ opacity: [0.3, 0.7, 0.3] }}
-            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              background:
-                "radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)",
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)",
             }}
           />
         </div>
@@ -283,7 +266,7 @@ const HomePage = () => {
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeUp}
-                className="group relative overflow-hidden rounded-2xl bg-neutral-900/50 backdrop-blur-sm p-8 shadow-lg ring-1 ring-cyan-400/20 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-2xl hover:ring-cyan-400/40 hover:bg-neutral-900/60 transition-transform"
+                className="group relative overflow-hidden rounded-2xl bg-neutral-900/50 backdrop-blur-sm p-8 shadow-lg ring-1 ring-neutral-700 transition-all duration-300 hover:ring-cyan-400/40 hover:-translate-y-1 hover:scale-105 hover:shadow-2xl hover:bg-neutral-900/60"
               >
                 <div className="absolute inset-0 -z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <div className="h-full w-full bg-gradient-to-br from-cyan-600/20 to-fuchsia-400/10 blur-2xl"></div>
@@ -352,7 +335,7 @@ const HomePage = () => {
       {/* Greatest Call to Action Section */}
       <section className="relative py-12">
         <div className="container mx-auto px-8 relative z-10 flex flex-col items-center justify-center">
-          <div className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center">
+          <div className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center transition-all duration-300 hover:shadow-[0_0_50px_rgba(6,182,212,0.4)] hover:-translate-y-1">
             <h2 className="text-3xl md:text-5xl font-extrabold mb-6 text-white drop-shadow-lg">
               {t.ctaTitle}
             </h2>

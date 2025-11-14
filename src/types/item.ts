@@ -9,6 +9,7 @@ export interface ItemImage {
   isCompressing?: boolean;
   isUploading?: boolean;
   progress?: number;
+  enhanced?: boolean; // 🍌 Flag for nano banana enhanced images
 }
 
 export type UserItemImage =
@@ -21,16 +22,11 @@ export type UserItemImage =
     };
 
 export interface ItemFormData {
-  title: string;
-  description: string;
-  brand: string;
-  condition: string;
-  gender?: string;
-  draft_id?: string;
-  category: string;
-  price: string;
+  // Simplified: only optional title and expected_price
+  title?: string;
+  expected_price?: string;
   images: ItemImage[];
-  size?: string;
+  // All other fields (brand, description, condition, category, size, gender) are AI-generated
 }
 
 export interface GeneratedItemData {
@@ -114,4 +110,44 @@ export interface ItemStats {
   by_platform: Record<Platform, number>;
   publish_success_rate: number;
   total_errors: number;
+}
+
+// Dynamic Vinted field types for schema-driven forms
+export interface VintedFieldOption {
+  id: number;
+  title: string;
+  description?: string;
+}
+
+export interface VintedFieldDefinition {
+  id: number;              // Attribute ID for Vinted API
+  code: string;            // Field code (e.g., 'computer_ram', 'smartphone_storage')
+  title: string;           // Human-readable field name
+  required: boolean;       // Whether field is required
+  options: VintedFieldOption[];  // Available options for this field
+}
+
+export interface VintedFieldMapping {
+  attribute_id: number;    // Maps to VintedFieldDefinition.id
+  value_id: number;        // Maps to VintedFieldOption.id
+}
+
+// Extended GeneratedItemData with dynamic Vinted fields
+export interface GeneratedItemDataWithVinted extends GeneratedItemData {
+  vinted_field_definitions?: VintedFieldDefinition[];
+  vinted_field_mappings?: Record<string, VintedFieldMapping>;  // field_code -> {attribute_id, value_id}
+  // Vinted-optimized content (LLM-generated for Vinted platform)
+  vinted_title?: string;       // Vinted-optimized title (used during publishing)
+  vinted_description?: string; // Vinted-optimized description (used during publishing)
+  vinted_condition?: number;   // Vinted condition code (1-6, used during publishing)
+  vinted_category_id?: number; // Vinted catalog ID
+  // Important AI-generated fields for publishing
+  brand_id?: number;           // Vinted brand ID (looked up from brand database)
+  brand_title?: string;        // Resolved brand name
+  brand_confidence?: number;   // Brand match confidence (0-1)
+  model_id?: number;           // Vinted model ID (for laptops/electronics)
+  package_size_id?: number;    // Shipping package size ID (1=small, 2=medium, 3=large)
+  package_size?: string;       // Package size string ('small', 'medium', 'large')
+  // 🍌 Nano Banana enhanced images
+  enhanced_images?: string[];  // Array of R2 URLs for AI-enhanced product photos
 }

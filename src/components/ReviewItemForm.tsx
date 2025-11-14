@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { GeneratedItemData, ItemImage, Platform } from '@/types/item';
+import { 
+  GeneratedItemData, 
+  GeneratedItemDataWithVinted, 
+  ItemImage, 
+  Platform, 
+  VintedFieldMapping 
+} from '@/types/item';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import ImageUploader from './ImageUploader';
+import DynamicFieldRenderer from './DynamicFieldRenderer';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +21,7 @@ import { getTranslations, getCurrentLanguage } from '@/components/language-utils
 import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
 
 interface ReviewItemFormProps {
-  initialData: GeneratedItemData;
+  initialData: GeneratedItemDataWithVinted;
   connectedPlatforms: Record<Platform, boolean>;
   onBack: () => void;
   language?: string;
@@ -34,6 +41,17 @@ const ReviewItemForm = ({ initialData, connectedPlatforms, onBack, language }: R
       .map(([platform]) => platform as Platform)
   );
   
+  // Separate state for dynamic Vinted fields
+  const [dynamicFieldValues, setDynamicFieldValues] = useState<Record<string, VintedFieldMapping>>(
+    initialData.vinted_field_mappings || {}
+  );
+  
+  // Debug: Log initial data on mount
+  console.log('📝 ReviewItemForm initialized:', initialData);
+  console.log('🔍 Vinted field definitions:', initialData.vinted_field_definitions);
+  console.log('🔍 Vinted field mappings:', initialData.vinted_field_mappings);
+  console.log('🔍 Brand data:', { brand: initialData.brand, brand_id: initialData.brand_id, brand_title: initialData.brand_title });
+  
   // Make sure draft_id is never lost when updating fields
   const updateField = (field: keyof GeneratedItemData, value: any) => {
     setData(prev => ({ ...prev, [field]: value, draft_id: prev.draft_id }));
@@ -45,6 +63,14 @@ const ReviewItemForm = ({ initialData, connectedPlatforms, onBack, language }: R
         ? prev.filter(p => p !== platform)
         : [...prev, platform]
     );
+  };
+  
+  // Handler for dynamic field changes
+  const handleDynamicFieldChange = (fieldCode: string, attributeId: number, valueId: number) => {
+    setDynamicFieldValues(prev => ({
+      ...prev,
+      [fieldCode]: { attribute_id: attributeId, value_id: valueId }
+    }));
   };
   
 const handleSubmit = async (e: React.FormEvent) => {
@@ -74,23 +100,23 @@ const handleSubmit = async (e: React.FormEvent) => {
     // Build a clean payload the API will accept
     // Deduplicate image URLs to avoid accidental duplicates
     const uniqueImageUrls = Array.from(new Set(data.images.map(img => img.url)));
-    const payload = {
+    const payload: any = {
       draft_id: data.draft_id,
       images: uniqueImageUrls,
       title: data.title,
-      brand: data.brand,
-      condition: data.condition,
       category: data.category,
-      size: data.size,
-      gender: data.gender,
       price: numericPrice,
       description: data.description,
       catalog_path: data.catalog_path,
       platforms: selectedPlatforms,
     };
-    console.log(data.draft_id)
-    console.log(payload)
-
+    
+    // Include dynamic Vinted field values if present
+    if (Object.keys(dynamicFieldValues).length > 0) {
+      payload.vinted_field_mappings = dynamicFieldValues;
+    }
+    
+    console.log('🚀 Publishing payload:', payload);
 
     const response = await fetch('/api/FlipIt/api/items/publish', {
       method: 'POST',
@@ -129,9 +155,17 @@ const handleSubmit = async (e: React.FormEvent) => {
       });
     }
 
-    setTimeout(() => {
-      navigate('/');
-    }, 1500); // 1.5 seconds, adjust as needed
+    // Redirect to the published item's detail page
+    if (result.uuid) {
+      setTimeout(() => {
+        navigate(`/user/items/${result.uuid}`);
+      }, 1500);
+    } else {
+      // Fallback to user items list if UUID not provided
+      setTimeout(() => {
+        navigate('/user/items');
+      }, 1500);
+    }
     
   } catch (error) {
     console.error('Error publishing item:', error);
@@ -154,6 +188,38 @@ const handleSubmit = async (e: React.FormEvent) => {
           onChange={(images) => updateField('images', images)} 
           isDisabled={isSubmitting}
         />
+        
+        {/* 🍌 Display enhanced images separately if available */}
+        {initialData.enhanced_images && initialData.enhanced_images.length > 0 && (
+          <div className="mt-6 border-t border-neutral-700 pt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-lg">🎨</span>
+              <h4 className="text-md font-medium text-neutral-300">
+                AI-Enhanced Images
+              </h4>
+              <span className="text-xs text-slate-400 bg-neutral-800 px-2 py-1 rounded">
+                Gemini 2.5 Flash
+              </span>
+            </div>
+            <p className="text-sm text-slate-400 mb-4">
+              These images have been automatically enhanced with improved backgrounds and lighting while preserving the original product.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {initialData.enhanced_images.map((url, idx) => (
+                <div key={`enhanced-${idx}`} className="relative rounded-lg overflow-hidden border border-neutral-700">
+                  <img 
+                    src={url} 
+                    alt={`AI Enhanced ${idx + 1}`} 
+                    className="w-full h-auto object-cover"
+                  />
+                  <div className="absolute top-2 right-2 bg-purple-600/90 text-white text-xs px-2 py-1 rounded">
+                    Enhanced
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       
       <div className="space-y-4 ">
@@ -184,53 +250,11 @@ const handleSubmit = async (e: React.FormEvent) => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="brand" className="text-neutral-300">{t.labels.brand}</Label>
-            <Input 
-              id="brand" 
-              value={data.brand}
-              onChange={(e) => updateField('brand', e.target.value)}
-              disabled={isSubmitting}
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="condition" className="text-neutral-300">{t.labels.condition}</Label>
-            <Input 
-              id="condition" 
-              value={data.condition}
-              onChange={(e) => updateField('condition', e.target.value)}
-              disabled={isSubmitting}
-            />
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
             <Label htmlFor="category" className="text-neutral-300">{t.labels.category}</Label>
             <Input 
               id="category" 
               value={data.category}
               onChange={(e) => updateField('category', e.target.value)}
-              disabled={isSubmitting}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="size" className="text-neutral-300">{t.labels.size}</Label>
-            <Input 
-              id="size" 
-              value={data.size}
-              onChange={(e) => updateField('size', e.target.value)}
-              disabled={isSubmitting}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="gender" className="text-neutral-300">{t.labels.gender}</Label>
-            <Input 
-              id="gender" 
-              value={data.gender}
-              onChange={(e) => updateField('gender', e.target.value)}
               disabled={isSubmitting}
               required
             />
@@ -255,6 +279,18 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
         </div>
       </div>
+      
+      {/* Dynamic Vinted Fields Section */}
+      {initialData.vinted_field_definitions && initialData.vinted_field_definitions.length > 0 && (
+        <div className="space-y-4 border-t border-neutral-700 pt-6 text-white">
+          <DynamicFieldRenderer
+            fields={initialData.vinted_field_definitions}
+            values={dynamicFieldValues}
+            onChange={handleDynamicFieldChange}
+            sectionTitle={t.sections.productAttributes}
+          />
+        </div>
+      )}
       
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-neutral-300">{t.sections.publishPlatforms}</h3>

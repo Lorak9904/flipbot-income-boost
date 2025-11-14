@@ -16,6 +16,7 @@ export const reviewItemFormTranslations = {
     sections: {
       images: "Images",
       itemDetails: "Item Details",
+      productAttributes: "Product Attributes",
       publishPlatforms: "Publish to Platforms",
     },
     
@@ -69,6 +70,7 @@ export const reviewItemFormTranslations = {
     sections: {
       images: "Zdjęcia",
       itemDetails: "Szczegóły Przedmiotu",
+      productAttributes: "Atrybuty Produktu",
       publishPlatforms: "Publikuj na Platformach",
     },
     
