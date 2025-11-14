@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { ItemFormData, ItemImage, GeneratedItemDataWithVinted } from '@/types/item';
 import ImageUploader from './ImageUploader';
 import { Loader2 } from 'lucide-react';
@@ -25,6 +26,7 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<ItemImage[]>([]);
+  const [generateEnhancedImage, setGenerateEnhancedImage] = useState(true);
   const { user } = useAuth();
   const t = getTranslations(addItemFormTranslations);
 
@@ -69,6 +71,7 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
        */
       const payload: Record<string, any> = {
         images: images.map((img) => img.url),
+        generate_enhanced_image: generateEnhancedImage,
       };
 
       // Only add title and expected_price if user provided them
@@ -214,6 +217,23 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
               placeholder={t.placeholders.expectedPrice}
               {...register('expected_price')} 
               disabled={isSubmitting} 
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+            <div className="flex-1">
+              <Label htmlFor="enhance-toggle" className="text-neutral-300 cursor-pointer">
+                🎨 Generate AI-Enhanced Image
+              </Label>
+              <p className="text-xs text-slate-400 mt-1">
+                Use Gemini to create a professional product photo with improved background
+              </p>
+            </div>
+            <Switch
+              id="enhance-toggle"
+              checked={generateEnhancedImage}
+              onCheckedChange={setGenerateEnhancedImage}
+              disabled={isSubmitting}
             />
           </div>
         </div>
