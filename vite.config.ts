@@ -16,6 +16,12 @@ export default defineConfig(({ mode }) => {
       historyApiFallback: true,
       host: "0.0.0.0",
       port: 5173,
+      allowedHosts: [
+        'myflipit.live',
+        'www.myflipit.live',
+        'localhost',
+        '127.0.0.1',
+      ],
       proxy: {
         '/api': {
           target,
