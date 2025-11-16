@@ -31,7 +31,7 @@ const ConnectAccountsPage = () => {
 
   const fetchConnectedPlatforms = async (): Promise<Record<string, any>> => {
     const token = localStorage.getItem('flipit_token');
-    const response = await fetch("/api/FlipIt/api/connected-platforms", {
+    const response = await fetch("/api/connected-platforms", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -54,7 +54,7 @@ const ConnectAccountsPage = () => {
     let vinted_status_code: number | null = null;
     if (vinted_has_session) {
       try {
-        const statusResp = await fetch("/api/FlipIt/api/vinted/status", {
+        const statusResp = await fetch("/api/vinted/status", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -436,7 +436,7 @@ const ConnectAccountsPage = () => {
                     onClick={async () => {
                       const token = localStorage.getItem('flipit_token');
                       try {
-                        const resp = await fetch('/api/FlipIt/api/vinted/refresh', {
+                        const resp = await fetch('/api/vinted/refresh', {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
@@ -468,7 +468,7 @@ const ConnectAccountsPage = () => {
                     onClick={async () => {
                       const token = localStorage.getItem('flipit_token');
                       try {
-                        const response = await fetch(`/api/FlipIt/api/delete-session/vinted`, {
+                        const response = await fetch(`/api/delete-session/vinted`, {
                           method: 'DELETE',
                           headers: { 'Authorization': `Bearer ${token}` },
                         });

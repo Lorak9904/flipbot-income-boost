@@ -4,7 +4,12 @@
  * Handles OLX marketplace connection, status checks, and token management.
  */
 
-const API_BASE = '/api/FlipIt/api';
+import type { Platform } from '@/types/item';
+import type { ConnectPlatformResponse, DeleteSessionResponse } from '@/types/api';
+
+// Base URL for API calls
+// Update this if your backend is hosted elsewhere
+const API_BASE = '/api';
 
 export interface OlxConnectionStatus {
   connected: boolean;

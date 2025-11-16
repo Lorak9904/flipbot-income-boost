@@ -58,7 +58,7 @@ const AddItemPage = () => {
 
     const fetchConnectedPlatforms = async () => {
       try {
-        const response = await fetch("/api/FlipIt/api/connected-platforms", {
+        const response = await fetch("/api/connected-platforms", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

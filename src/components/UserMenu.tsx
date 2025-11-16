@@ -11,14 +11,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogIn, User, Settings, LogOut, Home, Package, BarChart3, MessageCircle } from 'lucide-react';
+import { LogIn, User, Settings, LogOut, Home, Package, BarChart3, MessageCircle, CreditCard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useCredits } from '@/hooks/useCredits';
+import { getCreditsHealthStatus } from '@/lib/api/credits';
 
 const UserMenu = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { data: credits } = useCredits();
 
   const handleLogout = () => {
     logout();
@@ -81,6 +84,41 @@ const UserMenu = () => {
           </div>
         </div>
         <DropdownMenuSeparator />
+        
+        {/* Credits quick glance */}
+        {credits && (
+          <>
+            <div className="px-2 py-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-cyan-400" />
+                  <span className="text-sm font-medium">Credits</span>
+                </div>
+                <span className={`text-sm font-bold ${
+                  credits.monthly_limit === null 
+                    ? 'text-purple-400' 
+                    : getCreditsHealthStatus(credits.total_available, credits.monthly_limit) === 'healthy'
+                      ? 'text-cyan-400'
+                      : getCreditsHealthStatus(credits.total_available, credits.monthly_limit) === 'warning'
+                        ? 'text-yellow-400'
+                        : 'text-red-400'
+                }`}>
+                  {credits.monthly_limit === null 
+                    ? '∞' 
+                    : `${credits.total_available}/${credits.monthly_limit}`
+                  }
+                </span>
+              </div>
+              {credits.monthly_limit !== null && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Resets {new Date(credits.period_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </p>
+              )}
+            </div>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
             <Link to="/">

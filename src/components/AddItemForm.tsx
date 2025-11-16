@@ -7,10 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ItemFormData, ItemImage, GeneratedItemDataWithVinted } from '@/types/item';
 import ImageUploader from './ImageUploader';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CreditCard, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getTranslations, getCurrentLanguage } from '@/components/language-utils';
 import { addItemFormTranslations } from '@/utils/translations/add-item-form-translations';
+import { useCredits } from '@/hooks/useCredits';
+import { InsufficientCreditsAlert } from '@/components/credits';
+import { parseInsufficientCreditsError, parseErrorResponse } from '@/lib/api/error-handler';
 
 interface AddItemFormProps {
   onComplete: (generatedData: GeneratedItemDataWithVinted) => void;
@@ -27,7 +30,12 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<ItemImage[]>([]);
   const [generateEnhancedImage, setGenerateEnhancedImage] = useState(true);
+  const [insufficientCreditsError, setInsufficientCreditsError] = useState<{
+    required: number;
+    available: number;
+  } | null>(null);
   const { user } = useAuth();
+  const { data: credits } = useCredits();
   const t = getTranslations(addItemFormTranslations);
 
   const {
@@ -83,7 +91,7 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
       }
 
       const token = localStorage.getItem('flipit_token');
-      const response = await fetch('/api/FlipIt/api/items/propose', {
+      const response = await fetch('/api/items/propose', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,6 +101,18 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
       });
 
       if (!response.ok) {
+        // Parse error response for insufficient credits (402)
+        const error = await parseErrorResponse(response);
+        const creditsError = parseInsufficientCreditsError(error);
+        
+        if (creditsError) {
+          setInsufficientCreditsError({
+            required: creditsError.required,
+            available: creditsError.available,
+          });
+          return; // Don't throw, let the dialog handle it
+        }
+        
         throw new Error('Failed to generate item data');
       }
 
@@ -222,32 +242,78 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
 
           <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-700">
             <div className="flex-1">
-              <Label htmlFor="enhance-toggle" className="text-neutral-300 cursor-pointer">
-                🎨 Generate AI-Enhanced Image
+              <Label htmlFor="enhance-toggle" className="text-neutral-300 cursor-pointer flex items-center gap-2">
+                🎨 Generate AI-Enhanced Thumbnail
+                <span className="text-xs font-normal text-cyan-400 flex items-center gap-1">
+                  <CreditCard className="h-3 w-3" />
+                  {generateEnhancedImage ? '1 credit' : 'Free'}
+                </span>
               </Label>
               <p className="text-xs text-slate-400 mt-1">
-                Use Gemini to create a professional product photo with improved background
+                Create a professional product thumbnail with improved background and lighting
               </p>
             </div>
             <Switch
               id="enhance-toggle"
               checked={generateEnhancedImage}
-              onCheckedChange={setGenerateEnhancedImage}
-              disabled={isSubmitting}
+              onCheckedChange={(checked) => {
+                // Only allow enabling if user has image credits
+                if (checked && credits && credits.image_remaining !== null && credits.image_remaining < 1) {
+                  return; // Don't allow toggle on
+                }
+                setGenerateEnhancedImage(checked);
+              }}
+              disabled={isSubmitting || (credits && credits.image_remaining !== null && credits.image_remaining < 1)}
             />
           </div>
+          
+          {/* Credits warning */}
+          {credits && credits.image_remaining !== null && credits.image_remaining < 1 && (
+            <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
+              <div className="text-sm">
+                <p className="text-red-400 font-medium">No Image Enhancement Credits</p>
+                <p className="text-neutral-300 text-xs mt-1">
+                  You have {credits.image_remaining} image enhancement credits remaining. Need 1 to generate enhanced thumbnails.
+                  {credits.monthly_remaining !== null && (
+                    <span> Credits reset in {Math.ceil((new Date(credits.period_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days.</span>
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <Button type="submit" disabled={isSubmitting || images.length === 0} className="w-full">
+      <Button 
+        type="submit" 
+        disabled={
+          isSubmitting || 
+          images.length === 0 || 
+          (generateEnhancedImage && credits && credits.image_remaining !== null && credits.image_remaining < 1)
+        } 
+        className="w-full">
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t.buttons.generating}
+          </>
+        ) : generateEnhancedImage && credits && credits.image_remaining !== null && credits.image_remaining < 1 ? (
+          <>
+            <CreditCard className="mr-2 h-4 w-4" /> No Image Credits
           </>
         ) : (
           t.buttons.continue
         )}
       </Button>
+      
+      {/* Insufficient Credits Dialog */}
+      <InsufficientCreditsAlert
+        open={!!insufficientCreditsError}
+        onOpenChange={(open) => !open && setInsufficientCreditsError(null)}
+        required={insufficientCreditsError?.required || 1}
+        available={insufficientCreditsError?.available || 0}
+        periodEnd={credits?.period_end}
+      />
     </form>
   );
 };

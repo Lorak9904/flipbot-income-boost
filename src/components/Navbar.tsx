@@ -1,9 +1,10 @@
 ﻿import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Globe } from 'lucide-react';
+import { Menu, X, Globe, CreditCard } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCredits } from '@/hooks/useCredits';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getTranslations, toggleLanguage } from './language-utils';
 import { navbarTranslations } from './navbar-translations';
@@ -12,6 +13,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { isAuthenticated } = useAuth();
+  const { data: credits } = useCredits();
   const t = getTranslations(navbarTranslations);
 
   const baseNavItems = [
@@ -63,8 +65,24 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* Right side: Language toggle + Auth/User */}
+        {/* Right side: Credits + Language toggle + Auth/User */}
         <div className="hidden md:flex items-center gap-2">
+          {/* Credits Widget - Only for authenticated users */}
+          {isAuthenticated && credits && (
+            <Link 
+              to="/settings" 
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800/50 border border-neutral-700 hover:border-cyan-400/30 hover:bg-neutral-800/80 transition-all group"
+            >
+              <CreditCard className="h-4 w-4 text-cyan-400" />
+              <span className="text-sm font-medium text-neutral-200 group-hover:text-white">
+                {credits.total_available === null ? '∞' : credits.total_available}
+              </span>
+              <span className="text-xs text-neutral-400">
+                {credits.total_available === null ? 'credits' : (credits.total_available === 1 ? 'credit' : 'credits')}
+              </span>
+            </Link>
+          )}
+          
           {/* Language Toggle Button */}
           <Button
             variant="ghost"
@@ -112,6 +130,26 @@ const Navbar = () => {
             className="md:hidden bg-neutral-950/98 backdrop-blur-md border-t border-white/5"
           >
             <div className="flex flex-col gap-2 px-4 py-4">
+              {/* Mobile Credits Widget */}
+              {isAuthenticated && credits && (
+                <Link 
+                  to="/settings" 
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-800/50 border border-neutral-700 hover:border-cyan-400/30 hover:bg-neutral-800/80 transition-all mb-2"
+                >
+                  <CreditCard className="h-4 w-4 text-cyan-400" />
+                  <div className="flex-1">
+                    <span className="text-sm font-medium text-neutral-200">
+                      {credits.total_available === null ? '∞' : credits.total_available}
+                    </span>
+                    <span className="text-xs text-neutral-400 ml-1">
+                      {credits.total_available === null ? 'credits' : (credits.total_available === 1 ? 'credit' : 'credits')}
+                    </span>
+                  </div>
+                  <span className="text-xs text-neutral-500">Manage →</span>
+                </Link>
+              )}
+              
               {navItems.map((item) => (
                 <Link
                   key={item.name}

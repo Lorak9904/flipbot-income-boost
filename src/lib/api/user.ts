@@ -2,7 +2,7 @@
  * User-related API client functions
  */
 
-const API_BASE = '/api/FlipIt/api';
+const API_BASE = '/api';
 
 export interface UpdateLanguageRequest {
   language: string;

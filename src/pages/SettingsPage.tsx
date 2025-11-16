@@ -22,6 +22,9 @@ import { Mail, Lock, Save, Facebook, Store, Trash2, AlertTriangle } from 'lucide
 import { SEOHead } from '@/components/SEOHead';
 import { getTranslations } from '@/components/language-utils';
 import { settingsTranslations } from './settings-translations';
+import { CreditsBalanceCard } from '@/components/credits/CreditsBalanceCard';
+import { TransactionHistoryModal } from '@/components/credits/TransactionHistoryModal';
+import { PlanManagementDialog } from '@/components/credits/PlanManagementDialog';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -49,6 +52,8 @@ const SettingsPage = () => {
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [showTransactionHistory, setShowTransactionHistory] = useState(false);
+  const [showPlanManagement, setShowPlanManagement] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
@@ -58,7 +63,7 @@ const SettingsPage = () => {
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch('/api/FlipIt/api/user/profile', {
+      const response = await fetch('/api/user/profile', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -124,7 +129,7 @@ const SettingsPage = () => {
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch('/api/FlipIt/api/user/change-password', {
+      const response = await fetch('/api/user/change-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -168,7 +173,7 @@ const SettingsPage = () => {
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch('/api/FlipIt/api/user/delete-account', {
+      const response = await fetch('/api/user/delete-account', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -308,6 +313,20 @@ const SettingsPage = () => {
             </div>
           </motion.div>
 
+          {/* Subscription & Credits - NEW SECTION */}
+          <motion.div 
+            initial="hidden" 
+            whileInView="visible" 
+            viewport={{ once: true }} 
+            variants={fadeUp} 
+            className="mb-12"
+          >
+            <CreditsBalanceCard
+              onManagePlan={() => setShowPlanManagement(true)}
+              onViewHistory={() => setShowTransactionHistory(true)}
+            />
+          </motion.div>
+
           {/* Notifications */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-16 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20">
             <h2 className="mb-6 text-xl font-semibold">{t.notificationsTitle}</h2>
@@ -377,6 +396,16 @@ const SettingsPage = () => {
           </motion.div>
         </div>
       </section>
+      
+      {/* Modals */}
+      <TransactionHistoryModal
+        open={showTransactionHistory}
+        onOpenChange={setShowTransactionHistory}
+      />
+      <PlanManagementDialog
+        open={showPlanManagement}
+        onOpenChange={setShowPlanManagement}
+      />
     </div>
   );
 };

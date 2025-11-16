@@ -15,10 +15,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import ImageUploader from './ImageUploader';
 import DynamicFieldRenderer from './DynamicFieldRenderer';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CreditCard, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getTranslations, getCurrentLanguage } from '@/components/language-utils';
 import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
+import { useCredits } from '@/hooks/useCredits';
+import { InsufficientCreditsAlert } from '@/components/credits';
+import { parseInsufficientCreditsError, parseErrorResponse } from '@/lib/api/error-handler';
 
 interface ReviewItemFormProps {
   initialData: GeneratedItemDataWithVinted;
@@ -31,9 +34,14 @@ const ReviewItemForm = ({ initialData, connectedPlatforms, onBack, language }: R
   const { toast } = useToast();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [insufficientCreditsError, setInsufficientCreditsError] = useState<{
+    required: number;
+    available: number;
+  } | null>(null);
   // Ensure draft_id is preserved in state
   const [data, setData] = useState<GeneratedItemData & { draft_id?: string }>(initialData);
   const navigate = useNavigate();
+  const { data: credits } = useCredits();
   const t = getTranslations(reviewItemFormTranslations);
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(
     Object.entries(connectedPlatforms)
@@ -118,7 +126,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     
     console.log('🚀 Publishing payload:', payload);
 
-    const response = await fetch('/api/FlipIt/api/items/publish', {
+    const response = await fetch('/api/items/publish', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -128,6 +136,18 @@ const handleSubmit = async (e: React.FormEvent) => {
     });
 
     if (!response.ok) {
+      // Parse error response for insufficient credits (402)
+      const error = await parseErrorResponse(response);
+      const creditsError = parseInsufficientCreditsError(error);
+      
+      if (creditsError) {
+        setInsufficientCreditsError({
+          required: creditsError.required,
+          available: creditsError.available,
+        });
+        return; // Don't throw, let the dialog handle it
+      }
+      
       throw new Error('Failed to publish item');
     }
 
@@ -260,6 +280,21 @@ const handleSubmit = async (e: React.FormEvent) => {
             />
           </div>
           
+          {/* Show brand as read-only if available */}
+          {initialData.brand && (
+            <div>
+              <Label className="text-neutral-300">Brand</Label>
+              <div className="flex items-center h-10 px-3 py-2 rounded-md border border-neutral-700 bg-neutral-800/50 text-neutral-300">
+                {initialData.brand}
+                {initialData.brand_confidence && (
+                  <span className="ml-2 text-xs text-slate-400">
+                    ({initialData.brand_confidence})
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          
           <div>
             <Label htmlFor="price" className="text-neutral-300">{t.labels.price}</Label>
             <Input 
@@ -318,6 +353,35 @@ const handleSubmit = async (e: React.FormEvent) => {
             );
           })}
         </div>
+        
+        {/* Credits cost preview */}
+        {selectedPlatforms.length > 0 && (
+          <div className="flex items-center justify-between p-3 bg-neutral-800/50 rounded-lg border border-neutral-700">
+            <div className="flex items-center gap-2 text-sm text-neutral-300">
+              <CreditCard className="h-4 w-4 text-cyan-400" />
+              <span>Publishing cost:</span>
+            </div>
+            <span className="text-sm font-semibold text-cyan-400">
+              {selectedPlatforms.length} {selectedPlatforms.length === 1 ? 'credit' : 'credits'}
+            </span>
+          </div>
+        )}
+        
+        {/* Insufficient credits warning */}
+        {selectedPlatforms.length > 0 && credits && credits.total_available !== null && credits.total_available < selectedPlatforms.length && (
+          <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+            <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="text-red-400 font-medium">Insufficient Credits</p>
+              <p className="text-neutral-300 text-xs mt-1">
+                You have {credits.total_available} credits but need {selectedPlatforms.length} to publish to {selectedPlatforms.length} {selectedPlatforms.length === 1 ? 'platform' : 'platforms'}.
+                {credits.monthly_remaining !== null && (
+                  <span> Credits reset in {Math.ceil((new Date(credits.period_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days.</span>
+                )}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
       
       <div className="flex justify-between">
@@ -325,17 +389,37 @@ const handleSubmit = async (e: React.FormEvent) => {
           {t.buttons.back}
         </Button>
         
-        <Button type="submit" disabled={isSubmitting || selectedPlatforms.length === 0}>
+        <Button 
+          type="submit" 
+          disabled={
+            isSubmitting || 
+            selectedPlatforms.length === 0 ||
+            (credits && credits.total_available !== null && credits.total_available < selectedPlatforms.length)
+          }
+        >
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               {t.buttons.publishing}
+            </>
+          ) : credits && credits.total_available !== null && credits.total_available < selectedPlatforms.length ? (
+            <>
+              <CreditCard className="mr-2 h-4 w-4" /> Insufficient Credits
             </>
           ) : (
             t.buttons.publish
           )}
         </Button>
       </div>
+      
+      {/* Insufficient Credits Dialog */}
+      <InsufficientCreditsAlert
+        open={!!insufficientCreditsError}
+        onOpenChange={(open) => !open && setInsufficientCreditsError(null)}
+        required={insufficientCreditsError?.required || selectedPlatforms.length}
+        available={insufficientCreditsError?.available || 0}
+        periodEnd={credits?.period_end}
+      />
     </form>
   );
 };

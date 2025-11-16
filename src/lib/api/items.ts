@@ -1,6 +1,6 @@
 import { UserItemsListResponse, UserItem, ItemStats, Platform, ItemStage } from '@/types/item';
 
-const API_BASE = '/api/FlipIt/api';
+const API_BASE = '/api';
 
 export interface FetchItemsParams {
   page?: number;
