@@ -92,27 +92,30 @@ const UserMenu = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CreditCard className="h-4 w-4 text-cyan-400" />
-                  <span className="text-sm font-medium">Credits</span>
+                  <span className="text-sm font-medium">Publish</span>
                 </div>
                 <span className={`text-sm font-bold ${
-                  credits.monthly_limit === null 
+                  credits.publish_limit === null 
                     ? 'text-purple-400' 
-                    : getCreditsHealthStatus(credits.total_available, credits.monthly_limit) === 'healthy'
+                    : getCreditsHealthStatus(credits.publish_remaining, credits.publish_limit) === 'healthy'
                       ? 'text-cyan-400'
-                      : getCreditsHealthStatus(credits.total_available, credits.monthly_limit) === 'warning'
+                      : getCreditsHealthStatus(credits.publish_remaining, credits.publish_limit) === 'warning'
                         ? 'text-yellow-400'
                         : 'text-red-400'
                 }`}>
-                  {credits.monthly_limit === null 
+                  {credits.publish_limit === null 
                     ? '∞' 
-                    : `${credits.total_available}/${credits.monthly_limit}`
+                    : `${credits.publish_remaining}/${credits.publish_limit}`
                   }
                 </span>
               </div>
-              {credits.monthly_limit !== null && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Resets {new Date(credits.period_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                </p>
+              {credits.image_limit !== null && (
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-xs text-muted-foreground">Images</span>
+                  <span className="text-xs font-medium text-fuchsia-400">
+                    {credits.image_remaining}/{credits.image_limit}
+                  </span>
+                </div>
               )}
             </div>
             <DropdownMenuSeparator />

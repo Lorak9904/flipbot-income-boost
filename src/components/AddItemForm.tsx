@@ -272,12 +272,9 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
             <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
               <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
-                <p className="text-red-400 font-medium">No Image Enhancement Credits</p>
+                <p className="text-red-400 font-medium">No AI Photo Credits Left</p>
                 <p className="text-neutral-300 text-xs mt-1">
-                  You have {credits.image_remaining} image enhancement credits remaining. Need 1 to generate enhanced thumbnails.
-                  {credits.monthly_remaining !== null && (
-                    <span> Credits reset in {Math.ceil((new Date(credits.period_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days.</span>
-                  )}
+                  You have {credits.image_remaining} AI photo enhancements remaining. Upgrade your plan to generate enhanced thumbnails.
                 </p>
               </div>
             </div>
@@ -312,7 +309,6 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
         onOpenChange={(open) => !open && setInsufficientCreditsError(null)}
         required={insufficientCreditsError?.required || 1}
         available={insufficientCreditsError?.available || 0}
-        periodEnd={credits?.period_end}
       />
     </form>
   );

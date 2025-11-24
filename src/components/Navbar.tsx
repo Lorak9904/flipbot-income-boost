@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Menu, X, Globe, CreditCard } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/contexts/AuthContext';
@@ -69,18 +70,43 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-2">
           {/* Credits Widget - Only for authenticated users */}
           {isAuthenticated && credits && (
-            <Link 
-              to="/settings" 
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800/50 border border-neutral-700 hover:border-cyan-400/30 hover:bg-neutral-800/80 transition-all group"
-            >
-              <CreditCard className="h-4 w-4 text-cyan-400" />
-              <span className="text-sm font-medium text-neutral-200 group-hover:text-white">
-                {credits.total_available === null ? '∞' : credits.total_available}
-              </span>
-              <span className="text-xs text-neutral-400">
-                {credits.total_available === null ? 'credits' : (credits.total_available === 1 ? 'credit' : 'credits')}
-              </span>
-            </Link>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link 
+                    to="/settings" 
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800/50 border border-neutral-700 hover:border-cyan-400/30 hover:bg-neutral-800/80 transition-all group"
+                  >
+                    <CreditCard className="h-4 w-4 text-cyan-400" />
+                    <span className="text-sm font-medium text-neutral-200 group-hover:text-white">
+                      {credits.publish_remaining === null ? '\u221e' : credits.publish_remaining}
+                    </span>
+                    <span className="text-xs text-neutral-400">
+                      {credits.publish_remaining === null ? 'listings' : (credits.publish_remaining === 1 ? 'listing left' : 'listings left')}
+                    </span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-neutral-900 border-neutral-700">
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-neutral-400">Publish Credits:</span>
+                      <span className="font-medium text-cyan-400">
+                        {credits.publish_remaining === null ? '∞' : credits.publish_remaining} / {credits.publish_limit === null ? '∞' : credits.publish_limit}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-neutral-400">Image Credits:</span>
+                      <span className="font-medium text-fuchsia-400">
+                        {credits.image_remaining === null ? '∞' : credits.image_remaining} / {credits.image_limit === null ? '∞' : credits.image_limit}
+                      </span>
+                    </div>
+                    <div className="pt-1 border-t border-neutral-700 text-neutral-500">
+                      Click for details
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
           
           {/* Language Toggle Button */}
@@ -132,22 +158,47 @@ const Navbar = () => {
             <div className="flex flex-col gap-2 px-4 py-4">
               {/* Mobile Credits Widget */}
               {isAuthenticated && credits && (
-                <Link 
-                  to="/settings" 
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-800/50 border border-neutral-700 hover:border-cyan-400/30 hover:bg-neutral-800/80 transition-all mb-2"
-                >
-                  <CreditCard className="h-4 w-4 text-cyan-400" />
-                  <div className="flex-1">
-                    <span className="text-sm font-medium text-neutral-200">
-                      {credits.total_available === null ? '∞' : credits.total_available}
-                    </span>
-                    <span className="text-xs text-neutral-400 ml-1">
-                      {credits.total_available === null ? 'credits' : (credits.total_available === 1 ? 'credit' : 'credits')}
-                    </span>
-                  </div>
-                  <span className="text-xs text-neutral-500">Manage →</span>
-                </Link>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link 
+                        to="/settings" 
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-800/50 border border-neutral-700 hover:border-cyan-400/30 hover:bg-neutral-800/80 transition-all mb-2"
+                      >
+                        <CreditCard className="h-4 w-4 text-cyan-400" />
+                        <div className="flex-1">
+                          <span className="text-sm font-medium text-neutral-200">
+                            {credits.publish_remaining === null ? '∞' : credits.publish_remaining}
+                          </span>
+                          <span className="text-xs text-neutral-400 ml-1">
+                            publish credits
+                          </span>
+                        </div>
+                        <span className="text-xs text-neutral-500">Manage →</span>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-neutral-900 border-neutral-700">
+                      <div className="space-y-2 text-xs">
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-neutral-400">Publish Credits:</span>
+                          <span className="font-medium text-cyan-400">
+                            {credits.publish_remaining === null ? '∞' : credits.publish_remaining} / {credits.publish_limit === null ? '∞' : credits.publish_limit}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-neutral-400">Image Credits:</span>
+                          <span className="font-medium text-fuchsia-400">
+                            {credits.image_remaining === null ? '∞' : credits.image_remaining} / {credits.image_limit === null ? '∞' : credits.image_limit}
+                          </span>
+                        </div>
+                        <div className="pt-1 border-t border-neutral-700 text-neutral-500">
+                          Tap for details
+                        </div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
               
               {navItems.map((item) => (

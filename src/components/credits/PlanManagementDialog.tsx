@@ -193,9 +193,6 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
               {credits && (
                 <>
                   {t.currentPlan}: <PlanBadge plan={credits.plan} size="sm" />
-                  <span className="ml-2 text-xs">
-                    {t.nextBilling}: {new Date(credits.period_end).toLocaleDateString()}
-                  </span>
                 </>
               )}
             </DialogDescription>

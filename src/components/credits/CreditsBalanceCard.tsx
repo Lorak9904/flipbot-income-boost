@@ -74,24 +74,26 @@ export function CreditsBalanceCard({ onManagePlan, onViewHistory }: CreditsBalan
       <CardContent className="space-y-6">
         {/* Publishing Credits */}
         <div className="space-y-2">
-          <p className="text-sm text-neutral-400">Publishing</p>
+          <p className="text-sm text-neutral-400">Listings Remaining</p>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-cyan-400">
-              {credits.publish_credits_used}
+              {credits.publish_remaining === null ? '∞' : credits.publish_remaining}
             </span>
             <span className="text-lg text-neutral-500">/ {credits.publish_limit ?? '∞'}</span>
           </div>
+          <p className="text-xs text-neutral-500">Used: {credits.publish_credits_used}</p>
         </div>
         
         {/* Image Credits */}
         <div className="space-y-2">
-          <p className="text-sm text-neutral-400">Image Enhancement</p>
+          <p className="text-sm text-neutral-400">AI Photo Enhancements</p>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-fuchsia-400">
-              {credits.image_credits_used}
+              {credits.image_remaining === null ? '∞' : credits.image_remaining}
             </span>
             <span className="text-lg text-neutral-500">/ {credits.image_limit ?? '∞'}</span>
           </div>
+          <p className="text-xs text-neutral-500">Used: {credits.image_credits_used}</p>
         </div>
         
         {/* View history button */}

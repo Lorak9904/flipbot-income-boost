@@ -59,6 +59,7 @@ const ReviewItemForm = ({ initialData, connectedPlatforms, onBack, language }: R
   console.log('🔍 Vinted field definitions:', initialData.vinted_field_definitions);
   console.log('🔍 Vinted field mappings:', initialData.vinted_field_mappings);
   console.log('🔍 Brand data:', { brand: initialData.brand, brand_id: initialData.brand_id, brand_title: initialData.brand_title });
+  console.log('🎨 Enhanced images:', initialData.enhanced_images);
   
   // Make sure draft_id is never lost when updating fields
   const updateField = (field: keyof GeneratedItemData, value: any) => {
@@ -269,14 +270,12 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="category" className="text-neutral-300">{t.labels.category}</Label>
+          {/* Category hidden - still sent to backend but not displayed to user */}
+          <div className="hidden">
             <Input 
               id="category" 
               value={data.category}
               onChange={(e) => updateField('category', e.target.value)}
-              disabled={isSubmitting}
-              required
             />
           </div>
           
@@ -368,16 +367,13 @@ const handleSubmit = async (e: React.FormEvent) => {
         )}
         
         {/* Insufficient credits warning */}
-        {selectedPlatforms.length > 0 && credits && credits.total_available !== null && credits.total_available < selectedPlatforms.length && (
+        {selectedPlatforms.length > 0 && credits && credits.publish_remaining !== null && credits.publish_remaining < selectedPlatforms.length && (
           <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
             <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
             <div className="text-sm">
-              <p className="text-red-400 font-medium">Insufficient Credits</p>
+              <p className="text-red-400 font-medium">Not Enough Listings</p>
               <p className="text-neutral-300 text-xs mt-1">
-                You have {credits.total_available} credits but need {selectedPlatforms.length} to publish to {selectedPlatforms.length} {selectedPlatforms.length === 1 ? 'platform' : 'platforms'}.
-                {credits.monthly_remaining !== null && (
-                  <span> Credits reset in {Math.ceil((new Date(credits.period_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days.</span>
-                )}
+                You have {credits.publish_remaining} {credits.publish_remaining === 1 ? 'listing' : 'listings'} left but need {selectedPlatforms.length} to publish to {selectedPlatforms.length} {selectedPlatforms.length === 1 ? 'platform' : 'platforms'}. Upgrade your plan to continue.
               </p>
             </div>
           </div>
@@ -394,7 +390,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           disabled={
             isSubmitting || 
             selectedPlatforms.length === 0 ||
-            (credits && credits.total_available !== null && credits.total_available < selectedPlatforms.length)
+            (credits && credits.publish_remaining !== null && credits.publish_remaining < selectedPlatforms.length)
           }
         >
           {isSubmitting ? (
@@ -402,7 +398,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               {t.buttons.publishing}
             </>
-          ) : credits && credits.total_available !== null && credits.total_available < selectedPlatforms.length ? (
+          ) : credits && credits.publish_remaining !== null && credits.publish_remaining < selectedPlatforms.length ? (
             <>
               <CreditCard className="mr-2 h-4 w-4" /> Insufficient Credits
             </>
@@ -418,7 +414,6 @@ const handleSubmit = async (e: React.FormEvent) => {
         onOpenChange={(open) => !open && setInsufficientCreditsError(null)}
         required={insufficientCreditsError?.required || selectedPlatforms.length}
         available={insufficientCreditsError?.available || 0}
-        periodEnd={credits?.period_end}
       />
     </form>
   );
