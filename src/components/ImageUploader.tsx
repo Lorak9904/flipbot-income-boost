@@ -30,6 +30,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
   const { toast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [draggedImageId, setDraggedImageId] = useState<string | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const imagesRef = useRef<ItemImage[]>(images);
 
   useEffect(() => {
@@ -288,14 +290,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
     e.target.value = ""; // allow re-selecting same file later
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleFileDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
   };
 
-  const handleDragLeave = () => setIsDragging(false);
+  const handleFileDragLeave = () => setIsDragging(false);
 
-  const handleDrop = async (e: React.DragEvent) => {
+  const handleFileDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     if (!e.dataTransfer.files?.length) return;
@@ -430,12 +432,58 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
     syncUpdate(remaining);
   };
 
+  // Drag and drop reordering handlers
+  const handleDragStart = (e: React.DragEvent, imageId: string) => {
+    setDraggedImageId(imageId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedImageId(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    
+    if (!draggedImageId) return;
+    
+    const draggedIndex = images.findIndex(img => img.id === draggedImageId);
+    if (draggedIndex === -1 || draggedIndex === dropIndex) {
+      setDraggedImageId(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const reordered = [...images];
+    const [draggedImage] = reordered.splice(draggedIndex, 1);
+    reordered.splice(dropIndex, 0, draggedImage);
+    
+    syncUpdate(reordered);
+    setDraggedImageId(null);
+    setDragOverIndex(null);
+  };
+
   return (
     <div className="w-full space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {images.map((image) => (
-          <div key={image.id} className="relative group">
-            <AspectRatio ratio={1} className="bg-slate-100 rounded-lg overflow-hidden">
+        {images.map((image, index) => (
+          <div 
+            key={image.id} 
+            className={`relative group ${dragOverIndex === index ? 'ring-2 ring-primary' : ''}`}
+            draggable={!isDisabled && !image.isCompressing && !image.isUploading}
+            onDragStart={(e) => handleDragStart(e, image.id)}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDragEnd={handleDragEnd}
+            onDrop={(e) => handleDrop(e, index)}
+          >
+            <AspectRatio ratio={1} className="bg-slate-100 rounded-lg overflow-hidden cursor-move">
               { (image.url || image.preview) ? (
                 <img
                   src={image.url || image.preview}
@@ -459,13 +507,26 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
                   </div>
                 </div>
               )}
+              {/* Enhanced image badge */}
+              {image.enhanced && (
+                <div className="absolute top-2 left-2 bg-purple-600/90 text-white text-xs px-2 py-1 rounded">
+                  🎨 Enhanced
+                </div>
+              )}
+              {/* Image position indicator */}
+              <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                #{index + 1}
+              </div>
             </AspectRatio>
             {!isDisabled && !image.isCompressing && !image.isUploading && (
               <Button
                 variant="destructive"
                 size="icon"
                 className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => removeImage(image.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeImage(image.id);
+                }}
               >
                 <Trash className="h-4 w-4" />
               </Button>
@@ -480,9 +541,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
                 ? "border-primary bg-primary/10"
                 : "border-slate-300 hover:border-primary hover:bg-slate-50"
             }`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
+            onDragOver={handleFileDragOver}
+            onDragLeave={handleFileDragLeave}
+            onDrop={handleFileDrop}
             onClick={() => document.getElementById("image-upload")?.click()}
           >
             <input

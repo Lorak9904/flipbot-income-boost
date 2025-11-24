@@ -162,7 +162,7 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
           min: minPrice?.toString() || '',
           max: maxPrice?.toString() || '',
         },
-        images: [...images, ...aiImages, ...enhancedImages], // Include enhanced images
+        images: [...enhancedImages, ...images, ...aiImages], // Enhanced images first for better visibility
         // Include Vinted dynamic fields if present
         vinted_field_definitions: generatedData.vinted_field_definitions,
         vinted_field_mappings: generatedData.vinted_field_mappings,
