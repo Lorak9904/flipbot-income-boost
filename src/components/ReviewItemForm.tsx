@@ -209,38 +209,6 @@ const handleSubmit = async (e: React.FormEvent) => {
           onChange={(images) => updateField('images', images)} 
           isDisabled={isSubmitting}
         />
-        
-        {/* 🍌 Display enhanced images separately if available */}
-        {initialData.enhanced_images && initialData.enhanced_images.length > 0 && (
-          <div className="mt-6 border-t border-neutral-700 pt-6">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-lg">🎨</span>
-              <h4 className="text-md font-medium text-neutral-300">
-                AI-Enhanced Images
-              </h4>
-              <span className="text-xs text-slate-400 bg-neutral-800 px-2 py-1 rounded">
-                Gemini 2.5 Flash
-              </span>
-            </div>
-            <p className="text-sm text-slate-400 mb-4">
-              These images have been automatically enhanced with improved backgrounds and lighting while preserving the original product.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {initialData.enhanced_images.map((url, idx) => (
-                <div key={`enhanced-${idx}`} className="relative rounded-lg overflow-hidden border border-neutral-700">
-                  <img 
-                    src={url} 
-                    alt={`AI Enhanced ${idx + 1}`} 
-                    className="w-full h-auto object-cover"
-                  />
-                  <div className="absolute top-2 right-2 bg-purple-600/90 text-white text-xs px-2 py-1 rounded">
-                    Enhanced
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
       
       <div className="space-y-4 ">

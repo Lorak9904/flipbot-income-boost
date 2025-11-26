@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import imageCompression from "browser-image-compression";
 import heic2any from "heic2any";
+import { ImagePreview } from "./ImagePreview";
 
 // Public base for served images (configure via VITE_IMAGES_BASE_URL)
 const PUBLIC_IMAGES_BASE = (import.meta as any)?.env?.VITE_IMAGES_BASE_URL || 'https://images.myflipit.live/';
@@ -32,6 +33,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
   const [uploading, setUploading] = useState(false);
   const [draggedImageId, setDraggedImageId] = useState<string | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState(0);
   const imagesRef = useRef<ItemImage[]>(images);
 
   useEffect(() => {
@@ -481,14 +484,25 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
             onDragStart={(e) => handleDragStart(e, image.id)}
             onDragOver={(e) => handleDragOver(e, index)}
             onDragEnd={handleDragEnd}
-            onDrop={(e) => handleDrop(e, index)}
           >
-            <AspectRatio ratio={1} className="bg-slate-100 rounded-lg overflow-hidden cursor-move">
-              { (image.url || image.preview) ? (
+            <AspectRatio 
+              ratio={1} 
+              className="bg-slate-100 rounded-lg overflow-hidden group-hover:ring-2 group-hover:ring-blue-400 group-hover:opacity-90 transition-all cursor-pointer"
+              onClick={(e) => {
+                // Only open preview if not dragging and not clicking delete button
+                if (!image.isCompressing && !image.isUploading && !draggedImageId) {
+                  e.stopPropagation();
+                  console.log('Opening preview for index:', index, 'Image:', image.url || image.preview);
+                  setPreviewIndex(index);
+                  setPreviewOpen(true);
+                }
+              }}
+            >
+              {(image.url || image.preview) ? (
                 <img
                   src={image.url || image.preview}
                   alt="Item photo"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover pointer-events-none"
                   onError={() => console.error(`Failed to load image: ${image.url || image.preview}`)}
                 />
               ) : (
@@ -556,10 +570,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
               disabled={isDisabled || uploading}
             />
             <Upload className="h-8 w-8 text-slate-400 mb-2" />
-            <p className="text-sm text-slate-600 text-center">
-              {uploading ? "Uploading..." : "Drag & drop images or click to browse"}
+            <p className="text-sm text-slate-600">
+              {uploading ? "Uploading..." : "Click or drag images here"}
             </p>
-            <p className="text-xs text-slate-400 mt-1 text-center">JPG, PNG, WEBP • Auto-compressed before upload</p>
+            <p className="text-xs text-slate-400 mt-1">
+              Up to 10 images, 25MB each
+            </p>
           </div>
         )}
       </div>
@@ -568,6 +584,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
         <Image className="h-3 w-4" />
         {images.length}/10 images
       </div>
+
+      {/* Image Preview Modal */}
+      <ImagePreview
+        images={images.map(img => img.url || img.preview || '')}
+        initialIndex={previewIndex}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+      />
     </div>
   );
 };
