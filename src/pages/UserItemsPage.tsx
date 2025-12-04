@@ -21,7 +21,6 @@ import { cdnGrid, resolveItemImageUrl } from '@/lib/images';
 import { getTranslations } from '@/components/language-utils';
 import { userItemsTranslations } from '@/utils/translations/user-items-translations';
 import { StatCard, StatCardSkeleton } from '@/components/my_items/stat-card';
-import { ImagePreview } from '@/components/ImagePreview';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -44,11 +43,6 @@ const UserItemsPage = () => {
   const [loading, setLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Image preview state
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImages, setPreviewImages] = useState<string[]>([]);
-  const [previewIndex, setPreviewIndex] = useState(0);
 
   // Pagination and filters from URL params
   const page = parseInt(searchParams.get('page') || '1', 10);
@@ -430,19 +424,8 @@ const UserItemsPage = () => {
                         <img
                           src={cdnGrid(primaryImage)}
                           alt={item.title}
-                          className="w-full h-48 object-cover rounded-md mb-4 border border-neutral-800 cursor-pointer hover:opacity-80 transition-opacity"
+                          className="w-full h-48 object-cover rounded-md mb-4 border border-neutral-800"
                           loading="lazy"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const allImages = [
-                              ...(item.images || []),
-                              ...(item.enhanced_images || []),
-                              ...(item.ai_images || [])
-                            ].filter(Boolean);
-                            setPreviewImages(allImages);
-                            setPreviewIndex(0);
-                            setPreviewOpen(true);
-                          }}
                         />
                       )}
                       <div className="flex justify-between items-center mb-2">
@@ -512,14 +495,6 @@ const UserItemsPage = () => {
         )}
         </div>
       </div>
-
-      {/* Image Preview Modal */}
-      <ImagePreview
-        images={previewImages}
-        initialIndex={previewIndex}
-        open={previewOpen}
-        onOpenChange={setPreviewOpen}
-      />
     </>
   );
 };

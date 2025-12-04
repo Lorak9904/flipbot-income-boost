@@ -484,6 +484,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
             onDragStart={(e) => handleDragStart(e, image.id)}
             onDragOver={(e) => handleDragOver(e, index)}
             onDragEnd={handleDragEnd}
+            onDrop={(e) => handleDrop(e, index)}
           >
             <AspectRatio 
               ratio={1} 

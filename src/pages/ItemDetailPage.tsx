@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
 import { format } from 'date-fns';
 import { cdnThumb, resolveItemImageUrl } from '@/lib/images';
+import { ImagePreview } from '@/components/ImagePreview';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -32,6 +33,10 @@ const ItemDetailPage = () => {
   const [item, setItem] = useState<UserItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Image preview state
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState(0);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -214,8 +219,12 @@ const ItemDetailPage = () => {
                           key={`${imageUrl}-${index}`}
                           src={cdnThumb(imageUrl)}
                           alt={`${item.title} - ${index + 1}`}
-                          className="w-full h-48 object-cover rounded-md border border-neutral-800"
+                          className="w-full h-48 object-cover rounded-md border border-neutral-800 cursor-pointer hover:opacity-80 hover:ring-2 hover:ring-cyan-400/50 transition-all"
                           loading="lazy"
+                          onClick={() => {
+                            setPreviewIndex(index);
+                            setPreviewOpen(true);
+                          }}
                         />
                       );
                     })}
@@ -517,6 +526,16 @@ const ItemDetailPage = () => {
         </motion.div>
         </div>
       </div>
+
+      {/* Image Preview Modal */}
+      {item?.images && item.images.length > 0 && (
+        <ImagePreview
+          images={item.images.map(img => resolveItemImageUrl(img) || '').filter(Boolean)}
+          initialIndex={previewIndex}
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+        />
+      )}
     </>
   );
 };
