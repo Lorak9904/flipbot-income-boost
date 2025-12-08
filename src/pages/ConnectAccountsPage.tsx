@@ -423,8 +423,9 @@ const ConnectAccountsPage = () => {
             </motion.p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
             <ConnectAccountCard
+              key="facebook-card"
               platform="facebook"
               platformName={t.platformFacebook}
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png"
@@ -432,6 +433,7 @@ const ConnectAccountsPage = () => {
               onConnected={handleAccountConnected}
             />
             <ConnectAccountCard
+              key="olx-card"
               platform="olx"
               platformName={t.platformOLX}
               logoSrc="https://images.seeklogo.com/logo-png/39/1/olx-logo-png_seeklogo-390322.png"
@@ -440,6 +442,7 @@ const ConnectAccountsPage = () => {
               action={!connectedPlatforms?.olx && <ConnectOlxButton />}
             />
             <ConnectAccountCard
+              key="vinted-card"
               platform="vinted"
               platformName={t.platformVinted}
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/2/29/Vinted_logo.png"

@@ -85,8 +85,8 @@ export const connectCardTranslations: Translations = {
     manualConnectCancel: 'Anuluj',
     
     // Cookie instructions
-    cookieInstructionsToggle: 'Jak uzyskać ciasteczka {platform}?',
-    cookieInstructionsTitle: 'Uzyskaj ciasteczka {platform} w 4 prostych krokach',
+    cookieInstructionsToggle: 'Jak pobrać ciasteczka?',
+    cookieInstructionsTitle: 'Pobierz ciasteczka {platform} w 4 krokach',
     cookieStep1: 'Zainstaluj {extensionLink} w swojej przeglądarce.',
     cookieExtensionText: 'rozszerzenie Cookie-Editor',
     cookieStep2: 'Przejdź do {platform} i zaloguj się na swoje konto.',

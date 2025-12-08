@@ -150,7 +150,7 @@ const ConnectAccountCard = ({
       whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 300 }}
     >
-      <Card className="w-full overflow-hidden h-full border border-slate-700/80 bg-slate-800/60">
+      <Card className="w-full overflow-hidden border border-slate-700/80 bg-slate-800/60">
         <CardHeader className="pb-0">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -278,11 +278,11 @@ const ConnectAccountCard = ({
                   type="button"
                   variant="ghost"
                   onClick={() => setShowCookieInstructions(!showCookieInstructions)}
-                  className="flex items-center text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 transition-colors w-full justify-between px-4 py-2 rounded-lg"
+                  className="flex items-center text-teal-400 hover:text-teal-300 hover:bg-teal-500/20 transition-all duration-200 w-full justify-between px-4 py-3 rounded-lg border border-transparent hover:border-teal-500/30"
                 >
-                  <span className="flex items-center gap-2">
-                    <Info className="h-5 w-5" />
-                    <span className="font-medium">{tr('cookieInstructionsToggle', { platform: platformName })}</span>
+                  <span className="flex items-center gap-2 flex-1 min-w-0">
+                    <Info className="h-5 w-5 flex-shrink-0" />
+                    <span className="font-medium text-left break-words">{tr('cookieInstructionsToggle', { platform: platformName })}</span>
                   </span>
                   <motion.div
                     animate={{ rotate: showCookieInstructions ? 90 : 0 }}
@@ -300,7 +300,7 @@ const ConnectAccountCard = ({
                     transition={{ duration: 0.3 }}
                     className="mt-3"
                   >
-                    <div className="glass-card p-5 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg max-w-2xl mx-auto">
+                    <div className="glass-card p-4 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg">
                       <h4 className="text-base font-semibold mb-4 text-teal-400">{tr('cookieInstructionsTitle', { platform: platformName })}</h4>
                       
                       {/* Task 4: Show YouTube video if available */}
@@ -370,11 +370,11 @@ const ConnectAccountCard = ({
                       type="button"
                       variant="ghost"
                       onClick={() => setShowDtsgInstructions(!showDtsgInstructions)}
-                      className="flex items-center text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 transition-colors w-full justify-between px-4 py-2 rounded-lg"
+                      className="flex items-center text-teal-400 hover:text-teal-300 hover:bg-teal-500/20 transition-all duration-200 w-full justify-between px-4 py-3 rounded-lg border border-transparent hover:border-teal-500/30"
                     >
-                      <span className="flex items-center gap-2">
-                        <Info className="h-5 w-5" />
-                        <span className="font-medium">{t.dtsgInstructionsToggle}</span>
+                      <span className="flex items-center gap-2 flex-1 min-w-0">
+                        <Info className="h-5 w-5 flex-shrink-0" />
+                        <span className="font-medium text-left break-words">{t.dtsgInstructionsToggle}</span>
                       </span>
                       <motion.div
                         animate={{ rotate: showDtsgInstructions ? 90 : 0 }}
@@ -473,10 +473,10 @@ const ConnectAccountCard = ({
                   </div>
                 </>
               )}
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <Button 
                   type="submit" 
-                  className="bg-teal-500 hover:bg-teal-600 text-white flex-1"
+                  className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={status === 'connecting'}
                 >
                   {status === 'connecting' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -486,7 +486,7 @@ const ConnectAccountCard = ({
                   type="button" 
                   variant="outline" 
                   onClick={() => setShowManual(false)}
-                  className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                  className="border-slate-500/50 bg-slate-800/50 text-slate-300 hover:bg-slate-700/70 hover:border-slate-400/50 hover:text-white transition-all duration-200"
                 >
                   Cancel
                 </Button>
@@ -500,10 +500,8 @@ const ConnectAccountCard = ({
                 </p>
                 <div className="flex flex-col gap-2">
                   <Button
-                    variant="outline"
-                    className="text-teal-400 border-teal-500/70 hover:bg-teal-500/10"
                     onClick={() => setShowManual(true)}
-                    style={{ padding: "0.6rem 1rem", fontSize: "1rem" }}
+                    className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 border-0"
                   >
                     {t.manualConnectButtonCta}
                   </Button>
