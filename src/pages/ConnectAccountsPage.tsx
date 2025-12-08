@@ -1,5 +1,11 @@
 import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import ConnectAccountCard from '@/components/ConnectAccountCard';
 import { CheckCircle, ArrowRight, Lock, Loader2 } from 'lucide-react';
@@ -49,9 +55,11 @@ const ConnectAccountsPage = () => {
     const data = await response.json();
     // Preserve whether a session exists in DB for Vinted
     const vinted_has_session = !!data.vinted;
-    // Validate Vinted connection live if session exists
+    // Validate Vinted connection live if session exists (Task 1: include status)
     let vintedConnected = data.vinted;
     let vinted_status_code: number | null = null;
+    let vinted_session_status: 'valid' | 'expired' | 'invalid' | null = null;
+    let vinted_invalid_reason: string | null = null;
     if (vinted_has_session) {
       try {
         const statusResp = await fetch("/api/vinted/status", {
@@ -66,6 +74,9 @@ const ConnectAccountsPage = () => {
           const st = await statusResp.json();
           vintedConnected = !!st.connected;
           if (typeof st.status_code === 'number') vinted_status_code = st.status_code;
+          // Task 1: Extract status and invalid_reason from backend
+          if (st.status) vinted_session_status = st.status;
+          if (st.invalid_reason) vinted_invalid_reason = st.invalid_reason;
         } else {
           vintedConnected = false;
         }
@@ -73,7 +84,14 @@ const ConnectAccountsPage = () => {
         vintedConnected = false;
       }
     }
-    return { ...data, vinted: vintedConnected, vinted_has_session, vinted_status_code };
+    return { 
+      ...data, 
+      vinted: vintedConnected, 
+      vinted_has_session, 
+      vinted_status_code,
+      vinted_session_status,
+      vinted_invalid_reason
+    };
   };
 
   const {
@@ -427,41 +445,103 @@ const ConnectAccountsPage = () => {
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/2/29/Vinted_logo.png"
               isConnected={!!connectedPlatforms?.vinted}
               onConnected={handleAccountConnected}
+              sessionStatus={connectedPlatforms?.vinted_session_status}  // Task 1: Pass status
+              invalidReason={connectedPlatforms?.vinted_invalid_reason}
               action={connectedPlatforms?.vinted_has_session && !connectedPlatforms?.vinted ? (
                 <div className="space-y-3">
-                  <p className="text-slate-300 text-sm">
-                    {t.vintedRefreshMessage}
-                  </p>
-                  <Button
-                    onClick={async () => {
-                      const token = localStorage.getItem('flipit_token');
-                      try {
-                        const resp = await fetch('/api/vinted/refresh', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`,
-                          },
-                        });
-                        if (!resp.ok) {
-                          const err = await resp.json().catch(() => ({}));
-                          throw new Error(err.detail || 'Failed to refresh Vinted cookies');
-                        }
-                        const body = await resp.json();
-                        if (body.connected) {
-                          await refetch();
-                          toast({ title: t.toastVintedConnectedTitle, description: t.toastVintedConnectedDescription });
-                        } else {
-                          toast({ title: t.toastVintedNotConnectedTitle, description: `Status ${body.status_code || ''}`, variant: 'destructive' });
-                        }
-                      } catch (e: any) {
-                        toast({ title: t.toastVintedRefreshFailedTitle, description: e.message, variant: 'destructive' });
-                      }
-                    }}
-                    className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white"
-                  >
-                    {t.vintedRefreshButton}
-                  </Button>
+                  {/* Task 1: Show actionable message based on status */}
+                  {connectedPlatforms?.vinted_session_status === 'invalid' ? (
+                    <>
+                      <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                        <p className="text-red-300 text-sm font-medium">🚫 Authentication Failed</p>
+                        <p className="text-red-200/80 text-xs mt-1">
+                          {connectedPlatforms?.vinted_invalid_reason || 'Your Vinted session is permanently invalid. Please re-add your cookies below.'}
+                        </p>
+                      </div>
+                      <p className="text-slate-300 text-sm italic">
+                        ⚠️ Refresh won't work. You need to disconnect and re-add fresh cookies.
+                      </p>
+                    </>
+                  ) : connectedPlatforms?.vinted_session_status === 'expired' ? (
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                      <p className="text-amber-300 text-sm font-medium">⏰ Session Expired</p>
+                      <p className="text-amber-200/80 text-xs mt-1">
+                        Your Vinted cookies need a refresh. Click the button below to try reconnecting.
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-slate-300 text-sm">
+                      {t.vintedRefreshMessage}
+                    </p>
+                  )}
+                  
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="inline-block w-full">
+                          <Button
+                            onClick={async () => {
+                              const token = localStorage.getItem('flipit_token');
+                              try {
+                                const resp = await fetch('/api/vinted/refresh', {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`,
+                                  },
+                                });
+                                
+                                const body = await resp.json();
+                                
+                                // Task 1: Handle different statuses with actionable messages
+                                if (resp.status === 403 && body.status === 'invalid') {
+                                  toast({ 
+                                    title: '🚫 Cannot Refresh', 
+                                    description: body.detail || 'Session permanently invalid. Please re-add cookies.', 
+                                    variant: 'destructive' 
+                                  });
+                                  await refetch();  // Update UI to show invalid state
+                                  return;
+                                }
+                                
+                                if (!resp.ok) {
+                                  const errorMsg = body.detail || 'Failed to refresh Vinted cookies';
+                                  toast({ 
+                                    title: body.status === 'expired' ? '⏰ Refresh Failed' : '❌ Error', 
+                                    description: errorMsg, 
+                                    variant: 'destructive' 
+                                  });
+                                  await refetch();
+                                  return;
+                                }
+                                
+                                if (body.connected) {
+                                  await refetch();
+                                  toast({ title: '✅ Vinted Connected', description: t.toastVintedConnectedDescription });
+                                } else {
+                                  toast({ title: t.toastVintedNotConnectedTitle, description: `Status ${body.status_code || ''}`, variant: 'destructive' });
+                                }
+                              } catch (e: any) {
+                                toast({ title: t.toastVintedRefreshFailedTitle, description: e.message, variant: 'destructive' });
+                              }
+                            }}
+                            disabled={connectedPlatforms?.vinted_session_status === 'invalid'}  // Task 1: Disable when invalid
+                            className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                          >
+                            {t.vintedRefreshButton}
+                          </Button>
+                        </div>
+                      </TooltipTrigger>
+                      {connectedPlatforms?.vinted_session_status === 'invalid' && (
+                        <TooltipContent side="bottom" className="bg-slate-800 border-red-500/50 max-w-xs">
+                          <p className="text-sm">
+                            🚫 <strong>Cannot refresh invalid session</strong><br />
+                            Please disconnect and re-add fresh cookies. Check the "How to connect" instructions above.
+                          </p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
                   <Button
                     variant="outline"
                     className="text-red-500 border-red-300 hover:bg-red-50 hover:text-red-700 transition"

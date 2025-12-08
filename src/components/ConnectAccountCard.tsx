@@ -15,6 +15,8 @@ interface ConnectAccountCardProps {
   onConnected?: () => void;
   isConnected: boolean;
   action?: React.ReactNode;
+  sessionStatus?: 'valid' | 'expired' | 'invalid' | null;  // Task 1: Add status tracking
+  invalidReason?: string | null;
 }
 
 
@@ -25,7 +27,9 @@ const ConnectAccountCard = ({
   logoSrc,
   isConnected: initialConnected,
   onConnected,
-  action,                      //  ←  DODAJ
+  action,
+  sessionStatus,  // Task 1: Receive status from backend
+  invalidReason,
 }: ConnectAccountCardProps) => {  const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>(
     initialConnected ? 'connected' : 'idle'
   );
@@ -52,19 +56,37 @@ const ConnectAccountCard = ({
     facebook: {
       showDtsg: true,
       cookieInstructions: "Facebook",
-      cookiePlaceholder: "Paste Facebook cookies here..."
+      cookiePlaceholder: "Paste Facebook cookies here...",
+      // Task 4: Add YouTube video URL for "How to connect" tutorial
+      // Replace with actual YouTube video ID when available
+      howToConnectVideoId: null as string | null,  // e.g., "dQw4w9WgXcQ"
     },
     olx: {
       showDtsg: false,
       cookieInstructions: "OLX",
-      cookiePlaceholder: "Paste OLX cookies here..."
+      cookiePlaceholder: "Paste OLX cookies here...",
+      howToConnectVideoId: null as string | null,
     },
     vinted: {
       showDtsg: false,
       cookieInstructions: "Vinted",
-      cookiePlaceholder: "Paste Vinted cookies here..."
+      cookiePlaceholder: "Paste Vinted cookies here...",
+      howToConnectVideoId: "GxClZgY53_k",
     }
   };
+
+  // Task 4: YouTube embed component with responsive sizing
+  const YouTubeEmbed = ({ videoId }: { videoId: string }) => (
+    <div className="relative w-full pt-[56.25%] mb-4">
+      <iframe
+        className="absolute top-0 left-0 w-full h-full rounded-lg"
+        src={`https://www.youtube.com/embed/${videoId}?rel=0`}
+        title="How to connect - Video tutorial"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    </div>
+  );
 
   const { user } = useAuth();
 
@@ -137,9 +159,34 @@ const ConnectAccountCard = ({
               </div>
               <h3 className="font-semibold text-lg text-white">{platformName}</h3>
             </div>
-            <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium border ${isConnected ? 'bg-emerald-500/10 text-emerald-300 border-emerald-700/50' : 'bg-slate-700/60 text-slate-300 border-slate-600/60'}`}>
-              <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-slate-400'}`} />
-              {isConnected ? t.statusConnected : status === 'connecting' ? t.statusConnecting : t.statusNotConnected}
+            {/* Task 1: Show status badge (valid/expired/invalid) */}
+            <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium border ${
+              sessionStatus === 'invalid' 
+                ? 'bg-red-500/10 text-red-300 border-red-700/50'
+                : sessionStatus === 'expired'
+                ? 'bg-amber-500/10 text-amber-300 border-amber-700/50'
+                : isConnected 
+                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-700/50' 
+                : 'bg-slate-700/60 text-slate-300 border-slate-600/60'
+            }`}>
+              <span className={`h-2 w-2 rounded-full ${
+                sessionStatus === 'invalid' 
+                  ? 'bg-red-400'
+                  : sessionStatus === 'expired'
+                  ? 'bg-amber-400'
+                  : isConnected 
+                  ? 'bg-emerald-400' 
+                  : 'bg-slate-400'
+              }`} />
+              {sessionStatus === 'invalid' 
+                ? 'Invalid'
+                : sessionStatus === 'expired'
+                ? 'Expired'
+                : isConnected 
+                ? t.statusConnected 
+                : status === 'connecting' 
+                ? t.statusConnecting 
+                : t.statusNotConnected}
             </div>
           </div>
         </CardHeader>
@@ -253,8 +300,14 @@ const ConnectAccountCard = ({
                     transition={{ duration: 0.3 }}
                     className="mt-3"
                   >
-                    <div className="glass-card p-5 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg">
+                    <div className="glass-card p-5 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg max-w-2xl mx-auto">
                       <h4 className="text-base font-semibold mb-4 text-teal-400">{tr('cookieInstructionsTitle', { platform: platformName })}</h4>
+                      
+                      {/* Task 4: Show YouTube video if available */}
+                      {platformConfig[platform].howToConnectVideoId && (
+                        <YouTubeEmbed videoId={platformConfig[platform].howToConnectVideoId!} />
+                      )}
+                      
                       <div className="space-y-3 text-left">
                         <div className="flex gap-3">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">1</div>

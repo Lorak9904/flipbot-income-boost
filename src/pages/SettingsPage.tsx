@@ -18,7 +18,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Save, Facebook, Store, Trash2, AlertTriangle } from 'lucide-react';
+import { Mail, Lock, Save, Store, Trash2, AlertTriangle } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { getTranslations } from '@/components/language-utils';
 import { settingsTranslations } from './settings-translations';
@@ -46,9 +46,7 @@ const SettingsPage = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [connectFacebook, setConnectFacebook] = useState(!!user);
-  const [connectAllegro, setConnectAllegro] = useState(!!user);
-  const [newsletter, setNewsletter] = useState(user ?? true);
+  const [newsletter, setNewsletter] = useState(true);
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
@@ -298,19 +296,20 @@ const SettingsPage = () => {
             </div>
           </motion.div>
 
-          {/* Marketplace Connections */}
+          {/* Marketplace Connections - Simplified (Task 3) */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-12 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20">
-            <h2 className="mb-6 text-xl font-semibold">{t.marketplacesTitle}</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-neutral-200"><Facebook className="h-5 w-5 text-cyan-400" /> {t.facebookMarketplace}</div>
-                <Switch checked={connectFacebook} onCheckedChange={setConnectFacebook} />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-neutral-200"><Store className="h-5 w-5 text-cyan-400" /> {t.allegro}</div>
-                <Switch checked={connectAllegro} onCheckedChange={setConnectAllegro} />
-              </div>
-            </div>
+            <h2 className="mb-4 text-xl font-semibold">{t.marketplacesTitle}</h2>
+            <p className="text-neutral-300 text-sm mb-4">
+              Connect your marketplace accounts to publish listings directly. Manage your connections in the dedicated tab.
+            </p>
+            <Button
+              variant="outline"
+              className="text-cyan-400 border-cyan-400/50 hover:bg-cyan-400/10"
+              onClick={() => navigate('/connect-accounts')}
+            >
+              <Store className="mr-2 h-4 w-4" />
+              Manage Connected Accounts
+            </Button>
           </motion.div>
 
           {/* Subscription & Credits - NEW SECTION */}
