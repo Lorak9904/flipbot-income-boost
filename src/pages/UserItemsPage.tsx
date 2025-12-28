@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { fetchUserItems, fetchItemStats } from '@/lib/api/items';
-import { UserItem, ItemStats, Platform, ItemStage } from '@/types/item';
+import { UserItem, ItemStats, Platform, ItemStatus } from '@/types/item';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,7 @@ import { cdnGrid, resolveItemImageUrl } from '@/lib/images';
 import { getTranslations } from '@/components/language-utils';
 import { userItemsTranslations } from '@/utils/translations/user-items-translations';
 import { StatCard, StatCardSkeleton } from '@/components/my_items/stat-card';
+import { SyncListingsButton } from '@/components/my_items/sync-listings-button';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -47,7 +48,7 @@ const UserItemsPage = () => {
   // Pagination and filters from URL params
   const page = parseInt(searchParams.get('page') || '1', 10);
   const pageSize = 10;
-  const stageFilter = searchParams.get('stage') as ItemStage | null;
+  const statusFilter = searchParams.get('status') as ItemStatus | null;
   const platformFilter = searchParams.get('platform') as Platform | null;
 
   const [totalPages, setTotalPages] = useState(1);
@@ -74,14 +75,14 @@ const UserItemsPage = () => {
         const params: {
           page: number;
           page_size: number;
-          stage?: ItemStage;
+          status?: ItemStatus;
           platform?: Platform;
         } = {
           page,
           page_size: pageSize,
         };
 
-        if (stageFilter) params.stage = stageFilter;
+        if (statusFilter) params.status = statusFilter;
         if (platformFilter) params.platform = platformFilter;
 
         const response = await fetchUserItems(params);
@@ -100,7 +101,7 @@ const UserItemsPage = () => {
     };
 
     loadItems();
-  }, [isAuthenticated, page, pageSize, stageFilter, platformFilter, navigate]);
+  }, [isAuthenticated, page, pageSize, statusFilter, platformFilter, navigate]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -120,7 +121,7 @@ const UserItemsPage = () => {
     loadStats();
   }, [isAuthenticated]);
 
-  const handleFilterChange = (filterType: 'stage' | 'platform', value: string) => {
+  const handleFilterChange = (filterType: 'status' | 'platform', value: string) => {
     const newParams = new URLSearchParams(searchParams);
     if (value === 'all') {
       newParams.delete(filterType);
@@ -139,6 +140,45 @@ const UserItemsPage = () => {
 
   const handleItemClick = (uuid: string) => {
     navigate(`/user/items/${uuid}`);
+  };
+
+  /**
+   * Refresh items list and stats after sync
+   */
+  const handleSyncComplete = async () => {
+    // Reload items
+    setLoading(true);
+    try {
+      const params: {
+        page: number;
+        page_size: number;
+        status?: ItemStatus;
+        platform?: Platform;
+      } = {
+        page,
+        page_size: pageSize,
+      };
+
+      if (statusFilter) params.status = statusFilter;
+      if (platformFilter) params.platform = platformFilter;
+
+      const response = await fetchUserItems(params);
+      setItems(response.items);
+      setTotal(response.total);
+      setTotalPages(response.total_pages);
+    } catch (err) {
+      console.error('Failed to reload items after sync:', err);
+    } finally {
+      setLoading(false);
+    }
+
+    // Reload stats
+    try {
+      const statsData = await fetchItemStats();
+      setStats(statsData);
+    } catch (err) {
+      console.error('Failed to reload stats after sync:', err);
+    }
   };
 
   if (authLoading) {
@@ -256,6 +296,7 @@ const UserItemsPage = () => {
               <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
                 {t.pageTitle}
               </h1>
+              <SyncListingsButton onSyncComplete={handleSyncComplete} />
             </div>
             <p className="text-neutral-300 text-lg">
               {t.pageDescription}
@@ -313,16 +354,21 @@ const UserItemsPage = () => {
             <span className="text-sm font-medium text-white">{t.filters.label}</span>
           </div>
           <Select
-            value={stageFilter || 'all'}
-            onValueChange={(value) => handleFilterChange('stage', value)}
+            value={statusFilter || 'all'}
+            onValueChange={(value) => handleFilterChange('status', value)}
           >
             <SelectTrigger className="w-[150px] bg-neutral-800/50 border-neutral-700 text-white">
-              <SelectValue placeholder={t.filters.allStages} />
+              <SelectValue placeholder={t.filters.allStatuses} />
             </SelectTrigger>
             <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
-              <SelectItem value="all">{t.filters.allStages}</SelectItem>
+              <SelectItem value="all">{t.filters.allStatuses}</SelectItem>
               <SelectItem value="draft">{t.filters.draft}</SelectItem>
-              <SelectItem value="published">{t.filters.published}</SelectItem>
+              <SelectItem value="active">{t.filters.active}</SelectItem>
+              <SelectItem value="inactive">{t.filters.inactive}</SelectItem>
+              <SelectItem value="sold">{t.filters.sold}</SelectItem>
+              <SelectItem value="expired">{t.filters.expired}</SelectItem>
+              <SelectItem value="removed">{t.filters.removed}</SelectItem>
+              <SelectItem value="blocked">{t.filters.blocked}</SelectItem>
             </SelectContent>
           </Select>
           <Select

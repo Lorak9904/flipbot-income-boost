@@ -1,11 +1,11 @@
-import { UserItemsListResponse, UserItem, ItemStats, Platform, ItemStage } from '@/types/item';
+import { UserItemsListResponse, UserItem, ItemStats, Platform, ItemStatus } from '@/types/item';
 
 const API_BASE = '/api';
 
 export interface FetchItemsParams {
   page?: number;
   page_size?: number;
-  stage?: ItemStage;
+  status?: ItemStatus;
   platform?: Platform;
 }
 
@@ -21,7 +21,7 @@ export async function fetchUserItems(params: FetchItemsParams = {}): Promise<Use
   const searchParams = new URLSearchParams();
   if (params.page !== undefined) searchParams.set('page', params.page.toString());
   if (params.page_size !== undefined) searchParams.set('page_size', params.page_size.toString());
-  if (params.stage) searchParams.set('stage', params.stage);
+  if (params.status) searchParams.set('status', params.status);
   if (params.platform) searchParams.set('platform', params.platform);
 
   const url = `${API_BASE}/items/?${searchParams.toString()}`;

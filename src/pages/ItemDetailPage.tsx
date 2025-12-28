@@ -244,13 +244,19 @@ const ItemDetailPage = () => {
                       <dd className="font-mono text-xs text-neutral-300 break-all">{item.uuid}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-neutral-400">Stage:</dt>
+                      <dt className="text-neutral-400">Status:</dt>
                       <dd className="font-medium text-white">
-                        <Badge className={item.stage === 'published' 
-                          ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' 
-                          : 'bg-neutral-700/50 text-neutral-300 border-neutral-600'}
+                        <Badge className={
+                          item.status === 'active' 
+                            ? 'bg-green-500/20 text-green-400 border-green-500/50'
+                            : item.status === 'sold'
+                            ? 'bg-blue-500/20 text-blue-400 border-blue-500/50'
+                            : item.status === 'draft'
+                            ? 'bg-neutral-700/50 text-neutral-300 border-neutral-600'
+                            : 'bg-amber-500/20 text-amber-400 border-amber-500/50'
+                        }
                         >
-                          {item.stage}
+                          {item.status}
                         </Badge>
                       </dd>
                     </div>

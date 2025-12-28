@@ -4,9 +4,6 @@
  * Handles OLX marketplace connection, status checks, and token management.
  */
 
-import type { Platform } from '@/types/item';
-import type { ConnectPlatformResponse, DeleteSessionResponse } from '@/types/api';
-
 // Base URL for API calls
 // Update this if your backend is hosted elsewhere
 const API_BASE = '/api';
@@ -17,6 +14,22 @@ export interface OlxConnectionStatus {
   expires_at: string | null;
   needs_reconnect: boolean;
   message?: string;
+}
+
+export interface OlxSyncSummary {
+  inserted: number;
+  updated: number;
+  skipped: number;
+  errors: number;
+  total_fetched: number;
+}
+
+export interface OlxSyncResponse {
+  success: boolean;
+  message: string;
+  summary?: OlxSyncSummary;
+  error?: string;
+  action_required?: string;
 }
 
 /**
@@ -100,4 +113,43 @@ export function handleOlxTokenExpired(): void {
   
   // Redirect to settings with reconnect flag
   window.location.href = '/settings?reconnect=olx&message=OLX+token+expired';
+}
+
+/**
+ * Sync OLX listings with FlipIt database
+ * 
+ * Fetches all user's OLX adverts and imports them as DraftItems.
+ * Existing items (matched by external_id) are updated with fresh data.
+ * New items are created as published drafts.
+ */
+export async function syncOlxListings(): Promise<OlxSyncResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE}/olx/sync/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  const data: OlxSyncResponse = await response.json();
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      if (data.error === 'olx_token_expired' || data.action_required === 'reconnect_olx') {
+        handleOlxTokenExpired();
+      }
+      throw new Error('Authentication required');
+    }
+    if (response.status === 400 && data.error === 'olx_not_connected') {
+      throw new Error('Please connect your OLX account first');
+    }
+    throw new Error(data.message || `Failed to sync OLX listings: ${response.statusText}`);
+  }
+
+  return data;
 }

@@ -50,7 +50,7 @@ export interface GeneratedItemData {
 export type Platform = 'facebook' | 'olx' | 'vinted';
 
 // Backend API types for user items
-export type ItemStage = 'draft' | 'published';
+export type ItemStatus = 'draft' | 'active' | 'inactive' | 'sold' | 'expired' | 'removed' | 'blocked';
 
 export interface PlatformPublishResult {
   platform: Platform;
@@ -79,7 +79,7 @@ export interface UserItem {
   category?: string;
   size?: string;
   gender?: string;
-  stage: ItemStage;
+  status: ItemStatus;  // draft, active, inactive, sold, expired, removed, blocked
   images: UserItemImage[];
   platforms: Platform[];
   publish_results?: PlatformPublishResult[];
