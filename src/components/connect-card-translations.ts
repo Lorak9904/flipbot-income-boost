@@ -11,6 +11,7 @@ export const connectCardTranslations: Translations = {
     connectedTitle: 'Successfully Connected!',
     connectedDescription: 'FlipIt is now analyzing {platform} for flipping opportunities.',
     disconnectButton: 'Disconnect',
+    settingsButton: 'Settings',
     
     // Manual connection form
     manualConnectTitle: 'Connect your {platform} account',
@@ -77,6 +78,7 @@ export const connectCardTranslations: Translations = {
     connectedTitle: 'Pomyślnie połączono!',
     connectedDescription: 'FlipIt teraz analizuje {platform} w poszukiwaniu okazji do zarobku.',
     disconnectButton: 'Rozłącz',
+    settingsButton: 'Ustawienia',
     
     // Manual connection form
     manualConnectTitle: 'Połącz swoje konto {platform}',

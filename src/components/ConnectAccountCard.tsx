@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Check, AlertCircle, Loader2, X, Copy, Info, Clipboard, ArrowRight } from 'lucide-react';
+import { Check, AlertCircle, Loader2, X, Copy, Info, Clipboard, ArrowRight, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { getTranslations } from '@/components/language-utils';
 import { connectCardTranslations } from './connect-card-translations';
+import { useNavigate } from 'react-router-dom';
 
 interface ConnectAccountCardProps {
   platform: 'facebook' | 'olx' | 'vinted';
@@ -40,6 +41,7 @@ const ConnectAccountCard = ({
   const [showCookieInstructions, setShowCookieInstructions] = useState(false);
   const [showDtsgInstructions, setShowDtsgInstructions] = useState(false);
   const t = getTranslations(connectCardTranslations);
+  const navigate = useNavigate();
   
   // Helper to replace placeholders like {platform} in translations
   const tr = (key: string, replacements?: Record<string, string>) => {
@@ -205,30 +207,39 @@ const ConnectAccountCard = ({
               <p className="text-slate-300">
                 {tr('connectedDescription', { platform: platformName })}
               </p>
-              <Button
-                variant="outline"
-                className="mt-4 text-red-500 border-red-300 hover:bg-red-50 hover:text-red-700 transition"
-                onClick={async () => {
-                  try {
-                    const token = localStorage.getItem('flipit_token');
-                    const response = await fetch(`/api/delete-session/${platform}`, {
-                      method: 'DELETE',
-                      headers: {
-                        'Authorization': `Bearer ${token}`,
-                      },
-                    });
-                    if (!response.ok) throw new Error('Failed to disconnect');
-                    setIsConnected(false);
-                    setStatus('idle');
-                    toast.success(tr('toastDisconnectedSuccess', { platform: platformName }));
-                    if (onConnected) onConnected();
-                  } catch (error) {
-                    toast.error(t.toastDisconnectedError);
-                  }
-                }}
-              >
-                <X className="w-4 h-4 mr-2" /> {t.disconnectButton}
-              </Button>
+              <div className="flex justify-center gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  className="text-cyan-400 border-cyan-400/50 hover:bg-cyan-400/10 transition"
+                  onClick={() => navigate(`/platform-settings/${platform}`)}
+                >
+                  <Settings className="w-4 h-4 mr-2" /> {t.settingsButton || 'Settings'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="text-red-500 border-red-300 hover:bg-red-50 hover:text-red-700 transition"
+                  onClick={async () => {
+                    try {
+                      const token = localStorage.getItem('flipit_token');
+                      const response = await fetch(`/api/delete-session/${platform}`, {
+                        method: 'DELETE',
+                        headers: {
+                          'Authorization': `Bearer ${token}`,
+                        },
+                      });
+                      if (!response.ok) throw new Error('Failed to disconnect');
+                      setIsConnected(false);
+                      setStatus('idle');
+                      toast.success(tr('toastDisconnectedSuccess', { platform: platformName }));
+                      if (onConnected) onConnected();
+                    } catch (error) {
+                      toast.error(t.toastDisconnectedError);
+                    }
+                  }}
+                >
+                  <X className="w-4 h-4 mr-2" /> {t.disconnectButton}
+                </Button>
+              </div>
             </div>
           ) : showManual ? (
             

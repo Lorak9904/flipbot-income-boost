@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +18,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Save, Store, Trash2, AlertTriangle } from 'lucide-react';
+import { Mail, Lock, Save, Store, Trash2, AlertTriangle, MapPin } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { getTranslations } from '@/components/language-utils';
 import { settingsTranslations } from './settings-translations';
@@ -52,6 +52,45 @@ const SettingsPage = () => {
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showTransactionHistory, setShowTransactionHistory] = useState(false);
   const [showPlanManagement, setShowPlanManagement] = useState(false);
+  
+  // Address fields
+  const [addressCity, setAddressCity] = useState('');
+  const [addressPostalCode, setAddressPostalCode] = useState('');
+  const [addressCountry, setAddressCountry] = useState('');
+  const [addressStreet, setAddressStreet] = useState('');
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  // Load user profile with address on mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const token = localStorage.getItem('flipit_token');
+        if (!token) return;
+
+        const response = await fetch('/api/user/profile/', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setDisplayName(data.name || '');
+          setEmail(data.email || '');
+          setAddressCity(data.address_city || '');
+          setAddressPostalCode(data.address_postal_code || '');
+          setAddressCountry(data.address_country || '');
+          setAddressStreet(data.address_street || '');
+        }
+      } catch (e) {
+        console.error('Failed to load profile:', e);
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
@@ -61,7 +100,7 @@ const SettingsPage = () => {
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch('/api/user/profile', {
+      const response = await fetch('/api/user/profile/', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -70,11 +109,16 @@ const SettingsPage = () => {
         body: JSON.stringify({
           name: displayName,
           email: email,
+          address_city: addressCity,
+          address_postal_code: addressPostalCode,
+          address_country: addressCountry,
+          address_street: addressStreet,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update profile');
+        const data = await response.json();
+        throw new Error(data.detail || 'Failed to update profile');
       }
 
       toast({ 
@@ -127,7 +171,7 @@ const SettingsPage = () => {
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch('/api/user/change-password', {
+      const response = await fetch('/api/user/change-password/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -171,7 +215,7 @@ const SettingsPage = () => {
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch('/api/user/delete-account', {
+      const response = await fetch('/api/user/delete-account/', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -241,6 +285,57 @@ const SettingsPage = () => {
               <div className="space-y-2">
                 <Label htmlFor="email">{t.emailLabel}</Label>
                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-neutral-800" />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Default Address */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-12 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20">
+            <h2 className="mb-4 text-xl font-semibold flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-cyan-400" />
+              {t.addressTitle}
+            </h2>
+            <p className="text-neutral-300 text-sm mb-6">{t.addressDescription}</p>
+            <div className="space-y-6 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
+              <div className="space-y-2">
+                <Label htmlFor="addressCity">{t.addressCityLabel}</Label>
+                <Input 
+                  id="addressCity" 
+                  value={addressCity} 
+                  onChange={(e) => setAddressCity(e.target.value)} 
+                  placeholder={t.addressCityPlaceholder}
+                  className="bg-neutral-800" 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="addressPostalCode">{t.addressPostalCodeLabel}</Label>
+                <Input 
+                  id="addressPostalCode" 
+                  value={addressPostalCode} 
+                  onChange={(e) => setAddressPostalCode(e.target.value)} 
+                  placeholder={t.addressPostalCodePlaceholder}
+                  className="bg-neutral-800" 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="addressCountry">{t.addressCountryLabel}</Label>
+                <Input 
+                  id="addressCountry" 
+                  value={addressCountry} 
+                  onChange={(e) => setAddressCountry(e.target.value)} 
+                  placeholder={t.addressCountryPlaceholder}
+                  className="bg-neutral-800" 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="addressStreet">{t.addressStreetLabel}</Label>
+                <Input 
+                  id="addressStreet" 
+                  value={addressStreet} 
+                  onChange={(e) => setAddressStreet(e.target.value)} 
+                  placeholder={t.addressStreetPlaceholder}
+                  className="bg-neutral-800" 
+                />
               </div>
             </div>
           </motion.div>

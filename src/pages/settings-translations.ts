@@ -30,6 +30,18 @@ export const settingsTranslations: Translations = {
     facebookMarketplace: 'Facebook Marketplace',
     allegro: 'Allegro',
     
+    // Address section
+    addressTitle: 'Default Address',
+    addressDescription: 'This address will be used as the default for all marketplace listings. You can override it per-platform.',
+    addressCityLabel: 'City',
+    addressCityPlaceholder: 'Enter your city',
+    addressPostalCodeLabel: 'Postal Code',
+    addressPostalCodePlaceholder: 'Enter postal code',
+    addressCountryLabel: 'Country',
+    addressCountryPlaceholder: 'Enter your country',
+    addressStreetLabel: 'Street Address (optional)',
+    addressStreetPlaceholder: 'Enter street address',
+    
     // Notifications section
     notificationsTitle: 'Notifications',
     productUpdates: 'Product updates & tips',
@@ -97,6 +109,18 @@ export const settingsTranslations: Translations = {
     marketplacesTitle: 'Platformy',
     facebookMarketplace: 'Facebook Marketplace',
     allegro: 'Allegro',
+    
+    // Address section
+    addressTitle: 'Domyślny adres',
+    addressDescription: 'Ten adres będzie używany jako domyślny dla wszystkich ogłoszeń. Możesz go nadpisać dla każdej platformy osobno.',
+    addressCityLabel: 'Miasto',
+    addressCityPlaceholder: 'Wprowadź miasto',
+    addressPostalCodeLabel: 'Kod pocztowy',
+    addressPostalCodePlaceholder: 'Wprowadź kod pocztowy',
+    addressCountryLabel: 'Kraj',
+    addressCountryPlaceholder: 'Wprowadź kraj',
+    addressStreetLabel: 'Adres ',
+    addressStreetPlaceholder: 'Wprowadź adres ulicy',
     
     // Notifications section
     notificationsTitle: 'Powiadomienia',
