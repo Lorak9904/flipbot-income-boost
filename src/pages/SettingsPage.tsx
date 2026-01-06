@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { SaveButton, ManageButton, DeleteButton, ChangePasswordButton } from '@/components/ui/button-presets';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -25,6 +25,7 @@ import { settingsTranslations } from './settings-translations';
 import { CreditsBalanceCard } from '@/components/credits/CreditsBalanceCard';
 import { TransactionHistoryModal } from '@/components/credits/TransactionHistoryModal';
 import { PlanManagementDialog } from '@/components/credits/PlanManagementDialog';
+import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -253,13 +254,7 @@ const SettingsPage = () => {
         canonicalUrl="https://myflipit.live/settings"
         robots="noindex, nofollow"
       />
-      {/* Unified Animated Gradient Background (reuse HomePage pattern) */}
-      <div className="fixed inset-0 -z-20">
-        <div className="absolute inset-0 bg-neutral-950" />
-        <motion.div className="absolute inset-0" initial={{ opacity: 1 }} animate={{ opacity: [1, 0.7, 1] }} transition={{ duration: 12, repeat: Infinity }} style={{ background: 'radial-gradient(circle at 20% 20%, rgba(236,72,153,.3) 0%, transparent 50%)' }} />
-        <motion.div className="absolute inset-0" initial={{ opacity: 0.7 }} animate={{ opacity: [0.7, 1, 0.7] }} transition={{ duration: 14, repeat: Infinity }} style={{ background: 'radial-gradient(circle at 80% 40%, rgba(6,182,212,.25) 0%, transparent 50%)' }} />
-        <motion.div className="absolute inset-0" initial={{ opacity: 0.5 }} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 16, repeat: Infinity }} style={{ background: 'radial-gradient(circle at 40% 80%, rgba(168,85,247,.2) 0%, transparent 50%)' }} />
-      </div>
+      <AnimatedGradientBackground />
 
       <section className="relative py-28 text-center">
         <div className="container mx-auto px-4">
@@ -380,14 +375,12 @@ const SettingsPage = () => {
                   className="bg-neutral-800" 
                 />
               </div>
-              <Button 
+              <ChangePasswordButton 
                 onClick={handlePasswordChange}
                 disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
-                className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600"
               >
-                <Lock className="mr-2 h-4 w-4" />
                 {changingPassword ? t.changingPasswordButton : t.changePasswordButton}
-              </Button>
+              </ChangePasswordButton>
             </div>
           </motion.div>
 
@@ -397,14 +390,11 @@ const SettingsPage = () => {
             <p className="text-neutral-300 text-sm mb-4">
               Connect your marketplace accounts to publish listings directly. Manage your connections in the dedicated tab.
             </p>
-            <Button
-              variant="outline"
-              className="text-cyan-400 border-cyan-400/50 hover:bg-cyan-400/10"
+            <ManageButton
               onClick={() => navigate('/connect-accounts')}
             >
-              <Store className="mr-2 h-4 w-4" />
               Manage Connected Accounts
-            </Button>
+            </ManageButton>
           </motion.div>
 
           {/* Subscription & Credits - NEW SECTION */}
@@ -431,9 +421,9 @@ const SettingsPage = () => {
           </motion.div>
 
           <div className="text-center mb-12">
-            <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 shadow-lg shadow-fuchsia-500/20" onClick={handleSave} disabled={saving}>
-              <Save className="mr-2 h-5 w-5" /> {saving ? t.savingButton : t.saveButton}
-            </Button>
+            <SaveButton onClick={handleSave} disabled={saving}>
+              {saving ? t.savingButton : t.saveButton}
+            </SaveButton>
           </div>
 
           {/* Danger Zone */}
@@ -448,13 +438,9 @@ const SettingsPage = () => {
               </p>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button 
-                    variant="destructive" 
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
+                  <DeleteButton>
                     {t.deleteAccountButton}
-                  </Button>
+                  </DeleteButton>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="bg-neutral-900 border-red-500/30">
                   <AlertDialogHeader>

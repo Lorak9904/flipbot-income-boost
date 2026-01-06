@@ -80,6 +80,7 @@ export interface UserItem {
   size?: string;
   gender?: string;
   status: ItemStatus;  // draft, active, inactive, sold, expired, removed, blocked
+  stage?: 'draft' | 'published';  // High-level stage for UI display
   images: UserItemImage[];
   platforms: Platform[];
   publish_results?: PlatformPublishResult[];

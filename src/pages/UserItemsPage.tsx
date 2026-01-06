@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { fetchUserItems, fetchItemStats } from '@/lib/api/items';
 import { UserItem, ItemStats, Platform, ItemStatus } from '@/types/item';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { PaginationButton, AddItemButton, BackButtonGradient } from '@/components/ui/button-presets';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -22,6 +22,7 @@ import { getTranslations } from '@/components/language-utils';
 import { userItemsTranslations } from '@/utils/translations/user-items-translations';
 import { StatCard, StatCardSkeleton } from '@/components/my_items/stat-card';
 import { SyncListingsButton } from '@/components/my_items/sync-listings-button';
+import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -196,94 +197,7 @@ const UserItemsPage = () => {
         description={t.pageDescription}
       />
       <div className="relative min-h-screen text-white overflow-hidden">
-        {/* Unified Animated Gradient Background */}
-        <div className="fixed inset-0 -z-20">
-          <div className="absolute inset-0 bg-neutral-950"></div>
-          <div className="absolute inset-0 pointer-events-none">
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 1 }}
-              animate={{ opacity: [1, 0.7, 1] }}
-              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background:
-                  "radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)",
-              }}
-            />
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0.7 }}
-              animate={{ opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background:
-                  "radial-gradient(circle at 80% 40%, rgba(6, 182, 212, 0.25) 0%, transparent 50%)",
-              }}
-            />
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0.5 }}
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background:
-                  "radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
-              }}
-            />
-          </div>
-          
-          {/* Moving orbs for extra dynamism */}
-          <div className="absolute inset-0">
-            <div 
-              className="absolute w-96 h-96 rounded-full bg-gradient-to-r from-cyan-500/20 to-fuchsia-500/20 blur-3xl"
-              style={{
-                animation: 'float1 25s ease-in-out infinite',
-                left: '10%',
-                top: '10%'
-              }}
-            ></div>
-            <div 
-              className="absolute w-80 h-80 rounded-full bg-gradient-to-r from-fuchsia-500/15 to-cyan-500/15 blur-3xl"
-              style={{
-                animation: 'float2 30s ease-in-out infinite',
-                right: '15%',
-                top: '30%'
-              }}
-            ></div>
-            <div 
-              className="absolute w-72 h-72 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 blur-3xl"
-              style={{
-                animation: 'float3 35s ease-in-out infinite',
-                left: '30%',
-                bottom: '20%'
-              }}
-            ></div>
-          </div>
-        </div>
-
-        {/* CSS Animations */}
-        <style>{`
-          @keyframes float1 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(30px, -20px) scale(1.1); }
-            50% { transform: translate(-20px, 30px) scale(0.9); }
-            75% { transform: translate(20px, 10px) scale(1.05); }
-          }
-          
-          @keyframes float2 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(-25px, 20px) scale(1.1); }
-            66% { transform: translate(15px, -30px) scale(0.95); }
-          }
-          
-          @keyframes float3 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            20% { transform: translate(20px, -15px) scale(1.05); }
-            40% { transform: translate(-30px, 25px) scale(0.9); }
-            60% { transform: translate(25px, 20px) scale(1.1); }
-            80% { transform: translate(-15px, -25px) scale(0.95); }
-          }
-        `}</style>
+        <AnimatedGradientBackground />
 
         <div className="relative container mx-auto px-4 py-12 md:py-16">
           <motion.div
@@ -396,12 +310,11 @@ const UserItemsPage = () => {
           <Card className="p-12 bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 border-0">
             <div className="text-center">
               <p className="text-red-400 mb-4">{error}</p>
-              <Button 
+              <AddItemButton 
                 onClick={() => window.location.reload()}
-                className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-600 hover:to-fuchsia-600"
               >
                 {t.retry}
-              </Button>
+              </AddItemButton>
             </div>
           </Card>
         ) : items.length === 0 ? (
@@ -420,12 +333,11 @@ const UserItemsPage = () => {
                     ? t.empty.description.filtered
                     : t.empty.description.noItems}
                 </p>
-                <Button 
+                <AddItemButton 
                   onClick={() => navigate('/add-item')}
-                  className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-600 hover:to-fuchsia-600"
                 >
                   {t.empty.addButton}
-                </Button>
+                </AddItemButton>
               </div>
             </Card>
           </motion.div>
@@ -509,32 +421,26 @@ const UserItemsPage = () => {
                 custom={4}
                 className="flex justify-center items-center gap-2"
               >
-                <Button
-                  variant="outline"
-                  size="sm"
+                <PaginationButton
                   onClick={() => handlePageChange(page - 1)}
                   disabled={page <= 1}
-                  className="bg-neutral-800/50 border-neutral-700 text-white hover:bg-neutral-800 disabled:opacity-50"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   {t.pagination.previous}
-                </Button>
+                </PaginationButton>
                 <span className="text-sm text-neutral-300">
                   {t.pagination.pageInfo
                     .replace('{page}', page.toString())
                     .replace('{totalPages}', totalPages.toString())
                     .replace('{total}', total.toString())}
                 </span>
-                <Button
-                  variant="outline"
-                  size="sm"
+                <PaginationButton
                   onClick={() => handlePageChange(page + 1)}
                   disabled={page >= totalPages}
-                  className="bg-neutral-800/50 border-neutral-700 text-white hover:bg-neutral-800 disabled:opacity-50"
                 >
                   {t.pagination.next}
                   <ChevronRight className="h-4 w-4" />
-                </Button>
+                </PaginationButton>
               </motion.div>
             )}
           </>

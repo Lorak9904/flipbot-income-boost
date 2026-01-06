@@ -36,6 +36,7 @@ import PlatformSettingsPage from "./pages/PlatformSettingsPage";
 import VisitorPing from "./components/useVisitorPing"; // This should resolve to useVisitorPing.tsx
 import { ConnectOlxButton } from "./pages/ConnectOlxButton";
 import { OlxSuccessPage } from "./pages/OlxSuccessPage";
+import ButtonShowcase from "./pages/ButtonShowcase";
 
 
 
@@ -75,6 +76,9 @@ const App = () => {
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/platform-settings/:platform" element={<PlatformSettingsPage />} />
                   {/* <Route path="/olx/success" element={<OlxSuccessPage />} /> */}
+                  
+                  {/* Dev/Reference Pages (not linked in navigation) */}
+                  <Route path="/dev/buttons" element={<ButtonShowcase />} />
                   
                   <Route path="*" element={<NotFound />} />
                 </Routes>

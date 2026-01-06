@@ -6,6 +6,13 @@ It uses AI to generate optimized listings from just photos, handles marketplace 
 
 ---
 
+## 📚 Frontend Documentation
+
+- **[UI Toolbook](./UI_TOOLBOOK.md)** – Complete UI design system, component patterns, and coding standards
+- **[Pricing Page Docs](./START_HERE.md)** – Pricing page design specifications and implementation guide
+
+---
+
 ## 🧭 Project Structure
 
 - `backend/` – FastAPI API with AI integration and listing logic

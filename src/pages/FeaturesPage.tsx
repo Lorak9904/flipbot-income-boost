@@ -1,7 +1,7 @@
 
 import { Link } from 'react-router-dom';
 import { Search, MessageSquare, Image, DollarSign, Shield, TrendingUp, Clock, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { HeroCTA } from '@/components/ui/button-presets';
 import { SEOHead } from '@/components/SEOHead';
 
 const FeaturesPage = () => {
@@ -176,9 +176,9 @@ const FeaturesPage = () => {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
             Join our waitlist now to be among the first to access FlipIt when we launch.
           </p>
-          <Button asChild size="lg" className="cta-btn text-lg px-8 py-6">
+          <HeroCTA asChild className="text-lg px-8 py-6">
             <Link to="/get-started">Join the Waitlist</Link>
-          </Button>
+          </HeroCTA>
         </div>
       </section>
     </div>

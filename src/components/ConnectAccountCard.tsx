@@ -10,7 +10,7 @@ import { connectCardTranslations } from './connect-card-translations';
 import { useNavigate } from 'react-router-dom';
 
 interface ConnectAccountCardProps {
-  platform: 'facebook' | 'olx' | 'vinted';
+  platform: 'facebook' | 'olx' | 'vinted' | 'ebay';
   platformName: string;
   logoSrc: string;
   onConnected?: () => void;
@@ -74,12 +74,18 @@ const ConnectAccountCard = ({
       cookieInstructions: "Vinted",
       cookiePlaceholder: "Paste Vinted cookies here...",
       howToConnectVideoId: "GxClZgY53_k",
+    },
+    ebay: {
+      showDtsg: false,  // eBay uses OAuth, not cookie-based
+      cookieInstructions: "eBay",
+      cookiePlaceholder: "Not used for eBay (OAuth flow)",
+      howToConnectVideoId: null as string | null,
     }
   };
 
   // Task 4: YouTube embed component with responsive sizing
   const YouTubeEmbed = ({ videoId }: { videoId: string }) => (
-    <div className="relative w-full pt-[56.25%] mb-4">
+    <div className="relative w-full pt-[56.25%] mb-4 overflow-hidden rounded-lg">
       <iframe
         className="absolute top-0 left-0 w-full h-full rounded-lg"
         src={`https://www.youtube.com/embed/${videoId}?rel=0`}
@@ -151,18 +157,20 @@ const ConnectAccountCard = ({
     <motion.div
       whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 300 }}
+      className="w-full"
     >
       <Card className="w-full overflow-hidden border border-slate-700/80 bg-slate-800/60">
         <CardHeader className="pb-0">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
-                <img src={logoSrc} alt={`${platformName} logo`} className="h-8 w-auto" />
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            {/* Platform info - truncates gracefully */}
+            <div className="flex items-center gap-3 min-w-0 flex-shrink">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <img src={logoSrc} alt={`${platformName} logo`} className="h-6 sm:h-8 w-auto" />
               </div>
-              <h3 className="font-semibold text-lg text-white">{platformName}</h3>
+              <h3 className="font-semibold text-base sm:text-lg text-white truncate">{platformName}</h3>
             </div>
-            {/* Task 1: Show status badge (valid/expired/invalid) */}
-            <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium border ${
+            {/* Status badge - never truncates, but shrinks gracefully */}
+            <div className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-2 sm:px-3 py-1 text-xs font-medium border flex-shrink-0 whitespace-nowrap ${
               sessionStatus === 'invalid' 
                 ? 'bg-red-500/10 text-red-300 border-red-700/50'
                 : sessionStatus === 'expired'
@@ -171,7 +179,7 @@ const ConnectAccountCard = ({
                 ? 'bg-emerald-500/10 text-emerald-300 border-emerald-700/50' 
                 : 'bg-slate-700/60 text-slate-300 border-slate-600/60'
             }`}>
-              <span className={`h-2 w-2 rounded-full ${
+              <span className={`h-2 w-2 rounded-full flex-shrink-0 ${
                 sessionStatus === 'invalid' 
                   ? 'bg-red-400'
                   : sessionStatus === 'expired'
@@ -180,15 +188,17 @@ const ConnectAccountCard = ({
                   ? 'bg-emerald-400' 
                   : 'bg-slate-400'
               }`} />
-              {sessionStatus === 'invalid' 
-                ? 'Invalid'
-                : sessionStatus === 'expired'
-                ? 'Expired'
-                : isConnected 
-                ? t.statusConnected 
-                : status === 'connecting' 
-                ? t.statusConnecting 
-                : t.statusNotConnected}
+              <span className="hidden xs:inline">
+                {sessionStatus === 'invalid' 
+                  ? 'Invalid'
+                  : sessionStatus === 'expired'
+                  ? 'Expired'
+                  : isConnected 
+                  ? t.statusConnected 
+                  : status === 'connecting' 
+                  ? t.statusConnecting 
+                  : t.statusNotConnected}
+              </span>
             </div>
           </div>
         </CardHeader>
@@ -207,17 +217,20 @@ const ConnectAccountCard = ({
               <p className="text-slate-300">
                 {tr('connectedDescription', { platform: platformName })}
               </p>
-              <div className="flex justify-center gap-2 mt-4">
+              <div className="flex justify-center gap-2 mt-4 flex-wrap">
                 <Button
                   variant="outline"
-                  className="text-cyan-400 border-cyan-400/50 hover:bg-cyan-400/10 transition"
+                  size="sm"
+                  className="text-cyan-400 border-cyan-400/50 hover:bg-cyan-400/10 transition min-w-0 max-w-[140px]"
                   onClick={() => navigate(`/platform-settings/${platform}`)}
                 >
-                  <Settings className="w-4 h-4 mr-2" /> {t.settingsButton || 'Settings'}
+                  <Settings className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" /> 
+                  <span className="truncate">{t.settingsButton || 'Settings'}</span>
                 </Button>
                 <Button
                   variant="outline"
-                  className="text-red-500 border-red-300 hover:bg-red-50 hover:text-red-700 transition"
+                  size="sm"
+                  className="text-red-500 border-red-300 hover:bg-red-50 hover:text-red-700 transition min-w-0 max-w-[140px]"
                   onClick={async () => {
                     try {
                       const token = localStorage.getItem('flipit_token');
@@ -237,7 +250,8 @@ const ConnectAccountCard = ({
                     }
                   }}
                 >
-                  <X className="w-4 h-4 mr-2" /> {t.disconnectButton}
+                  <X className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" /> 
+                  <span className="truncate">{t.disconnectButton}</span>
                 </Button>
               </div>
             </div>
@@ -282,9 +296,9 @@ const ConnectAccountCard = ({
                   toast.error(error.message || t.toastManualConnectedError);
                 }
               }}
-              className="space-y-6"
+              className="space-y-6 overflow-hidden"
             >
-              <div className="mb-6">
+              <div className="mb-6 overflow-hidden">
                 <Button
                   type="button"
                   variant="ghost"
@@ -309,29 +323,29 @@ const ConnectAccountCard = ({
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="mt-3"
+                    className="mt-3 overflow-hidden"
                   >
-                    <div className="glass-card p-4 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg">
-                      <h4 className="text-base font-semibold mb-4 text-teal-400">{tr('cookieInstructionsTitle', { platform: platformName })}</h4>
+                    <div className="glass-card p-4 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg overflow-hidden">
+                      <h4 className="text-base font-semibold mb-4 text-teal-400 break-words">{tr('cookieInstructionsTitle', { platform: platformName })}</h4>
                       
                       {/* Task 4: Show YouTube video if available */}
                       {platformConfig[platform].howToConnectVideoId && (
                         <YouTubeEmbed videoId={platformConfig[platform].howToConnectVideoId!} />
                       )}
                       
-                      <div className="space-y-3 text-left">
-                        <div className="flex gap-3">
+                      <div className="space-y-3 text-left overflow-hidden">
+                        <div className="flex gap-3 overflow-hidden">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">1</div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-slate-200 text-sm break-words whitespace-normal">
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal overflow-wrap-anywhere">
                               <b>{t.cookieStep1.split('{extensionLink}')[0]}<a href="https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" className="underline text-blue-400">{t.cookieExtensionText}</a>{t.cookieStep1.split('{extensionLink}')[1]}</b>
                             </p>
                           </div>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 overflow-hidden">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">2</div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-slate-200 text-sm break-words whitespace-normal">
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal overflow-wrap-anywhere">
                               {tr('cookieStep2', { platform: platformName })}
                             </p>
                           </div>
@@ -344,10 +358,10 @@ const ConnectAccountCard = ({
                             </p>
                           </div>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 overflow-hidden">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">4</div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-slate-200 text-sm break-words whitespace-normal">
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal overflow-wrap-anywhere">
                               {t.cookieStep4}
                             </p>
                           </div>
@@ -361,9 +375,9 @@ const ConnectAccountCard = ({
               <p className="text-slate-300">
                 {tr('manualConnectDescription', { platform: platformName })}
               </p>
-              <div className="relative mb-4">
+              <div className="relative mb-4 overflow-hidden">
                 <textarea
-                  className="w-full p-3 border border-slate-600 bg-slate-800/60 rounded-lg text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full p-3 border border-slate-600 bg-slate-800/60 rounded-lg text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
                   rows={4}
                   placeholder={platformConfig[platform].cookiePlaceholder}
                   value={manualCookies}
@@ -376,7 +390,7 @@ const ConnectAccountCard = ({
               {/* DTSG section - conditionally shown based on platform */}
               {platformConfig[platform].showDtsg && (
                 <>
-                  <div className="mb-6">
+                  <div className="mb-6 overflow-hidden">
                     <Button
                       type="button"
                       variant="ghost"
@@ -400,23 +414,23 @@ const ConnectAccountCard = ({
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="mt-3"
+                    className="mt-3 overflow-hidden"
                   >
-                    <div className="glass-card p-5 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg">
-                      <h4 className="text-base font-semibold mb-4 text-teal-400">{t.dtsgInstructionsTitle}</h4>
-                      <div className="space-y-3 text-left">
-                        <div className="flex gap-3">
+                    <div className="glass-card p-5 rounded-xl bg-slate-700/50 border border-slate-600/50 shadow-lg overflow-hidden">
+                      <h4 className="text-base font-semibold mb-4 text-teal-400 break-words">{t.dtsgInstructionsTitle}</h4>
+                      <div className="space-y-3 text-left overflow-hidden">
+                        <div className="flex gap-3 overflow-hidden">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">1</div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-slate-200 text-sm break-words whitespace-normal">
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal overflow-wrap-anywhere">
                               {t.dtsgStep1}
                             </p>
                           </div>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 overflow-hidden">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">2</div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-slate-200 text-sm break-words whitespace-normal w-full mb-1">
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal w-full mb-1 overflow-wrap-anywhere">
                               {t.dtsgStep2.split('{keys}')[0]}
                             </p>
                             <div className="flex items-center gap-2 flex-wrap">
@@ -435,13 +449,13 @@ const ConnectAccountCard = ({
                             </p>
                           </div>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 overflow-hidden">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">4</div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-slate-200 text-sm break-words whitespace-normal w-full mb-1">
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal w-full mb-1 overflow-wrap-anywhere">
                               {t.dtsgStep4}
                             </p>
-                            <div className="flex flex-col bg-slate-800 p-2 rounded-md">
+                            <div className="flex flex-col bg-slate-800 p-2 rounded-md overflow-hidden">
                               <code className="text-teal-300 font-mono text-xs break-words whitespace-pre-wrap">
                                 require("DTSG").getToken()
                               </code>
@@ -458,10 +472,10 @@ const ConnectAccountCard = ({
                             </div>
                           </div>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 overflow-hidden">
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-white font-medium">5</div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-slate-200 text-sm break-words whitespace-normal">
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <p className="text-slate-200 text-sm break-words whitespace-normal overflow-wrap-anywhere">
                               {t.dtsgStep5}
                             </p>
                           </div>
@@ -484,20 +498,20 @@ const ConnectAccountCard = ({
                   </div>
                 </>
               )}
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 <Button 
                   type="submit" 
-                  className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex-1 min-w-[120px] disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={status === 'connecting'}
                 >
-                  {status === 'connecting' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                  Connect {platformName}
+                  {status === 'connecting' ? <Loader2 className="mr-2 h-4 w-4 animate-spin flex-shrink-0" /> : null}
+                  <span className="truncate">Connect {platformName}</span>
                 </Button>
                 <Button 
                   type="button" 
                   variant="outline" 
                   onClick={() => setShowManual(false)}
-                  className="border-slate-500/50 bg-slate-800/50 text-slate-300 hover:bg-slate-700/70 hover:border-slate-400/50 hover:text-white transition-all duration-200"
+                  className="border-slate-500/50 bg-slate-800/50 text-slate-300 hover:bg-slate-700/70 hover:border-slate-400/50 hover:text-white transition-all duration-200 min-w-[100px] flex-shrink-0"
                 >
                   Cancel
                 </Button>

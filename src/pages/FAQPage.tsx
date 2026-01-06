@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronDown, ChevronUp, MessageCircle, Sparkles, Upload } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { HeroCTA, SecondaryAction } from '@/components/ui/button-presets';
 import { SEOHead } from '@/components/SEOHead';
 import { getCurrentLanguage } from '@/components/language-utils';
+import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -132,43 +133,7 @@ const FAQPage = () => {
         language={getCurrentLanguage()}
       />
 
-      <div className="pointer-events-none fixed inset-0 -z-20">
-        <div className="absolute inset-0 bg-neutral-950" />
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: [1, 0.7, 1] }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ background: 'radial-gradient(circle at 20% 20%, rgba(236,72,153,.3) 0%, transparent 50%)' }}
-        />
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 0.7 }}
-          animate={{ opacity: [0.7, 1, 0.7] }}
-          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ background: 'radial-gradient(circle at 80% 40%, rgba(6,182,212,.25) 0%, transparent 50%)' }}
-        />
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 0.5 }}
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ background: 'radial-gradient(circle at 40% 80%, rgba(168,85,247,.2) 0%, transparent 50%)' }}
-        />
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 0.3 }}
-          animate={{ opacity: [0.3, 0.7, 0.3] }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ background: 'radial-gradient(circle at 90% 90%, rgba(236,72,153,.15) 0%, transparent 50%)' }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(135deg, rgba(6,182,212,.1) 0%, rgba(236,72,153,.1) 100%)',
-          }}
-        />
-      </div>
+      <AnimatedGradientBackground />
 
       <section className="relative py-16 md:py-24 text-center px-4">
         <motion.h1
@@ -266,12 +231,12 @@ const FAQPage = () => {
             Explore how AI crosslisting works in detail, or jump into the guide for growth ideas.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-            <Button asChild className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/20 hover:to-fuchsia-600">
+            <HeroCTA asChild>
               <Link to="/how-it-works">How FlipIt Works</Link>
-            </Button>
-            <Button asChild variant="outline" className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10">
+            </HeroCTA>
+            <SecondaryAction asChild>
               <Link to="/automated-reselling-platform-guide">Read the Playbook</Link>
-            </Button>
+            </SecondaryAction>
           </div>
         </motion.div>
       </section>
@@ -303,13 +268,12 @@ const FAQPage = () => {
           <p className="mt-4 text-neutral-100">
             Join the waitlist and turn a single photo into listings everywhere buyers shop.
           </p>
-          <Button
+          <HeroCTA
             asChild
-            size="lg"
-            className="mt-6 bg-gradient-to-r from-cyan-500 to-fuchsia-500 px-8 py-6 text-lg font-semibold text-white hover:to-fuchsia-600"
+            className="mt-6"
           >
             <Link to="/get-started">Join the FlipIt waitlist</Link>
-          </Button>
+          </HeroCTA>
         </motion.div>
       </section>
     </div>

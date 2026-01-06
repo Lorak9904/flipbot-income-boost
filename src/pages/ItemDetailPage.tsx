@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { fetchItemDetail } from '@/lib/api/items';
 import { UserItem } from '@/types/item';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { BackButtonGradient, BackButtonGhost } from '@/components/ui/button-presets';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Loader2, ArrowLeft, CheckCircle2, XCircle, Clock } from 'lucide-react';
@@ -14,6 +14,9 @@ import { SEOHead } from '@/components/SEOHead';
 import { format } from 'date-fns';
 import { cdnThumb, resolveItemImageUrl } from '@/lib/images';
 import { ImagePreview } from '@/components/ImagePreview';
+import { ItemActions } from '@/components/ItemActions';
+import { useQuery } from '@tanstack/react-query';
+import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -37,6 +40,24 @@ const ItemDetailPage = () => {
   // Image preview state
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
+
+  // Fetch connected platforms for action buttons
+  const { data: connectedPlatforms } = useQuery({
+    queryKey: ['connected-platforms'],
+    queryFn: async () => {
+      const token = localStorage.getItem('flipit_token');
+      const response = await fetch("/api/connected-platforms", {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      if (!response.ok) return {};
+      return response.json();
+    },
+    enabled: !!isAuthenticated,
+    staleTime: 30000,
+  });
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -92,12 +113,11 @@ const ItemDetailPage = () => {
           <Card className="p-12 bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
             <div className="text-center">
               <p className="text-red-400 mb-4">{error || 'Item not found'}</p>
-              <Button 
+              <BackButtonGradient 
                 onClick={() => navigate('/user/items')}
-                className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-600 hover:to-fuchsia-600"
               >
                 Back to Items
-              </Button>
+              </BackButtonGradient>
             </div>
           </Card>
         </div>
@@ -112,59 +132,7 @@ const ItemDetailPage = () => {
         description={item.description}
       />
       <div className="relative min-h-screen text-white overflow-hidden">
-        {/* Unified Animated Gradient Background */}
-        <div className="fixed inset-0 -z-20">
-          <div className="absolute inset-0 bg-neutral-950"></div>
-          <div className="absolute inset-0 pointer-events-none">
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 1 }}
-              animate={{ opacity: [1, 0.7, 1] }}
-              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background:
-                  "radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)",
-              }}
-            />
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0.7 }}
-              animate={{ opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background:
-                  "radial-gradient(circle at 80% 40%, rgba(6, 182, 212, 0.25) 0%, transparent 50%)",
-              }}
-            />
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0.5 }}
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background:
-                  "radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
-              }}
-            />
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0.3 }}
-              animate={{ opacity: [0.3, 0.7, 0.3] }}
-              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background:
-                  "radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)",
-              }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)",
-              }}
-            />
-          </div>
-        </div>
+        <AnimatedGradientBackground />
 
         <div className="relative container mx-auto px-4 py-8 max-w-5xl">
           <motion.div
@@ -173,14 +141,12 @@ const ItemDetailPage = () => {
             variants={fadeUp}
             className="mb-6"
           >
-            <Button
-              variant="ghost"
+            <BackButtonGhost
               onClick={() => navigate('/user/items')}
-              className="mb-4 text-white hover:bg-neutral-800/50"
+              className="mb-4"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Items
-            </Button>
+            </BackButtonGhost>
           </motion.div>
 
         <motion.div
@@ -191,15 +157,31 @@ const ItemDetailPage = () => {
         >
           <Card className="bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
             <CardHeader>
-              <div className="flex justify-between items-start mb-2">
-                <CardTitle className="text-3xl text-white">{item.title}</CardTitle>
-                <Badge
-                  className={item.stage === 'published' 
-                    ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50 text-lg px-3 py-1' 
-                    : 'bg-neutral-700/50 text-neutral-300 border-neutral-600 text-lg px-3 py-1'}
-                >
-                  {item.stage}
-                </Badge>
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-2">
+                <div className="flex-1 min-w-0">
+                  <CardTitle className="text-2xl sm:text-3xl text-white break-words">{item.title}</CardTitle>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge
+                      className={item.stage === 'published' 
+                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50 text-sm px-2 py-0.5' 
+                        : 'bg-neutral-700/50 text-neutral-300 border-neutral-600 text-sm px-2 py-0.5'}
+                    >
+                      {item.stage}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="flex-shrink-0 w-full sm:w-auto">
+                  <ItemActions 
+                    item={item} 
+                    connectedPlatforms={connectedPlatforms || {}}
+                    onRefresh={() => {
+                      // Reload item data
+                      if (uuid) {
+                        fetchItemDetail(uuid).then(setItem).catch(console.error);
+                      }
+                    }}
+                  />
+                </div>
               </div>
               <CardDescription className="text-base text-neutral-400">
                 {item.description}

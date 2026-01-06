@@ -7,6 +7,16 @@ export const connectCardTranslations: Translations = {
     statusConnecting: 'Connecting…',
     statusNotConnected: 'Not Connected',
     
+    // Status tooltips (for compact card)
+    statusTooltipConnected: 'Connected to {platform}',
+    statusTooltipNotConnected: 'Not connected. Click to connect.',
+    statusTooltipExpired: 'Session expired. Please reconnect.',
+    statusTooltipInvalid: 'Connection error. Please reconnect.',
+    
+    // Compact card buttons
+    connectButton: 'Connect',
+    reconnectButton: 'Reconnect',
+    
     // Connected state
     connectedTitle: 'Successfully Connected!',
     connectedDescription: 'FlipIt is now analyzing {platform} for flipping opportunities.',
@@ -73,6 +83,16 @@ export const connectCardTranslations: Translations = {
     statusConnected: 'Połączono',
     statusConnecting: 'Łączenie…',
     statusNotConnected: 'Nie połączono',
+    
+    // Status tooltips (for compact card)
+    statusTooltipConnected: 'Połączono z {platform}',
+    statusTooltipNotConnected: 'Nie połączono. Kliknij, aby połączyć.',
+    statusTooltipExpired: 'Sesja wygasła. Połącz ponownie.',
+    statusTooltipInvalid: 'Błąd połączenia. Połącz ponownie.',
+    
+    // Compact card buttons
+    connectButton: 'Połącz',
+    reconnectButton: 'Połącz ponownie',
     
     // Connected state
     connectedTitle: 'Pomyślnie połączono!',

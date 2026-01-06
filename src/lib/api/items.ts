@@ -131,3 +131,116 @@ export async function fetchItemStats(): Promise<ItemStats> {
 
   return response.json();
 }
+
+/**
+ * Duplicate an item (create a new draft copy)
+ */
+export async function duplicateItem(uuid: string): Promise<UserItem> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE}/items/${uuid}/duplicate/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    if (response.status === 404) {
+      throw new Error('Item not found');
+    }
+    throw new Error(`Failed to duplicate item: ${response.statusText}`);
+  }
+
+  const item: any = await response.json();
+  return {
+    ...item,
+    uuid: item.id || item.uuid,
+  };
+}
+
+/**
+ * Delete an item
+ */
+export async function deleteItem(uuid: string): Promise<void> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE}/items/${uuid}/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    if (response.status === 404) {
+      throw new Error('Item not found');
+    }
+    throw new Error(`Failed to delete item: ${response.statusText}`);
+  }
+}
+
+/**
+ * Publish item to a specific platform
+ */
+export async function publishItemToPlatform(
+  uuid: string, 
+  platform: Platform,
+  itemData: {
+    images: string[];
+    title: string;
+    price: string;
+    description: string;
+    category: string;
+    catalog_path?: string;
+    vinted_field_mappings?: Record<string, unknown>;
+  }
+): Promise<{ success: boolean; message?: string; listing_url?: string }> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE}/items/publish/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      draft_id: uuid,
+      platforms: [platform],
+      ...itemData,
+    }),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    if (response.status === 402) {
+      throw new Error('Insufficient credits');
+    }
+    if (response.status === 404) {
+      throw new Error('Item not found');
+    }
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Failed to publish: ${response.statusText}`);
+  }
+
+  return response.json();
+}

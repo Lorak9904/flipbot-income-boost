@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { AuthButton } from '@/components/ui/button-presets';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginWithGmail from '@/components/LoginWithGmail';
 import { SEOHead } from '@/components/SEOHead';
@@ -104,6 +104,8 @@ const LoginPage = () => {
     const params = new URLSearchParams(location.search);
     if (params.get('register') === '1') {
       setIsSignUp(true);
+    } else {
+      setIsSignUp(false);
     }
   }, [location.search]);
 
@@ -258,14 +260,12 @@ const LoginPage = () => {
                 </button>
               </motion.div>
               <motion.div variants={fadeUp} custom={6}>
-                <Button
+                <AuthButton
                   type="submit"
                   disabled={loading}
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-md shadow-fuchsia-500/20 hover:to-fuchsia-600 disabled:opacity-50"
                 >
                   {loading ? t.creatingAccountButton : t.createAccountButton}
-                </Button>
+                </AuthButton>
               </motion.div>
 
               <div className="my-8 flex items-center">
@@ -324,14 +324,12 @@ const LoginPage = () => {
                 </motion.div>
 
                 <motion.div variants={fadeUp} custom={5}>
-                  <Button
+                  <AuthButton
                     type="submit"
                     disabled={loading}
-                    size="lg"
-                    className="w-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-md shadow-fuchsia-500/20 hover:to-fuchsia-600 disabled:opacity-50"
                   >
                     {loading ? t.signingInButton : t.signInButton}
-                  </Button>
+                  </AuthButton>
                 </motion.div>
               </form>
               <div className="my-8 flex items-center">

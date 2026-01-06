@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
 import { getCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { guideTranslations } from './guide-translations';
+import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -65,7 +66,7 @@ const AutomatedResellingPlatformGuide = () => {
   const heroBadges = [t.heroBadge1, t.heroBadge2, t.heroBadge3];
   const crosslistingHighlights = [t.crosslistingPoint1, t.crosslistingPoint2, t.crosslistingPoint3];
   const futureHighlights = [t.futurePoint1, t.futurePoint2, t.futurePoint3];  return (
-    <div className="relative overflow-hidden bg-neutral-950 text-white">
+    <div className="relative min-h-screen text-white overflow-hidden">
       <SEOHead
         title={t.pageTitle}
         description={t.pageDescription}
@@ -76,124 +77,9 @@ const AutomatedResellingPlatformGuide = () => {
         language={getCurrentLanguage()}
       />
 
-      {/* Unified Animated Gradient Background */}
-      <div className="fixed inset-0 -z-20">
-        {/* Base dark background */}
-        <div className="absolute inset-0 bg-neutral-950"></div>
-        
-        {/* Animated gradient overlay - matches HomePage and HowItWorks exactly */}
-        <div className="absolute inset-0 pointer-events-none">
-          <motion.div
-            className="absolute inset-0"
-            initial={{ opacity: 1 }}
-            animate={{ opacity: [1, 0.7, 1] }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              background:
-                "radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)",
-            }}
-          />
-          <motion.div
-            className="absolute inset-0"
-            initial={{ opacity: 0.7 }}
-            animate={{ opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              background:
-                "radial-gradient(circle at 80% 40%, rgba(6, 182, 212, 0.25) 0%, transparent 50%)",
-            }}
-          />
-          <motion.div
-            className="absolute inset-0"
-            initial={{ opacity: 0.5 }}
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              background:
-                "radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
-            }}
-          />
-          <motion.div
-            className="absolute inset-0"
-            initial={{ opacity: 0.3 }}
-            animate={{ opacity: [0.3, 0.7, 0.3] }}
-            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              background:
-                "radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)",
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)",
-            }}
-          />
-          {/* Subtle warm overlay for guide page differentiation */}
-          <div
-            className="absolute inset-0 opacity-40"
-            style={{
-              background:
-                "radial-gradient(circle at 60% 30%, rgba(249, 115, 22, 0.08) 0%, transparent 60%)",
-            }}
-          />
-        </div>
-        
-        {/* Moving orbs for extra dynamism - standardized */}
-        <div className="absolute inset-0">
-          <div 
-            className="absolute w-96 h-96 rounded-full bg-gradient-to-r from-cyan-500/20 to-fuchsia-500/20 blur-3xl"
-            style={{
-              animation: 'float1 25s ease-in-out infinite',
-              left: '10%',
-              top: '10%'
-            }}
-          ></div>
-          <div 
-            className="absolute w-80 h-80 rounded-full bg-gradient-to-r from-fuchsia-500/15 to-cyan-500/15 blur-3xl"
-            style={{
-              animation: 'float2 30s ease-in-out infinite',
-              right: '15%',
-              top: '30%'
-            }}
-          ></div>
-          <div 
-            className="absolute w-72 h-72 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 blur-3xl"
-            style={{
-              animation: 'float3 35s ease-in-out infinite',
-              left: '30%',
-              bottom: '20%'
-            }}
-          ></div>
-        </div>
-      </div>
-      
-      {/* CSS Animations - standardized to match HomePage */}
-      <style>{`
-        @keyframes float1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(30px, -20px) scale(1.1); }
-          50% { transform: translate(-20px, 30px) scale(0.9); }
-          75% { transform: translate(20px, 10px) scale(1.05); }
-        }
-        
-        @keyframes float2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(-25px, 20px) scale(1.1); }
-          66% { transform: translate(15px, -30px) scale(0.95); }
-        }
-        
-        @keyframes float3 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          20% { transform: translate(20px, -15px) scale(1.05); }
-          40% { transform: translate(-30px, 25px) scale(0.9); }
-          60% { transform: translate(25px, 20px) scale(1.1); }
-          80% { transform: translate(-15px, -25px) scale(0.95); }
-        }
-      `}</style>
+      <AnimatedGradientBackground />
 
-            {/* Hero Section */}
+      {/* Hero Section */}
       <section className="relative isolate overflow-hidden min-h-[60vh] flex items-center justify-center py-24">
         <div className="container mx-auto px-8">
           <div className="flex flex-col items-center text-center w-full max-w-3xl mx-auto">
@@ -231,20 +117,6 @@ const AutomatedResellingPlatformGuide = () => {
               </motion.div>
             </motion.div>
           </div>
-        </div>
-        
-        {/* Enhanced gradient ring decoration */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-[-10%] -z-10 transform-gpu overflow-hidden blur-3xl"
-        >
-          <div
-            className="relative left-1/2 aspect-[1155/678] w-[72.1875rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-fuchsia-500/30 to-cyan-500/20 opacity-30"
-            style={{
-              clipPath:
-                'polygon(74% 44%, 100% 74%, 91% 100%, 28% 93%, 0 53%, 33% 0, 67% 0)',
-            }}
-          ></div>
         </div>
       </section>
 

@@ -1,9 +1,10 @@
 
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { HeroCTA } from '@/components/ui/button-presets';
 import { SEOHead } from '@/components/SEOHead';
 import { getTranslations, getCurrentLanguage } from '../components/language-utils';
+import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { successStoriesTranslations } from './successstories-translations';
 
 const fadeUp = {
@@ -82,57 +83,7 @@ const SuccessStoriesPage = () => {
         keywords={keywords}
       />
 
-      {/* Animated Background - matches Guide/FAQ/HowItWorks */}
-      <div className="fixed inset-0 -z-20">
-        <div className="absolute inset-0 bg-neutral-950" />
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: [1, 0.7, 1] }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-          style={{
-            background:
-              'radial-gradient(circle at 20% 20%, rgba(236,72,153,.3) 0%, transparent 50%)',
-          }}
-        />
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 0.7 }}
-          animate={{ opacity: [0.7, 1, 0.7] }}
-          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-          style={{
-            background:
-              'radial-gradient(circle at 80% 40%, rgba(6,182,212,.25) 0%, transparent 50%)',
-          }}
-        />
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 0.5 }}
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
-          style={{
-            background:
-              'radial-gradient(circle at 40% 80%, rgba(168,85,247,.2) 0%, transparent 50%)',
-          }}
-        />
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 0.3 }}
-          animate={{ opacity: [0.3, 0.7, 0.3] }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-          style={{
-            background:
-              'radial-gradient(circle at 90% 90%, rgba(236,72,153,.15) 0%, transparent 50%)',
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(135deg, rgba(6,182,212,.1) 0%, rgba(236,72,153,.1) 100%)',
-          }}
-        />
-      </div>
+      <AnimatedGradientBackground />
 
       {/* Hero Section */}
       <section className="relative py-16 md:py-24 text-center px-4">
@@ -262,13 +213,9 @@ const SuccessStoriesPage = () => {
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto mb-8 px-2">
             Join our waitlist to be among the first to access FlipIt's AI-powered crosslisting automation.
           </p>
-          <Button
-            asChild
-            size="lg"
-            className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/20 hover:to-fuchsia-600 text-lg px-8 py-6"
-          >
+          <HeroCTA asChild className="text-lg px-8 py-6">
             <Link to="/get-started">Join the Waitlist</Link>
-          </Button>
+          </HeroCTA>
         </motion.div>
       </section>
     </div>

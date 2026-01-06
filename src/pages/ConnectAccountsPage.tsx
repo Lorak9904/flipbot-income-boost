@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
+import { HeroCTA } from '@/components/ui/button-presets';
 import {
   Tooltip,
   TooltipContent,
@@ -7,16 +7,18 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import ConnectAccountCard from '@/components/ConnectAccountCard';
+import ConnectAccountCard from '@/components/ConnectAccountCardCompact';
 import { CheckCircle, ArrowRight, Lock, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { ConnectOlxButton } from '@/pages/ConnectOlxButton';
+import { ConnectEbayButton } from '@/pages/ConnectEbayButton';
 import { useToast } from '@/hooks/use-toast';
 import { SEOHead } from '@/components/SEOHead';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getTranslations } from '@/components/language-utils';
 import { connectAccountsTranslations } from './connect-accounts-translations';
+import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -26,6 +28,7 @@ const fadeUp = {
     transition: { delay: 0.15 * i, duration: 0.6, ease: 'easeOut' },
   }),
 };
+
 
 const ConnectAccountsPage = () => {
   const { isAuthenticated, user } = useAuth();
@@ -145,6 +148,27 @@ const ConnectAccountsPage = () => {
       window.history.replaceState({}, document.title, location.pathname);
     }
     
+    // Handle eBay connection success
+    if (platform === "ebay" && status === "connected") {
+      toast({
+        title: "eBay Connected! 🎉",
+        description: "Your eBay account has been successfully connected.",
+        variant: "default",
+      });
+      refetch();
+      window.history.replaceState({}, document.title, location.pathname);
+    }
+    
+    // Handle eBay connection error
+    if (platform === "ebay" && status === "error") {
+      toast({
+        title: "eBay Connection Failed",
+        description: message || "Failed to connect eBay account. Please try again.",
+        variant: "destructive",
+      });
+      window.history.replaceState({}, document.title, location.pathname);
+    }
+    
     // Handle reconnect requests (expired token)
     if (reconnect === "olx") {
       toast({
@@ -171,110 +195,7 @@ const ConnectAccountsPage = () => {
           canonicalUrl="https://myflipit.live/connect-accounts"
           robots="noindex, nofollow"
         />
-        {/* Background from HomePage */}
-        <div className="fixed inset-0 -z-20">
-          <div className="absolute inset-0 bg-neutral-950"></div>
-          <div className="absolute inset-0 pointer-events-none">
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 1 }}
-              animate={{ opacity: [1, 0.7, 1] }}
-              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background:
-                  "radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)",
-              }}
-            />
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0.7 }}
-              animate={{ opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background:
-                  "radial-gradient(circle at 80% 40%, rgba(6, 182, 212, 0.25) 0%, transparent 50%)",
-              }}
-            />
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0.5 }}
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background:
-                  "radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
-              }}
-            />
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0.3 }}
-              animate={{ opacity: [0.3, 0.7, 0.3] }}
-              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                background:
-                  "radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)",
-              }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)",
-              }}
-            />
-          </div>
-          
-          <div className="absolute inset-0">
-            <div 
-              className="absolute w-96 h-96 rounded-full bg-gradient-to-r from-cyan-500/20 to-fuchsia-500/20 blur-3xl"
-              style={{
-                animation: 'float1 25s ease-in-out infinite',
-                left: '10%',
-                top: '10%'
-              }}
-            ></div>
-            <div 
-              className="absolute w-80 h-80 rounded-full bg-gradient-to-r from-fuchsia-500/15 to-cyan-500/15 blur-3xl"
-              style={{
-                animation: 'float2 30s ease-in-out infinite',
-                right: '15%',
-                top: '30%'
-              }}
-            ></div>
-            <div 
-              className="absolute w-72 h-72 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 blur-3xl"
-              style={{
-                animation: 'float3 35s ease-in-out infinite',
-                left: '30%',
-                bottom: '20%'
-              }}
-            ></div>
-          </div>
-        </div>
-
-        {/* CSS Animations */}
-        <style>{`
-          @keyframes float1 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(30px, -20px) scale(1.1); }
-            50% { transform: translate(-20px, 30px) scale(0.9); }
-            75% { transform: translate(20px, 10px) scale(1.05); }
-          }
-          
-          @keyframes float2 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(-25px, 20px) scale(1.1); }
-            66% { transform: translate(15px, -30px) scale(0.95); }
-          }
-          
-          @keyframes float3 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            20% { transform: translate(20px, -15px) scale(1.05); }
-            40% { transform: translate(-30px, 25px) scale(0.9); }
-            60% { transform: translate(25px, 20px) scale(1.1); }
-            80% { transform: translate(-15px, -25px) scale(0.95); }
-          }
-        `}</style>
+        <AnimatedGradientBackground />
 
         <div className="container mx-auto min-h-[70vh] flex items-center justify-center">
           <div className="text-center">
@@ -294,110 +215,7 @@ const ConnectAccountsPage = () => {
         canonicalUrl="https://myflipit.live/connect-accounts"
         robots="noindex, nofollow"
       />
-      {/* Unified Animated Gradient Background */}
-      <div className="fixed inset-0 -z-20">
-        <div className="absolute inset-0 bg-neutral-950"></div>
-        <div className="absolute inset-0 pointer-events-none">
-          <motion.div
-            className="absolute inset-0"
-            initial={{ opacity: 1 }}
-            animate={{ opacity: [1, 0.7, 1] }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              background:
-                "radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)",
-            }}
-          />
-          <motion.div
-            className="absolute inset-0"
-            initial={{ opacity: 0.7 }}
-            animate={{ opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              background:
-                "radial-gradient(circle at 80% 40%, rgba(6, 182, 212, 0.25) 0%, transparent 50%)",
-            }}
-          />
-          <motion.div
-            className="absolute inset-0"
-            initial={{ opacity: 0.5 }}
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              background:
-                "radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
-            }}
-          />
-          <motion.div
-            className="absolute inset-0"
-            initial={{ opacity: 0.3 }}
-            animate={{ opacity: [0.3, 0.7, 0.3] }}
-            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              background:
-                "radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)",
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)",
-            }}
-          />
-        </div>
-        
-        <div className="absolute inset-0">
-          <div 
-            className="absolute w-96 h-96 rounded-full bg-gradient-to-r from-cyan-500/20 to-fuchsia-500/20 blur-3xl"
-            style={{
-              animation: 'float1 25s ease-in-out infinite',
-              left: '10%',
-              top: '10%'
-            }}
-          ></div>
-          <div 
-            className="absolute w-80 h-80 rounded-full bg-gradient-to-r from-fuchsia-500/15 to-cyan-500/15 blur-3xl"
-            style={{
-              animation: 'float2 30s ease-in-out infinite',
-              right: '15%',
-              top: '30%'
-            }}
-          ></div>
-          <div 
-            className="absolute w-72 h-72 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 blur-3xl"
-            style={{
-              animation: 'float3 35s ease-in-out infinite',
-              left: '30%',
-              bottom: '20%'
-            }}
-          ></div>
-        </div>
-      </div>
-
-      {/* CSS Animations */}
-      <style>{`
-        @keyframes float1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(30px, -20px) scale(1.1); }
-          50% { transform: translate(-20px, 30px) scale(0.9); }
-          75% { transform: translate(20px, 10px) scale(1.05); }
-        }
-        
-        @keyframes float2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(-25px, 20px) scale(1.1); }
-          66% { transform: translate(15px, -30px) scale(0.95); }
-        }
-        
-        @keyframes float3 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          20% { transform: translate(20px, -15px) scale(1.05); }
-          40% { transform: translate(-30px, 25px) scale(0.9); }
-          60% { transform: translate(25px, 20px) scale(1.1); }
-          80% { transform: translate(-15px, -25px) scale(0.95); }
-        }
-      `}</style>
+      <AnimatedGradientBackground />
 
       {/* Content */}
       <div className="container mx-auto py-12 relative z-10">
@@ -423,7 +241,7 @@ const ConnectAccountsPage = () => {
             </motion.p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
             <ConnectAccountCard
               key="facebook-card"
               platform="facebook"
@@ -439,7 +257,6 @@ const ConnectAccountsPage = () => {
               logoSrc="https://images.seeklogo.com/logo-png/39/1/olx-logo-png_seeklogo-390322.png"
               isConnected={!!connectedPlatforms?.olx}
               onConnected={handleAccountConnected}
-              action={!connectedPlatforms?.olx && <ConnectOlxButton />}
             />
             <ConnectAccountCard
               key="vinted-card"
@@ -448,125 +265,16 @@ const ConnectAccountsPage = () => {
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/2/29/Vinted_logo.png"
               isConnected={!!connectedPlatforms?.vinted}
               onConnected={handleAccountConnected}
-              sessionStatus={connectedPlatforms?.vinted_session_status}  // Task 1: Pass status
+              sessionStatus={connectedPlatforms?.vinted_session_status}
               invalidReason={connectedPlatforms?.vinted_invalid_reason}
-              action={connectedPlatforms?.vinted_has_session && !connectedPlatforms?.vinted ? (
-                <div className="space-y-3">
-                  {/* Task 1: Show actionable message based on status */}
-                  {connectedPlatforms?.vinted_session_status === 'invalid' ? (
-                    <>
-                      <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                        <p className="text-red-300 text-sm font-medium">🚫 Authentication Failed</p>
-                        <p className="text-red-200/80 text-xs mt-1">
-                          {connectedPlatforms?.vinted_invalid_reason || 'Your Vinted session is permanently invalid. Please re-add your cookies below.'}
-                        </p>
-                      </div>
-                      <p className="text-slate-300 text-sm italic">
-                        ⚠️ Refresh won't work. You need to disconnect and re-add fresh cookies.
-                      </p>
-                    </>
-                  ) : connectedPlatforms?.vinted_session_status === 'expired' ? (
-                    <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                      <p className="text-amber-300 text-sm font-medium">⏰ Session Expired</p>
-                      <p className="text-amber-200/80 text-xs mt-1">
-                        Your Vinted cookies need a refresh. Click the button below to try reconnecting.
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-slate-300 text-sm">
-                      {t.vintedRefreshMessage}
-                    </p>
-                  )}
-                  
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="inline-block w-full">
-                          <Button
-                            onClick={async () => {
-                              const token = localStorage.getItem('flipit_token');
-                              try {
-                                const resp = await fetch('/api/vinted/refresh', {
-                                  method: 'POST',
-                                  headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${token}`,
-                                  },
-                                });
-                                
-                                const body = await resp.json();
-                                
-                                // Task 1: Handle different statuses with actionable messages
-                                if (resp.status === 403 && body.status === 'invalid') {
-                                  toast({ 
-                                    title: '🚫 Cannot Refresh', 
-                                    description: body.detail || 'Session permanently invalid. Please re-add cookies.', 
-                                    variant: 'destructive' 
-                                  });
-                                  await refetch();  // Update UI to show invalid state
-                                  return;
-                                }
-                                
-                                if (!resp.ok) {
-                                  const errorMsg = body.detail || 'Failed to refresh Vinted cookies';
-                                  toast({ 
-                                    title: body.status === 'expired' ? '⏰ Refresh Failed' : '❌ Error', 
-                                    description: errorMsg, 
-                                    variant: 'destructive' 
-                                  });
-                                  await refetch();
-                                  return;
-                                }
-                                
-                                if (body.connected) {
-                                  await refetch();
-                                  toast({ title: '✅ Vinted Connected', description: t.toastVintedConnectedDescription });
-                                } else {
-                                  toast({ title: t.toastVintedNotConnectedTitle, description: `Status ${body.status_code || ''}`, variant: 'destructive' });
-                                }
-                              } catch (e: any) {
-                                toast({ title: t.toastVintedRefreshFailedTitle, description: e.message, variant: 'destructive' });
-                              }
-                            }}
-                            disabled={connectedPlatforms?.vinted_session_status === 'invalid'}  // Task 1: Disable when invalid
-                            className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white disabled:opacity-50 disabled:cursor-not-allowed w-full"
-                          >
-                            {t.vintedRefreshButton}
-                          </Button>
-                        </div>
-                      </TooltipTrigger>
-                      {connectedPlatforms?.vinted_session_status === 'invalid' && (
-                        <TooltipContent side="bottom" className="bg-slate-800 border-red-500/50 max-w-xs">
-                          <p className="text-sm">
-                            🚫 <strong>Cannot refresh invalid session</strong><br />
-                            Please disconnect and re-add fresh cookies. Check the "How to connect" instructions above.
-                          </p>
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </TooltipProvider>
-                  <Button
-                    variant="outline"
-                    className="text-red-500 border-red-300 hover:bg-red-50 hover:text-red-700 transition"
-                    onClick={async () => {
-                      const token = localStorage.getItem('flipit_token');
-                      try {
-                        const response = await fetch(`/api/delete-session/vinted`, {
-                          method: 'DELETE',
-                          headers: { 'Authorization': `Bearer ${token}` },
-                        });
-                        if (!response.ok) throw new Error('Failed to disconnect Vinted');
-                        await refetch();
-                        toast({ title: t.toastVintedDisconnectedTitle, description: t.toastVintedDisconnectedDescription });
-                      } catch (err: any) {
-                        toast({ title: t.toastVintedDisconnectFailedTitle, description: err.message, variant: 'destructive' });
-                      }
-                    }}
-                  >
-                    {t.vintedDisconnectButton}
-                  </Button>
-                </div>
-              ) : undefined}
+            />
+            <ConnectAccountCard
+              key="ebay-card"
+              platform="ebay"
+              platformName={t.platformEbay}
+              logoSrc="https://upload.wikimedia.org/wikipedia/commons/1/1b/EBay_logo.svg"
+              isConnected={!!connectedPlatforms?.ebay}
+              onConnected={handleAccountConnected}
             />
           </div>
           
@@ -582,14 +290,11 @@ const ConnectAccountsPage = () => {
                 ? t.ctaConnectedMessage
                 : t.ctaNotConnectedMessage}
             </p>
-            <Button 
-              asChild 
-              className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 text-white"
-            >
+            <HeroCTA asChild>
               <Link to="/">
                 {t.ctaDashboardButton} <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
-            </Button>
+            </HeroCTA>
           </motion.div>
         </motion.div>
       </div>

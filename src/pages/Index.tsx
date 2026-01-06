@@ -1,6 +1,5 @@
-import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { HeroCTA, SecondaryActionWithArrow } from '@/components/ui/button-presets';
 import { motion } from 'framer-motion';
 
 // Re–usable fade‑up animation
@@ -51,24 +50,15 @@ const Index = () => {
             variants={fadeUp}
             className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
           >
-            <Button
-              asChild
-              size="lg"
-              className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/20 hover:to-fuchsia-600"
-            >
+            <HeroCTA asChild>
               <Link to="/get-started">Get started now</Link>
-            </Button>
+            </HeroCTA>
 
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
-            >
-              <Link to="/how-it-works" className="flex items-center gap-2">
-                How it works <ArrowRight className="h-5 w-5" />
-              </Link>
-            </Button>
+            <Link to="/how-it-works">
+              <SecondaryActionWithArrow>
+                How it works
+              </SecondaryActionWithArrow>
+            </Link>
           </motion.div>
         </div>
       </section>

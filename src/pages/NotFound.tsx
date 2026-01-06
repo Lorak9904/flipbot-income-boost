@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { HeroCTA } from '@/components/ui/button-presets';
 
 const NotFound = () => {
   const location = useLocation();
@@ -24,9 +24,9 @@ const NotFound = () => {
       <p className="mb-8 max-w-md text-center text-neutral-300">
         The page you’re looking for doesn’t exist or has been moved.
       </p>
-      <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/20 hover:to-fuchsia-600">
+      <HeroCTA asChild>
         <Link to="/">Return to Home</Link>
-      </Button>
+      </HeroCTA>
     </div>
   );
 };
