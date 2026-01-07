@@ -78,7 +78,7 @@ const HowItWorksPage = () => {
               variants={fadeUp}
               className="space-y-8"
             >
-              <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-tight">
+              <h1 className="fluid-text-xl font-extrabold tracking-tight leading-tight text-balance">
                 {t.heroTitle}
               </h1>
               <p className="max-w-2xl text-lg/relaxed text-neutral-300 mx-auto">

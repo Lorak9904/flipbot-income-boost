@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AddItemButton } from "@/components/ui/button-presets";
 
 const COOKIE_KEY = "flipit_cookie_consent";
 
@@ -45,9 +46,9 @@ export default function CookieBanner() {
         Używamy tylko niezbędnych plików cookie, aby aplikacja działała poprawnie.{" "}
         <a href="/privacy" className="underline">Dowiedz się więcej</a>.
       </p>
-      <button onClick={accept} className="btn btn-sm btn-primary">
+      <AddItemButton onClick={accept} className="w-full justify-center px-4 py-2 button-fluid-text">
         Akceptuję
-      </button>
+      </AddItemButton>
     </div>
   );
 }

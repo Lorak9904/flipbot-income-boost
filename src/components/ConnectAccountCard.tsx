@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { AddItemButton, SecondaryAction, ManageButton, DeleteButton } from '@/components/ui/button-presets';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Check, AlertCircle, Loader2, X, Copy, Info, Clipboard, ArrowRight, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -218,19 +219,15 @@ const ConnectAccountCard = ({
                 {tr('connectedDescription', { platform: platformName })}
               </p>
               <div className="flex justify-center gap-2 mt-4 flex-wrap">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-cyan-400 border-cyan-400/50 hover:bg-cyan-400/10 transition min-w-0 max-w-[140px]"
+                <ManageButton
                   onClick={() => navigate(`/platform-settings/${platform}`)}
+                  className="px-3 sm:px-4 py-2 text-sm min-w-0 max-w-[140px]"
                 >
                   <Settings className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" /> 
                   <span className="truncate">{t.settingsButton || 'Settings'}</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-red-500 border-red-300 hover:bg-red-50 hover:text-red-700 transition min-w-0 max-w-[140px]"
+                </ManageButton>
+                <DeleteButton
+                  className="px-3 sm:px-4 py-2 text-sm min-w-0 max-w-[140px]"
                   onClick={async () => {
                     try {
                       const token = localStorage.getItem('flipit_token');
@@ -252,7 +249,7 @@ const ConnectAccountCard = ({
                 >
                   <X className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" /> 
                   <span className="truncate">{t.disconnectButton}</span>
-                </Button>
+                </DeleteButton>
               </div>
             </div>
           ) : showManual ? (
@@ -499,22 +496,21 @@ const ConnectAccountCard = ({
                 </>
               )}
               <div className="flex gap-3 flex-wrap">
-                <Button 
+                <AddItemButton 
                   type="submit" 
-                  className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex-1 min-w-[120px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 min-w-[120px]"
                   disabled={status === 'connecting'}
                 >
                   {status === 'connecting' ? <Loader2 className="mr-2 h-4 w-4 animate-spin flex-shrink-0" /> : null}
                   <span className="truncate">Connect {platformName}</span>
-                </Button>
-                <Button 
+                </AddItemButton>
+                <SecondaryAction 
                   type="button" 
-                  variant="outline" 
                   onClick={() => setShowManual(false)}
-                  className="border-slate-500/50 bg-slate-800/50 text-slate-300 hover:bg-slate-700/70 hover:border-slate-400/50 hover:text-white transition-all duration-200 min-w-[100px] flex-shrink-0"
+                  className="min-w-[100px] flex-shrink-0"
                 >
                   Cancel
-                </Button>
+                </SecondaryAction>
               </div>
             </form>
           ) : (
@@ -524,12 +520,12 @@ const ConnectAccountCard = ({
                   {tr('notConnectedDescription', { platform: platformName })}
                 </p>
                 <div className="flex flex-col gap-2">
-                  <Button
+                  <AddItemButton
                     onClick={() => setShowManual(true)}
-                    className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 border-0"
+                    className="w-full"
                   >
                     {t.manualConnectButtonCta}
-                  </Button>
+                  </AddItemButton>
                 </div>
               </div>
             )

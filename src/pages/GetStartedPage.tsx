@@ -157,7 +157,7 @@ const GetStartedPage = () => {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6"
+            className="fluid-text-lg font-extrabold tracking-tight leading-tight mb-6 text-balance"
           >
             {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight}</span> {t.heroTitleEnd}
           </motion.h1>

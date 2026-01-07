@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { HeroCTA, SecondaryAction } from '@/components/ui/button-presets';
 import { Link } from 'react-router-dom';
 
 interface PricingCardProps {
@@ -14,7 +14,6 @@ interface PricingCardProps {
   badge?: string;
   ctaText: string;
   ctaLink: string;
-  ctaVariant?: 'default' | 'outline' | 'secondary';
   index: number;
 }
 
@@ -38,7 +37,6 @@ export const PricingCard = ({
   badge,
   ctaText,
   ctaLink,
-  ctaVariant = 'default',
   index,
 }: PricingCardProps) => {
   const displayPrice = billingCycle === 'annual' && annualPrice ? annualPrice : price;
@@ -96,19 +94,15 @@ export const PricingCard = ({
         </ul>
       </div>
       
-      <Button
-        asChild
-        variant={ctaVariant}
-        className={`w-full h-11 ${
-          featured
-            ? 'bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/30'
-            : ctaVariant === 'outline'
-            ? 'border-cyan-400 text-cyan-400 hover:bg-cyan-400/10'
-            : 'bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:to-fuchsia-600 text-white'
-        }`}
-      >
-        <Link to={ctaLink}>{ctaText}</Link>
-      </Button>
+      {featured ? (
+        <HeroCTA asChild className="w-full">
+          <Link to={ctaLink}>{ctaText}</Link>
+        </HeroCTA>
+      ) : (
+        <SecondaryAction asChild className="w-full">
+          <Link to={ctaLink}>{ctaText}</Link>
+        </SecondaryAction>
+      )}
     </motion.div>
   );
 };

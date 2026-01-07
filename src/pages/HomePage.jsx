@@ -1,5 +1,5 @@
 ﻿import { ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { HeroCTA, SecondaryActionWithArrow } from '@/components/ui/button-presets';
 import { SEOHead } from '@/components/SEOHead';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -168,46 +168,35 @@ const HomePage = () => {
 
       {/* Hero Section - Improved layout with title as main eye-catcher */}
       <section className="relative isolate overflow-hidden min-h-[70vh] flex items-center justify-center py-24">
-        <div className="container mx-auto px-8">
-          <div className="flex flex-col items-center text-center w-full max-w-3xl mx-auto">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              className="space-y-8 mb-16"
-            >
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-8 py-1 text-sm font-medium text-white backdrop-blur-md">
-                {t.newRelease}
-              </span>
-              <h1 className="my-custom-font text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-tight">
-                {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight1}</span> {t.heroTitleEnd}&nbsp;
-                <span className="bg-gradient-to-r from-fuchsia-400 to-cyan-400 inline-block text-transparent bg-clip-text">{t.heroTitleHighlight2}</span>.
-              </h1>
-              <p className="max-w-2xl text-lg/relaxed text-neutral-300 mx-auto">
-                {t.heroDescription}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center">
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/20"
-                >
-                  <Link to="/add-item">{t.startFlipping}</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
-                >
-                  <Link to="/how-it-works" className="flex items-center">
-                    {t.seeHowItWorks} <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-              </div>
-            </motion.div>
-          </div>
+        <div className="container mx-auto px-4 sm:px-6 md:px-8">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+            className="text-center mb-16"
+          >
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-8 py-1 text-sm font-medium text-white backdrop-blur-md mb-8">
+              {t.newRelease}
+            </span>
+            <h1 className="my-custom-font hero-title font-extrabold tracking-tight leading-tight mb-8 max-w-5xl mx-auto">
+              {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight1}</span> {t.heroTitleEnd}&nbsp;
+              <span className="bg-gradient-to-r from-fuchsia-400 to-cyan-400 inline-block text-transparent bg-clip-text">{t.heroTitleHighlight2}</span>.
+            </h1>
+            <p className="max-w-2xl text-lg/relaxed text-neutral-300 mx-auto mb-8">
+              {t.heroDescription}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <HeroCTA asChild>
+                <Link to="/add-item">{t.startFlipping}</Link>
+              </HeroCTA>
+              <Link to="/how-it-works">
+                <SecondaryActionWithArrow>
+                  {t.seeHowItWorks}
+                </SecondaryActionWithArrow>
+              </Link>
+            </div>
+          </motion.div>
         </div>
 
         {/* Enhanced gradient ring decoration */}
@@ -227,21 +216,21 @@ const HomePage = () => {
 
       {/* Features Section - Now seamlessly integrated */}
       <section className="relative py-24">
-        <div className="container mx-auto px-8 relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 md:px-8 relative z-10">
           <motion.div
             initial="hidden"
             whileInView="visible"
             variants={fadeUp}
             viewport={{ once: true }}
-            className="text-center mb-20"
+            className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold">{t.whyLoveTitle}</h2>
-            <p className="mt-4 text-neutral-300 max-w-3xl mx-auto p-8">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t.whyLoveTitle}</h2>
+            <p className="text-neutral-300 max-w-3xl mx-auto">
               {t.whyLoveSubtitle}
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
             {[
               {
                   Icon: Users,
@@ -284,7 +273,7 @@ const HomePage = () => {
 
       {/* Product widget section - Moved below the features section */}
       <section className="relative py-16">
-        <div className="container mx-auto px-8">
+        <div className="container mx-auto px-4 sm:px-6 md:px-8">
           <motion.div
             custom={4}
             initial="hidden"
@@ -334,7 +323,7 @@ const HomePage = () => {
       
       {/* Greatest Call to Action Section */}
       <section className="relative py-12">
-        <div className="container mx-auto px-8 relative z-10 flex flex-col items-center justify-center">
+        <div className="container mx-auto px-4 sm:px-6 md:px-8 relative z-10 flex flex-col items-center justify-center">
           <div className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center transition-all duration-300 hover:shadow-[0_0_50px_rgba(6,182,212,0.4)] hover:-translate-y-1">
             <h2 className="text-3xl md:text-5xl font-extrabold mb-6 text-white drop-shadow-lg">
               {t.ctaTitle}
@@ -342,13 +331,9 @@ const HomePage = () => {
             <p className="md:text-lg text-neutral-300 mb-8">
               {t.ctaDescription}
             </p>
-            <Button
-              asChild
-              size="xl"
-              className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:to-fuchsia-600 text-white text-xl px-10 py-5 shadow-lg shadow-fuchsia-500/30 font-bold rounded-full"
-            >
+            <HeroCTA asChild>
               <Link to="/add-item">{t.ctaButton}</Link>
-            </Button>
+            </HeroCTA>
           </div>
         </div>
       </section>

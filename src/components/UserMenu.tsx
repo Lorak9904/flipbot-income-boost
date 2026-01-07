@@ -49,16 +49,16 @@ const UserMenu = () => {
       <DropdownMenuTrigger asChild>
         <Button 
           variant="outline" 
-          className="flex items-center gap-2 text-black border-white/20 hover:bg-white/10"
+          className="h-10 rounded-full px-3 flex items-center gap-2 text-black border-white/20 hover:bg-white/10"
         >
           {user?.avatar ? (
             <img 
               src={user.avatar} 
               alt={user.name} 
-              className="w-5 h-5 rounded-full object-cover"
+              className="w-6 h-6 rounded-full object-cover"
             />
           ) : (
-            <div className="w-5 h-5 bg-teal-500 rounded-full flex items-center justify-center text-white text-xs">
+            <div className="w-6 h-6 bg-teal-500 rounded-full flex items-center justify-center text-white text-xs">
               {user?.name?.charAt(0).toUpperCase()}
             </div>
           )}

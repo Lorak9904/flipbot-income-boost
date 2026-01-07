@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { AddItemButton, SecondaryAction, DeleteButton, GhostIconButton } from '@/components/ui/button-presets';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -160,12 +161,12 @@ export function ItemActions({
       <>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <GhostIconButton sizeVariant="lg">
               <MoreVertical className="h-4 w-4" />
-            </Button>
+            </GhostIconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-700">
-            <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
+            <DropdownMenuItem onClick={handleEdit} className="cursor-pointer text-white">
               <Edit className="mr-2 h-4 w-4" />
               {t.actions.edit}
             </DropdownMenuItem>
@@ -173,7 +174,7 @@ export function ItemActions({
             <DropdownMenuItem 
               onClick={handleDuplicate} 
               disabled={isDuplicating}
-              className="cursor-pointer"
+              className="cursor-pointer text-white"
             >
               {isDuplicating ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -184,7 +185,7 @@ export function ItemActions({
             </DropdownMenuItem>
             
             {availablePlatforms.length > 0 && (
-              <DropdownMenuItem onClick={handlePublishClick} className="cursor-pointer">
+              <DropdownMenuItem onClick={handlePublishClick} className="cursor-pointer text-white">
                 <Upload className="mr-2 h-4 w-4" />
                 {isPublished ? t.actions.publishToAnother : t.actions.publish}
               </DropdownMenuItem>
@@ -212,17 +213,16 @@ export function ItemActions({
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button variant="ghost" onClick={() => setShowDeleteDialog(false)}>
+              <SecondaryAction onClick={() => setShowDeleteDialog(false)} className="px-4 py-2">
                 {t.confirmations.deleteCancel}
-              </Button>
-              <Button 
-                variant="destructive" 
+              </SecondaryAction>
+              <DeleteButton 
                 onClick={handleDelete}
                 disabled={isDeleting}
               >
                 {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {t.confirmations.deleteConfirm}
-              </Button>
+              </DeleteButton>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -279,9 +279,9 @@ export function ItemActions({
               })}
             </div>
             <DialogFooter>
-              <Button variant="ghost" onClick={() => setShowPlatformPicker(false)}>
+              <SecondaryAction onClick={() => setShowPlatformPicker(false)} className="px-4 py-2">
                 {t.platformPicker.cancel}
-              </Button>
+              </SecondaryAction>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -296,33 +296,35 @@ export function ItemActions({
         {/* Primary CTA - Edit or Publish based on status */}
         {isDraft ? (
           <>
-            <Button 
+            <AddItemButton 
+              size="lg"
               onClick={handlePublishClick}
-              className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-600 hover:to-fuchsia-600 text-white"
+              className="flex items-center gap-2"
               disabled={availablePlatforms.length === 0}
             >
-              <Upload className="mr-2 h-4 w-4" />
+              <Upload className="h-4 w-4" />
               {t.actions.publish}
-            </Button>
-            <Button variant="outline" onClick={handleEdit} className="border-neutral-700 text-white hover:bg-neutral-800">
-              <Edit className="mr-2 h-4 w-4" />
+            </AddItemButton>
+            <SecondaryAction onClick={handleEdit} className="flex items-center gap-2">
+              <Edit className="h-4 w-4" />
               {t.actions.edit}
-            </Button>
+            </SecondaryAction>
           </>
         ) : (
           <>
-            <Button variant="outline" onClick={handleEdit} className="border-neutral-700 text-white hover:bg-neutral-800">
-              <Edit className="mr-2 h-4 w-4" />
+            <SecondaryAction onClick={handleEdit} className="flex items-center gap-2">
+              <Edit className="h-4 w-4" />
               {t.actions.editListing}
-            </Button>
+            </SecondaryAction>
             {availablePlatforms.length > 0 && (
-              <Button 
+              <AddItemButton 
+                size="lg"
                 onClick={handlePublishClick}
-                className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-600 hover:to-fuchsia-600 text-white"
+                className="flex items-center gap-2"
               >
-                <Upload className="mr-2 h-4 w-4" />
+                <Upload className="h-4 w-4" />
                 {t.actions.publishToAnother}
-              </Button>
+              </AddItemButton>
             )}
           </>
         )}
@@ -330,9 +332,9 @@ export function ItemActions({
         {/* Secondary actions in dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="border-neutral-700 text-white hover:bg-neutral-800">
+            <GhostIconButton sizeVariant="lg">
               <MoreVertical className="h-4 w-4" />
-            </Button>
+            </GhostIconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-700">
             <DropdownMenuItem 
@@ -371,17 +373,16 @@ export function ItemActions({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="ghost" onClick={() => setShowDeleteDialog(false)}>
+            <SecondaryAction onClick={() => setShowDeleteDialog(false)}>
               {t.confirmations.deleteCancel}
-            </Button>
-            <Button 
-              variant="destructive" 
+            </SecondaryAction>
+            <DeleteButton 
               onClick={handleDelete}
               disabled={isDeleting}
             >
               {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {t.confirmations.deleteConfirm}
-            </Button>
+            </DeleteButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -438,9 +439,9 @@ export function ItemActions({
             })}
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setShowPlatformPicker(false)}>
+            <SecondaryAction onClick={() => setShowPlatformPicker(false)} className="px-4 py-2">
               {t.platformPicker.cancel}
-            </Button>
+            </SecondaryAction>
           </DialogFooter>
         </DialogContent>
       </Dialog>

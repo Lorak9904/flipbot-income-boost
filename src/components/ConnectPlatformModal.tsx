@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { AddItemButton, SecondaryAction } from '@/components/ui/button-presets';
 import {
   Dialog,
   DialogContent,
@@ -390,9 +391,9 @@ export const ConnectPlatformModal = ({
 
           {/* Action Buttons */}
           <div className="flex gap-3 flex-wrap pt-2">
-            <Button
+            <AddItemButton
               type="submit"
-              className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex-1 min-w-[120px] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 min-w-[120px]"
               disabled={status === 'connecting'}
             >
               {status === 'connecting' ? (
@@ -401,16 +402,15 @@ export const ConnectPlatformModal = ({
               <span className="truncate">
                 {tr('manualConnectButton', { platform: platformName })}
               </span>
-            </Button>
-            <Button
+            </AddItemButton>
+            <SecondaryAction
               type="button"
-              variant="outline"
               onClick={handleClose}
               disabled={status === 'connecting'}
-              className="border-slate-500/50 bg-slate-800/50 text-slate-300 hover:bg-slate-700/70 hover:border-slate-400/50 hover:text-white transition-all duration-200 min-w-[100px] flex-shrink-0"
+              className="min-w-[100px] flex-shrink-0"
             >
               {t.manualConnectCancel}
-            </Button>
+            </SecondaryAction>
           </div>
         </form>
       </DialogContent>

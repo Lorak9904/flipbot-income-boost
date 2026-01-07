@@ -1,14 +1,22 @@
 ﻿import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { NavbarLogin, NavbarSignup, AddItemButton } from '@/components/ui/button-presets';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Menu, X, Globe, CreditCard } from 'lucide-react';
+import { Menu, X, CreditCard } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCredits } from '@/hooks/useCredits';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getTranslations, toggleLanguage } from './language-utils';
+import { getTranslations, toggleLanguage, getCurrentLanguage } from './language-utils';
 import { navbarTranslations } from './navbar-translations';
+import ReactCountryFlag from 'react-country-flag';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,20 +24,29 @@ const Navbar = () => {
   const { isAuthenticated } = useAuth();
   const { data: credits } = useCredits();
   const t = getTranslations(navbarTranslations);
+  const lang = getCurrentLanguage();
+  const flagCode = lang === 'pl' ? 'PL' : 'GB';
 
-  const baseNavItems = [
+  const primaryNavItems = [
     { name: t.howItWorks, path: '/how-it-works' },
-    { name: t.guide, path: '/automated-reselling-platform-guide' },
     { name: t.pricing, path: '/pricing' },
+    { name: t.successStories, path: '/success-stories' },
+  ];
+
+  const resourceItems = [
+    { name: t.guide, path: '/automated-reselling-platform-guide' },
+    { name: t.tutorials, path: '/articles' },
+    { name: t.faq, path: '/faq' },
   ];
   
-  const navItems = isAuthenticated
-  ? [...baseNavItems, 
-    { name: t.addItem, path: '/add-item' },
-    { name: t.myItems, path: '/user/items' },
-    { name: t.connectAccounts, path: '/connect-accounts' },
-    ]
-    : baseNavItems;
+  const accountNavItems = isAuthenticated
+    ? [
+        { name: t.myItems, path: '/user/items' },
+        { name: t.connectAccounts, path: '/connect-accounts' },
+      ]
+    : [];
+
+  const navItems = [...primaryNavItems, ...accountNavItems];
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -64,6 +81,22 @@ const Navbar = () => {
               {item.name}
             </Link>
           ))}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-neutral-300 hover:text-white hover:bg-neutral-800/50">
+                {t.resources}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-700">
+              {resourceItems.map((item) => (
+                <DropdownMenuItem key={item.name} className="text-neutral-200 hover:text-white">
+                  <Link to={item.path} className="w-full block">
+                    {item.name}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Right side: Credits + Language toggle + Auth/User */}
@@ -75,7 +108,7 @@ const Navbar = () => {
                 <TooltipTrigger asChild>
                   <Link 
                     to="/settings" 
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800/50 border border-neutral-700 hover:border-cyan-400/30 hover:bg-neutral-800/80 transition-all group"
+                    className="flex h-10 items-center gap-1.5 px-3 rounded-full bg-neutral-800/50 border border-neutral-700 hover:border-cyan-400/30 hover:bg-neutral-800/80 transition-all group"
                   >
                     <CreditCard className="h-4 w-4 text-cyan-400" />
                     <span className="text-sm font-medium text-neutral-200 group-hover:text-white">
@@ -114,23 +147,28 @@ const Navbar = () => {
             variant="ghost"
             size="sm"
             onClick={toggleLanguage}
-            className="text-neutral-300 hover:text-white hover:bg-neutral-800/50 flex items-center gap-1"
+            className="h-10 rounded-full text-neutral-300 hover:text-white hover:bg-neutral-800/50 flex items-center gap-1 px-3"
             title="Switch language / Zmień język"
           >
-            <Globe className="h-4 w-4" />
+            <ReactCountryFlag countryCode={flagCode} svg className="h-4 w-6 rounded-sm" />
             {t.languageToggle}
           </Button>
           
           {isAuthenticated ? (
-            <UserMenu />
+            <>
+              <AddItemButton asChild sizeVariant="md" className="text-sm leading-tight rounded-full">
+                <Link to="/add-item">{t.addItem}</Link>
+              </AddItemButton>
+              <UserMenu />
+            </>
           ) : (
             <>
-              <Button asChild variant="ghost" className="text-cyan-400 hover:bg-cyan-400/10">
+              <NavbarLogin asChild>
                 <Link to="/login">{t.login}</Link>
-              </Button>
-              <Button asChild className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white hover:to-fuchsia-600 shadow-md shadow-fuchsia-500/20">
+              </NavbarLogin>
+              <NavbarSignup asChild>
                 <Link to="/login?register=1">{t.signup}</Link>
-              </Button>
+              </NavbarSignup>
             </>
           )}
         </div>
@@ -211,6 +249,21 @@ const Navbar = () => {
                   {item.name}
                 </Link>
               ))}
+              <div className="pt-1">
+                <p className="text-xs uppercase tracking-[0.25em] text-neutral-500 px-1">{t.resources}</p>
+                <div className="flex flex-col">
+                  {resourceItems.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      className={linkClass(item.path)}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
               
               {/* Mobile Language Toggle */}
               <Button
@@ -222,21 +275,26 @@ const Navbar = () => {
                 }}
                 className="text-neutral-300 hover:text-white hover:bg-neutral-800/50 flex items-center gap-2 justify-start w-full"
               >
-                <Globe className="h-4 w-4" />
+                <ReactCountryFlag countryCode={flagCode} svg className="h-4 w-6 rounded-sm" />
                 {t.languageToggle}
               </Button>
               
               <div className="mt-4 flex flex-col gap-2">
                 {isAuthenticated ? (
-                  <UserMenu />
+                  <>
+                    <AddItemButton asChild sizeVariant="md" className="w-full justify-center text-sm leading-tight rounded-full">
+                      <Link to="/add-item" onClick={() => setIsOpen(false)}>{t.addItem}</Link>
+                    </AddItemButton>
+                    <UserMenu />
+                  </>
                 ) : (
                   <>
-                    <Button asChild variant="ghost" className="text-cyan-400 hover:bg-cyan-400/10 w-full">
+                    <NavbarLogin asChild className="w-full">
                       <Link to="/login" onClick={() => setIsOpen(false)}>{t.login}</Link>
-                    </Button>
-                    <Button asChild className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white hover:to-fuchsia-600 shadow-md shadow-fuchsia-500/20 w-full">
+                    </NavbarLogin>
+                    <NavbarSignup asChild className="w-full">
                       <Link to="/login?register=1" onClick={() => setIsOpen(false)}>{t.signup}</Link>
-                    </Button>
+                    </NavbarSignup>
                   </>
                 )}
               </div>
@@ -249,5 +307,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-

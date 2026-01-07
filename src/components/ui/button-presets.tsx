@@ -37,9 +37,11 @@ export const HeroCTA = React.forwardRef<HTMLButtonElement, ButtonProps>(
         bg-cyan-500
 hover:bg-cyan-400
 active:bg-cyan-600
-text-black font-bold
-text-base
-rounded-full px-10 py-6
+text-black font-bold button-fluid-text leading-[1.2]
+rounded-full px-4 sm:px-6 md:px-8 lg:px-10 py-2.5 sm:py-3 md:py-4 lg:py-6
+w-full sm:w-auto
+min-w-0 flex-shrink min-h-[52px]
+text-balance
 shadow-md
 transition-colors duration-150
 
@@ -66,6 +68,29 @@ export const HeroCTAWithArrow = React.forwardRef<HTMLButtonElement, ButtonProps>
 );
 HeroCTAWithArrow.displayName = 'HeroCTAWithArrow';
 
+/**
+ * GhostIconButton - Icon-only ghost button (kebab/ellipsis etc.)
+ * size: 'md' (36px) or 'lg' (44px) to match CTA rows
+ */
+export const GhostIconButton = React.forwardRef<
+  HTMLButtonElement,
+  ButtonProps & { sizeVariant?: 'md' | 'lg' }
+>(({ className = '', children, sizeVariant = 'md', ...props }, ref) => {
+  const sizeClass = sizeVariant === 'lg' ? 'h-12 w-12' : 'h-9 w-9';
+  return (
+    <Button
+      ref={ref}
+      variant="ghost"
+      size="icon"
+      className={`${sizeClass} rounded-full bg-neutral-800/80 text-white hover:bg-neutral-700 hover:text-white border border-neutral-700/60 ${className}`}
+      {...props}
+    >
+      {children}
+    </Button>
+  );
+});
+GhostIconButton.displayName = 'GhostIconButton';
+
 // ============================================================================
 // SECONDARY ACTIONS (Less Prominent CTAs)
 // ============================================================================
@@ -87,7 +112,11 @@ export const SecondaryAction = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       variant="outline"
       size="lg"
-      className={`border-2 border-cyan-400/70 text-cyan-200 bg-cyan-950/30 backdrop-blur-sm
+      className={`rounded-full border-2 border-cyan-400/70 text-cyan-200 button-fluid-text leading-[1.2] bg-cyan-950/30 backdrop-blur-sm
+ px-4 sm:px-6 md:px-8 lg:px-10 py-2.5 sm:py-3 md:py-4 lg:py-6
+ w-full sm:w-auto
+ min-w-0 flex-shrink min-h-[52px]
+ text-balance
  hover:bg-cyan-500/20 hover:border-cyan-300 hover:text-white
  hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)]
  transition-all duration-300 hover:scale-[1.02]
@@ -130,19 +159,29 @@ SecondaryActionWithArrow.displayName = 'SecondaryActionWithArrow';
  * - Focus ring for keyboard navigation
  * - Disabled state with reduced glow
  */
+/**
+ * AuthButton - Full-width button for login/signup
+ * Used in: LoginPage
+ * Example: "Sign In", "Create Account"
+ * 
+ * UX: Solid cyan fill variant for form submission prominence
+ * - Full width for form alignment
+ * - Bold text for action clarity
+ * - Disabled state prevents interaction feedback
+ */
 export const AuthButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = '', children, ...props }, ref) => (
     <Button
       ref={ref}
       size="lg"
-      className={`w-full bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-fuchsia-600 
-        hover:from-cyan-400 hover:via-fuchsia-400 hover:to-fuchsia-500
-        text-white border-2 border-white/20 hover:border-white/40
-        shadow-[0_0_30px_rgba(236,72,153,0.4),0_0_12px_rgba(6,182,212,0.3)] 
-        hover:shadow-[0_0_45px_rgba(236,72,153,0.6),0_0_18px_rgba(6,182,212,0.4)]
-        transition-all duration-300
-        focus-visible:ring-4 focus-visible:ring-fuchsia-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
-        disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed
+      className={`rounded-full w-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm
+        text-sm sm:text-base py-3 sm:py-4 px-6 sm:px-8
+        hover:bg-cyan-500 hover:border-cyan-300
+        hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)]
+        transition-all duration-300 hover:scale-[1.02]
+        focus-visible:ring-4 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
+        font-semibold
+        disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-cyan-600/90
         ${className}`}
       {...props}
     >
@@ -162,18 +201,25 @@ AuthButton.displayName = 'AuthButton';
  * - Brighter hover gradient
  * - Better depth separation from background
  */
+/**
+ * WaitlistButton - Full-width button for waitlist forms
+ * Used in: GetStartedPage
+ * Example: "Join Waitlist"
+ * 
+ * UX: Solid cyan fill with larger padding for form prominence
+ * - Larger text and padding for importance
+ * - Full width for form alignment
+ */
 export const WaitlistButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = '', children, ...props }, ref) => (
     <Button
       ref={ref}
-      className={`w-full py-6 text-lg font-semibold
-        bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-fuchsia-600 
-        hover:from-cyan-400 hover:via-fuchsia-400 hover:to-fuchsia-500
-        border-2 border-white/20 hover:border-white/40
-        shadow-[0_0_35px_rgba(236,72,153,0.45),0_0_15px_rgba(6,182,212,0.3)] 
-        hover:shadow-[0_0_50px_rgba(236,72,153,0.65),0_0_20px_rgba(6,182,212,0.4)]
-        transition-all duration-300 hover:scale-[1.01]
-        focus-visible:ring-4 focus-visible:ring-fuchsia-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
+      className={`rounded-full w-full py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl font-semibold
+        border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm
+        hover:bg-cyan-500 hover:border-cyan-300
+        hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)]
+        transition-all duration-300 hover:scale-[1.02]
+        focus-visible:ring-4 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
         ${className}`}
       {...props}
     >
@@ -193,18 +239,26 @@ WaitlistButton.displayName = 'WaitlistButton';
  * - Border for better separation
  * - Pulse animation on hover for action confirmation
  */
+/**
+ * SaveButton - Button for saving changes in forms/settings
+ * Used in: SettingsPage, PlatformSettingsPage
+ * Example: "Save Changes"
+ * 
+ * UX: Solid cyan fill for save action prominence
+ * - Icon for action recognition
+ * - Bold for importance
+ */
 export const SaveButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = '', children, ...props }, ref) => (
     <Button
       ref={ref}
       size="lg"
-      className={`bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-fuchsia-600 
-        hover:from-cyan-400 hover:via-fuchsia-400 hover:to-fuchsia-500
-        border-2 border-white/20 hover:border-white/40
-        shadow-[0_0_35px_rgba(236,72,153,0.45),0_0_15px_rgba(6,182,212,0.3)] 
-        hover:shadow-[0_0_50px_rgba(236,72,153,0.65),0_0_20px_rgba(6,182,212,0.4)]
+      className={`rounded-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm
+        hover:bg-cyan-500 hover:border-cyan-300
+        hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)]
         transition-all duration-300 hover:scale-[1.02]
-        focus-visible:ring-4 focus-visible:ring-fuchsia-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
+        focus-visible:ring-4 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
+        font-semibold
         ${className}`}
       {...props}
     >
@@ -235,7 +289,7 @@ export const BackButtonGhost = React.forwardRef<HTMLButtonElement, ButtonProps>(
     <Button
       ref={ref}
       variant="ghost"
-      className={`text-neutral-200 hover:text-white 
+      className={`rounded-full text-neutral-200 hover:text-white 
         bg-neutral-900/30 hover:bg-neutral-800/50 backdrop-blur-sm
         border border-neutral-700/50 hover:border-neutral-600
         hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]
@@ -261,17 +315,22 @@ BackButtonGhost.displayName = 'BackButtonGhost';
  * - Borders and shadows for depth
  * - Brighter hover state for feedback
  */
+/**
+ * BackButtonGradient - Navigation button (now solid cyan)
+ * Used in: ItemDetailPage, UserItemsPage (error states)
+ * Example: "Back to Items"
+ * 
+ * UX: Solid cyan fill for prominent back navigation
+ */
 export const BackButtonGradient = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = '', children, ...props }, ref) => (
     <Button
       ref={ref}
-      className={`bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-fuchsia-600 
-        hover:from-cyan-400 hover:via-fuchsia-400 hover:to-fuchsia-500
-        border-2 border-white/20 hover:border-white/40
-        shadow-[0_0_30px_rgba(236,72,153,0.4),0_0_12px_rgba(6,182,212,0.3)] 
-        hover:shadow-[0_0_45px_rgba(236,72,153,0.6),0_0_18px_rgba(6,182,212,0.4)]
+      className={`rounded-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm
+        hover:bg-cyan-500 hover:border-cyan-300
+        hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)]
         transition-all duration-300 hover:scale-[1.02]
-        focus-visible:ring-4 focus-visible:ring-fuchsia-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
+        focus-visible:ring-4 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
         ${className}`}
       {...props}
     >
@@ -300,7 +359,7 @@ export const ManageButton = React.forwardRef<HTMLButtonElement, ButtonProps & { 
     <Button
       ref={ref}
       variant="outline"
-      className={`text-cyan-300 border-2 border-cyan-400/70 
+      className={`rounded-full text-cyan-300 border-2 border-cyan-400/70 
         bg-cyan-950/30 hover:bg-cyan-500/20 backdrop-blur-sm
         hover:border-cyan-300 hover:text-white
         hover:shadow-[0_0_25px_rgba(6,182,212,0.35)]
@@ -333,7 +392,7 @@ export const SyncButton = React.forwardRef<HTMLButtonElement, ButtonProps & { is
       ref={ref}
       variant="outline"
       size="sm"
-      className={`text-cyan-300 border-2 border-cyan-400/70 
+      className={`rounded-full text-cyan-300 border-2 border-cyan-400/70 
         bg-cyan-950/30 hover:bg-cyan-500/20 backdrop-blur-sm
         hover:border-cyan-300 hover:text-white
         hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]
@@ -361,17 +420,23 @@ SyncButton.displayName = 'SyncButton';
  * - Borders and shadows for depth
  * - Brighter hover state
  */
+/**
+ * ChangePasswordButton - Button for password change
+ * Used in: SettingsPage
+ * Example: "Change Password"
+ * 
+ * UX: Solid cyan fill for security action prominence
+ */
 export const ChangePasswordButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = '', children, ...props }, ref) => (
     <Button
       ref={ref}
-      className={`bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-fuchsia-600 
-        hover:from-cyan-400 hover:via-fuchsia-400 hover:to-fuchsia-500
-        border-2 border-white/20 hover:border-white/40
-        shadow-[0_0_30px_rgba(236,72,153,0.4),0_0_12px_rgba(6,182,212,0.3)] 
-        hover:shadow-[0_0_45px_rgba(236,72,153,0.6),0_0_18px_rgba(6,182,212,0.4)]
+      className={`rounded-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm
+        hover:bg-cyan-500 hover:border-cyan-300
+        hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)]
         transition-all duration-300 hover:scale-[1.02]
-        focus-visible:ring-4 focus-visible:ring-fuchsia-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
+        focus-visible:ring-4 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
+        font-semibold
         ${className}`}
       {...props}
     >
@@ -381,6 +446,59 @@ export const ChangePasswordButton = React.forwardRef<HTMLButtonElement, ButtonPr
   )
 );
 ChangePasswordButton.displayName = 'ChangePasswordButton';
+
+// ============================================================================
+// NAVBAR BUTTONS (Navigation-specific CTAs)
+// ============================================================================
+
+/**
+ * NavbarLogin - Ghost variant for navbar login link
+ * Used in: Navbar
+ * Example: "Log in"
+ * 
+ * UX: Subtle ghost button for secondary navbar action
+ */
+export const NavbarLogin = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className = '', children, ...props }, ref) => (
+    <Button
+      ref={ref}
+      variant="ghost"
+      className={`rounded-full text-cyan-400 hover:bg-cyan-400/10 hover:text-cyan-300
+        transition-colors duration-200
+        ${className}`}
+      {...props}
+    >
+      {children}
+    </Button>
+  )
+);
+NavbarLogin.displayName = 'NavbarLogin';
+
+/**
+ * NavbarSignup - Primary CTA for navbar signup
+ * Used in: Navbar
+ * Example: "Sign up", "Get Started"
+ * 
+ * UX: Solid cyan fill for primary acquisition action
+ */
+export const NavbarSignup = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className = '', children, ...props }, ref) => (
+    <Button
+      ref={ref}
+      className={`rounded-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm
+        hover:bg-cyan-500 hover:border-cyan-300
+        hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)]
+        transition-all duration-300 hover:scale-[1.02]
+        focus-visible:ring-4 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
+        font-semibold
+        ${className}`}
+      {...props}
+    >
+      {children}
+    </Button>
+  )
+);
+NavbarSignup.displayName = 'NavbarSignup';
 
 // ============================================================================
 // DESTRUCTIVE ACTIONS (Delete, Remove)
@@ -401,7 +519,7 @@ export const DeleteButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
     <Button
       ref={ref}
       variant="destructive"
-      className={`bg-red-600 hover:bg-red-700 
+      className={`rounded-full bg-red-600 hover:bg-red-700 
         border-2 border-red-500/50 hover:border-red-400
         shadow-[0_0_25px_rgba(220,38,38,0.3)] 
         hover:shadow-[0_0_40px_rgba(220,38,38,0.5)]
@@ -438,7 +556,7 @@ export const PaginationButton = React.forwardRef<HTMLButtonElement, ButtonProps>
       ref={ref}
       variant="outline"
       size="sm"
-      className={`bg-neutral-800/80 hover:bg-neutral-700/90 backdrop-blur-sm
+      className={`rounded-full bg-neutral-800/80 hover:bg-neutral-700/90 backdrop-blur-sm
         border-2 border-neutral-600/70 hover:border-neutral-500 
         text-neutral-200 hover:text-white 
         hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]
@@ -455,32 +573,40 @@ export const PaginationButton = React.forwardRef<HTMLButtonElement, ButtonProps>
 PaginationButton.displayName = 'PaginationButton';
 
 /**
- * AddItemButton - Gradient button for adding new items
+ * AddItemButton - Button for adding new items
  * Used in: UserItemsPage (empty state)
  * Example: "Add Item", "Retry"
  * 
- * UX Improvements:
- * - Full gradient treatment with via color
- * - Borders and dual shadows
- * - Better visibility against background
+ * UX: Solid cyan fill for creation action prominence
  */
-export const AddItemButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className = '', children, ...props }, ref) => (
-    <Button
-      ref={ref}
-      className={`bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-fuchsia-600 
-        hover:from-cyan-400 hover:via-fuchsia-400 hover:to-fuchsia-500
-        border-2 border-white/20 hover:border-white/40
-        shadow-[0_0_30px_rgba(236,72,153,0.4),0_0_12px_rgba(6,182,212,0.3)] 
-        hover:shadow-[0_0_45px_rgba(236,72,153,0.6),0_0_18px_rgba(6,182,212,0.4)]
+export const AddItemButton = React.forwardRef<
+  HTMLButtonElement,
+  ButtonProps & { sizeVariant?: 'md' | 'lg' }
+>(
+  ({ className = '', children, sizeVariant = 'lg', ...props }, ref) => {
+    const sizeClass =
+      sizeVariant === 'lg'
+        ? 'px-4 sm:px-6 md:px-8 lg:px-10 py-2.5 sm:py-3 md:py-4 lg:py-6'
+        : 'h-10 min-h-0 px-4 py-0';
+    const buttonSize = sizeVariant === 'lg' ? 'lg' : 'default';
+    return (
+      <Button
+        ref={ref}
+        size={buttonSize}
+        className={`rounded-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm
+        hover:bg-cyan-500 hover:border-cyan-300
+        hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)]
         transition-all duration-300 hover:scale-[1.02]
-        focus-visible:ring-4 focus-visible:ring-fuchsia-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
+        focus-visible:ring-4 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
+        font-semibold button-fluid-text leading-tight
+        ${sizeClass}
         ${className}`}
-      {...props}
-    >
-      {children}
-    </Button>
-  )
+        {...props}
+      >
+        {children}
+      </Button>
+    );
+  }
 );
 AddItemButton.displayName = 'AddItemButton';
 
@@ -493,18 +619,21 @@ AddItemButton.displayName = 'AddItemButton';
  * Updated with enhanced UX/UI improvements for animated gradient backgrounds
  */
 export const buttonClasses = {
-  heroCTA: 'bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-fuchsia-600 hover:from-cyan-400 hover:via-fuchsia-400 hover:to-fuchsia-500 text-white text-lg px-10 py-6 font-bold rounded-full shadow-[0_0_40px_rgba(236,72,153,0.5),0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_60px_rgba(236,72,153,0.7),0_0_25px_rgba(6,182,212,0.5)] border-2 border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105',
-  secondaryAction: 'border-2 border-cyan-400/70 text-cyan-200 bg-cyan-950/30 backdrop-blur-sm hover:bg-cyan-500/20 hover:border-cyan-300 hover:text-white hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all duration-300 hover:scale-[1.02]',
-  authButton: 'w-full bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-fuchsia-600 hover:from-cyan-400 hover:via-fuchsia-400 hover:to-fuchsia-500 text-white border-2 border-white/20 hover:border-white/40 shadow-[0_0_30px_rgba(236,72,153,0.4),0_0_12px_rgba(6,182,212,0.3)] hover:shadow-[0_0_45px_rgba(236,72,153,0.6),0_0_18px_rgba(6,182,212,0.4)] transition-all duration-300',
-  saveButton: 'bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-fuchsia-600 hover:from-cyan-400 hover:via-fuchsia-400 hover:to-fuchsia-500 border-2 border-white/20 hover:border-white/40 shadow-[0_0_35px_rgba(236,72,153,0.45),0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(236,72,153,0.65),0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300 hover:scale-[1.02]',
-  deleteButton: 'bg-red-600 hover:bg-red-700 border-2 border-red-500/50 hover:border-red-400 shadow-[0_0_25px_rgba(220,38,38,0.3)] hover:shadow-[0_0_40px_rgba(220,38,38,0.5)] transition-all duration-300 hover:scale-[1.02]',
-  manageButton: 'text-cyan-300 border-2 border-cyan-400/70 bg-cyan-950/30 hover:bg-cyan-500/20 backdrop-blur-sm hover:border-cyan-300 hover:text-white hover:shadow-[0_0_25px_rgba(6,182,212,0.35)] transition-all duration-300',
-  syncButton: 'text-cyan-300 border-2 border-cyan-400/70 bg-cyan-950/30 hover:bg-cyan-500/20 backdrop-blur-sm hover:border-cyan-300 hover:text-white hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all duration-300',
-  paginationButton: 'bg-neutral-800/80 hover:bg-neutral-700/90 backdrop-blur-sm border-2 border-neutral-600/70 hover:border-neutral-500 text-neutral-200 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all duration-200 disabled:opacity-40',
-  backButtonGhost: 'text-neutral-200 hover:text-white bg-neutral-900/30 hover:bg-neutral-800/50 backdrop-blur-sm border border-neutral-700/50 hover:border-neutral-600 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all duration-300',
-  backButtonGradient: 'bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-fuchsia-600 hover:from-cyan-400 hover:via-fuchsia-400 hover:to-fuchsia-500 border-2 border-white/20 hover:border-white/40 shadow-[0_0_30px_rgba(236,72,153,0.4),0_0_12px_rgba(6,182,212,0.3)] hover:shadow-[0_0_45px_rgba(236,72,153,0.6),0_0_18px_rgba(6,182,212,0.4)] transition-all duration-300 hover:scale-[1.02]',
-  waitlistButton: 'w-full bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-fuchsia-600 hover:from-cyan-400 hover:via-fuchsia-400 hover:to-fuchsia-500 border-2 border-white/20 hover:border-white/40 shadow-[0_0_35px_rgba(236,72,153,0.45),0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(236,72,153,0.65),0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300 hover:scale-[1.01]',
-  addItemButton: 'bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-fuchsia-600 hover:from-cyan-400 hover:via-fuchsia-400 hover:to-fuchsia-500 border-2 border-white/20 hover:border-white/40 shadow-[0_0_30px_rgba(236,72,153,0.4),0_0_12px_rgba(6,182,212,0.3)] hover:shadow-[0_0_45px_rgba(236,72,153,0.6),0_0_18px_rgba(6,182,212,0.4)] transition-all duration-300 hover:scale-[1.02]',
+  heroCTA: 'rounded-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm hover:bg-cyan-500 hover:border-cyan-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)] transition-all duration-300 hover:scale-[1.02] text-lg px-10 py-6 font-bold',
+  secondaryAction: 'rounded-full border-2 border-cyan-400/70 text-cyan-200 bg-cyan-950/30 backdrop-blur-sm hover:bg-cyan-500/20 hover:border-cyan-300 hover:text-white hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all duration-300 hover:scale-[1.02]',
+  authButton: 'rounded-full w-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm hover:bg-cyan-500 hover:border-cyan-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)] transition-all duration-300 hover:scale-[1.02] font-semibold',
+  saveButton: 'rounded-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm hover:bg-cyan-500 hover:border-cyan-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)] transition-all duration-300 hover:scale-[1.02] font-semibold',
+  deleteButton: 'rounded-full bg-red-600 hover:bg-red-700 border-2 border-red-500/50 hover:border-red-400 shadow-[0_0_25px_rgba(220,38,38,0.3)] hover:shadow-[0_0_40px_rgba(220,38,38,0.5)] transition-all duration-300 hover:scale-[1.02]',
+  manageButton: 'rounded-full text-cyan-300 border-2 border-cyan-400/70 bg-cyan-950/30 hover:bg-cyan-500/20 backdrop-blur-sm hover:border-cyan-300 hover:text-white hover:shadow-[0_0_25px_rgba(6,182,212,0.35)] transition-all duration-300',
+  syncButton: 'rounded-full text-cyan-300 border-2 border-cyan-400/70 bg-cyan-950/30 hover:bg-cyan-500/20 backdrop-blur-sm hover:border-cyan-300 hover:text-white hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all duration-300',
+  paginationButton: 'rounded-full bg-neutral-800/80 hover:bg-neutral-700/90 backdrop-blur-sm border-2 border-neutral-600/70 hover:border-neutral-500 text-neutral-200 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all duration-200 disabled:opacity-40',
+  backButtonGhost: 'rounded-full text-neutral-200 hover:text-white bg-neutral-900/30 hover:bg-neutral-800/50 backdrop-blur-sm border border-neutral-700/50 hover:border-neutral-600 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all duration-300',
+  backButtonGradient: 'rounded-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm hover:bg-cyan-500 hover:border-cyan-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)] transition-all duration-300 hover:scale-[1.02]',
+  waitlistButton: 'rounded-full w-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm hover:bg-cyan-500 hover:border-cyan-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)] transition-all duration-300 hover:scale-[1.02] font-semibold',
+  addItemButton: 'rounded-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm hover:bg-cyan-500 hover:border-cyan-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)] transition-all duration-300 hover:scale-[1.02] font-semibold',
+  navbarLogin: 'rounded-full text-cyan-400 hover:bg-cyan-400/10 hover:text-cyan-300 transition-colors duration-200',
+  navbarSignup: 'rounded-full border-2 border-cyan-400/70 text-white bg-cyan-600/90 backdrop-blur-sm hover:bg-cyan-500 hover:border-cyan-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)] transition-all duration-300 hover:scale-[1.02] font-semibold',
+  ghostIconButton: 'h-9 w-9 rounded-full bg-neutral-800/80 text-white hover:bg-neutral-700 hover:text-white border border-neutral-700/60',
 };
 
 /**

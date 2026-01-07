@@ -207,7 +207,7 @@ const UserItemsPage = () => {
             className="mb-8"
           >
             <div className="flex items-center justify-between mb-3">
-              <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+              <h1 className="fluid-text font-extrabold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent text-balance">
                 {t.pageTitle}
               </h1>
               <SyncListingsButton onSyncComplete={handleSyncComplete} />
@@ -387,7 +387,7 @@ const UserItemsPage = () => {
                         />
                       )}
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+                        <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent text-balance">
                           ${item.price}
                         </span>
                         <div className="flex gap-1">

@@ -205,7 +205,7 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
             </div>
           </TooltipTrigger>
           <TooltipContent 
-            side="bottom" 
+            side="top" 
             className="bg-neutral-800 border-neutral-700 text-neutral-200 max-w-xs"
           >
             <div className="flex items-start gap-2">

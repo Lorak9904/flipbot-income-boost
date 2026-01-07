@@ -4,6 +4,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { getCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { guideTranslations } from './guide-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import { HeroCTA } from '@/components/ui/button-presets';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -93,8 +94,8 @@ const AutomatedResellingPlatformGuide = () => {
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-8 py-1 text-sm font-medium text-white backdrop-blur-md">
                 {t.guideLabel}
               </span>
-              <h1 className="my-custom-font text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
-                {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight}</span> {t.heroTitleEnd} <span className="bg-gradient-to-r from-fuchsia-400 to-cyan-400 inline-block text-transparent bg-clip-text">{t.heroTitleBrand}</span>
+              <h1 className="my-custom-font fluid-text-lg font-extrabold tracking-tight leading-tight">
+                {t.heroTitle} <span className="text-cyan-400 text-balance">{t.heroTitleHighlight}</span> {t.heroTitleEnd} <span className="bg-gradient-to-r from-fuchsia-400 to-cyan-400 inline-block text-transparent bg-clip-text text-balance">{t.heroTitleBrand}</span>
               </h1>
               <p className="max-w-2xl text-lg/relaxed text-neutral-300 mx-auto">
                 {t.heroDescription}
@@ -139,6 +140,38 @@ const AutomatedResellingPlatformGuide = () => {
               </li>
             ))}
           </ul>
+        </motion.section>
+
+        {/* Related Tutorials Section */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeUp}
+          className="mb-16 p-6 rounded-2xl bg-neutral-900/40 backdrop-blur-sm ring-1 ring-white/5"
+        >
+          <h2 className="text-xl font-bold text-white mb-2">{t.relatedTutorialsTitle}</h2>
+          <p className="text-neutral-400 text-sm mb-4">{t.relatedTutorialsDesc}</p>
+          <ul className="space-y-2 mb-4">
+            <li>
+              <Link to="/articles/vinted-relisting-tool" className="text-cyan-300 hover:text-cyan-200 underline transition-colors">
+                {t.relatedTutorial1}
+              </Link>
+            </li>
+            <li>
+              <Link to="/articles/cross-list-vinted-to-facebook-marketplace" className="text-cyan-300 hover:text-cyan-200 underline transition-colors">
+                {t.relatedTutorial2}
+              </Link>
+            </li>
+            <li>
+              <Link to="/articles/product-relister-for-vinted" className="text-cyan-300 hover:text-cyan-200 underline transition-colors">
+                {t.relatedTutorial3}
+              </Link>
+            </li>
+          </ul>
+          <Link to="/articles" className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
+            {t.viewAllTutorials}
+          </Link>
         </motion.section>
 
         {/* First content section */}
@@ -342,43 +375,6 @@ const AutomatedResellingPlatformGuide = () => {
           </div>
         </motion.section>
 
-        {/* FAQ section */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeUp}
-          className="mb-16"
-        >
-          <h2 className="text-2xl font-bold text-white mb-8 text-center">{t.faqTitle}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="group rounded-2xl border border-white/5 bg-neutral-900/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-400/20">
-              <p className="font-semibold text-white text-lg mb-3">{t.faq1Question}</p>
-              <p className="text-neutral-300">
-                {t.faq1Answer}
-              </p>
-            </div>
-            <div className="group rounded-2xl border border-white/5 bg-neutral-900/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-400/20">
-              <p className="font-semibold text-white text-lg mb-3">{t.faq2Question}</p>
-              <p className="text-neutral-300">
-                {t.faq2Answer}
-              </p>
-            </div>
-            <div className="group rounded-2xl border border-white/5 bg-neutral-900/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-400/20">
-              <p className="font-semibold text-white text-lg mb-3">{t.faq3Question}</p>
-              <p className="text-neutral-300">
-                {t.faq3Answer}
-              </p>
-            </div>
-            <div className="group rounded-2xl border border-white/5 bg-neutral-900/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-400/20">
-              <p className="font-semibold text-white text-lg mb-3">{t.faq4Question}</p>
-              <p className="text-neutral-300">
-                {t.faq4Answer}
-              </p>
-            </div>
-          </div>
-        </motion.section>
-
         {/* Call to Action Section */}
         <motion.section
           initial="hidden"
@@ -394,12 +390,11 @@ const AutomatedResellingPlatformGuide = () => {
             <p className="md:text-lg text-neutral-300 mb-8">
               {t.ctaDescription}
             </p>
-            <Link
-              to="/get-started"
-              className="inline-flex items-center rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 px-8 py-4 font-semibold text-white text-lg shadow-lg shadow-fuchsia-500/30 transition hover:to-fuchsia-600"
-            >
-              {t.ctaButton}
-            </Link>
+            <HeroCTA asChild>
+              <Link to="/get-started">
+                {t.ctaButton}
+              </Link>
+            </HeroCTA>
             <p className="mt-6 text-sm text-neutral-400">
               {t.ctaFooterText}{' '}
               <Link to="/login" className="text-cyan-300 underline hover:text-cyan-200">

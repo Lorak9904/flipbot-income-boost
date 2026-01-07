@@ -18,7 +18,7 @@ const Footer = () => {
       </div>
 
       <div className="container mx-auto px-4 py-16">
-        <div className="grid gap-12 md:grid-cols-4">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Logo & tagline */}
           <div>
             <Link to="/" className="mb-4 flex items-center gap-2">
@@ -62,6 +62,33 @@ const Footer = () => {
             </ul>
           </nav>
 
+          {/* Tutorials links */}
+          <nav>
+            <h4 className="mb-4 text-sm font-semibold text-neutral-100">{t.tutorialsTitle}</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/articles" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  {t.tutorials}
+                </Link>
+              </li>
+              <li>
+                <Link to="/articles/vinted-relisting-tool" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  {t.vintedRelistingTool}
+                </Link>
+              </li>
+              <li>
+                <Link to="/articles/cross-list-vinted-to-facebook-marketplace" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  {t.crosslistVintedFb}
+                </Link>
+              </li>
+              <li>
+                <Link to="/articles/product-relister-for-vinted" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  {t.productRelister}
+                </Link>
+              </li>
+            </ul>
+          </nav>
+
           {/* Support links */}
           <nav>
             <h4 className="mb-4 text-sm font-semibold text-neutral-100">{t.supportTitle}</h4>
@@ -93,29 +120,6 @@ const Footer = () => {
               </li>
             </ul>
           </nav>
-
-          {/* Waitlist */}
-          <div>
-            <h4 className="mb-4 text-sm font-semibold text-neutral-100">{t.joinWaitlistTitle}</h4>
-            <p className="mb-4 text-sm text-neutral-300">{t.joinWaitlistDesc}</p>
-            <form className="flex flex-col gap-3 sm:flex-row" onSubmit={(e) => e.preventDefault()}>
-              {/* <input
-                type="email"
-                placeholder="Your email"
-                className="w-full rounded-lg bg-neutral-800 px-4 py-2 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                required
-              /> */}
-              <Button
-                asChild
-                type="submit"
-                className="rounded-lg bg-gradient-to-r from-cyan-500 to-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-fuchsia-500/20 hover:to-fuchsia-600"
-              >
-                <Link to="/get-started" className="flex items-center gap-2">
-                  {t.joinNow}
-                </Link>
-              </Button>
-            </form>
-          </div>
         </div>
 
         <div className="mt-16 border-t border-white/10 pt-8 text-center text-xs text-neutral-500">

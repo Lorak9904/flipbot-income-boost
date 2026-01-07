@@ -93,7 +93,7 @@ const SuccessStoriesPage = () => {
           variants={fadeUp}
           className="mx-auto mb-6 max-w-4xl text-3xl md:text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl"
         >
-          Real Success <span className="bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">Stories</span>
+          Real Success <span className="bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent text-balance">Stories</span>
         </motion.h1>
         <motion.p
           custom={2}
@@ -190,8 +190,8 @@ const SuccessStoriesPage = () => {
         >
           <div className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-neutral-900/60 p-8 md:p-12 text-center shadow-xl shadow-fuchsia-500/10 backdrop-blur"
           >
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-6">
-              "FlipIt has helped users generate over <span className="bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">€4,500</span> in collective profits during our beta testing phase."
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-6 text-balance">
+              "FlipIt has helped users generate over <span className="bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent text-balance">€4,500</span> in collective profits during our beta testing phase."
             </h2>
             <p className="text-xl text-neutral-300 font-medium">— FlipIt Founder</p>
           </div>

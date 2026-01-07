@@ -1,5 +1,6 @@
 import { api } from "../hooks/olx-api";
-import { Button } from '@/components/ui/button';
+import { ManageButton } from '@/components/ui/button-presets';
+import { Link as LinkIcon } from 'lucide-react';
 
 export function ConnectOlxButton() {
   const handleClick = async () => {
@@ -23,14 +24,12 @@ export function ConnectOlxButton() {
       Connect your OLX account to let FlipIt find and flip items automatically.
     </p>
     <div className="flex flex-col gap-2">
-      <Button
-          variant="outline"
-          className="text-teal-500 border-teal-500"
+      <ManageButton
+          icon={LinkIcon}
           onClick={handleClick}
-          style={{ padding: "0.6rem 1rem", fontSize: "1rem" }}
       >
         Connect with OLX
-      </Button>
+      </ManageButton>
     </div>
     </div>
   );

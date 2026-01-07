@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { GhostIconButton, SecondaryAction } from '@/components/ui/button-presets';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Tooltip,
@@ -258,20 +259,18 @@ const ConnectAccountCard = ({
             <div className="flex items-center justify-between gap-2">
               {/* Primary Action */}
               {isConnected ? (
-                <Button
-                  variant="ghost"
+                <SecondaryAction
                   size="sm"
-                  className="text-slate-300 hover:text-white hover:bg-slate-700/50 text-xs"
+                  className="px-3 py-2 text-xs"
                   onClick={() => navigate(`/platform-settings/${platform}`)}
                 >
                   <Settings className="w-3.5 h-3.5 mr-1.5" />
                   {t.settingsButton}
-                </Button>
+                </SecondaryAction>
               ) : (
-                <Button
-                  variant="ghost"
+                <SecondaryAction
                   size="sm"
-                  className="text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 text-xs"
+                  className="px-3 py-2 text-xs text-teal-200"
                   onClick={handleConnect}
                   disabled={isConnectingEbay && platform === 'ebay'}
                 >
@@ -281,19 +280,15 @@ const ConnectAccountCard = ({
                     <LinkIcon className="w-3.5 h-3.5 mr-1.5" />
                   )}
                   {isConnectingEbay && platform === 'ebay' ? 'Connecting...' : (t.connectButton || 'Connect')}
-                </Button>
+                </SecondaryAction>
               )}
 
               {/* Dropdown Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-slate-400 hover:text-white hover:bg-slate-700/50"
-                  >
+                  <GhostIconButton sizeVariant="lg" className="p-0">
                     <MoreVertical className="w-4 h-4" />
-                  </Button>
+                  </GhostIconButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
