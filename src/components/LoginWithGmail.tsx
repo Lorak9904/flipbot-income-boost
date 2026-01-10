@@ -39,7 +39,13 @@ export default function LoginWithGmail() {
 
             const { token, refresh_token, userData } = response.data;
             setUserAndTokens(userData, token, refresh_token);
-            navigate("/");
+            const checkoutPlan = sessionStorage.getItem('flipit_checkout_plan');
+            const checkoutBilling = sessionStorage.getItem('flipit_checkout_billing') || 'monthly';
+            if (checkoutPlan) {
+              navigate(`/pricing?checkout=1&plan=${checkoutPlan}&billing=${checkoutBilling}`);
+            } else {
+              navigate("/");
+            }
             window.location.reload();
           } catch (err) {
             console.error("Google login error", err);

@@ -12,14 +12,14 @@ export const productRelisterTranslations: Translations = {
     heroTitleHighlight: '— Full Lifecycle Control',
     heroSubtitle: 'From first post to final sale — manage your Vinted listings with FlipIt. Relist, refresh, edit, and crosslist without the repetitive manual work.',
     heroBadge1: 'Listing lifecycle',
-    heroBadge2: 'Multi-platform sync',
+    heroBadge2: 'Multi-platform publishing',
     heroBadge3: 'Bulk management',
     
     // Highlights
     highlightsTitle: 'What does a product relister do?',
     highlight1: 'Manages the full lifecycle of your listings from creation to sale.',
     highlight2: 'Enables bulk relisting and refreshing across your inventory.',
-    highlight3: 'Syncs products across Vinted, OLX, and Facebook Marketplace.',
+    highlight3: 'Cross-publish across Vinted, OLX, and Facebook Marketplace.',
     
     // Sections
     section1Title: 'What is a Product Relister?',
@@ -60,30 +60,30 @@ export const productRelisterTranslations: Translations = {
     
     // CTA
     ctaTitle: 'Manage Your Listings Smarter',
-    ctaDescription: 'Stop juggling multiple tabs and manual updates. FlipIt keeps your product lifecycle organized and your listings visible across every marketplace.',
+    ctaDescription: 'Stop juggling multiple tabs and manual updates. FlipIt keeps your product lifecycle organized and your listings visible across multiple marketplaces.',
     ctaButtonText: 'Start with FlipIt',
     ctaFooterText: 'Already using FlipIt?',
     ctaFooterLinkText: 'Go to dashboard',
   },
   pl: {
     // SEO
-    pageTitle: 'Relister Produktów dla Vinted — Zarządzanie Cyklem Ogłoszeń | FlipIt',
-    pageDescription: 'Używaj FlipIt jako relister produktów dla Vinted. Zarządzaj pełnym cyklem życia ogłoszeń — publikuj, odświeżaj, wznawiaj i crosslistuj na marketplace\'y.',
+    pageTitle: 'Relister produktów dla Vinted — zarządzanie cyklem ogłoszeń | FlipIt',
+    pageDescription: 'Używaj FlipIt jako relistera produktów dla Vinted. Zarządzaj pełnym cyklem życia ogłoszeń — publikuj, odświeżaj, wznawiaj i crosslistuj na marketplace\'ach.',
     
     // Hero
-    heroLabel: 'Zarządzanie Ogłoszeniami Vinted',
-    heroTitle: 'Relister Produktów dla Vinted',
-    heroTitleHighlight: '— Pełna Kontrola Cyklu',
-    heroSubtitle: 'Od pierwszej publikacji do sprzedaży — zarządzaj swoimi ogłoszeniami na Vinted z FlipIt. Wznawiaj, odświeżaj, edytuj i crosslistuj bez żmudnej ręcznej pracy.',
+    heroLabel: 'Zarządzanie ogłoszeniami Vinted',
+    heroTitle: 'Relister produktów dla Vinted',
+    heroTitleHighlight: '— pełna kontrola cyklu',
+    heroSubtitle: 'Od pierwszej publikacji do sprzedaży — zarządzaj ogłoszeniami na Vinted z FlipIt. Wznawiaj, odświeżaj, edytuj i crosslistuj bez żmudnej ręcznej pracy.',
     heroBadge1: 'Cykl życia ogłoszeń',
-    heroBadge2: 'Sync wielu platform',
-    heroBadge3: 'Zarządzanie hurtowe',
+    heroBadge2: 'Publikacja na wielu platformach',
+    heroBadge3: 'Zarządzanie zbiorcze',
     
     // Highlights
     highlightsTitle: 'Co robi relister produktów?',
     highlight1: 'Zarządza pełnym cyklem życia ogłoszeń od utworzenia do sprzedaży.',
     highlight2: 'Umożliwia hurtowe odświeżanie i wznawianie w całym asortymencie.',
-    highlight3: 'Synchronizuje produkty między Vinted, OLX i Facebook Marketplace.',
+    highlight3: 'Pozwala publikować na Vinted, OLX i Facebook Marketplace.',
     
     // Sections
     section1Title: 'Czym jest relister produktów?',
@@ -96,14 +96,14 @@ export const productRelisterTranslations: Translations = {
     
     section3Title: 'Narzędzie do wznawiania vs crosslistingu',
     section3Para1: 'Narzędzie do wznawiania skupia się na odświeżaniu istniejących ogłoszeń w ramach jednej platformy — przesuwaniu ich z powrotem na górę wyników wyszukiwania. Narzędzie do crosslistingu publikuje ten sam produkt jednocześnie na wielu marketplace\'ach.',
-    section3Para2: 'FlipIt łączy obie funkcje. Możesz wznawiać produkty na Vinted, aby zwiększyć widoczność ORAZ crosslistować na OLX i Facebook Marketplace, aby zmaksymalizować zasięg wśród kupujących.',
+    section3Para2: 'FlipIt łączy obie funkcje. Możesz wznawiać produkty na Vinted, aby zwiększyć widoczność, i crosslistować na OLX oraz Facebook Marketplace, aby zmaksymalizować zasięg wśród kupujących.',
     
-    section4Title: 'Jak FlipIt działa jako Twój relister produktów',
-    section4Para1: 'Z FlipIt wgrywasz zdjęcia produktu i podstawowe informacje tylko raz. Nasze AI generuje zoptymalizowane tytuły, opisy i sugestie cenowe. Następnie możesz publikować na wielu platformach, śledzić wyniki i wznawiać gdy widoczność spada.',
-    section4Para2: 'Panel daje Ci widok z lotu ptaka na wszystkie ogłoszenia na różnych platformach. Zobacz które produkty wymagają uwagi, planuj wznowienia i utrzymuj porządek w asortymencie bez arkuszy kalkulacyjnych.',
+    section4Title: 'Jak FlipIt działa jako relister produktów',
+    section4Para1: 'Z FlipIt wgrywasz zdjęcia produktu i podstawowe informacje tylko raz. Nasze AI generuje zoptymalizowane tytuły, opisy i sugestie cenowe. Następnie możesz publikować na wielu platformach, śledzić wyniki i wznawiać, gdy widoczność spada.',
+    section4Para2: 'Panel daje Ci widok z lotu ptaka na wszystkie ogłoszenia na różnych platformach. Zobacz, które produkty wymagają uwagi, planuj wznowienia i utrzymuj porządek w asortymencie bez arkuszy kalkulacyjnych.',
     
     section5Title: 'Workflow: Publikuj → Wznawiaj → Crosslistuj',
-    section5Para1: 'Idealny workflow zaczyna się od utworzenia ogłoszenia w FlipIt. Najpierw publikujesz na Vinted. Po 7-14 dniach, jeśli produkt się nie sprzedał i wyświetlenia spadły, uruchamiasz wznowienie aby odświeżyć widoczność.',
+    section5Para1: 'Idealny workflow zaczyna się od utworzenia ogłoszenia w FlipIt. Najpierw publikujesz na Vinted. Po 7-14 dniach, jeśli produkt się nie sprzedał i wyświetlenia spadły, uruchamiasz wznowienie, aby odświeżyć widoczność.',
     section5Para2: 'Jeśli produkt nadal się nie rusza, rozszerz zasięg crosslistując na OLX i Facebook Marketplace. FlipIt automatycznie dostosowuje treść ogłoszenia do wymagań każdej platformy.',
     
     // Related
@@ -114,17 +114,17 @@ export const productRelisterTranslations: Translations = {
     
     // FAQ
     faq1Question: 'Jaka jest różnica między wznawianiem a odświeżaniem?',
-    faq1Answer: 'Odświeżanie zazwyczaj oznacza drobne edycje aby podbić ogłoszenie. Wznawianie często polega na usunięciu i ponownym utworzeniu całego ogłoszenia. FlipIt pomaga w obu podejściach.',
+    faq1Answer: 'Odświeżanie zazwyczaj oznacza drobne edycje, aby podbić ogłoszenie. Wznawianie często polega na usunięciu i ponownym utworzeniu całego ogłoszenia. FlipIt pomaga w obu podejściach.',
     faq2Question: 'Czy mogę zarządzać ogłoszeniami z wielu kont Vinted?',
     faq2Answer: 'Obecnie FlipIt wspiera jedno konto na platformę. Wsparcie dla wielu kont może zostać dodane w przyszłych aktualizacjach.',
     faq3Question: 'Czy FlipIt automatycznie wznawia moje produkty?',
-    faq3Answer: 'FlipIt sugeruje kiedy wznawiać na podstawie wyników, ale Ty zatwierdzasz każdą akcję. Nie publikujemy automatycznie bez Twojego potwierdzenia, aby chronić Twoje konta.',
+    faq3Answer: 'FlipIt sugeruje, kiedy wznawiać na podstawie wyników, ale Ty zatwierdzasz każdą akcję. Nie publikujemy automatycznie bez Twojego potwierdzenia, aby chronić Twoje konta.',
     faq4Question: 'Które platformy wspiera FlipIt?',
     faq4Answer: 'FlipIt obecnie wspiera Vinted, OLX i Facebook Marketplace, z planami na więcej platform w przyszłości.',
     
     // CTA
     ctaTitle: 'Zarządzaj ogłoszeniami mądrzej',
-    ctaDescription: 'Przestań żonglować wieloma kartami i ręcznymi aktualizacjami. FlipIt utrzymuje porządek w cyklu życia produktów i widoczność ogłoszeń na każdym marketplace.',
+    ctaDescription: 'Przestań żonglować wieloma kartami i ręcznymi aktualizacjami. FlipIt porządkuje cykl życia produktów i utrzymuje widoczność ogłoszeń na wielu marketplace\'ach.',
     ctaButtonText: 'Zacznij z FlipIt',
     ctaFooterText: 'Już używasz FlipIt?',
     ctaFooterLinkText: 'Przejdź do panelu',

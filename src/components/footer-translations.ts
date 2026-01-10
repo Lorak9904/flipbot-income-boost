@@ -2,7 +2,7 @@ import { Translations } from './language-utils';
 
 export const footerTranslations: Translations = {
   en: {
-    tagline: 'The intelligent agent that helps you earn extra income through resale arbitrage.',
+    tagline: 'AI listing automation that helps you publish faster across marketplaces.',
     comingSoon: '🚀 Coming Soon',
     productTitle: 'Product',
     automatedResellingGuide: 'Marketplace Automation Guide',
@@ -22,23 +22,23 @@ export const footerTranslations: Translations = {
     copyright: 'FlipIt. All rights reserved.'
   },
   pl: {
-    tagline: 'Inteligentny agent, który pomaga Ci zarabiać dodatkowe pieniądze poprzez arbitraż odsprzedaży.',
+    tagline: 'Automatyzacja ogłoszeń z AI, która pomaga publikować szybciej na wielu portalach.',
     comingSoon: '🚀 Wkrótce',
     productTitle: 'Produkt',
-    automatedResellingGuide: 'Przewodnik Automatyzacji Marketplace',
-    howItWorks: 'Jak To Działa',
-    successStories: 'Historie Sukcesu',
+    automatedResellingGuide: 'Przewodnik automatyzacji marketplace',
+    howItWorks: 'Jak to działa',
+    successStories: 'Historie sukcesu',
     tutorialsTitle: 'Poradniki',
-    tutorials: 'Wszystkie Poradniki',
-    vintedRelistingTool: 'Odświeżanie Vinted',
-    crosslistVintedFb: 'Crosslisting na Facebook',
-    productRelister: 'Relister Produktów',
+    tutorials: 'Wszystkie poradniki',
+    vintedRelistingTool: 'Odświeżanie na Vinted',
+    crosslistVintedFb: 'Crosslisting na Facebook Marketplace',
+    productRelister: 'Relister produktów',
     supportTitle: 'Wsparcie',
     faq: 'FAQ',
-    contactUs: 'Skontaktuj Się',
-    privacyPolicy: 'Polityka Prywatności',
+    contactUs: 'Skontaktuj się',
+    privacyPolicy: 'Polityka prywatności',
     terms: 'Regulamin',
-    cookiesPolicy: 'Polityka Cookies',
+    cookiesPolicy: 'Polityka cookies',
     copyright: 'FlipIt. Wszelkie prawa zastrzeżone.'
   }
 };

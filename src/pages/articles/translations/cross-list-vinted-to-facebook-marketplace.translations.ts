@@ -36,11 +36,11 @@ export const crossListVintedFbTranslations: Translations = {
     
     section4Title: 'Automated Crosslisting with FlipIt',
     section4Para1: 'FlipIt solves these problems by letting you create a listing once and publish it to multiple platforms with a single click. Our AI adapts your title and description to each marketplace\'s best practices and category requirements.',
-    section4Para2: 'When you mark an item as sold in FlipIt, it gets marked everywhere. Price changes sync automatically. You manage one inventory, not three separate ones.',
+    section4Para2: 'FlipIt helps you draft once and publish to multiple platforms. Publishing results are tracked per platform, but updating sold status or editing existing marketplace listings isn\'t supported yet.',
     
     section5Title: 'Common Crosslisting Pitfalls to Avoid',
-    section5Para1: 'Inconsistent stock is the biggest risk — selling the same item twice because you forgot to update one platform. This damages your reputation and creates logistical headaches. Automation eliminates this problem.',
-    section5Para2: 'Price mismatches can also confuse buyers. If your Vinted price is €25 but Facebook shows €30, buyers who find both listings may lose trust. FlipIt keeps prices synchronized (with optional platform-specific adjustments if you want to price differently).',
+    section5Para1: 'Inconsistent stock is the biggest risk — selling the same item twice because you forgot to update one platform. Automation reduces duplicate work, but you still need to mark items sold everywhere to avoid double-selling.',
+    section5Para2: 'Price mismatches can also confuse buyers. If you choose different prices per platform, use clear platform-specific adjustments when publishing so listings stay intentional.',
     
     section6Title: 'Handling Messages Across Platforms',
     section6Para1: 'One challenge of multi-platform selling is tracking buyer messages. You might have interested buyers on both Vinted and Facebook asking questions about the same item.',
@@ -71,28 +71,28 @@ export const crossListVintedFbTranslations: Translations = {
   },
   pl: {
     // SEO
-    pageTitle: 'Crosslisting z Vinted na Facebook Marketplace — Poradnik | FlipIt',
-    pageDescription: 'Dowiedz się jak crosslistować z Vinted na Facebook Marketplace. FlipIt automatyzuje crosslisting, aby dotrzeć do większej liczby kupujących bez podwójnej pracy.',
+    pageTitle: 'Crosslisting z Vinted na Facebook Marketplace — poradnik | FlipIt',
+    pageDescription: 'Dowiedz się, jak crosslistować z Vinted na Facebook Marketplace. FlipIt automatyzuje crosslisting, aby dotrzeć do większej liczby kupujących bez podwójnej pracy.',
     
     // Hero
-    heroLabel: 'Poradnik Crosslistingu',
+    heroLabel: 'Poradnik crosslistingu',
     heroTitle: 'Crosslisting z Vinted na Facebook Marketplace',
-    heroTitleHighlight: '— Podwój swój zasięg',
-    heroSubtitle: 'Sprzedajesz tylko na Vinted? Tracisz pieniądze. Dowiedz się jak crosslistować produkty na Facebook Marketplace i dotrzeć do milionów dodatkowych potencjalnych kupujących.',
+    heroTitleHighlight: '— podwój zasięg',
+    heroSubtitle: 'Sprzedajesz tylko na Vinted? Tracisz pieniądze. Dowiedz się, jak crosslistować produkty na Facebook Marketplace i dotrzeć do milionów dodatkowych potencjalnych kupujących.',
     heroBadge1: 'Automatyzacja crosslistingu',
-    heroBadge2: 'Dotrzej do więcej kupujących',
+    heroBadge2: 'Dotrzyj do większej liczby kupujących',
     heroBadge3: 'Publikacja jednym klikiem',
     
     // Highlights
     highlightsTitle: 'Dlaczego crosslistować na Facebook Marketplace?',
-    highlight1: 'Facebook Marketplace ma miliardy aktywnych użytkowników globalnie.',
-    highlight2: 'Inna demografa kupujących niż Vinted — szerszy zasięg.',
+    highlight1: 'Facebook Marketplace ma miliardy aktywnych użytkowników na świecie.',
+    highlight2: 'Inna demografia kupujących niż Vinted — szerszy zasięg.',
     highlight3: 'Produkty często sprzedają się szybciej przy ekspozycji na wielu platformach.',
     
     // Sections
     section1Title: 'Czym jest crosslisting?',
     section1Para1: 'Crosslisting oznacza wystawianie tego samego produktu na sprzedaż na wielu marketplace\'ach jednocześnie. Zamiast mieć vintage kurtkę tylko na Vinted, wystawiasz ją też na Facebook Marketplace, OLX i innych platformach, aby zmaksymalizować szanse na sprzedaż.',
-    section1Para2: 'Wyzwanie? Każda platforma ma inne wymagania dotyczące tytułów, opisów, kategorii i formatów zdjęć. Ręczny crosslisting oznacza przeformatowywanie i przepisywanie wszystkiego — tu właśnie wchodzą narzędzia automatyzacji jak FlipIt.',
+    section1Para2: 'Wyzwanie? Każda platforma ma inne wymagania dotyczące tytułów, opisów, kategorii i formatów zdjęć. Ręczny crosslisting oznacza przeformatowywanie i przepisywanie wszystkiego — tu właśnie pomagają narzędzia automatyzacji, takie jak FlipIt.',
     
     section2Title: 'Dlaczego crosslistować z Vinted na Facebook?',
     section2Para1: 'Vinted świetnie sprawdza się dla mody i odzieży używanej, ale Facebook Marketplace dociera do znacznie szerszej publiczności. Lokalni kupujący, którzy nie mają kont na Vinted, mogą odkryć Twoje produkty na Facebooku. Dodatkowo, Facebook pozwala na odbiór osobisty, co niektórzy kupujący preferują.',
@@ -104,14 +104,14 @@ export const crossListVintedFbTranslations: Translations = {
     
     section4Title: 'Automatyczny crosslisting z FlipIt',
     section4Para1: 'FlipIt rozwiązuje te problemy, pozwalając stworzyć ogłoszenie raz i opublikować je na wielu platformach jednym kliknięciem. Nasze AI dostosowuje tytuł i opis do najlepszych praktyk i wymagań kategorii każdego marketplace\'a.',
-    section4Para2: 'Gdy oznaczysz produkt jako sprzedany w FlipIt, zostaje oznaczony wszędzie. Zmiany cen synchronizują się automatycznie. Zarządzasz jednym asortymentem, nie trzema oddzielnymi.',
+    section4Para2: 'FlipIt pozwala przygotować ogłoszenie raz i opublikować je na wielu platformach. Wyniki publikacji widzisz osobno dla każdej platformy, ale aktualizacje (np. oznaczenie jako sprzedane) wykonujesz na każdej platformie osobno — to obecne ograniczenie.',
     
-    section5Title: 'Typowe pułapki crosslistingu których należy unikać',
-    section5Para1: 'Niespójny stan magazynu to największe ryzyko — sprzedaż tego samego produktu dwa razy, bo zapomniałeś zaktualizować jedną platformę. To psuje Twoją reputację i tworzy logistyczne bóle głowy. Automatyzacja eliminuje ten problem.',
-    section5Para2: 'Rozbieżności cenowe również mogą mylić kupujących. Jeśli cena na Vinted to 100 zł, a Facebook pokazuje 130 zł, kupujący którzy znajdą oba ogłoszenia mogą stracić zaufanie. FlipIt utrzymuje ceny zsynchronizowane (z opcjonalnymi dostosowaniami per platforma jeśli chcesz różnicować ceny).',
+    section5Title: 'Typowe pułapki crosslistingu, których warto unikać',
+    section5Para1: 'Niespójny stan magazynu to największe ryzyko — sprzedaż tego samego produktu dwa razy, bo zapomniałeś zaktualizować jedną platformę. Automatyzacja ogranicza ręczną pracę, ale nadal musisz oznaczać sprzedane produkty na każdej platformie, aby uniknąć podwójnej sprzedaży.',
+    section5Para2: 'Rozbieżności cenowe również mogą mylić kupujących. Jeśli chcesz różnicować ceny, ustaw jasne zasady korekt cen dla każdej platformy na etapie publikacji.',
     
     section6Title: 'Obsługa wiadomości na różnych platformach',
-    section6Para1: 'Jednym z wyzwań sprzedaży wieloplatformowej jest śledzenie wiadomości od kupujących. Możesz mieć zainteresowanych kupujących zarówno na Vinted jak i Facebooku zadających pytania o ten sam produkt.',
+    section6Para1: 'Jednym z wyzwań sprzedaży wieloplatformowej jest śledzenie wiadomości od kupujących. Możesz mieć zainteresowanych kupujących zarówno na Vinted, jak i Facebooku zadających pytania o ten sam produkt.',
     section6Para2: 'Chociaż FlipIt obecnie nie oferuje zunifikowanej skrzynki odbiorczej, włączenie powiadomień dla wszystkich platform zapewnia szybkie odpowiadanie. Przyszłe aktualizacje FlipIt mogą zawierać agregację wiadomości, aby jeszcze bardziej to uprościć.',
     
     // Related
@@ -122,17 +122,17 @@ export const crossListVintedFbTranslations: Translations = {
     
     // FAQ
     faq1Question: 'Czy mogę crosslistować z Vinted na Facebook za darmo?',
-    faq1Answer: 'Ręczny crosslisting jest darmowy ale czasochłonny. FlipIt oferuje plany subskrypcyjne, które czynią automatyzację przystępną i oszczędzają Ci godziny tygodniowo.',
+    faq1Answer: 'Ręczny crosslisting jest darmowy, ale czasochłonny. FlipIt oferuje plany subskrypcyjne, które czynią automatyzację przystępną i oszczędzają Ci godziny tygodniowo.',
     faq2Question: 'Czy crosslisting spowoduje bana mojego konta?',
     faq2Answer: 'Nie. Wystawianie własnych produktów na wielu platformach jest całkowicie normalne i dozwolone. Po prostu upewnij się, że usuwasz sprzedane produkty niezwłocznie ze wszystkich platform.',
     faq3Question: 'Czy FlipIt publikuje na Facebooku automatycznie?',
     faq3Answer: 'FlipIt przygotowuje Twoje ogłoszenia, a Ty zatwierdzasz przed publikacją. To daje Ci kontrolę jednocześnie oszczędzając znaczną ilość czasu.',
     faq4Question: 'Co jeśli chcę różne ceny na Vinted vs Facebook?',
-    faq4Answer: 'FlipIt wspiera dostosowania cen per platforma. Możesz ustawić zasady jak "cena na Facebooku = cena Vinted + 10%" aby uwzględnić różne oczekiwania kupujących.',
+    faq4Answer: 'FlipIt wspiera dostosowania cen dla każdej platformy. Możesz ustawić zasady jak "cena na Facebooku = cena Vinted + 10%", aby uwzględnić różne oczekiwania kupujących.',
     
     // CTA
     ctaTitle: 'Gotowy na mądrzejszy crosslisting?',
-    ctaDescription: 'Przestań wykonywać podwójną pracę dla tego samego asortymentu. FlipIt pozwala dotrzeć do kupujących na Vinted I Facebook Marketplace w jednym workflow tworzenia ogłoszeń.',
+    ctaDescription: 'Przestań wykonywać podwójną pracę dla tego samego asortymentu. FlipIt pozwala dotrzeć do kupujących na Vinted i Facebook Marketplace w jednym workflow tworzenia ogłoszeń.',
     ctaButtonText: 'Wypróbuj FlipIt za darmo',
     ctaFooterText: 'Chcesz najpierw dowiedzieć się więcej?',
     ctaFooterLinkText: 'Zobacz jak to działa',

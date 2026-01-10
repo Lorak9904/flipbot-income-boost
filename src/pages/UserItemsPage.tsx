@@ -297,6 +297,7 @@ const UserItemsPage = () => {
               <SelectItem value="facebook">{t.filters.facebook}</SelectItem>
               <SelectItem value="olx">{t.filters.olx}</SelectItem>
               <SelectItem value="vinted">{t.filters.vinted}</SelectItem>
+              <SelectItem value="ebay">{t.filters.ebay}</SelectItem>
             </SelectContent>
           </Select>
         </motion.div>

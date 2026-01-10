@@ -33,7 +33,8 @@ const AddItemPage = () => {
   const [connectedPlatforms, setConnectedPlatforms] = useState<Record<Platform, boolean>>({
     facebook: false,
     olx: false,
-    vinted: false
+    vinted: false,
+    ebay: false
   });
   
   useEffect(() => {
@@ -106,7 +107,7 @@ const AddItemPage = () => {
       <div className="relative min-h-screen text-white overflow-hidden">
         <SEOHead
           title="Add Item | FlipIt"
-          description="Add an item for marketplace automation — FlipIt generates descriptions, pricing, and categories, then crosslists to OLX, Vinted, and Facebook."
+          description="Add an item for marketplace automation — FlipIt generates descriptions, pricing, and categories, then crosslists to OLX, Vinted, Facebook Marketplace, and eBay."
           canonicalUrl="https://myflipit.live/add-item"
           robots="noindex, nofollow"
         />

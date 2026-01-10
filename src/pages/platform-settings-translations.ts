@@ -11,6 +11,7 @@ export const platformSettingsTranslations: Translations = {
     platformFacebook: 'Facebook Marketplace',
     platformOlx: 'OLX',
     platformVinted: 'Vinted',
+    platformEbay: 'eBay',
     
     // Pricing section
     pricingTitle: 'Pricing Adjustments',
@@ -57,6 +58,7 @@ export const platformSettingsTranslations: Translations = {
     platformFacebook: 'Facebook Marketplace',
     platformOlx: 'OLX',
     platformVinted: 'Vinted',
+    platformEbay: 'eBay',
     
     // Pricing section
     pricingTitle: 'Korekty cen',
@@ -77,10 +79,10 @@ export const platformSettingsTranslations: Translations = {
     addressPostalCodePlaceholder: 'Wprowadź kod pocztowy',
     addressCountryLabel: 'Kraj',
     addressCountryPlaceholder: 'Wprowadź kraj',
-    addressStreetLabel: 'Adres ',
+    addressStreetLabel: 'Adres (opcjonalnie)',
     addressStreetPlaceholder: 'Wprowadź adres ulicy',
-    syncAddressButton: 'Synchronizuj z ustawień ogólnych',
-    syncAddressSuccess: 'Adres zsynchronizowany z ustawień ogólnych',
+    syncAddressButton: 'Synchronizuj z ustawieniami ogólnymi',
+    syncAddressSuccess: 'Adres zsynchronizowany z ustawieniami ogólnymi',
     syncAddressError: 'Nie udało się zsynchronizować adresu. Upewnij się, że masz ustawiony domyślny adres w Ustawieniach ogólnych.',
     
     // Save button

@@ -60,9 +60,9 @@ export const creditsTranslations = {
     actionReset: "Monthly Reset",
     
     // Plan names
-    planStarter: "Starter",
-    planPro: "Pro",
-    planBusiness: "Business",
+    planStarter: "Start",
+    planPro: "Plus",
+    planBusiness: "Scale",
     
     // Plan management
     planManagement: "Manage Your Subscription",
@@ -109,16 +109,28 @@ export const creditsTranslations = {
     lowBalance: "Running low",
     criticalBalance: "Critical - consider upgrading",
     unlimitedBalance: "Unlimited credits",
+    
+    // Subscription details (Task 1)
+    subscriptionTitle: "Subscription & Credits",
+    subscriptionDetails: "Subscription Details",
+    changePlan: "Change Plan",
+    startedLabel: "Started",
+    nextBillingLabel: "Next billing",
+    activeUntilLabel: "Active until",
+    cancelScheduled: "Subscription will cancel at period end",
+    listingsRemaining: "Listings Remaining",
+    imageEnhancements: "AI Photo Enhancements",
+    usedLabel: "Used",
   },
   
   pl: {
     // Section headers
-    sectionTitle: "Subskrypcja i Kredyty",
-    currentPlan: "Obecny Plan",
-    managePlan: "Zarządzaj Planem",
+    sectionTitle: "Subskrypcja i kredyty",
+    currentPlan: "Obecny plan",
+    managePlan: "Zarządzaj planem",
     
     // Credits balance
-    creditsBalance: "Saldo Kredytów",
+    creditsBalance: "Saldo kredytów",
     monthlyAllowance: "Miesięczny limit",
     usedThisPeriod: "Wykorzystane w tym okresie",
     remainingCredits: "Pozostało",
@@ -129,12 +141,12 @@ export const creditsTranslations = {
     unlimited: "Bez limitu",
     
     // Actions
-    viewHistory: "Zobacz Historię Transakcji",
-    viewPlans: "Porównaj Plany",
-    goToSettings: "Przejdź do Ustawień",
+    viewHistory: "Zobacz historię transakcji",
+    viewPlans: "Porównaj plany",
+    goToSettings: "Przejdź do ustawień",
     upgrade: "Ulepsz",
     downgrade: "Obniż",
-    cancelSubscription: "Anuluj Subskrypcję",
+    cancelSubscription: "Anuluj subskrypcję",
     
     // What credits are used for
     whatCreditsFor: "Do czego służą kredyty:",
@@ -142,40 +154,40 @@ export const creditsTranslations = {
     enhanceCost: "Każde ulepszenie zdjęcia AI = 1 kredyt",
     
     // Insufficient credits
-    insufficientTitle: "Niewystarczające Kredyty",
+    insufficientTitle: "Niewystarczające kredyty",
     insufficientMessage: "Potrzebujesz {required} kredytów, ale masz {available}.",
     resetsIn: "Kredyty odnowią się za {days} dni",
-    lowCreditsWarning: "Niski Stan Kredytów",
+    lowCreditsWarning: "Niski stan kredytów",
     lowCreditsMessage: "Pozostało {remaining} kredytów.",
     
     // Transaction history
-    transactionHistory: "Historia Transakcji Kredytowych",
+    transactionHistory: "Historia transakcji kredytowych",
     filterAll: "Wszystkie",
     filterPublish: "Publikacje",
     filterEnhance: "Ulepszenia",
     filterBonus: "Bonusy",
     noTransactions: "Brak transakcji",
-    loadMore: "Załaduj Więcej",
-    showing: "Wyświetlanie {count} z {total} transakcji",
+    loadMore: "Załaduj więcej",
+    showing: "Wyświetlono {count} z {total} transakcji",
     
     // Action types
-    actionPublish: "Publikacja Ogłoszenia",
-    actionEnhance: "Ulepszenie Zdjęcia",
-    actionRefill: "Doładowanie Kredytów",
+    actionPublish: "Publikacja ogłoszenia",
+    actionEnhance: "Ulepszenie zdjęcia",
+    actionRefill: "Doładowanie kredytów",
     actionRefund: "Zwrot",
-    actionUpgrade: "Zmiana Planu",
-    actionReset: "Miesięczne Odnowienie",
+    actionUpgrade: "Zmiana planu",
+    actionReset: "Miesięczne odnowienie",
     
     // Plan names
-    planStarter: "Starter",
-    planPro: "Pro",
-    planBusiness: "Business",
+    planStarter: "Start",
+    planPro: "Plus",
+    planBusiness: "Scale",
     
     // Plan management
-    planManagement: "Zarządzaj Swoją Subskrypcją",
-    currentlyActive: "Aktualnie Aktywny",
+    planManagement: "Zarządzaj subskrypcją",
+    currentlyActive: "Aktualnie aktywny",
     nextBilling: "Następna płatność",
-    comparePlans: "Porównaj Plany",
+    comparePlans: "Porównaj plany",
     planFeatures: "Funkcje",
     planPrice: "Cena",
     planCredits: "Kredyty",
@@ -185,9 +197,9 @@ export const creditsTranslations = {
     free: "Darmowy",
     
     // Billing
-    billingInfo: "Informacje Rozliczeniowe",
-    paymentMethod: "Metoda Płatności",
-    updatePayment: "Aktualizuj Metodę Płatności",
+    billingInfo: "Informacje rozliczeniowe",
+    paymentMethod: "Metoda płatności",
+    updatePayment: "Aktualizuj metodę płatności",
     noPaymentMethod: "Brak zapisanej metody płatności",
     
     // Status messages
@@ -202,7 +214,7 @@ export const creditsTranslations = {
     confirmUpgradeMessage: "Zostaniesz obciążony {price} natychmiast i otrzymasz {credits} kredytów/miesiąc.",
     confirmDowngrade: "Obniżyć do {plan}?",
     confirmDowngradeMessage: "Zmiany wejdą w życie z końcem bieżącego okresu rozliczeniowego.",
-    confirmCancel: "Anulować Subskrypcję?",
+    confirmCancel: "Anulować subskrypcję?",
     confirmCancelMessage: "Stracisz dostęp do funkcji planu {plan} z końcem okresu rozliczeniowego.",
     confirm: "Potwierdź",
     cancel: "Anuluj",
@@ -214,7 +226,19 @@ export const creditsTranslations = {
     // Credits health status
     healthyBalance: "Dobry stan",
     lowBalance: "Niski stan",
-    criticalBalance: "Krytyczny - rozważ ulepszenie",
+    criticalBalance: "Krytyczny — rozważ ulepszenie",
     unlimitedBalance: "Nieograniczone kredyty",
+    
+    // Subscription details (Task 1)
+    subscriptionTitle: "Subskrypcja i kredyty",
+    subscriptionDetails: "Szczegóły subskrypcji",
+    changePlan: "Zmień plan",
+    billingLabel: "Rozliczenia",
+    billingMonthly: "Miesięczne",
+    billingAnnual: "Roczne",
+    startedLabel: "Rozpoczęto",
+    nextBillingmaining: "Pozostałe ogłoszenia",
+    imageEnhancements: "Ulepszenia zdjęć AI",
+    usedLabel: "Wykorzystano",
   },
 };

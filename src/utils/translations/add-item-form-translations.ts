@@ -40,7 +40,7 @@ export const addItemFormTranslations = {
     // Powiadomienia Toast
     toast: {
       noImagesTitle: "Brak zdjęć",
-      noImagesDesc: "Dodaj przynajmniej jedno zdjęcie swojego przedmiotu",
+      noImagesDesc: "Dodaj co najmniej jedno zdjęcie przedmiotu",
       uploadInProgressTitle: "Trwa przesyłanie",
       uploadInProgressDesc: "Poczekaj, aż wszystkie zdjęcia zostaną przesłane",
       errorTitle: "Błąd",
@@ -49,26 +49,26 @@ export const addItemFormTranslations = {
     
     // Nagłówki sekcji
     sections: {
-      uploadImages: "Prześlij Zdjęcia",
-      optionalDetails: "Opcjonalne Szczegóły",
-      helperText: "Możesz opcjonalnie podać tytuł i oczekiwaną cenę. Wszystkie inne szczegóły zostaną automatycznie wygenerowane przez AI na podstawie Twoich zdjęć.",
+      uploadImages: "Prześlij zdjęcia",
+      optionalDetails: "Opcjonalne szczegóły",
+      helperText: "Opcjonalnie możesz podać tytuł i oczekiwaną cenę. Pozostałe szczegóły AI wygeneruje na podstawie zdjęć.",
     },
     
     // Etykiety formularza (uproszczone - tylko tytuł i oczekiwana cena)
     labels: {
       title: "Tytuł",
-      expectedPrice: "Oczekiwana Cena",
+      expectedPrice: "Oczekiwana cena",
     },
     
     // Placeholdery
     placeholders: {
-      title: "Zostaw puste, aby AI wygenerował",
-      expectedPrice: "Twoja oczekiwana cena (np. 50.00)",
+      title: "Zostaw puste, aby AI wygenerowało tytuł",
+      expectedPrice: "Podaj cenę (np. 50,00)",
     },
     
     // Przyciski
     buttons: {
-      generating: "Analizowanie zdjęć przez AI...",
+      generating: "Analiza zdjęć przez AI...",
       continue: "Kontynuuj",
     },
   },

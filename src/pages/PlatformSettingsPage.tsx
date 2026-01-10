@@ -36,6 +36,7 @@ const PLATFORM_NAMES: Record<string, string> = {
   facebook: 'Facebook Marketplace',
   olx: 'OLX',
   vinted: 'Vinted',
+  ebay: 'eBay',
 };
 
 const PlatformSettingsPage = () => {
@@ -60,7 +61,7 @@ const PlatformSettingsPage = () => {
   });
 
   // Validate platform param
-  const validPlatforms = ['facebook', 'olx', 'vinted'];
+  const validPlatforms = ['facebook', 'olx', 'vinted', 'ebay'];
   const isValidPlatform = platform && validPlatforms.includes(platform);
   const platformName = platform ? PLATFORM_NAMES[platform] || platform : '';
 

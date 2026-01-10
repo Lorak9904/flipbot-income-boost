@@ -22,6 +22,7 @@ export const userItemsTranslations = {
       facebook: "Facebook",
       olx: "OLX",
       vinted: "Vinted",
+      ebay: "eBay",
     },
     
     // Loading & Error States
@@ -62,27 +63,28 @@ export const userItemsTranslations = {
   
   pl: {
     // SEO & Meta
-    pageTitle: "Moje Przedmioty",
-    pageDescription: "Przeglądaj i zarządzaj wszystkimi swoimi ogłoszeniami na różnych platformach",
+    pageTitle: "Moje przedmioty",
+    pageDescription: "Przeglądaj i zarządzaj wszystkimi ogłoszeniami na różnych platformach",
     
     // Karty statystyk
     stats: {
-      totalItems: "Wszystkie Przedmioty",
+      totalItems: "Wszystkie przedmioty",
       published: "Opublikowane",
       drafts: "Szkice",
-      successRate: "Wskaźnik Sukcesu",
+      successRate: "Wskaźnik sukcesu",
     },
     
     // Filtry
     filters: {
       label: "Filtry:",
-      allStages: "Wszystkie stany",
+      allStages: "Wszystkie statusy",
       draft: "Szkic",
       published: "Opublikowane",
       allPlatforms: "Wszystkie platformy",
       facebook: "Facebook",
       olx: "OLX",
       vinted: "Vinted",
+      ebay: "eBay",
     },
     
     // Stany ładowania i błędów
@@ -97,7 +99,7 @@ export const userItemsTranslations = {
         filtered: "Spróbuj dostosować filtry",
         noItems: "Zacznij od dodania pierwszego przedmiotu",
       },
-      addButton: "Dodaj Przedmiot",
+      addButton: "Dodaj przedmiot",
     },
     
     // Karta przedmiotu
@@ -114,11 +116,11 @@ export const userItemsTranslations = {
     },
     
     // Uwierzytelnianie
-    authRequired: "Wymagane Uwierzytelnienie",
+    authRequired: "Wymagane logowanie",
     authMessage: "Zaloguj się, aby zobaczyć swoje przedmioty",
-    sessionExpired: "Sesja Wygasła",
+    sessionExpired: "Sesja wygasła",
     sessionMessage: "Twoja sesja wygasła. Zaloguj się ponownie.",
-    goToLogin: "Przejdź do Logowania",
+    goToLogin: "Przejdź do logowania",
   },
 };
 

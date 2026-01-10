@@ -19,7 +19,7 @@ export const connectCardTranslations: Translations = {
     
     // Connected state
     connectedTitle: 'Successfully Connected!',
-    connectedDescription: 'FlipIt is now analyzing {platform} for flipping opportunities.',
+    connectedDescription: 'You can now publish listings to {platform} from FlipIt (with your approval).',
     disconnectButton: 'Disconnect',
     settingsButton: 'Settings',
     
@@ -58,7 +58,7 @@ export const connectCardTranslations: Translations = {
     dtsgPlaceholder: 'Paste your dtsg token here...',
     
     // Not connected state
-    notConnectedDescription: 'Connect your {platform} account to let FlipIt find and flip items automatically.',
+    notConnectedDescription: 'Connect your {platform} account to publish listings from FlipIt.',
     manualConnectButtonCta: 'Manual Connect',
     
     // Auth required
@@ -96,19 +96,19 @@ export const connectCardTranslations: Translations = {
     
     // Connected state
     connectedTitle: 'Pomyślnie połączono!',
-    connectedDescription: 'FlipIt teraz analizuje {platform} w poszukiwaniu okazji do zarobku.',
+    connectedDescription: 'Możesz teraz publikować ogłoszenia na {platform} z poziomu FlipIt (po Twojej akceptacji).',
     disconnectButton: 'Rozłącz',
     settingsButton: 'Ustawienia',
     
     // Manual connection form
     manualConnectTitle: 'Połącz swoje konto {platform}',
-    manualConnectDescription: 'Wklej swoje ciasteczka dla {platform} poniżej. Twój identyfikator użytkownika zostanie automatycznie połączony.',
+    manualConnectDescription: 'Wklej ciasteczka dla {platform} poniżej. Twój identyfikator użytkownika zostanie automatycznie połączony.',
     manualConnectButton: 'Połącz {platform}',
     manualConnectCancel: 'Anuluj',
     
     // Cookie instructions
     cookieInstructionsToggle: 'Jak pobrać ciasteczka?',
-    cookieInstructionsTitle: 'Pobierz ciasteczka {platform} w 4 krokach',
+    cookieInstructionsTitle: 'Pobierz ciasteczka {platform} w 4 prostych krokach',
     cookieStep1: 'Zainstaluj {extensionLink} w swojej przeglądarce.',
     cookieExtensionText: 'rozszerzenie Cookie-Editor',
     cookieStep2: 'Przejdź do {platform} i zaloguj się na swoje konto.',
@@ -135,12 +135,12 @@ export const connectCardTranslations: Translations = {
     dtsgPlaceholder: 'Wklej swój token dtsg tutaj...',
     
     // Not connected state
-    notConnectedDescription: 'Połącz swoje konto {platform}, aby FlipIt automatycznie znajdował i sprzedawał przedmioty.',
+    notConnectedDescription: 'Połącz konto {platform}, aby publikować ogłoszenia z FlipIt.',
     manualConnectButtonCta: 'Połącz ręcznie',
     
     // Auth required
     authRequiredMessage: 'Musisz być zalogowany, aby połączyć swoje konto {platform}.',
-    authRequiredToast: 'Proszę się zalogować, aby połączyć konta',
+    authRequiredToast: 'Zaloguj się, aby połączyć konta',
     
     // Toast messages
     toastConnectedSuccess: 'Pomyślnie połączono z {platform}',
@@ -151,7 +151,7 @@ export const connectCardTranslations: Translations = {
     toastManualConnectedError: 'Ręczne połączenie nie powiodło się. Sprawdź swoje ciasteczka i spróbuj ponownie.',
     
     // Platform-specific placeholders
-    facebookCookiePlaceholder: 'Wklej ciasteczka Facebook tutaj...',
+    facebookCookiePlaceholder: 'Wklej ciasteczka Facebooka tutaj...',
     olxCookiePlaceholder: 'Wklej ciasteczka OLX tutaj...',
     vintedCookiePlaceholder: 'Wklej ciasteczka Vinted tutaj...',
   },

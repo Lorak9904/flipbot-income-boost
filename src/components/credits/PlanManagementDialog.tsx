@@ -28,6 +28,8 @@ import { getTranslations } from '@/components/language-utils';
 import { creditsTranslations } from './credits-translations';
 import { useCredits } from '@/hooks/useCredits';
 import { useToast } from '@/hooks/use-toast';
+import { createBillingPortalSession, createCheckoutSession } from '@/lib/api/billing';
+import { normalizePlan } from '@/lib/api/credits';
 
 interface PlanManagementDialogProps {
   open: boolean;
@@ -35,88 +37,87 @@ interface PlanManagementDialogProps {
 }
 
 interface PlanDetails {
-  id: 'starter' | 'pro' | 'business';
+  id: 'start' | 'plus' | 'scale';
   name: string;
   price: string;
   credits: string;
   platforms: string;
   support: string;
   features: string[];
-  stripePriceId?: string; // For future Stripe integration
 }
 
 export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialogProps) {
   const t = getTranslations(creditsTranslations);
   const { data: credits } = useCredits();
   const { toast } = useToast();
+  const currentPlan = credits ? normalizePlan(credits.effective_plan ?? credits.plan) : null;
+  const hasStripeSubscription = Boolean(
+    credits?.subscription_status &&
+    credits.subscription_status !== 'canceled' &&
+    credits.subscription_status !== 'incomplete_expired'
+  );
   
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     action: 'upgrade' | 'downgrade' | 'cancel';
-    targetPlan?: 'starter' | 'pro' | 'business';
+    targetPlan?: 'start' | 'plus' | 'scale';
   }>({ open: false, action: 'upgrade' });
   
   const [processing, setProcessing] = useState(false);
   
   const plans: PlanDetails[] = [
     {
-      id: 'starter',
+      id: 'start',
       name: t.planStarter,
       price: t.free,
-      credits: '100/month',
-      platforms: '2 (OLX, Vinted)',
+      credits: '5 listings + 1 image/month',
+      platforms: 'All supported marketplaces',
       support: 'Community',
       features: [
-        '100 credits per month',
-        '2 marketplace connections',
-        'Basic AI descriptions',
+        '5 listings per month',
+        '1 AI image enhancement per month',
+        'All supported marketplaces',
+        'Manual review before publish',
         'Community support',
       ],
     },
     {
-      id: 'pro',
+      id: 'plus',
       name: t.planPro,
-      price: '99 PLN/month',
-      credits: '400/month',
-      platforms: 'All 4',
-      support: 'Priority email',
+      price: '29 PLN/month',
+      credits: '30 listings + 20 images/month',
+      platforms: 'All supported marketplaces',
+      support: 'Email',
       features: [
-        '400 credits per month (4x Starter)',
-        'All 4 marketplace connections',
-        'Advanced AI descriptions & SEO',
-        'Priority email support',
-        'Price analysis & recommendations',
-        'Automated re-listing',
-        'Sales analytics dashboard',
+        '30 listings per month',
+        '20 AI image enhancements per month',
+        'All supported marketplaces',
+        'Manual review before publish',
+        'Email support',
       ],
-      stripePriceId: 'price_pro_monthly', // Placeholder
     },
     {
-      id: 'business',
+      id: 'scale',
       name: t.planBusiness,
-      price: '299 PLN/month',
-      credits: 'Unlimited',
-      platforms: 'All 4',
-      support: 'Phone',
+      price: '59 PLN/month',
+      credits: '100 listings + 100 images/month',
+      platforms: 'All supported marketplaces',
+      support: 'Priority email',
       features: [
-        'Unlimited credits',
-        'Everything in Pro, plus:',
-        'Multi-user accounts (up to 5)',
-        'API access',
-        'Dedicated account manager',
-        'Custom integrations',
-        'Advanced analytics & reporting',
-        'Priority phone support',
+        '100 listings per month',
+        '100 AI image enhancements per month',
+        'All supported marketplaces',
+        'Manual review before publish',
+        'Priority email support',
       ],
-      stripePriceId: 'price_business_monthly', // Placeholder
     },
   ];
   
-  const handlePlanAction = async (targetPlan: 'starter' | 'pro' | 'business') => {
-    if (!credits) return;
+  const handlePlanAction = async (targetPlan: 'start' | 'plus' | 'scale') => {
+    if (!credits || !currentPlan) return;
     
     // Open confirmation dialog
-    const action = getPlanChangeAction(credits.plan, targetPlan);
+    const action = getPlanChangeAction(currentPlan, targetPlan);
     if (!action) return;
     
     setConfirmDialog({ open: true, action, targetPlan });
@@ -127,36 +128,29 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     setConfirmDialog({ ...confirmDialog, open: false });
     
     try {
-      // TODO: Implement Stripe checkout
-      // For now, show placeholder toast
-      
       const targetPlanDetails = plans.find(p => p.id === confirmDialog.targetPlan);
+      const billingCycle: 'monthly' | 'annual' = 'monthly';
       
-      if (confirmDialog.action === 'upgrade' && targetPlanDetails?.stripePriceId) {
-        // Future: Redirect to Stripe Checkout
+      if (confirmDialog.action === 'upgrade' && targetPlanDetails?.id && targetPlanDetails.id !== 'start') {
+        if (hasStripeSubscription) {
+          const portalUrl = await createBillingPortalSession();
+          window.location.href = portalUrl;
+          return;
+        }
+        
         toast({
           title: t.redirectingToCheckout,
           description: `Upgrading to ${targetPlanDetails.name}...`,
         });
         
-        // Placeholder for Stripe integration:
-        // const { sessionId } = await createStripeCheckoutSession(targetPlanDetails.stripePriceId);
-        // window.location.href = stripeCheckoutUrl;
-        
-        // For now, show info message
-        setTimeout(() => {
-          toast({
-            title: '🚀 Stripe Integration Coming Soon',
-            description: 'Contact support@myflipit.live to upgrade your plan manually.',
-            duration: 8000,
-          });
-        }, 1500);
-      } else {
-        toast({
-          title: t.downgradeSuccess,
-          description: 'Plan change will take effect at the end of your billing period.',
-        });
+        const checkoutPlan = targetPlanDetails.id as 'plus' | 'scale';
+        const checkoutUrl = await createCheckoutSession(checkoutPlan, billingCycle);
+        window.location.href = checkoutUrl;
+        return;
       }
+      
+      const portalUrl = await createBillingPortalSession();
+      window.location.href = portalUrl;
     } catch (error: any) {
       toast({
         title: t.errorUpgrade,
@@ -172,9 +166,10 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     currentPlan: string,
     targetPlan: string
   ): 'upgrade' | 'downgrade' | null => {
-    const planOrder = { starter: 1, pro: 2, business: 3 };
+    const planOrder = { start: 1, plus: 2, scale: 3 };
     const current = planOrder[currentPlan as keyof typeof planOrder];
     const target = planOrder[targetPlan as keyof typeof planOrder];
+    if (!current || !target) return null;
     
     if (current === target) return null;
     return target > current ? 'upgrade' : 'downgrade';
@@ -190,9 +185,9 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
               {t.planManagement}
             </DialogTitle>
             <DialogDescription className="text-neutral-400">
-              {credits && (
+              {currentPlan && (
                 <>
-                  {t.currentPlan}: <PlanBadge plan={credits.plan} size="sm" />
+                  {t.currentPlan}: <PlanBadge plan={currentPlan} size="sm" />
                 </>
               )}
             </DialogDescription>
@@ -201,8 +196,8 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
           {/* Plans comparison table */}
           <div className="grid md:grid-cols-3 gap-6 mt-6">
             {plans.map((plan) => {
-              const isCurrent = credits?.plan === plan.id;
-              const action = credits ? getPlanChangeAction(credits.plan, plan.id) : null;
+              const isCurrent = currentPlan === plan.id;
+              const action = currentPlan ? getPlanChangeAction(currentPlan, plan.id) : null;
               
               return (
                 <div
@@ -213,11 +208,11 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
                       ? 'border-cyan-500 bg-cyan-500/5' 
                       : 'border-neutral-700 bg-neutral-800/30 hover:border-neutral-600'
                     }
-                    ${plan.id === 'pro' ? 'md:scale-105 md:shadow-lg md:shadow-cyan-500/10' : ''}
+                    ${plan.id === 'plus' ? 'md:scale-105 md:shadow-lg md:shadow-cyan-500/10' : ''}
                   `}
                 >
-                  {/* Featured badge for Pro */}
-                  {plan.id === 'pro' && (
+                  {/* Featured badge for Plus */}
+                  {plan.id === 'plus' && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                       <Badge className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white">
                         Most Popular
@@ -238,7 +233,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
                   <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
                     <div className="text-3xl font-bold text-cyan-400 mb-1">{plan.price}</div>
-                    {plan.id !== 'starter' && (
+                    {plan.id !== 'start' && (
                       <p className="text-xs text-neutral-400">{t.perMonth}</p>
                     )}
                   </div>

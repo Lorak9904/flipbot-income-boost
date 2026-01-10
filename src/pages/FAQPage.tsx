@@ -29,10 +29,10 @@ const keywords = [
   'Vinted app',
   'Vinted crossposting automation',
   'seller automation support',
-  'marketplace sync FAQ',
+  'listing automation FAQ',
 ];
 
-const heroBadges = ['Upload once', 'AI listings', 'Synced messaging'];
+const heroBadges = ['Upload once', 'AI listing drafts', 'Manual approval'];
 
 const faqSections = [
   {
@@ -42,7 +42,7 @@ const faqSections = [
       {
         question: 'How does one-photo crosslisting work in FlipIt?',
         answer:
-          'Upload your product images and details once. FlipIt uses AI to craft optimized titles, descriptions, and hashtags tailored for OLX, Vinted, and Facebook, then posts them simultaneously.',
+          'Upload your product images and details once. FlipIt uses AI to draft optimized titles, descriptions, and hashtags tailored for OLX, Vinted, Facebook Marketplace, and eBay. You review, edit, and approve before publishing.',
       },
       {
         question: 'Do I need to rewrite listings for each marketplace?',
@@ -52,28 +52,28 @@ const faqSections = [
       {
         question: 'Will FlipIt keep my inventory synced?',
         answer:
-          'Yes. When an item sells or you pause a listing, FlipIt mirrors the change across connected marketplaces to prevent double-selling and stale offers.',
+          'Not yet. FlipIt does not sync sold status or availability between marketplaces in the current version. You still manage availability on each marketplace directly.',
       },
     ],
   },
   {
     icon: MessageCircle,
-    title: 'Automation & Messaging',
+    title: 'Automation & Control',
     items: [
       {
         question: 'Can FlipIt reply to buyers for me?',
         answer:
-          'Smart reply suggestions help you respond quickly. You stay in control—approve or personalize replies, and FlipIt keeps all chat threads organized in one inbox.',
+          'Not in the current version. FlipIt does not integrate with marketplace messaging or unify chat inboxes yet.',
       },
       {
         question: 'Does automation work if I list in multiple languages?',
         answer:
-          'FlipIt supports multilingual listings. Provide your preferred language inputs and the AI will mirror tone and terminology across marketplaces and buyer conversations.',
+          'FlipIt supports English and Polish UI. You can edit your listing text in your preferred language, and (where available) AI drafts are generated in the selected language.',
       },
       {
         question: 'How much time will automation actually save?',
         answer:
-          'Most sellers reclaim 5–8 hours each week that were previously spent rewriting listings, updating prices, or copying chats between platforms.',
+          'Most sellers reclaim hours each week that were previously spent rewriting listings, resizing photos, and filling categories/required fields across multiple dashboards.',
       },
     ],
   },
@@ -84,17 +84,17 @@ const faqSections = [
       {
         question: 'Will FlipIt help me find undervalued items?',
         answer:
-          'Yes—automated sourcing alerts are on the roadmap. You will be able to set filters and receive AI-picked OLX and Vinted deals that match your profit targets.',
+          'Not in the current version. Deal discovery and sourcing alerts are not implemented yet and may be considered in future iterations.',
       },
       {
         question: 'Are there plans for automated negotiations?',
         answer:
-          'We are designing negotiation templates and AI-assisted responses so you can counter offers faster and secure better buy prices without manual scripting.',
+          'Not in the current version. We may explore optional negotiation templates in the future, but FlipIt will not negotiate automatically on your behalf.',
       },
       {
         question: 'What other upgrades are coming next?',
         answer:
-          'Expect smarter relist reminders, deeper analytics, and expanded marketplace support to keep your inventory circulating with minimal touchpoints.',
+          'We focus on improving listing quality and publishing reliability, and expanding supported marketplaces over time. We’ll share roadmap updates as features become available.',
       },
     ],
   },
@@ -151,7 +151,7 @@ const FAQPage = () => {
           variants={fadeUp}
           className="mx-auto mt-6 max-w-2xl text-base md:text-lg text-neutral-300 px-2"
         >
-          Everything you need to know about AI-powered crosslisting, synced messaging, and the automation roadmap for myflipit.live.
+          Everything you need to know about AI-powered crosslisting, manual approval, and what FlipIt does (and doesn’t) automate today.
         </motion.p>
         <motion.div
           custom={3}
@@ -262,21 +262,21 @@ const FAQPage = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeUp}
-          className="mx-auto max-w-3xl rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-10 shadow-2xl"
-        >
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white">Ready to automate your crosslisting?</h2>
-          <p className="mt-4 text-neutral-100">
-            Join the waitlist and turn a single photo into listings everywhere buyers shop.
-          </p>
-          <HeroCTA
-            asChild
-            className="mt-6"
-          >
-            <Link to="/get-started">Join the FlipIt waitlist</Link>
-          </HeroCTA>
-        </motion.div>
-      </section>
-    </div>
+           className="mx-auto max-w-3xl rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-10 shadow-2xl"
+         >
+           <h2 className="text-3xl md:text-4xl font-extrabold text-white">Ready to automate your crosslisting?</h2>
+           <p className="mt-4 text-neutral-100">
+            Create an account and turn a single photo into listing drafts for OLX, Vinted, Facebook Marketplace, and eBay — then publish with your approval.
+           </p>
+           <HeroCTA
+             asChild
+             className="mt-6"
+           >
+            <Link to="/login?register=1">Create your account</Link>
+           </HeroCTA>
+         </motion.div>
+       </section>
+     </div>
   );
 };
 

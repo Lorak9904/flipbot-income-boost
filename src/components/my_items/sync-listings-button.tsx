@@ -64,7 +64,7 @@ const translations = {
       `Please connect your ${platform} account in Settings first.`,
   },
   pl: {
-    syncListings: 'Synchronizuj',
+    syncListings: 'Synchronizuj ogłoszenia',
     syncing: 'Synchronizuję...',
     selectPlatform: 'Wybierz platformę',
     comingSoon: 'Wkrótce',
@@ -72,12 +72,12 @@ const translations = {
     tooltipDescription: 'Importuje Twoje aktualne ogłoszenia z wybranej platformy i dodaje brakujące do FlipIt.',
     syncSuccess: 'Synchronizacja zakończona!',
     syncSuccessDescription: (inserted: number, updated: number) => 
-      `Zaimportowano ${inserted} nowych ogłoszeń, zaktualizowano ${updated}.`,
+      `Zaimportowano ${inserted} nowych ogłoszeń, zaktualizowano ${updated} istniejących.`,
     syncSuccessNoNew: 'Wszystkie ogłoszenia są już zsynchronizowane.',
     syncError: 'Błąd synchronizacji',
     connectFirst: 'Najpierw połącz swoje konto',
     platformNotConnected: (platform: string) => 
-      `Najpierw połącz swoje konto ${platform} w Ustawieniach.`,
+      `Najpierw połącz swoje konto ${platform} w ustawieniach.`,
   },
 };
 

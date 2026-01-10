@@ -35,25 +35,25 @@ export const articlesIndexTranslations: Translations = {
   },
   pl: {
     // SEO
-    pageTitle: 'Poradniki Automatyzacji Marketplace | FlipIt',
-    pageDescription: 'Dowiedz się jak automatyzować swój biznes resellingu z FlipIt. Poradniki o odświeżaniu na Vinted, crosslistingu na Facebook Marketplace i sprzedaży wieloplatformowej.',
+    pageTitle: 'Poradniki automatyzacji marketplace | FlipIt',
+    pageDescription: 'Dowiedz się, jak automatyzować swój biznes resellingu z FlipIt. Poradniki o odświeżaniu na Vinted, crosslistingu na Facebook Marketplace i sprzedaży wieloplatformowej.',
     
     // Hero
-    heroLabel: 'Centrum Wiedzy',
-    heroTitle: 'Poradniki Automatyzacji Marketplace',
-    heroSubtitle: 'Przewodniki krok po kroku, które pomogą Ci sprzedawać szybciej na Vinted, OLX i Facebook Marketplace. Dowiedz się jak automatyzować tworzenie ogłoszeń, odświeżanie i crosslisting.',
+    heroLabel: 'Centrum wiedzy',
+    heroTitle: 'Poradniki automatyzacji marketplace',
+    heroSubtitle: 'Przewodniki krok po kroku, które pomogą Ci sprzedawać szybciej na Vinted, OLX i Facebook Marketplace. Dowiedz się, jak automatyzować tworzenie ogłoszeń, odświeżanie i crosslisting.',
     
     // Articles
     articlesTitle: 'Polecane poradniki',
     
     article1Title: 'Narzędzie do odświeżania Vinted',
-    article1Description: 'Dowiedz się jak odświeżać ogłoszenia na Vinted, aby zwiększyć widoczność i sprzedawać szybciej. Automatyzuj proces odświeżania z FlipIt.',
+    article1Description: 'Dowiedz się, jak odświeżać ogłoszenia na Vinted, aby zwiększyć widoczność i sprzedawać szybciej. Automatyzuj proces odświeżania z FlipIt.',
     
     article2Title: 'Crosslisting z Vinted na Facebook Marketplace',
-    article2Description: 'Rozszerz zasięg crosslistując z Vinted na Facebook Marketplace. Dotrzej do milionów dodatkowych kupujących w jednym workflow.',
+    article2Description: 'Rozszerz zasięg, crosslistując z Vinted na Facebook Marketplace. Dotrzyj do milionów dodatkowych kupujących w jednym procesie.',
     
     article3Title: 'Relister produktów dla Vinted',
-    article3Description: 'Zarządzaj pełnym cyklem życia ogłoszeń na Vinted — od pierwszej publikacji do sprzedaży. Publikuj, odświeżaj, wznawiaj i crosslistuj efektywnie.',
+    article3Description: 'Zarządzaj pełnym cyklem życia ogłoszeń na Vinted — od pierwszej publikacji do sprzedaży. Publikuj, odświeżaj, wznawiaj i crosslistuj sprawnie.',
     
     // CTA
     ctaTitle: 'Gotowy na automatyzację sprzedaży?',

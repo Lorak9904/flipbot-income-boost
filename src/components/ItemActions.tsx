@@ -52,7 +52,13 @@ const PLATFORM_CONFIG: Record<Platform, { name: string; logo: string }> = {
     name: 'Vinted',
     logo: 'https://upload.wikimedia.org/wikipedia/commons/2/29/Vinted_logo.png',
   },
+  ebay: {
+    name: 'eBay',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/1/1b/EBay_logo.svg',
+  },
 };
+
+const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay'];
 
 export function ItemActions({ 
   item, 
@@ -80,7 +86,7 @@ export function ItemActions({
   );
   
   // Get available platforms for publishing
-  const availablePlatforms = (['facebook', 'olx', 'vinted'] as Platform[]).filter(
+  const availablePlatforms = SUPPORTED_PLATFORMS.filter(
     platform => connectedPlatforms[platform] && !publishedPlatforms.has(platform)
   );
   
@@ -237,7 +243,7 @@ export function ItemActions({
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-3 py-4">
-              {(['facebook', 'olx', 'vinted'] as Platform[]).map((platform) => {
+              {SUPPORTED_PLATFORMS.map((platform) => {
                 const isConnected = connectedPlatforms[platform];
                 const isAlreadyPublished = publishedPlatforms.has(platform);
                 const config = PLATFORM_CONFIG[platform];
@@ -397,7 +403,7 @@ export function ItemActions({
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3 py-4">
-            {(['facebook', 'olx', 'vinted'] as Platform[]).map((platform) => {
+            {SUPPORTED_PLATFORMS.map((platform) => {
               const isConnected = connectedPlatforms[platform];
               const isAlreadyPublished = publishedPlatforms.has(platform);
               const config = PLATFORM_CONFIG[platform];

@@ -7,44 +7,44 @@ import { SEOHead } from '@/components/SEOHead';
 const FeaturesPage = () => {
   const features = [
     {
+      icon: <Sparkles className="h-6 w-6 text-flipbot-teal" />,
+      title: "AI Listing Drafts",
+      description: "Upload photos once and get AI-generated titles, descriptions, and hashtags tailored for each marketplace."
+    },
+    {
       icon: <Search className="h-6 w-6 text-flipbot-teal" />,
-      title: "Marketplace Scanner",
-      description: "Our AI continuously scans OLX, Allegro, and Facebook Marketplace to find undervalued items with high profit potential."
-    },
-    {
-      icon: <TrendingUp className="h-6 w-6 text-flipbot-teal" />,
-      title: "Price Analysis",
-      description: "FlipIt compares prices across multiple platforms to identify the best deals and highest profit margins."
-    },
-    {
-      icon: <MessageSquare className="h-6 w-6 text-flipbot-teal" />,
-      title: "Automated Negotiations",
-      description: "Let FlipIt handle communication with sellers, negotiate prices, and secure the best deals on your behalf."
-    },
-    {
-      icon: <Image className="h-6 w-6 text-flipbot-teal" />,
-      title: "Listing Management",
-      description: "Create professional, SEO-optimized listings that attract buyers and maximize your selling price."
-    },
-    {
-      icon: <Shield className="h-6 w-6 text-flipbot-teal" />,
-      title: "Privacy Protection",
-      description: "FlipIt acts as an intermediary to protect your personal information when dealing with buyers and sellers."
-    },
-    {
-      icon: <Clock className="h-6 w-6 text-flipbot-teal" />,
-      title: "Time-Saving Automation",
-      description: "Save hours of searching, messaging, and listing by letting FlipIt handle the tedious parts of the flipping process."
+      title: "Category & Attribute Mapping",
+      description: "FlipIt suggests categories and fills required attributes so you don’t complete every marketplace form from scratch."
     },
     {
       icon: <DollarSign className="h-6 w-6 text-flipbot-teal" />,
-      title: "Profit Tracking",
-      description: "Keep track of your purchases, sales, and profits with detailed analytics and reporting."
+      title: "Pricing Suggestions & Adjustments",
+      description: "Get AI price suggestions and set platform-specific pricing adjustments (percentage or fixed) based on your rules."
     },
     {
-      icon: <Sparkles className="h-6 w-6 text-flipbot-teal" />,
-      title: "AI-Enhanced Photos",
-      description: "Automatically enhance product photos to make your listings more attractive and professional."
+      icon: <Image className="h-6 w-6 text-flipbot-teal" />,
+      title: "AI-Enhanced Photos (Optional)",
+      description: "Enhance your primary image with AI. The original stays untouched, and each enhancement generates a separate image."
+    },
+    {
+      icon: <Shield className="h-6 w-6 text-flipbot-teal" />,
+      title: "Manual Review & Approval",
+      description: "You always stay in control: review and edit every field before publishing. FlipIt never auto-publishes without approval."
+    },
+    {
+      icon: <TrendingUp className="h-6 w-6 text-flipbot-teal" />,
+      title: "Multi-Platform Publishing",
+      description: "Publish the same item to multiple marketplaces from one workflow. Publishing is asynchronous and results are stored per platform."
+    },
+    {
+      icon: <Clock className="h-6 w-6 text-flipbot-teal" />,
+      title: "Publish Status Tracking",
+      description: "See success/error responses per marketplace on each item, and retry when needed."
+    },
+    {
+      icon: <MessageSquare className="h-6 w-6 text-flipbot-teal" />,
+      title: "Listing Management",
+      description: "View, edit, duplicate, delete, and republish items from your dashboard — including publishing to additional marketplaces."
     }
   ];
 
@@ -52,7 +52,7 @@ const FeaturesPage = () => {
     <div>
       <SEOHead
         title="FlipIt Features | Marketplace Automation & AI Crosslisting"
-        description="Explore FlipIt's marketplace automation: AI crosslisting, pricing insights, automated messaging, and tools that remove manual descriptions, pricing, and category selection."
+        description="Explore FlipIt's marketplace automation: AI-assisted listing drafts from photos, category/attribute mapping, optional image enhancement, and multi-platform publishing with manual approval."
         canonicalUrl="https://myflipit.live/features"
         keywords={[
           'FlipIt features',
@@ -60,7 +60,7 @@ const FeaturesPage = () => {
           'automation for marketplaces',
           'ecommerce automation',
           'crosslisting automation',
-          'OLX Vinted Facebook',
+          'OLX Vinted Facebook Marketplace eBay',
           'reselling software',
         ]}
       />
@@ -71,8 +71,7 @@ const FeaturesPage = () => {
             FlipIt <span className="text-flipbot-teal">Features</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Discover all the powerful tools and features that make FlipIt the ultimate 
-            assistant for resale arbitrage and passive income generation.
+            Discover the features that help you create and publish marketplace listings faster — without the copy-paste grind.
           </p>
         </div>
       </section>
@@ -99,46 +98,46 @@ const FeaturesPage = () => {
         <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Automated Profit Generation</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">Crosslisting Automation Workflow</h2>
               <p className="text-lg text-gray-600 mb-6">
-                FlipIt is designed to handle the entire resale arbitrage process from start to finish:
+                FlipIt is designed to speed up listing creation and publishing while keeping you in full control:
               </p>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-flipbot-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-flipbot-teal font-medium">1</span>
                   </div>
-                  <p>FlipIt scans marketplaces 24/7 to find the best deals with highest profit potential</p>
+                  <p>Upload photos once and add basic info (optional title/price)</p>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-flipbot-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-flipbot-teal font-medium">2</span>
                   </div>
-                  <p>You approve the deals you want to pursue - always maintaining full control</p>
+                  <p>FlipIt drafts the listing: description, pricing suggestions, categories, and required attributes</p>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-flipbot-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-flipbot-teal font-medium">3</span>
                   </div>
-                  <p>FlipIt negotiates with sellers to get the best possible price</p>
+                  <p>Review and edit everything — you stay in control</p>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-flipbot-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-flipbot-teal font-medium">4</span>
                   </div>
-                  <p>You handle the pickup/delivery of items (the only manual step)</p>
+                  <p>Select marketplaces and approve publishing</p>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-flipbot-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-flipbot-teal font-medium">5</span>
                   </div>
-                  <p>FlipIt creates professional listings and handles communication with buyers</p>
+                  <p>Publishing runs asynchronously; you see success/errors per platform on the item</p>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-flipbot-teal/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-flipbot-teal font-medium">6</span>
                   </div>
-                  <p>You collect the profits while FlipIt finds your next opportunity</p>
+                  <p>Duplicate, delete, republish, or publish the same item to additional marketplaces when needed</p>
                 </li>
               </ul>
             </div>
@@ -174,10 +173,10 @@ const FeaturesPage = () => {
         <div className="container mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Making Money with FlipIt?</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-            Join our waitlist now to be among the first to access FlipIt when we launch.
+            Create an account and start using FlipIt’s crosslisting automation today.
           </p>
           <HeroCTA asChild className="text-lg px-8 py-6">
-            <Link to="/get-started">Join the Waitlist</Link>
+            <Link to="/login?register=1">Create Account</Link>
           </HeroCTA>
         </div>
       </section>

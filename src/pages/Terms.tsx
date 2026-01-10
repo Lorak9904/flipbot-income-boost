@@ -5,7 +5,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { getCurrentLanguage } from '@/components/language-utils';
 
 const pageTitle = 'Terms of Service | FlipIt — AI Marketplace Automation';
-const pageDescription = 'Read FlipIt\'s terms for our marketplace automation platform: AI crosslisting that removes the hassle of writing descriptions, choosing categories, and pricing across OLX, Vinted, and Facebook.';
+const pageDescription = 'Read FlipIt\'s terms for our marketplace automation platform: AI crosslisting that removes the hassle of writing descriptions, choosing categories, and pricing across OLX, Vinted, Facebook Marketplace, and eBay.';
 const keywords = [
   'FlipIt terms of service',
   'crosslisting platform terms',

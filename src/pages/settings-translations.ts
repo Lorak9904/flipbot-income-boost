@@ -92,7 +92,7 @@ export const settingsTranslations: Translations = {
     // Profile section
     profileTitle: 'Profil',
     displayNameLabel: 'Nazwa wyświetlana',
-    emailLabel: 'Email',
+    emailLabel: 'E-mail',
     
     // Password section
     passwordTitle: 'Zmień hasło',
@@ -103,7 +103,7 @@ export const settingsTranslations: Translations = {
     confirmPasswordLabel: 'Potwierdź nowe hasło',
     confirmPasswordPlaceholder: 'Potwierdź nowe hasło',
     changePasswordButton: 'Zmień hasło',
-    changingPasswordButton: 'Zmieniam hasło...',
+    changingPasswordButton: 'Zmiana hasła...',
     
     // Marketplaces section
     marketplacesTitle: 'Platformy',
@@ -119,7 +119,7 @@ export const settingsTranslations: Translations = {
     addressPostalCodePlaceholder: 'Wprowadź kod pocztowy',
     addressCountryLabel: 'Kraj',
     addressCountryPlaceholder: 'Wprowadź kraj',
-    addressStreetLabel: 'Adres ',
+    addressStreetLabel: 'Adres (opcjonalnie)',
     addressStreetPlaceholder: 'Wprowadź adres ulicy',
     
     // Notifications section
@@ -144,16 +144,16 @@ export const settingsTranslations: Translations = {
     deleteDialogListItem4: 'Wszystkie statystyki i historię',
     deleteDialogCancel: 'Anuluj',
     deleteDialogConfirm: 'Tak, usuń moje konto',
-    deletingDialogConfirm: 'Usuwam...',
+    deletingDialogConfirm: 'Usuwanie...',
     
     // Toast messages
     toastSettingsSavedTitle: 'Ustawienia zapisane',
     toastSettingsSavedDescription: 'Twój profil został zaktualizowany pomyślnie.',
     toastErrorTitle: 'Błąd',
     toastPasswordChangedTitle: 'Hasło zmienione',
-    toastPasswordChangedDescription: 'Twoje hasło zostało zaktualizowane pomyślnie',
+    toastPasswordChangedDescription: 'Twoje hasło zostało zaktualizowane.',
     toastMissingFieldsTitle: 'Brakujące pola',
-    toastMissingFieldsDescription: 'Proszę wypełnić wszystkie pola hasła',
+    toastMissingFieldsDescription: 'Wypełnij wszystkie pola hasła',
     toastPasswordsNoMatchTitle: 'Hasła się nie zgadzają',
     toastPasswordsNoMatchDescription: 'Nowe hasło i potwierdzenie muszą być takie same',
     toastPasswordTooShortTitle: 'Hasło za krótkie',

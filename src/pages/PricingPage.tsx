@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { HeroCTA } from '@/components/ui/button-presets';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
 import { getTranslations, getCurrentLanguage } from '../components/language-utils';
 import { pricingTranslations } from './pricing-translations';
@@ -10,6 +10,9 @@ import { PricingCard } from '@/components/pricing/PricingCard';
 import { PricingFAQ } from '@/components/pricing/PricingFAQ';
 import { TrustSection } from '@/components/pricing/TrustSection';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { createCheckoutSession } from '@/lib/api/billing';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -22,10 +25,15 @@ const fadeUp = {
 
 const PricingPage = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [checkoutAttempted, setCheckoutAttempted] = useState(false);
   const t = getTranslations(pricingTranslations);
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const pageTitle = 'FlipIt Pricing - Choose Your Reselling Plan | myflipit.live';
-  const pageDescription = 'Transparent pricing for FlipIt\'s marketplace automation. Free Starter plan, Pro at 99 PLN/month, Business at 299 PLN/month. All plans include OLX, Vinted, and Facebook integration.';
+  const pageDescription = 'Transparent pricing for FlipIt\'s marketplace automation. Start is free, Plus is 29 PLN/month, Scale is 59 PLN/month. All plans include the supported marketplaces.';
   const keywords = [
     'FlipIt pricing',
     'reselling platform cost',
@@ -33,6 +41,50 @@ const PricingPage = () => {
     'OLX automation price',
     'Vinted automation cost',
   ];
+
+  const startCheckout = async (plan: 'plus' | 'scale', cycle: 'monthly' | 'annual') => {
+    try {
+      const checkoutUrl = await createCheckoutSession(plan, cycle);
+      window.location.href = checkoutUrl;
+    } catch (error: any) {
+      toast({
+        title: t.checkoutErrorTitle,
+        description: error.message || t.checkoutErrorMessage,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleCheckout = async (plan: 'plus' | 'scale') => {
+    if (!isAuthenticated) {
+      sessionStorage.setItem('flipit_checkout_plan', plan);
+      sessionStorage.setItem('flipit_checkout_billing', billingCycle);
+      navigate('/login?register=1');
+      return;
+    }
+
+    await startCheckout(plan, billingCycle);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const plan = params.get('plan') || sessionStorage.getItem('flipit_checkout_plan');
+    const cycle = params.get('billing') || sessionStorage.getItem('flipit_checkout_billing') || billingCycle;
+    const shouldCheckout = params.get('checkout') === '1' || sessionStorage.getItem('flipit_checkout_plan');
+
+    if (checkoutAttempted || !isAuthenticated || !shouldCheckout || !plan) {
+      return;
+    }
+
+    if (plan !== 'plus' && plan !== 'scale') {
+      return;
+    }
+
+    sessionStorage.removeItem('flipit_checkout_plan');
+    sessionStorage.removeItem('flipit_checkout_billing');
+    setCheckoutAttempted(true);
+    void startCheckout(plan, cycle === 'annual' ? 'annual' : 'monthly');
+  }, [billingCycle, checkoutAttempted, isAuthenticated, location.search]);
 
   const pricingPlans = [
     {
@@ -68,7 +120,8 @@ const PricingPage = () => {
       ],
       badge: t.proBadge,
       ctaText: t.proCta,
-      ctaLink: '/login?register=1&plan=pro',
+      ctaOnClick: () => handleCheckout('plus'),
+      ctaLink: '/login?register=1&plan=plus',
       featured: true,
     },
     {
@@ -88,7 +141,8 @@ const PricingPage = () => {
         t.businessFeature9,
       ],
       ctaText: t.businessCta,
-      ctaLink: '/login?register=1&plan=business',
+      ctaOnClick: () => handleCheckout('scale'),
+      ctaLink: '/login?register=1&plan=scale',
       featured: false,
     },
   ];
@@ -173,6 +227,8 @@ const PricingPage = () => {
                 key={plan.name}
                 {...plan}
                 billingCycle={billingCycle}
+                perMonthLabel={t.perMonth}
+                perYearLabel={t.perYear}
                 index={index}
               />
             ))}

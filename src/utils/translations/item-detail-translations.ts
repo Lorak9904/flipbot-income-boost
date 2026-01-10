@@ -57,7 +57,7 @@ export const itemDetailTranslations = {
   
   pl: {
     // Page
-    backToItems: "Powrót do przedmiotów",
+    backToItems: "Wróć do przedmiotów",
     
     // Actions
     actions: {
@@ -74,7 +74,7 @@ export const itemDetailTranslations = {
     // Action confirmations
     confirmations: {
       deleteTitle: "Usuń przedmiot",
-      deleteDescription: "Czy na pewno chcesz usunąć ten przedmiot? Tej akcji nie można cofnąć.",
+      deleteDescription: "Czy na pewno chcesz usunąć ten przedmiot? Tej akcji nie da się cofnąć.",
       deleteConfirm: "Usuń",
       deleteCancel: "Anuluj",
     },
@@ -82,7 +82,7 @@ export const itemDetailTranslations = {
     // Platform picker
     platformPicker: {
       title: "Wybierz platformę",
-      description: "Wybierz platformę, na której chcesz opublikować ogłoszenie",
+      description: "Wybierz platformę do publikacji ogłoszenia",
       noConnected: "Brak połączonych platform",
       connectAccount: "Połącz konto",
       alreadyPublished: "Już opublikowano",
@@ -92,13 +92,13 @@ export const itemDetailTranslations = {
     
     // Toasts
     toasts: {
-      duplicateSuccess: "Przedmiot zduplikowany pomyślnie",
+      duplicateSuccess: "Przedmiot został zduplikowany.",
       duplicateError: "Nie udało się zduplikować przedmiotu",
-      deleteSuccess: "Przedmiot usunięty pomyślnie",
+      deleteSuccess: "Przedmiot został usunięty.",
       deleteError: "Nie udało się usunąć przedmiotu",
       publishSuccess: "Opublikowano na {platform}",
       publishError: "Nie udało się opublikować na {platform}",
-      noCredits: "Niewystarczająca liczba kredytów do publikacji",
+      noCredits: "Brak wystarczającej liczby kredytów na publikację",
     },
     
     // Status badges

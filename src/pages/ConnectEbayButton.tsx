@@ -33,13 +33,13 @@ export function ConnectEbayButton() {
   };
 
   return (
-    <div className="space-y-4">
-      <p className="text-slate-300">
-        Connect your eBay account to let FlipIt list and manage items automatically.
-      </p>
-      <div className="flex flex-col gap-2">
-        <ManageButton
-          icon={isLoading ? Loader2 : LinkIcon}
+      <div className="space-y-4">
+        <p className="text-slate-300">
+        Connect your eBay account so FlipIt can publish listings to eBay when you approve.
+        </p>
+        <div className="flex flex-col gap-2">
+          <ManageButton
+            icon={isLoading ? Loader2 : LinkIcon}
           onClick={handleClick}
           disabled={isLoading}
         >

@@ -13,8 +13,8 @@ interface SEOProps {
 }
 
 export function SEOHead({
-  title = 'FlipIt - Turn Online Finds into Real Profits',
-  description = 'FlipIt scans marketplaces, finds undervalued items, and helps you resell them for profit — all on autopilot. Start earning extra income today!',
+  title = 'FlipIt - AI-Assisted Crosslisting for Faster Listings',
+  description = 'FlipIt turns your product photos into marketplace-ready listings with AI. Review, edit, and publish faster — always with your approval.',
   canonicalUrl = 'https://myflipit.live',
   ogImage = '/placeholder.svg',
   type = 'website',
@@ -26,7 +26,7 @@ export function SEOHead({
   const siteTitle = title.includes('FlipIt') ? title : `${title} | FlipIt`;
   const keywordContent = Array.isArray(keywords)
     ? keywords.join(', ')
-    : keywords ?? 'online reselling, flipit, marketplace automation, automation for marketplaces, ecommerce automation, facebook marketplace automation, profit automation, olx automation, vinted automation, vinted app, ecommerce tools, reselling automation, online arbitrage, reselling bot';
+    : keywords ?? 'flipit, crosslisting, marketplace listing tool, AI listing generator, marketplace automation, OLX listing tool, Vinted listing tool, Facebook Marketplace listing tool, eBay listing tool, reseller tools, ecommerce automation';
 
   const websiteStructuredData = {
     '@context': 'https://schema.org',

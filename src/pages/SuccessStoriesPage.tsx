@@ -17,7 +17,7 @@ const fadeUp = {
 };
 
 const pageTitle = 'Success Stories | FlipIt - Real AI Crosslisting Results';
-const pageDescription = 'See how FlipIt users profit with marketplace automation — AI crosslisting that removes manual descriptions, pricing, and category selection across OLX, Vinted, and Facebook.';
+const pageDescription = 'See how FlipIt users profit with marketplace automation — AI crosslisting that drafts descriptions, pricing suggestions, and category mapping for OLX, Vinted, Facebook Marketplace, and eBay.';
 const keywords = [
   'FlipIt success stories',
   'AI crosslisting profits',
@@ -27,6 +27,7 @@ const keywords = [
   'ecommerce automation',
   'OLX automation',
   'Vinted automation',
+  'eBay automation',
   'Vinted app',
   'real user testimonials',
   'crosslisting income proof',
@@ -40,7 +41,7 @@ const testimonials = [
     name: 'Sarah M.',
     location: 'London, UK',
     image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'I made over €180 in my first weekend using FlipIt! It found a vintage cabinet on local marketplace for €95 that I resold for €275. The AI even handled most of the messaging with buyers automatically.',
+    quote: 'I made over €180 in my first weekend using FlipIt! Turning one set of photos into listings across marketplaces saved me hours — and my items sold faster because I could publish everywhere quickly.',
     highlight: '+€180 profit in one weekend',
     rating: 5
   },
@@ -49,7 +50,7 @@ const testimonials = [
     name: 'Marcus K.',
     location: 'Berlin, Germany',
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'As a student, I needed extra income but had limited time. FlipIt changed everything! It found a gaming setup for €320 that I flipped for €550 in just 3 days. The automated messaging handled all negotiations.',
+    quote: 'As a student, I needed extra income but had limited time. FlipIt changed everything — I can draft and publish listings across marketplaces in minutes, instead of rewriting everything by hand.',
     highlight: '+€230 profit with minimal effort',
     rating: 5
   },
@@ -58,7 +59,7 @@ const testimonials = [
     name: 'Elena R.',
     location: 'Madrid, Spain',
     image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: "I was skeptical at first, but FlipIt actually works! In my first month, I made over €650 flipping furniture while working my regular job. The AI's ability to spot good deals and cross-list automatically saves me hours daily.",
+    quote: "I was skeptical at first, but FlipIt actually works! In my first month, I made over €650 flipping furniture while working my regular job. The AI drafts plus the review flow save me hours every week.",
     highlight: '+€650 extra income per month',
     rating: 4
   },
@@ -67,8 +68,8 @@ const testimonials = [
     name: 'James W.',
     location: 'Amsterdam, Netherlands',
     image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'FlipIt found a designer desk listed for €45 when similar models were selling for €180 elsewhere. I wouldn\'t have caught this opportunity manually! The profit margins FlipIt finds are incredible.',
-    highlight: 'Found 300% profit deals automatically',
+    quote: 'FlipIt keeps my listings consistent across marketplaces. I can review everything in one place and publish with confidence — without the copy-paste grind.',
+    highlight: 'Saved hours every week',
     rating: 5
   },
 ];
@@ -211,10 +212,10 @@ const SuccessStoriesPage = () => {
             Ready to Write Your Success Story?
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto mb-8 px-2">
-            Join our waitlist to be among the first to access FlipIt's AI-powered crosslisting automation.
+            Create an account to access FlipIt's AI-powered crosslisting automation across marketplaces.
           </p>
           <HeroCTA asChild className="text-lg px-8 py-6">
-            <Link to="/get-started">Join the Waitlist</Link>
+            <Link to="/login?register=1">Create Account</Link>
           </HeroCTA>
         </motion.div>
       </section>

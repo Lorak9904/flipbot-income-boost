@@ -18,10 +18,10 @@ const fadeUp = {
 
 const iconMap = [Plug, Upload, Repeat]; // keep icons aligned with steps order
 
-const HowItWorksPage = () => {
+  const HowItWorksPage = () => {
   const t = getTranslations(howItWorksTranslations);
-  const pageTitle = 'How AI Marketplace Automation Works (OLX, Vinted, Facebook)';
-  const pageDescription = 'Learn how automation for marketplaces turns one photo into synchronized OLX, Vinted (Vinted app), and Facebook listings with AI and ecommerce automation.';
+  const pageTitle = 'How AI Crosslisting Works (OLX, Vinted, Facebook Marketplace, eBay)';
+  const pageDescription = 'See how FlipIt turns one photo into marketplace-ready listing drafts for OLX, Vinted, Facebook Marketplace, and eBay — then publishes with your approval and tracks results per platform.';
   const keywords = [
     'automated reselling platform',
     'marketplace automation',
@@ -29,10 +29,11 @@ const HowItWorksPage = () => {
     'ecommerce automation',
     'OLX automation',
     'Vinted automation',
+    'eBay automation',
     'Vinted app',
     'marketplace automation software',
-    'online arbitrage workflows',
-    'find undervalued items',
+    'AI crosslisting',
+    'marketplace listing tool',
   ];
   const heroBadges = [t.badge1, t.badge2, t.badge3];
 

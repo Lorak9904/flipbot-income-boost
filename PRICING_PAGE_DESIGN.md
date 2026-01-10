@@ -77,13 +77,13 @@ This document outlines a comprehensive design for FlipIt's pricing page that mai
 
 **Card Design Specs:**
 
-**a) Basic Card (Left)**
+**a) Start Card (Left)**
 - Container: `bg-neutral-900/50 backdrop-blur-sm rounded-2xl p-8 ring-1 ring-neutral-700`
 - Hover: `hover:ring-cyan-400/40 hover:-translate-y-1 transition-all duration-300`
 - No special badge
 - Standard CTA: `border-cyan-400 text-cyan-400 hover:bg-cyan-400/10`
 
-**b) Pro Card (Center) - FEATURED**
+**b) Plus Card (Center) - FEATURED**
 - Container: `bg-neutral-900/60 backdrop-blur-sm rounded-2xl p-8 ring-2 ring-cyan-400`
 - Badge: Position `absolute -top-4`, text: "MOST POPULAR"
   - Style: `bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white px-4 py-1 rounded-full font-semibold`
@@ -92,7 +92,7 @@ This document outlines a comprehensive design for FlipIt's pricing page that mai
 - CTA: `bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-lg`
 - Glow effect: Subtle `shadow-2xl shadow-cyan-500/20`
 
-**c) Business Card (Right)**
+**c) Scale Card (Right)**
 - Container: `bg-neutral-900/50 backdrop-blur-sm rounded-2xl p-8 ring-1 ring-neutral-700`
 - Hover: `hover:ring-purple-400/40 hover:-translate-y-1 transition-all duration-300`
 - Optional badge: "ENTERPRISE" in `text-purple-400`
@@ -104,7 +104,7 @@ This document outlines a comprehensive design for FlipIt's pricing page that mai
 │ Plan Name              │  <- text-2xl font-bold
 │ Brief description      │  <- text-neutral-300
 │                        │
-│ $99/month              │  <- text-4xl font-extrabold with gradient
+│ 29 PLN/month           │  <- text-4xl font-extrabold with gradient
 │ or $XXX/year           │  <- text-sm text-neutral-400
 │                        │
 │ ✓ Feature 1           │  <- Cyan checkmark icon
@@ -119,7 +119,7 @@ This document outlines a comprehensive design for FlipIt's pricing page that mai
 
 **Spacing:**
 - Card gap: `gap-8` on grid
-- Internal padding: `p-8` for Basic/Business, `p-10` for Pro
+- Internal padding: `p-8` for Start/Scale, `p-10` for Plus
 - Feature list spacing: `space-y-4`
 
 #### 3. Feature Comparison Table Section
@@ -128,9 +128,9 @@ This document outlines a comprehensive design for FlipIt's pricing page that mai
 │          Compare All Features                         │
 │                                                       │
 │  ┌─────────────┬────────┬─────┬──────────┐          │
-│  │   Feature   │ Basic  │ Pro │ Business │          │
+│  │   Feature   │ Start  │ Plus│ Scale    │          │
 │  ├─────────────┼────────┼─────┼──────────┤          │
-│  │ Listings    │   50   │ 500 │ Unlimited│          │
+│  │ Listings    │   5    │  30 │  100     │          │
 │  │ Platforms   │   ✓    │  ✓  │    ✓     │          │
 │  │ AI Support  │   ─    │  ✓  │    ✓     │          │
 │  └─────────────┴────────┴─────┴──────────┘          │
@@ -209,7 +209,7 @@ This document outlines a comprehensive design for FlipIt's pricing page that mai
 
 2. **Pricing Cards**
    - Stack vertically: `flex-col space-y-6`
-   - Pro card maintains visual prominence with ring and badge
+  - Plus card maintains visual prominence with ring and badge
    - All cards full width
    - Swipeable carousel option using Embla (already installed)
 
@@ -218,14 +218,14 @@ This document outlines a comprehensive design for FlipIt's pricing page that mai
    - Each plan becomes a collapsible section
    - Features shown as lists within each section
    ```
-   ▼ Basic Plan Features
-     • 50 listings
-     • 2 platforms
-     • Basic support
+   ▼ Start Plan Features
+     • 5 listings
+     • 1 AI image enhancement
+     • Community support
    
-   ► Pro Plan Features
+   ► Plus Plan Features
    
-   ► Business Plan Features
+   ► Scale Plan Features
    ```
 
 4. **FAQ Section**
@@ -450,43 +450,39 @@ Small Text: text-sm
 
 ## Suggested Pricing Structure (Content)
 
-### Plan 1: Starter
+### Plan 1: Start
 - **Price**: 0 PLN/month (Free tier)
-- **Target**: Beginners testing the platform
+- **Target**: Sellers starting with multi-platform listings
 - **Features**:
-  - 25 active listings
-  - 2 marketplace connections (OLX + Vinted OR Facebook)
-  - Basic AI descriptions
-  - Community support
-  - 10 AI-enhanced photos/month
+  - 5 listings/month
+  - 1 AI-enhanced photo/month
+  - AI-generated descriptions
+  - Manual review before publish
+  - All supported marketplaces
 
-### Plan 2: Pro (FEATURED)
-- **Price**: 99 PLN/month or 950 PLN/year (save 20%)
-- **Target**: Active resellers
+### Plan 2: Plus (FEATURED)
+- **Price**: 29 PLN/month or 279 PLN/year (save 20%)
+- **Target**: Regular resellers
 - **Features**:
-  - 500 active listings
-  - All marketplace connections (OLX, Vinted, Facebook, Allegro)
-  - Advanced AI descriptions & SEO
-  - Priority email support
-  - Unlimited AI-enhanced photos
-  - Price analysis & recommendations
-  - Automated re-listing
-  - Sales analytics dashboard
-  - Automated buyer messaging
+  - 30 listings/month
+  - 20 AI-enhanced photos/month
+  - AI-generated descriptions
+  - Suggested pricing and categories
+  - Required attributes auto-fill
+  - Manual review before publish
+  - Email support
   
-### Plan 3: Business
-- **Price**: 299 PLN/month or 2,850 PLN/year (save 20%)
-- **Target**: Power users and teams
+### Plan 3: Scale
+- **Price**: 59 PLN/month or 569 PLN/year (save 20%)
+- **Target**: Higher listing volumes
 - **Features**:
-  - Everything in Pro, plus:
-  - Unlimited listings
-  - Multi-user accounts (up to 5 team members)
-  - API access
-  - White-label options
-  - Dedicated account manager
-  - Custom integrations
-  - Advanced analytics & reporting
-  - Priority phone support
+  - 100 listings/month
+  - 100 AI-enhanced photos/month
+  - AI-generated descriptions
+  - Suggested pricing and categories
+  - Required attributes auto-fill
+  - Manual review before publish
+  - Priority email support
 
 ---
 
@@ -502,7 +498,7 @@ Small Text: text-sm
 **Buttons:**
 - Primary CTA: `bg-gradient-to-r from-cyan-500 to-fuchsia-500`
 - Secondary: `border-cyan-400 text-cyan-400 hover:bg-cyan-400/10`
-- Business tier: `bg-gradient-to-r from-purple-500 to-fuchsia-500`
+- Scale tier: `bg-gradient-to-r from-purple-500 to-fuchsia-500`
 
 **Badges:**
 - Popular badge: `bg-gradient-to-r from-cyan-500 to-fuchsia-500`
@@ -553,7 +549,7 @@ src/
 ```typescript
 <SEOHead
   title="FlipIt Pricing - Choose Your Reselling Plan | myflipit.live"
-  description="Transparent pricing for FlipIt's marketplace automation. Free Starter plan, Pro at 99 PLN/month, Business at 299 PLN/month. All plans include OLX, Vinted, and Facebook integration."
+  description="Transparent pricing for FlipIt's marketplace automation. Start is free, Plus is 29 PLN/month, Scale is 59 PLN/month. All plans include the supported marketplaces."
   canonicalUrl="https://myflipit.live/pricing"
   keywords={[
     'FlipIt pricing',
@@ -586,7 +582,7 @@ src/
 </stripe-pricing-table>
 
 // Option 2: Custom Checkout with Stripe API
-// Pro CTA button onClick:
+// Plus CTA button onClick:
 const handleSubscribe = async (priceId: string) => {
   const stripe = await loadStripe(publishableKey);
   const { error } = await stripe.redirectToCheckout({
@@ -599,13 +595,13 @@ const handleSubscribe = async (priceId: string) => {
 ```
 
 **Stripe Product Setup:**
-- **Starter Plan**: No Stripe product needed (free tier)
-- **Pro Plan**: Create Stripe product with monthly/annual prices
-  - Monthly: 99 PLN/month (price_pro_monthly_pln)
-  - Annual: 950 PLN/year (price_pro_annual_pln)
-- **Business Plan**: Create Stripe product with monthly/annual prices
-  - Monthly: 299 PLN/month (price_business_monthly_pln)
-  - Annual: 2,850 PLN/year (price_business_annual_pln)
+- **Start Plan**: No Stripe product needed (free tier)
+- **Plus Plan**: Create Stripe product with monthly/annual prices
+  - Monthly: 29 PLN/month (price_plus_monthly_pln)
+  - Annual: 279 PLN/year (price_plus_annual_pln)
+- **Scale Plan**: Create Stripe product with monthly/annual prices
+  - Monthly: 59 PLN/month (price_scale_monthly_pln)
+  - Annual: 569 PLN/year (price_scale_annual_pln)
 
 **Design Considerations:**
 - CTA buttons should trigger Stripe Checkout
@@ -615,7 +611,7 @@ const handleSubscribe = async (priceId: string) => {
 - Handle post-payment success/cancel flows
 
 **Additional Features:**
-- 14-day free trial (configure in Stripe product settings)
+- Optional free trial (configure in Stripe product settings if needed)
 - Proration on plan changes (automatic in Stripe)
 - Tax calculation (Stripe Tax integration)
 - Invoice generation (automatic via Stripe)

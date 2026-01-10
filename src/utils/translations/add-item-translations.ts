@@ -49,48 +49,48 @@ export const addItemTranslations = {
   
   pl: {
     // SEO & Meta
-    pageTitle: "Dodaj Nowy Przedmiot",
-    reviewTitle: "Sprawdź Swój Przedmiot",
+    pageTitle: "Dodaj nowy przedmiot",
+    reviewTitle: "Sprawdź przedmiot",
     
     // Krok: Dodawanie
     addCard: {
-      title: "Prześlij Przedmiot",
-      description: "Zacznij od dodania zdjęć i podstawowych informacji o Twoim przedmiocie",
+      title: "Dodaj przedmiot",
+      description: "Zacznij od dodania zdjęć i podstawowych informacji o przedmiocie",
     },
     
     // Krok: Przegląd
     reviewCard: {
-      title: "Sprawdź i Opublikuj",
-      description: "Przejrzyj szczegóły przedmiotu przed opublikowaniem na wybranych platformach",
+      title: "Sprawdź i opublikuj",
+      description: "Przejrzyj szczegóły przedmiotu przed publikacją na wybranych platformach",
     },
     
     // Stany ładowania
     loading: {
-      importing: "Importowanie przedmiotu z adresu URL...",
-      analyzing: "Analizowanie zdjęć...",
+      importing: "Importowanie przedmiotu z linku...",
+      analyzing: "Analiza zdjęć...",
     },
     
     // Uwierzytelnianie
-    authRequired: "Wymagane Uwierzytelnienie",
-    authMessage: "Zaloguj się, aby dodać przedmioty",
-    sessionExpired: "Sesja Wygasła",
+    authRequired: "Wymagane logowanie",
+    authMessage: "Zaloguj się, aby dodać przedmiot",
+    sessionExpired: "Sesja wygasła",
     sessionMessage: "Twoja sesja wygasła. Zaloguj się ponownie.",
-    goToLogin: "Przejdź do Logowania",
+    goToLogin: "Przejdź do logowania",
     
     // Powiadomienia i Komunikaty
     toast: {
-      importSuccess: "Przedmiot zaimportowany pomyślnie!",
+      importSuccess: "Przedmiot został zaimportowany.",
       importError: "Nie udało się zaimportować przedmiotu. Spróbuj ponownie.",
-      uploadSuccess: "Przedmiot przesłany pomyślnie!",
+      uploadSuccess: "Przedmiot został przesłany.",
       uploadError: "Nie udało się przesłać przedmiotu. Spróbuj ponownie.",
       sessionError: "Twoja sesja wygasła. Zaloguj się ponownie.",
     },
     
     // Formularz - placeholdery i etykiety
     form: {
-      imagesPlaceholder: "Zacznij od dodania zdjęć...",
-      titlePlaceholder: "Wprowadź tytuł przedmiotu",
-      descriptionPlaceholder: "Opisz swój przedmiot...",
+      imagesPlaceholder: "Dodaj zdjęcia, aby zacząć...",
+      titlePlaceholder: "Wpisz tytuł",
+      descriptionPlaceholder: "Opisz przedmiot...",
       pricePlaceholder: "Cena",
     },
   },

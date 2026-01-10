@@ -66,7 +66,7 @@ Detailed visual specifications including:
 
 ### Phase 3: Payment Integration
 8. **Stripe Setup** - Configure products and prices in Stripe Dashboard
-9. **Checkout Flow** - Integrate Stripe Checkout for Pro/Business plans
+9. **Checkout Flow** - Integrate Stripe Checkout for Plus/Scale plans
 10. **Success/Cancel Pages** - Handle post-payment flows
 
 ### Phase 4: Polish
@@ -117,32 +117,30 @@ src/
 
 ## 📊 Suggested Pricing Structure
 
-### 🆓 Starter (Free)
-- 25 active listings
-- 2 marketplace connections
-- Basic AI descriptions
-- Community support
-- 10 AI-enhanced photos/month
+### 🆓 Start (Free)
+- 5 listings/month
+- 1 AI-enhanced photo/month
+- AI-generated descriptions
+- Manual review before publish
+- All supported marketplaces
 
-### ⭐ Pro (Featured) - 99 PLN/month
-- 500 active listings
-- All 4 marketplace connections
-- Advanced AI descriptions & SEO
+### ⭐ Plus (Featured) - 29 PLN/month
+- 30 listings/month
+- 20 AI-enhanced photos/month
+- AI-generated descriptions
+- Suggested pricing and categories
+- Required attributes auto-fill
+- Manual review before publish
+- Email support
+
+### 🚀 Scale - 59 PLN/month
+- 100 listings/month
+- 100 AI-enhanced photos/month
+- AI-generated descriptions
+- Suggested pricing and categories
+- Required attributes auto-fill
+- Manual review before publish
 - Priority email support
-- Unlimited AI-enhanced photos
-- Price analysis & recommendations
-- Automated re-listing
-- Sales analytics dashboard
-
-### 🚀 Business - 299 PLN/month
-- Everything in Pro, plus:
-- Unlimited listings
-- Multi-user accounts (5 team members)
-- API access
-- White-label options
-- Dedicated account manager
-- Advanced analytics
-- Priority phone support
 
 *Note: Annual plans save 20% (already factored into document)*
 

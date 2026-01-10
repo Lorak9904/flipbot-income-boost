@@ -3,8 +3,17 @@
  * Handles all credits-related backend communication
  */
 
+export type PlanSlug = 'start' | 'plus' | 'scale';
+
 export interface CreditsBalance {
-  plan: 'starter' | 'pro' | 'business';
+  plan: PlanSlug | string;
+  effective_plan?: PlanSlug | string;
+  subscription_status?: string | null;
+  current_period_start?: number | null;
+  current_period_end?: number | null;
+  cancel_at_period_end?: boolean;
+  grace_period_end?: number | null;
+  billing_interval?: 'month' | 'year' | null;
   // Publishing credits
   publish_credits_used: number;
   publish_limit: number | null;
@@ -17,7 +26,7 @@ export interface CreditsBalance {
 
 export interface CreditTransaction {
   id: number;
-  action_type: 'publish_listing' | 'enhance_image' | 'refill' | 'refund' | 'plan_upgrade';
+  action_type: 'publish_listing' | 'enhance_image' | 'refill' | 'refund' | 'plan_upgrade' | 'subscription_renewal';
   amount: number; // negative = consumption, positive = addition
   balance_before: number;
   balance_after: number;
@@ -104,13 +113,28 @@ export function isInsufficientCreditsError(error: any): error is InsufficientCre
 /**
  * Get user-friendly plan name
  */
+export function normalizePlan(plan?: string | null): PlanSlug {
+  const key = (plan || '').toLowerCase();
+  const mapping: Record<string, PlanSlug> = {
+    start: 'start',
+    plus: 'plus',
+    scale: 'scale',
+    starter: 'start',
+    pro: 'plus',
+    business: 'scale',
+    free: 'start',
+  };
+  return mapping[key] || 'start';
+}
+
 export function getPlanDisplayName(plan: string): string {
   const names: Record<string, string> = {
-    starter: 'Starter',
-    pro: 'Pro',
-    business: 'Business',
+    start: 'Start',
+    plus: 'Plus',
+    scale: 'Scale',
   };
-  return names[plan] || plan;
+  const normalized = normalizePlan(plan);
+  return names[normalized] || plan;
 }
 
 /**
@@ -118,11 +142,12 @@ export function getPlanDisplayName(plan: string): string {
  */
 export function getPlanColor(plan: string): string {
   const colors: Record<string, string> = {
-    starter: 'text-neutral-400',
-    pro: 'text-cyan-400',
-    business: 'text-purple-400',
+    start: 'text-neutral-400',
+    plus: 'text-cyan-400',
+    scale: 'text-purple-400',
   };
-  return colors[plan] || 'text-neutral-400';
+  const normalized = normalizePlan(plan);
+  return colors[normalized] || 'text-neutral-400';
 }
 
 /**
@@ -152,6 +177,7 @@ export function formatActionType(actionType: string): string {
     refill: 'Credit Refill',
     refund: 'Refund',
     plan_upgrade: 'Plan Upgrade',
+    subscription_renewal: 'Subscription Renewal',
   };
   return formatted[actionType] || actionType;
 }

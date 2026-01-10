@@ -23,7 +23,6 @@ const keywords = [
   'Vinted crosslisting automation',
   'one photo crosslisting',
   'seller automation',
-  'future sourcing alerts',
   'automation for marketplaces',
   'ecommerce automation',
   'OLX automation',

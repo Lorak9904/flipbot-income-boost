@@ -66,7 +66,7 @@ This comprehensive design package contains everything needed to implement FlipIt
 
 ### User Experience ✓
 - ✅ Clear pricing with monthly/annual toggle
-- ✅ Featured "Pro" plan prominently displayed
+- ✅ Featured "Plus" plan prominently displayed
 - ✅ Comprehensive feature comparison
 - ✅ FAQ section for common questions
 - ✅ Social proof with testimonials
@@ -83,39 +83,35 @@ This comprehensive design package contains everything needed to implement FlipIt
 
 ## 💰 Proposed Pricing Structure
 
-### 🆓 Starter (Free)
-**Target**: Beginners testing the platform
-- 25 active listings
-- 2 marketplace connections
-- Basic AI descriptions
-- Community support
-- 10 AI-enhanced photos/month
+### 🆓 Start (Free)
+**Target**: Sellers starting with multi-platform listings
+- 5 listings/month
+- 1 AI-enhanced photo/month
+- AI-generated descriptions
+- Manual review before publish
+- All supported marketplaces
 
-### ⭐ Pro (Featured) - 99 PLN/month
-**Target**: Active resellers (recommended)
-- 500 active listings
-- All 4 marketplace connections (OLX, Vinted, Facebook, Allegro)
-- Advanced AI descriptions & SEO
+### ⭐ Plus (Featured) - 29 PLN/month
+**Target**: Regular resellers (recommended)
+- 30 listings/month
+- 20 AI-enhanced photos/month
+- AI-generated descriptions
+- Suggested pricing and categories
+- Required attributes auto-fill
+- Manual review before publish
+- Email support
+
+### 🚀 Scale - 59 PLN/month
+**Target**: Higher listing volumes
+- 100 listings/month
+- 100 AI-enhanced photos/month
+- AI-generated descriptions
+- Suggested pricing and categories
+- Required attributes auto-fill
+- Manual review before publish
 - Priority email support
-- Unlimited AI-enhanced photos
-- Price analysis & recommendations
-- Automated re-listing
-- Sales analytics dashboard
-- Automated buyer messaging
 
-### 🚀 Business - 299 PLN/month
-**Target**: Power users and teams
-- Everything in Pro, PLUS:
-- Unlimited listings
-- Multi-user accounts (up to 5)
-- API access
-- White-label options
-- Dedicated account manager
-- Custom integrations
-- Advanced analytics & reporting
-- Priority phone support
-
-**Annual Discount**: 20% off (both Pro and Business)
+**Annual Discount**: 20% off (Plus and Scale)
 
 ---
 
@@ -124,7 +120,7 @@ This comprehensive design package contains everything needed to implement FlipIt
 ### Primary Gradients
 - **Main CTA**: Cyan (#0EA5E9) → Fuchsia (#EC4899)
 - **Secondary**: Cyan → Purple (#8B5CF6)
-- **Business**: Purple → Fuchsia
+- **Scale**: Purple → Fuchsia
 
 ### Dark Theme Base
 - **Background**: Neutral-950 (#0A0A0A)
@@ -154,7 +150,7 @@ This comprehensive design package contains everything needed to implement FlipIt
 
 ### Phase 3: Stripe Payment Integration (Day 5)
 - [ ] Install Stripe dependencies (`@stripe/stripe-js`)
-- [ ] Configure Stripe products in Dashboard (Pro & Business)
+- [ ] Configure Stripe products in Dashboard (Plus & Scale)
 - [ ] Set up monthly/annual price IDs
 - [ ] Implement Stripe Checkout flow in CTA buttons
 - [ ] Create success/cancel redirect pages
@@ -194,7 +190,7 @@ This comprehensive design package contains everything needed to implement FlipIt
 
 ### Payment Integration
 - **Provider**: Stripe
-- **Implementation**: Stripe Checkout for Pro & Business subscriptions
+- **Implementation**: Stripe Checkout for Plus & Scale subscriptions
 - **Features**: Recurring subscriptions, free trial support, automatic invoicing
 - **Setup Required**: Stripe Dashboard configuration (products, prices, webhooks)
 
@@ -222,9 +218,9 @@ PricingPage/
 │   └── PricingToggle (Monthly/Annual)
 │
 ├── Pricing Cards Grid
-│   ├── PricingCard (Starter)
-│   ├── PricingCard (Pro) - Featured
-│   └── PricingCard (Business)
+│   ├── PricingCard (Start)
+│   ├── PricingCard (Plus) - Featured
+│   └── PricingCard (Scale)
 │
 ├── Feature Comparison
 │   ├── ComparisonTable (Desktop)
@@ -248,7 +244,7 @@ PricingPage/
 Every pricing detail is immediately visible. No hidden fees, confusing tiers, or unclear benefits.
 
 ### 2. Visual Hierarchy
-The Pro plan (recommended) stands out through:
+The Plus plan (recommended) stands out through:
 - "Most Popular" badge
 - Larger card size
 - Stronger border (cyan-400)
@@ -306,7 +302,7 @@ Modular component design allows easy updates to pricing or features.
 
 ### Business Goals
 - ✅ Clear differentiation between tiers
-- ✅ Featured Pro plan drives conversions
+- ✅ Featured Plus plan drives conversions
 - ✅ Annual billing option increases LTV
 - ✅ Enterprise tier captures high-value customers
 

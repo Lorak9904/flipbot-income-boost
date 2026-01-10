@@ -18,7 +18,7 @@ export const navbarTranslations: Translations = {
   },
   pl: {
     howItWorks: 'Jak to działa',
-    guide: 'Przewodnik Automatyzacji Marketplace',
+    guide: 'Przewodnik automatyzacji marketplace',
     tutorials: 'Poradniki',
     pricing: 'Cennik',
     resources: 'Zasoby',
@@ -28,9 +28,8 @@ export const navbarTranslations: Translations = {
     myItems: 'Moje przedmioty',
     connectAccounts: 'Połącz konta',
     login: 'Zaloguj się',
-    signup: 'Zarejestruj się',
+    signup: 'Załóż konto',
     languageToggle: 'EN' // Shows what language to switch TO
   }
 };
-
 

@@ -148,27 +148,6 @@ const ConnectAccountsPage = () => {
       window.history.replaceState({}, document.title, location.pathname);
     }
     
-    // Handle eBay connection success
-    if (platform === "ebay" && status === "connected") {
-      toast({
-        title: "eBay Connected! 🎉",
-        description: "Your eBay account has been successfully connected.",
-        variant: "default",
-      });
-      refetch();
-      window.history.replaceState({}, document.title, location.pathname);
-    }
-    
-    // Handle eBay connection error
-    if (platform === "ebay" && status === "error") {
-      toast({
-        title: "eBay Connection Failed",
-        description: message || "Failed to connect eBay account. Please try again.",
-        variant: "destructive",
-      });
-      window.history.replaceState({}, document.title, location.pathname);
-    }
-    
     // Handle reconnect requests (expired token)
     if (reconnect === "olx") {
       toast({
@@ -177,6 +156,15 @@ const ConnectAccountsPage = () => {
         variant: "destructive",
       });
       // Clear URL params but keep user on page to reconnect
+      window.history.replaceState({}, document.title, location.pathname);
+    }
+
+    if (reconnect === "ebay") {
+      toast({
+        title: t.toastEbayReconnectTitle,
+        description: message || t.toastEbayReconnectDescription,
+        variant: "destructive",
+      });
       window.history.replaceState({}, document.title, location.pathname);
     }
   }, [location, toast, refetch]);
@@ -286,7 +274,11 @@ const ConnectAccountsPage = () => {
             className="mt-12 text-center"
           >
             <p className="text-neutral-400 mb-6">
-              {connectedPlatforms && Object.values(connectedPlatforms).some(connected => connected) 
+              {connectedPlatforms &&
+              (!!connectedPlatforms.facebook ||
+                !!connectedPlatforms.olx ||
+                !!connectedPlatforms.vinted ||
+                !!connectedPlatforms.ebay)
                 ? t.ctaConnectedMessage
                 : t.ctaNotConnectedMessage}
             </p>

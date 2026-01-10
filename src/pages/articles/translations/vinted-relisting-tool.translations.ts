@@ -4,14 +4,14 @@ export const vintedRelistingToolTranslations: Translations = {
   en: {
     // SEO
     pageTitle: 'Vinted Relisting Tool — Relist & Refresh Listings Faster | FlipIt',
-    pageDescription: 'Automate relisting on Vinted with FlipIt. Refresh your listings, boost visibility, and sell faster without repetitive manual work.',
+    pageDescription: 'Relist and refresh Vinted listings faster with FlipIt. Prepare updated drafts in minutes and publish with your approval — without repetitive copy-paste.',
     
     // Hero
-    heroLabel: 'Vinted Automation Guide',
+    heroLabel: 'Vinted Relisting Guide',
     heroTitle: 'Vinted Relisting Tool',
     heroTitleHighlight: '— Relist Faster',
-    heroSubtitle: 'Tired of manually relisting items on Vinted? FlipIt helps you refresh and repost listings in seconds, keeping your products visible and sales flowing.',
-    heroBadge1: 'Relisting automation',
+    heroSubtitle: 'Tired of manually relisting items on Vinted? FlipIt helps you prep refreshed listings fast — with AI drafts and a review-first publish flow.',
+    heroBadge1: 'Faster relisting prep',
     heroBadge2: 'Boost visibility',
     heroBadge3: 'Save hours weekly',
     
@@ -32,10 +32,10 @@ export const vintedRelistingToolTranslations: Translations = {
     
     section3Title: 'Manual Relisting vs Automation',
     section3Para1: 'Manual relisting on Vinted requires you to edit each listing, change something (even a minor detail), and save it — or delete and recreate the entire listing. This process takes 5-10 minutes per item and becomes exhausting with larger inventories.',
-    section3Para2: 'With a relisting tool like FlipIt, you can refresh listings in bulk, schedule relists, and even crosslist to other marketplaces like OLX and Facebook Marketplace simultaneously. Automation turns hours of tedious work into minutes.',
+    section3Para2: 'With a tool like FlipIt, you can prep refreshed listings faster: reuse photos, generate updated titles and descriptions, and (when it makes sense) crosslist to OLX, Facebook Marketplace, and eBay. You approve every action before publishing.',
     
     section4Title: 'How FlipIt Helps You Relist on Vinted',
-    section4Para1: 'FlipIt is a semi-automated platform that connects to your marketplace accounts. Upload your items once, and FlipIt handles the rest — generating optimized descriptions, syncing inventory, and helping you repost listings when visibility drops.',
+    section4Para1: 'FlipIt is a marketplace automation platform that connects to your marketplace accounts. Upload your items once, and FlipIt helps with the repetitive prep — generating optimized descriptions, suggesting categories/attributes, and helping you prepare refreshed listings when visibility drops.',
     section4Para2: 'You stay in control of every action. FlipIt suggests relists and prepares the content, but you approve before anything goes live. This keeps your accounts safe while saving you significant time.',
     
     section5Title: 'Safety and Vinted Terms of Service',
@@ -54,28 +54,28 @@ export const vintedRelistingToolTranslations: Translations = {
     faq2Question: 'How often should I relist items on Vinted?',
     faq2Answer: 'Most sellers relist items every 7-14 days, or whenever visibility drops significantly. FlipIt can help you track performance and suggest optimal relist timing.',
     faq3Question: 'Can FlipIt relist to multiple platforms at once?',
-    faq3Answer: 'Yes! FlipIt supports crosslisting to Vinted, OLX, and Facebook Marketplace. Relist or publish to all platforms with a single action.',
+    faq3Answer: 'Yes! FlipIt supports crosslisting to Vinted, OLX, Facebook Marketplace, and eBay. Prepare one draft and publish to multiple platforms with a single review.',
     faq4Question: 'Is FlipIt safe to use with my Vinted account?',
     faq4Answer: 'FlipIt is designed as a listing management assistant, not an automation bot. You control every action, keeping your account safe and compliant.',
     
     // CTA
-    ctaTitle: 'Ready to Automate Your Relisting?',
-    ctaDescription: 'Stop wasting hours on manual relisting. Let FlipIt keep your Vinted listings fresh and visible while you focus on sourcing and shipping.',
+    ctaTitle: 'Ready to relist faster?',
+    ctaDescription: 'Stop wasting hours on manual relisting. Use FlipIt to prepare fresh Vinted-ready drafts faster — then review and publish when you’re ready.',
     ctaButtonText: 'Try FlipIt Free',
     ctaFooterText: 'Already have an account?',
     ctaFooterLinkText: 'Log in here',
   },
   pl: {
     // SEO
-    pageTitle: 'Narzędzie do Odświeżania Ogłoszeń na Vinted — Wystawiaj Szybciej | FlipIt',
-    pageDescription: 'Automatyzuj odświeżanie ogłoszeń na Vinted z FlipIt. Podbij widoczność swoich produktów i sprzedawaj szybciej bez żmudnej ręcznej pracy.',
+    pageTitle: 'Narzędzie do odświeżania ogłoszeń na Vinted — wystawiaj szybciej | FlipIt',
+    pageDescription: 'Odświeżaj ogłoszenia na Vinted szybciej z FlipIt. Przygotuj zaktualizowane szkice w kilka minut i publikuj po swojej akceptacji — bez żmudnego kopiowania.',
     
     // Hero
-    heroLabel: 'Poradnik Automatyzacji Vinted',
-    heroTitle: 'Narzędzie do Odświeżania Vinted',
-    heroTitleHighlight: '— Wystawiaj Szybciej',
-    heroSubtitle: 'Masz dość ręcznego odświeżania ogłoszeń na Vinted? FlipIt pomoże Ci podbić i odnowić oferty w kilka sekund, utrzymując widoczność produktów i stały przepływ sprzedaży.',
-    heroBadge1: 'Automatyczne odświeżanie',
+    heroLabel: 'Poradnik odświeżania na Vinted',
+    heroTitle: 'Narzędzie do odświeżania na Vinted',
+    heroTitleHighlight: '— wystawiaj szybciej',
+    heroSubtitle: 'Masz dość ręcznego odświeżania ogłoszeń na Vinted? FlipIt pomaga przygotować odświeżone oferty szybciej — dzięki szkicom AI i publikacji po Twojej akceptacji.',
+    heroBadge1: 'Szybsze odświeżanie',
     heroBadge2: 'Zwiększ widoczność',
     heroBadge3: 'Oszczędź godziny tygodniowo',
     
@@ -95,15 +95,15 @@ export const vintedRelistingToolTranslations: Translations = {
     section2Para2: 'Regularne odświeżanie sygnalizuje algorytmowi, że jesteś aktywnym sprzedawcą, co może poprawić Twoją ogólną widoczność na platformie.',
     
     section3Title: 'Ręczne odświeżanie vs automatyzacja',
-    section3Para1: 'Ręczne odświeżanie na Vinted wymaga edycji każdego ogłoszenia, zmiany czegoś (nawet drobnego detalu) i zapisania — lub usunięcia i ponownego utworzenia całego ogłoszenia. Ten proces zajmuje 5-10 minut na produkt i staje się wyczerpujący przy większych ilościach.',
-    section3Para2: 'Z narzędziem takim jak FlipIt możesz odświeżać ogłoszenia hurtowo, planować odświeżanie i nawet crosslistować na inne platformy jak OLX czy Facebook Marketplace jednocześnie. Automatyzacja zamienia godziny żmudnej pracy w minuty.',
+    section3Para1: 'Ręczne odświeżanie na Vinted wymaga edycji każdego ogłoszenia, zmiany czegoś (nawet drobnego detalu) i zapisania — albo usunięcia i ponownego utworzenia całego ogłoszenia. Ten proces zajmuje 5–10 minut na produkt i staje się męczący przy większym asortymencie.',
+    section3Para2: 'Z narzędziem takim jak FlipIt szybciej przygotujesz odświeżone ogłoszenia: wykorzystasz te same zdjęcia, wygenerujesz nowe tytuły i opisy, a w razie potrzeby crosslistujesz na OLX, Facebook Marketplace i eBay. Każdą publikację zatwierdzasz samodzielnie.',
     
     section4Title: 'Jak FlipIt pomaga w odświeżaniu na Vinted',
-    section4Para1: 'FlipIt to pół-automatyczna platforma, która łączy się z Twoimi kontami na marketplace\'ach. Dodaj produkty raz, a FlipIt zajmie się resztą — generując zoptymalizowane opisy, synchronizując stany magazynowe i pomagając odświeżać ogłoszenia gdy widoczność spada.',
-    section4Para2: 'Zachowujesz pełną kontrolę nad każdą akcją. FlipIt sugeruje odświeżenie i przygotowuje treść, ale Ty zatwierdzasz przed publikacją. To chroni Twoje konta jednocześnie oszczędzając znaczną ilość czasu.',
+    section4Para1: 'FlipIt to platforma automatyzacji marketplace\'ów, która łączy się z Twoimi kontami na marketplace\'ach. Dodaj produkty raz, a FlipIt pomaga w powtarzalnej pracy — generuje zoptymalizowane opisy, sugeruje kategorie/atrybuty i pomaga przygotować odświeżone wersje ogłoszeń, gdy widoczność spada.',
+    section4Para2: 'Zachowujesz pełną kontrolę nad każdą akcją. FlipIt sugeruje odświeżenie i przygotowuje treść, ale Ty zatwierdzasz przed publikacją. To chroni Twoje konto i jednocześnie oszczędza sporo czasu.',
     
     section5Title: 'Bezpieczeństwo i regulamin Vinted',
-    section5Para1: 'FlipIt działa jako narzędzie do zarządzania ogłoszeniami, które współpracuje z Vinted — nie przeciwko niemu. Nie używamy botów naruszających zasady platformy. Zamiast tego pomagamy Ci efektywniej zarządzać istniejącymi ogłoszeniami.',
+    section5Para1: 'FlipIt działa jako narzędzie do zarządzania ogłoszeniami, które współpracuje z Vinted — nie przeciwko niemu. Nie używamy botów naruszających zasady platformy. Zamiast tego pomagamy Ci sprawniej zarządzać istniejącymi ogłoszeniami.',
     section5Para2: 'Zawsze upewnij się, że Twoje praktyki odświeżania są zgodne z wytycznymi Vinted. Unikaj spamowania lub tworzenia zduplikowanych aktywnych ogłoszeń, ponieważ może to skutkować ograniczeniami konta.',
     
     // Related
@@ -118,13 +118,13 @@ export const vintedRelistingToolTranslations: Translations = {
     faq2Question: 'Jak często powinno się odświeżać produkty na Vinted?',
     faq2Answer: 'Większość sprzedawców odświeża produkty co 7-14 dni lub gdy widoczność znacząco spada. FlipIt może pomóc śledzić wyniki i sugerować optymalny czas odświeżania.',
     faq3Question: 'Czy FlipIt może odświeżać na wielu platformach naraz?',
-    faq3Answer: 'Tak! FlipIt wspiera crosslisting na Vinted, OLX i Facebook Marketplace. Odśwież lub opublikuj na wszystkich platformach jedną akcją.',
+    faq3Answer: 'Tak! FlipIt wspiera crosslisting na Vinted, OLX, Facebook Marketplace i eBay. Przygotuj jeden szkic i opublikuj na kilku platformach po jednej akceptacji.',
     faq4Question: 'Czy FlipIt jest bezpieczny dla mojego konta Vinted?',
     faq4Answer: 'FlipIt został zaprojektowany jako asystent zarządzania ogłoszeniami, nie bot automatyzujący. Kontrolujesz każdą akcję, chroniąc swoje konto i pozostając w zgodzie z regulaminem.',
     
     // CTA
-    ctaTitle: 'Gotowy na automatyzację odświeżania?',
-    ctaDescription: 'Przestań tracić godziny na ręczne odświeżanie. Pozwól FlipIt utrzymać Twoje ogłoszenia świeże i widoczne, podczas gdy Ty skupisz się na pozyskiwaniu i wysyłce.',
+    ctaTitle: 'Gotowy odświeżać szybciej?',
+    ctaDescription: 'Przestań tracić godziny na ręczne odświeżanie. Z FlipIt szybciej przygotujesz świeże szkice pod Vinted — a potem zatwierdzisz i opublikujesz, kiedy zechcesz.',
     ctaButtonText: 'Wypróbuj FlipIt za darmo',
     ctaFooterText: 'Masz już konto?',
     ctaFooterLinkText: 'Zaloguj się tutaj',

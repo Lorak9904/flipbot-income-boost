@@ -12,8 +12,11 @@ interface PricingCardProps {
   features: string[];
   featured?: boolean;
   badge?: string;
+  perMonthLabel?: string;
+  perYearLabel?: string;
   ctaText: string;
-  ctaLink: string;
+  ctaLink?: string;
+  ctaOnClick?: () => void;
   index: number;
 }
 
@@ -35,8 +38,11 @@ export const PricingCard = ({
   features,
   featured = false,
   badge,
+  perMonthLabel = 'per month',
+  perYearLabel = 'per year',
   ctaText,
   ctaLink,
+  ctaOnClick,
   index,
 }: PricingCardProps) => {
   const displayPrice = billingCycle === 'annual' && annualPrice ? annualPrice : price;
@@ -76,7 +82,7 @@ export const PricingCard = ({
                 {displayPrice}
               </div>
               <p className="text-sm text-neutral-400 mt-1">
-                {billingCycle === 'monthly' ? 'per month' : 'per year'}
+                {billingCycle === 'monthly' ? perMonthLabel : perYearLabel}
               </p>
             </>
           )}
@@ -96,11 +102,19 @@ export const PricingCard = ({
       
       {featured ? (
         <HeroCTA asChild className="w-full">
-          <Link to={ctaLink}>{ctaText}</Link>
+          {ctaOnClick ? (
+            <button type="button" onClick={ctaOnClick}>{ctaText}</button>
+          ) : (
+            <Link to={ctaLink || '#'}>{ctaText}</Link>
+          )}
         </HeroCTA>
       ) : (
         <SecondaryAction asChild className="w-full">
-          <Link to={ctaLink}>{ctaText}</Link>
+          {ctaOnClick ? (
+            <button type="button" onClick={ctaOnClick}>{ctaText}</button>
+          ) : (
+            <Link to={ctaLink || '#'}>{ctaText}</Link>
+          )}
         </SecondaryAction>
       )}
     </motion.div>

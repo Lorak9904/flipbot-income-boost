@@ -17,25 +17,22 @@ const fadeUp = {
   }),
 };
 
-const HomePage = () => {
+  const HomePage = () => {
   const t = getTranslations(homePageTranslations);
-  const pageTitle = 'AI Marketplace Automation for OLX, Vinted & Facebook | myflipit.live';
-  const pageDescription = 'FlipIt provides automation for marketplaces: OLX automation, Vinted automation (Vinted app), Facebook Marketplace automation, AI crosslisting, profit analytics, and ecommerce automation tools.';
+  const pageTitle = 'AI Crosslisting for OLX, Vinted, Facebook Marketplace & eBay | myflipit.live';
+  const pageDescription = 'FlipIt helps you create marketplace listings faster: upload photos once, get AI-generated drafts (description, pricing suggestions, categories, attributes), then review and publish with your approval.';
   const keywords = [
     'automated reselling platform',
-    'marketplace automation',
+    'AI crosslisting',
     'automation for marketplaces',
-    'ecommerce automation',
-    'OLX automation',
-    'OLX reselling software',
-    'Vinted automation',
-    'Vinted app',
-    'Facebook Marketplace automation',
-    'Vinted reselling tool',
-    'online arbitrage AI',
-    'find undervalued items',
-    'crossposting automation',
-    'side hustle ideas',
+    'marketplace listing tool',
+    'AI listing generator',
+    'OLX listing tool',
+    'Vinted listing tool',
+    'Facebook Marketplace listing tool',
+    'eBay listing tool',
+    'multi marketplace publishing',
+    'reselling software',
   ];
 
   const structuredData = {
@@ -55,9 +52,10 @@ const HomePage = () => {
       ratingCount: '128',
     },
     featureList: [
-      'Automated marketplace scanning',
-      'Cross-posting to OLX, Vinted & Facebook',
-      'AI pricing recommendations',
+      'AI-generated listing drafts from photos',
+      'Multi-marketplace publishing with manual approval',
+      'Category mapping and required attributes',
+      'Optional AI image enhancement',
     ],
   };
 

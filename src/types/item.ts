@@ -47,7 +47,7 @@ export interface GeneratedItemData {
   images: ItemImage[];
 }
 
-export type Platform = 'facebook' | 'olx' | 'vinted';
+export type Platform = 'facebook' | 'olx' | 'vinted' | 'ebay';
 
 // Backend API types for user items
 export type ItemStatus = 'draft' | 'active' | 'inactive' | 'sold' | 'expired' | 'removed' | 'blocked';

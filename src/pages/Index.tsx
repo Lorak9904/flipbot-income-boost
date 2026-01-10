@@ -40,7 +40,7 @@ const Index = () => {
             variants={fadeUp}
             className="mx-auto mt-6 max-w-xl text-lg text-neutral-300"
           >
-            FlipIt scouts marketplaces, negotiates in your name, and flips items for profit while you sit back and collect the wins. Ready in minutes.
+            FlipIt turns your product photos into marketplace-ready listings with AI. Review, edit, and publish faster — always with your approval.
           </motion.p>
 
           <motion.div

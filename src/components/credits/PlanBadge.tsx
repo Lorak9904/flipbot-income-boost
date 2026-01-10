@@ -4,14 +4,16 @@
  */
 import { getTranslations } from '@/components/language-utils';
 import { creditsTranslations } from './credits-translations';
+import { normalizePlan, PlanSlug } from '@/lib/api/credits';
 
 interface PlanBadgeProps {
-  plan: 'starter' | 'pro' | 'business';
+  plan: PlanSlug | string | null | undefined;
   size?: 'sm' | 'md' | 'lg';
 }
 
 export function PlanBadge({ plan, size = 'md' }: PlanBadgeProps) {
   const t = getTranslations(creditsTranslations);
+  const normalizedPlan = normalizePlan(plan ?? undefined);
   
   const sizeClasses = {
     sm: 'text-xs px-2 py-0.5',
@@ -20,24 +22,24 @@ export function PlanBadge({ plan, size = 'md' }: PlanBadgeProps) {
   };
   
   const planConfig = {
-    starter: {
+    start: {
       label: t.planStarter,
       bgClass: 'bg-neutral-800/50 border-neutral-600',
       textClass: 'text-neutral-300',
     },
-    pro: {
+    plus: {
       label: t.planPro,
       bgClass: 'bg-cyan-500/10 border-cyan-400/30',
       textClass: 'text-cyan-400',
     },
-    business: {
+    scale: {
       label: t.planBusiness,
       bgClass: 'bg-purple-500/10 border-purple-400/30',
       textClass: 'text-purple-400',
     },
   };
   
-  const config = planConfig[plan];
+  const config = planConfig[normalizedPlan];
   
   return (
     <span

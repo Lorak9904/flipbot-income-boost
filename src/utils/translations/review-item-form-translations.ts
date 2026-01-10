@@ -50,6 +50,7 @@ export const reviewItemFormTranslations = {
       facebook: "Facebook",
       olx: "OLX",
       vinted: "Vinted",
+      ebay: "eBay",
     },
   },
   
@@ -59,9 +60,9 @@ export const reviewItemFormTranslations = {
       noPlatformsTitle: "Nie wybrano platform",
       noPlatformsDesc: "Wybierz przynajmniej jedną platformę do publikacji",
       successTitle: "Sukces!",
-      publishedSuccess: "Pomyślnie opublikowano na {platform}.",
+      publishedSuccess: "Opublikowano na {platform}.",
       publishError: "Błąd publikacji na {platform}",
-      generalSuccess: "Twój przedmiot został pomyślnie opublikowany",
+      generalSuccess: "Przedmiot został opublikowany.",
       errorTitle: "Błąd",
       errorDesc: "Nie udało się opublikować przedmiotu. Spróbuj ponownie.",
     },
@@ -69,9 +70,9 @@ export const reviewItemFormTranslations = {
     // Nagłówki sekcji
     sections: {
       images: "Zdjęcia",
-      itemDetails: "Szczegóły Przedmiotu",
-      productAttributes: "Atrybuty Produktu",
-      publishPlatforms: "Publikuj na Platformach",
+      itemDetails: "Szczegóły przedmiotu",
+      productAttributes: "Atrybuty produktu",
+      publishPlatforms: "Publikuj na platformach",
     },
     
     // Etykiety formularza
@@ -88,7 +89,7 @@ export const reviewItemFormTranslations = {
     
     // Tekst pomocniczy
     helper: {
-      priceRange: "Sugerowany przedział cenowy: {min} - {max} PLN",
+      priceRange: "Sugerowany zakres: {min}–{max} PLN",
       notConnected: "(nie połączono)",
     },
     
@@ -96,7 +97,7 @@ export const reviewItemFormTranslations = {
     buttons: {
       back: "Wstecz",
       publishing: "Publikowanie...",
-      publish: "Opublikuj Przedmiot",
+      publish: "Opublikuj przedmiot",
     },
     
     // Nazwy platform
@@ -104,6 +105,7 @@ export const reviewItemFormTranslations = {
       facebook: "Facebook",
       olx: "OLX",
       vinted: "Vinted",
+      ebay: "eBay",
     },
   },
 };

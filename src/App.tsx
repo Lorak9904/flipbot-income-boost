@@ -25,6 +25,10 @@ import UserItemsPage from "./pages/UserItemsPage";
 import ItemDetailPage from "./pages/ItemDetailPage";
 import NotFound from "./pages/NotFound";
 import AutomatedResellingPlatformGuide from "./pages/AutomatedResellingPlatformGuide";
+import ArticlesIndex from "./pages/articles/ArticlesIndex";
+import VintedRelistingToolArticle from "./pages/articles/VintedRelistingToolArticle";
+import CrossListVintedToFacebookMarketplaceArticle from "./pages/articles/CrossListVintedToFacebookMarketplaceArticle";
+import ProductRelisterForVintedArticle from "./pages/articles/ProductRelisterForVintedArticle";
 // import FacebookCallbackPage from "./pages/FacebookCallbackPage";
 import TermsPage from "./pages/Terms";
 import PrivacyPolicyPage from "./pages/PrivacyPolicy";
@@ -37,6 +41,7 @@ import VisitorPing from "./components/useVisitorPing"; // This should resolve to
 import { ConnectOlxButton } from "./pages/ConnectOlxButton";
 import { OlxSuccessPage } from "./pages/OlxSuccessPage";
 import ButtonShowcase from "./pages/ButtonShowcase";
+import RequireAuth from "./components/RequireAuth";
 
 
 
@@ -59,6 +64,10 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/automated-reselling-platform-guide" element={<AutomatedResellingPlatformGuide />} />
+                  <Route path="/articles" element={<ArticlesIndex />} />
+                  <Route path="/articles/vinted-relisting-tool" element={<VintedRelistingToolArticle />} />
+                  <Route path="/articles/cross-list-vinted-to-facebook-marketplace" element={<CrossListVintedToFacebookMarketplaceArticle />} />
+                  <Route path="/articles/product-relister-for-vinted" element={<ProductRelisterForVintedArticle />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/how-it-works" element={<HowItWorksPage />} />
                   <Route path="/success-stories" element={<SuccessStoriesPage />} />
@@ -66,15 +75,17 @@ const App = () => {
                   {/* <Route path="/features" element={<FeaturesPage />} /> */}
                   <Route path="/faq" element={<FAQPage />} />
                   <Route path="/get-started" element={<GetStartedPage />} />
-                  <Route path="/connect-accounts" element={<ConnectAccountsPage />} />
-                  <Route path="/add-item" element={<AddItemPage />} />
-                  <Route path="/user/items" element={<UserItemsPage />} />
-                  <Route path="/user/items/:uuid" element={<ItemDetailPage />} />
                   <Route path="/terms" element={<TermsPage />} />
                   <Route path="/privacy" element={<PrivacyPolicyPage />} />
                   <Route path="/cookies" element={<CookiesPolicyPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/platform-settings/:platform" element={<PlatformSettingsPage />} />
+                  <Route element={<RequireAuth />}>
+                    <Route path="/connect-accounts" element={<ConnectAccountsPage />} />
+                    <Route path="/add-item" element={<AddItemPage />} />
+                    <Route path="/user/items" element={<UserItemsPage />} />
+                    <Route path="/user/items/:uuid" element={<ItemDetailPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/platform-settings/:platform" element={<PlatformSettingsPage />} />
+                  </Route>
                   {/* <Route path="/olx/success" element={<OlxSuccessPage />} /> */}
                   
                   {/* Dev/Reference Pages (not linked in navigation) */}

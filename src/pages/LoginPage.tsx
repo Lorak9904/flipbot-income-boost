@@ -63,7 +63,13 @@ const LoginPage = () => {
     setLoading(true);
     try {
       await loginWithEmail(email, password);
-      navigate('/');
+      const checkoutPlan = sessionStorage.getItem('flipit_checkout_plan');
+      const checkoutBilling = sessionStorage.getItem('flipit_checkout_billing') || 'monthly';
+      if (checkoutPlan) {
+        navigate(`/pricing?checkout=1&plan=${checkoutPlan}&billing=${checkoutBilling}`);
+      } else {
+        navigate('/');
+      }
     } catch (err: any) {
       setError(err.message || t.loginFailed);
       setLoading(false);
@@ -102,6 +108,14 @@ const LoginPage = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    const plan = params.get('plan');
+    const billing = params.get('billing');
+    if (plan) {
+      sessionStorage.setItem('flipit_checkout_plan', plan);
+      if (billing) {
+        sessionStorage.setItem('flipit_checkout_billing', billing);
+      }
+    }
     if (params.get('register') === '1') {
       setIsSignUp(true);
     } else {

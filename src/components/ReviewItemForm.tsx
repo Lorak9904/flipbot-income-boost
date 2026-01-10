@@ -30,6 +30,8 @@ interface ReviewItemFormProps {
   language?: string;
 }
 
+const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay'];
+
 const ReviewItemForm = ({ initialData, connectedPlatforms, onBack, language }: ReviewItemFormProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -43,10 +45,8 @@ const ReviewItemForm = ({ initialData, connectedPlatforms, onBack, language }: R
   const navigate = useNavigate();
   const { data: credits } = useCredits();
   const t = getTranslations(reviewItemFormTranslations);
-  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(
-    Object.entries(connectedPlatforms)
-      .filter(([_, isConnected]) => isConnected)
-      .map(([platform]) => platform as Platform)
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(() =>
+    SUPPORTED_PLATFORMS.filter((platform) => connectedPlatforms[platform])
   );
   
   // Separate state for dynamic Vinted fields
@@ -298,19 +298,20 @@ const handleSubmit = async (e: React.FormEvent) => {
         <h3 className="text-lg font-medium text-neutral-300">{t.sections.publishPlatforms}</h3>
         
         <div className="flex flex-col gap-3">
-          {Object.entries(connectedPlatforms).map(([platform, isConnected]) => {
-            const typedPlatform = platform as Platform;
-            const platformName = t.platforms[typedPlatform] || platform.charAt(0).toUpperCase() + platform.slice(1);
+          {SUPPORTED_PLATFORMS.map((typedPlatform) => {
+            const isConnected = connectedPlatforms[typedPlatform];
+            const platformName =
+              t.platforms[typedPlatform] || typedPlatform.charAt(0).toUpperCase() + typedPlatform.slice(1);
             return (
-              <div key={platform} className="flex items-center space-x-2 text-neutral-300">
+              <div key={typedPlatform} className="flex items-center space-x-2 text-neutral-300">
                 <Checkbox 
-                  id={`platform-${platform}`}
+                  id={`platform-${typedPlatform}`}
                   checked={selectedPlatforms.includes(typedPlatform)}
                   onCheckedChange={() => handlePlatformToggle(typedPlatform)}
                   disabled={!isConnected || isSubmitting}
                 />
                 <Label 
-                  htmlFor={`platform-${platform}`}
+                  htmlFor={`platform-${typedPlatform}`}
                   className={!isConnected ? "text-slate-400 " : ""}
                 >
                   {platformName}
