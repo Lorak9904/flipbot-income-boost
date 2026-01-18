@@ -89,16 +89,69 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => clearInterval(interval);
   }, []);
 
+  // Helper: check if token is expired or about to expire (within 1 minute)
+  const isTokenExpiredOrExpiring = (token: string): boolean => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 < Date.now() + 60000; // 1 min buffer
+    } catch {
+      return true; // Treat parse errors as expired
+    }
+  };
+
+  // Helper: attempt silent refresh, returns new access token or null
+  const attemptSilentRefresh = async (): Promise<string | null> => {
+    const storedRefreshToken = localStorage.getItem("flipit_refresh_token");
+    if (!storedRefreshToken) return null;
+
+    try {
+      const response = await fetch("/api/auth/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: storedRefreshToken }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("flipit_token", data.token);
+        console.log("✅ Token silently refreshed on startup");
+        return data.token;
+      }
+    } catch (error) {
+      console.error("Silent refresh failed:", error);
+    }
+    return null;
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem("flipit_token");
+      let token = localStorage.getItem("flipit_token");
+      
+      // No token at all - user is logged out
       if (!token) {
         setUser(null);
         setIsLoading(false);
         return;
       }
 
+      // If token is expired/expiring, try silent refresh FIRST
+      if (isTokenExpiredOrExpiring(token)) {
+        const newToken = await attemptSilentRefresh();
+        if (newToken) {
+          token = newToken;
+        } else {
+          // Refresh failed - clear tokens and logout
+          console.log("⚠️ Token expired and refresh failed - logging out");
+          localStorage.removeItem("flipit_token");
+          localStorage.removeItem("flipit_user");
+          localStorage.removeItem("flipit_refresh_token");
+          setUser(null);
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Now fetch user with valid token
       try {
         const response = await fetch("/api/auth/user", {
           method: "POST",
@@ -114,15 +167,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setUser(userData);
           // Sync language cookie from user's saved preference
           syncLanguageCookie(userData.language);
+        } else if (response.status === 401) {
+          // Token was valid but still got 401 - try refresh once more
+          const newToken = await attemptSilentRefresh();
+          if (newToken) {
+            // Retry with new token
+            const retryResponse = await fetch("/api/auth/user", {
+              method: "POST",
+              headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${newToken}`
+              },
+              body: JSON.stringify({ token: newToken }),
+            });
+            if (retryResponse.ok) {
+              const userData = await retryResponse.json();
+              setUser(userData);
+              syncLanguageCookie(userData.language);
+            } else {
+              // Even after refresh, still failing - give up
+              localStorage.removeItem("flipit_token");
+              localStorage.removeItem("flipit_user");
+              localStorage.removeItem("flipit_refresh_token");
+              setUser(null);
+            }
+          } else {
+            localStorage.removeItem("flipit_token");
+            localStorage.removeItem("flipit_user");
+            localStorage.removeItem("flipit_refresh_token");
+            setUser(null);
+          }
         } else {
-          localStorage.removeItem("flipit_token");
-          localStorage.removeItem("flipit_user");
+          // Non-401 error (e.g., 500) - don't clear tokens immediately
+          console.error("Failed to fetch user, status:", response.status);
+          // Keep tokens, maybe server is temporarily down
           setUser(null);
         }
       } catch (error) {
-        console.error("Failed to fetch user:", error);
-        localStorage.removeItem("flipit_token");
-        localStorage.removeItem("flipit_user");
+        // Network error - don't clear tokens (might be transient)
+        console.error("Failed to fetch user (network error):", error);
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -151,17 +234,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const data = await response.json();
+      // Backend returns: { userData: {...}, token, refresh_token }
       const userData = {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        provider
+        id: data.userData?.id || data.id,
+        name: data.userData?.name || data.name,
+        email: data.userData?.email || data.email,
+        provider,
+        language: data.userData?.language
       };
       
-      const authToken = data.token;
-      setUser(userData);
-      localStorage.setItem("flipit_user", JSON.stringify(userData));
-      localStorage.setItem("flipit_token", authToken);
+      // Use setUserAndTokens to properly save both tokens
+      setUserAndTokens(userData, data.token, data.refresh_token);
     } catch (error) {
       console.error("Login failed:", error);
       throw error;

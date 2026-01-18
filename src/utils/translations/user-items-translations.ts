@@ -15,9 +15,14 @@ export const userItemsTranslations = {
     // Filters
     filters: {
       label: "Filters:",
-      allStages: "All stages",
+      allStatuses: "All statuses",
       draft: "Draft",
-      published: "Published",
+      active: "Active",
+      inactive: "Inactive",
+      sold: "Sold",
+      expired: "Expired",
+      removed: "Removed",
+      blocked: "Blocked",
       allPlatforms: "All platforms",
       facebook: "Facebook",
       olx: "OLX",
@@ -77,9 +82,14 @@ export const userItemsTranslations = {
     // Filtry
     filters: {
       label: "Filtry:",
-      allStages: "Wszystkie statusy",
+      allStatuses: "Wszystkie statusy",
       draft: "Szkic",
-      published: "Opublikowane",
+      active: "Aktywne",
+      inactive: "Nieaktywne",
+      sold: "Sprzedane",
+      expired: "Wygasłe",
+      removed: "Usunięte",
+      blocked: "Zablokowane",
       allPlatforms: "Wszystkie platformy",
       facebook: "Facebook",
       olx: "OLX",

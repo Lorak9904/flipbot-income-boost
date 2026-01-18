@@ -49,7 +49,7 @@ const UserItemsPage = () => {
   // Pagination and filters from URL params
   const page = parseInt(searchParams.get('page') || '1', 10);
   const pageSize = 10;
-  const statusFilter = searchParams.get('status') as ItemStatus | null;
+  const statusFilter = (searchParams.get('status') as ItemStatus | null) || 'active';
   const platformFilter = searchParams.get('platform') as Platform | null;
 
   const [totalPages, setTotalPages] = useState(1);
@@ -268,7 +268,7 @@ const UserItemsPage = () => {
             <span className="text-sm font-medium text-white">{t.filters.label}</span>
           </div>
           <Select
-            value={statusFilter || 'all'}
+            value={statusFilter}
             onValueChange={(value) => handleFilterChange('status', value)}
           >
             <SelectTrigger className="w-[150px] bg-neutral-800/50 border-neutral-700 text-white">
@@ -330,7 +330,7 @@ const UserItemsPage = () => {
                 <Package className="h-16 w-16 mx-auto mb-4 text-neutral-500" />
                 <h3 className="text-xl font-semibold mb-2 text-white">{t.empty.title}</h3>
                 <p className="text-neutral-400 mb-4">
-                  {stageFilter || platformFilter
+                  {statusFilter || platformFilter
                     ? t.empty.description.filtered
                     : t.empty.description.noItems}
                 </p>

@@ -299,40 +299,28 @@ export function ItemActions({
   return (
     <>
       <div className="flex flex-wrap gap-2">
-        {/* Primary CTA - Edit or Publish based on status */}
+        {/* Primary CTA - Publish button */}
         {isDraft ? (
-          <>
+          <AddItemButton 
+            size="lg"
+            onClick={handlePublishClick}
+            className="flex items-center gap-2"
+            disabled={availablePlatforms.length === 0}
+          >
+            <Upload className="h-4 w-4" />
+            {t.actions.publish}
+          </AddItemButton>
+        ) : (
+          availablePlatforms.length > 0 && (
             <AddItemButton 
               size="lg"
               onClick={handlePublishClick}
               className="flex items-center gap-2"
-              disabled={availablePlatforms.length === 0}
             >
               <Upload className="h-4 w-4" />
-              {t.actions.publish}
+              {t.actions.publishToAnother}
             </AddItemButton>
-            <SecondaryAction onClick={handleEdit} className="flex items-center gap-2">
-              <Edit className="h-4 w-4" />
-              {t.actions.edit}
-            </SecondaryAction>
-          </>
-        ) : (
-          <>
-            <SecondaryAction onClick={handleEdit} className="flex items-center gap-2">
-              <Edit className="h-4 w-4" />
-              {t.actions.editListing}
-            </SecondaryAction>
-            {availablePlatforms.length > 0 && (
-              <AddItemButton 
-                size="lg"
-                onClick={handlePublishClick}
-                className="flex items-center gap-2"
-              >
-                <Upload className="h-4 w-4" />
-                {t.actions.publishToAnother}
-              </AddItemButton>
-            )}
-          </>
+          )
         )}
         
         {/* Secondary actions in dropdown */}
@@ -343,6 +331,11 @@ export function ItemActions({
             </GhostIconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-700">
+            <DropdownMenuItem onClick={handleEdit} className="cursor-pointer text-white">
+              <Edit className="mr-2 h-4 w-4" />
+              {isDraft ? t.actions.edit : t.actions.editListing}
+            </DropdownMenuItem>
+            
             <DropdownMenuItem 
               onClick={handleDuplicate} 
               disabled={isDuplicating}
