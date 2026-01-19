@@ -49,8 +49,28 @@ const UserItemsPage = () => {
   // Pagination and filters from URL params
   const page = parseInt(searchParams.get('page') || '1', 10);
   const pageSize = 10;
-  const statusFilter = (searchParams.get('status') as ItemStatus | null) || 'active';
-  const platformFilter = searchParams.get('platform') as Platform | null;
+  const statusParam = searchParams.get('status');
+  const platformParam = searchParams.get('platform');
+  const statusOptions: Array<ItemStatus | 'all'> = [
+    'all',
+    'draft',
+    'active',
+    'inactive',
+    'sold',
+    'expired',
+    'removed',
+    'blocked',
+  ];
+  const platformOptions: Array<Platform | 'all'> = ['all', 'facebook', 'olx', 'vinted', 'ebay'];
+  const statusFilter: ItemStatus | 'all' = statusParam && statusOptions.includes(statusParam as ItemStatus | 'all')
+    ? (statusParam as ItemStatus | 'all')
+    : 'active';
+  const platformFilter: Platform | 'all' =
+    platformParam && platformOptions.includes(platformParam as Platform | 'all')
+      ? (platformParam as Platform | 'all')
+      : 'all';
+  const hasActiveFilters =
+    statusFilter !== 'all' || platformFilter !== 'all';
 
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -83,8 +103,8 @@ const UserItemsPage = () => {
           page_size: pageSize,
         };
 
-        if (statusFilter) params.status = statusFilter;
-        if (platformFilter) params.platform = platformFilter;
+        if (statusFilter !== 'all') params.status = statusFilter;
+        if (platformFilter !== 'all') params.platform = platformFilter;
 
         const response = await fetchUserItems(params);
         setItems(response.items);
@@ -124,11 +144,7 @@ const UserItemsPage = () => {
 
   const handleFilterChange = (filterType: 'status' | 'platform', value: string) => {
     const newParams = new URLSearchParams(searchParams);
-    if (value === 'all') {
-      newParams.delete(filterType);
-    } else {
-      newParams.set(filterType, value);
-    }
+    newParams.set(filterType, value);
     newParams.set('page', '1'); // Reset to first page when filtering
     setSearchParams(newParams);
   };
@@ -160,8 +176,8 @@ const UserItemsPage = () => {
         page_size: pageSize,
       };
 
-      if (statusFilter) params.status = statusFilter;
-      if (platformFilter) params.platform = platformFilter;
+      if (statusFilter !== 'all') params.status = statusFilter;
+      if (platformFilter !== 'all') params.platform = platformFilter;
 
       const response = await fetchUserItems(params);
       setItems(response.items);
@@ -286,7 +302,7 @@ const UserItemsPage = () => {
             </SelectContent>
           </Select>
           <Select
-            value={platformFilter || 'all'}
+            value={platformFilter}
             onValueChange={(value) => handleFilterChange('platform', value)}
           >
             <SelectTrigger className="w-[150px] bg-neutral-800/50 border-neutral-700 text-white">
@@ -330,7 +346,7 @@ const UserItemsPage = () => {
                 <Package className="h-16 w-16 mx-auto mb-4 text-neutral-500" />
                 <h3 className="text-xl font-semibold mb-2 text-white">{t.empty.title}</h3>
                 <p className="text-neutral-400 mb-4">
-                  {statusFilter || platformFilter
+                  {hasActiveFilters
                     ? t.empty.description.filtered
                     : t.empty.description.noItems}
                 </p>

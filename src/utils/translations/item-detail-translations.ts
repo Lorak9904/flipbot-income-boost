@@ -6,13 +6,14 @@ export const itemDetailTranslations = {
     // Actions
     actions: {
       edit: "Edit",
-      editListing: "Edit Listing",
+      editListing: "Edit",
       publish: "Publish",
       publishTo: "Publish to…",
       publishToAnother: "Publish to another platform",
       duplicate: "Duplicate",
       delete: "Delete",
       deleteDraft: "Delete Draft",
+      deleteFromPlatform: "Remove from platform",
     },
     
     // Action confirmations
@@ -21,6 +22,9 @@ export const itemDetailTranslations = {
       deleteDescription: "Are you sure you want to delete this item? This action cannot be undone.",
       deleteConfirm: "Delete",
       deleteCancel: "Cancel",
+      deletePlatformTitle: "Remove Listing",
+      deletePlatformDescription: "Remove this listing from {platform}? This won't delete the item in FlipIt.",
+      deletePlatformConfirm: "Remove",
     },
     
     // Platform picker
@@ -40,6 +44,8 @@ export const itemDetailTranslations = {
       duplicateError: "Failed to duplicate item",
       deleteSuccess: "Item deleted successfully",
       deleteError: "Failed to delete item",
+      deletePlatformSuccess: "Listing removed from {platform}",
+      deletePlatformError: "Failed to remove listing from {platform}",
       publishSuccess: "Item published to {platform}",
       publishError: "Failed to publish to {platform}",
       noCredits: "Insufficient credits to publish",
@@ -62,13 +68,14 @@ export const itemDetailTranslations = {
     // Actions
     actions: {
       edit: "Edytuj",
-      editListing: "Edytuj ogłoszenie",
+      editListing: "Edytuj",
       publish: "Opublikuj",
       publishTo: "Opublikuj na…",
       publishToAnother: "Opublikuj na innej platformie",
       duplicate: "Duplikuj",
       delete: "Usuń",
       deleteDraft: "Usuń szkic",
+      deleteFromPlatform: "Usuń z platformy",
     },
     
     // Action confirmations
@@ -77,6 +84,9 @@ export const itemDetailTranslations = {
       deleteDescription: "Czy na pewno chcesz usunąć ten przedmiot? Tej akcji nie da się cofnąć.",
       deleteConfirm: "Usuń",
       deleteCancel: "Anuluj",
+      deletePlatformTitle: "Usuń ogłoszenie",
+      deletePlatformDescription: "Usunąć to ogłoszenie z {platform}? Nie usuwa to przedmiotu w FlipIt.",
+      deletePlatformConfirm: "Usuń",
     },
     
     // Platform picker
@@ -96,6 +106,8 @@ export const itemDetailTranslations = {
       duplicateError: "Nie udało się zduplikować przedmiotu",
       deleteSuccess: "Przedmiot został usunięty.",
       deleteError: "Nie udało się usunąć przedmiotu",
+      deletePlatformSuccess: "Usunięto z {platform}",
+      deletePlatformError: "Nie udało się usunąć z {platform}",
       publishSuccess: "Opublikowano na {platform}",
       publishError: "Nie udało się opublikować na {platform}",
       noCredits: "Brak wystarczającej liczby kredytów na publikację",

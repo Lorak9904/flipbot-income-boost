@@ -21,6 +21,7 @@ import GetStartedPage from "./pages/GetStartedPage";
 import PricingPage from "./pages/PricingPage";
 import ConnectAccountsPage from "./pages/ConnectAccountsPage";
 import AddItemPage from "./pages/AddItemPage";
+import EditItemPage from "./pages/EditItemPage";
 import UserItemsPage from "./pages/UserItemsPage";
 import ItemDetailPage from "./pages/ItemDetailPage";
 import NotFound from "./pages/NotFound";
@@ -83,6 +84,7 @@ const App = () => {
                     <Route path="/add-item" element={<AddItemPage />} />
                     <Route path="/user/items" element={<UserItemsPage />} />
                     <Route path="/user/items/:uuid" element={<ItemDetailPage />} />
+                    <Route path="/user/items/:uuid/edit" element={<EditItemPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/platform-settings/:platform" element={<PlatformSettingsPage />} />
                   </Route>

@@ -24,13 +24,16 @@ import {
   Trash2, 
   MoreVertical, 
   Loader2, 
-  CheckCircle2 
+  CheckCircle2,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getTranslations } from '@/components/language-utils';
 import { itemDetailTranslations } from '@/utils/translations/item-detail-translations';
-import { UserItem, Platform, PlatformPublishResult } from '@/types/item';
-import { duplicateItem, deleteItem } from '@/lib/api/items';
+import { UserItem, Platform, PlatformPublishResult, PlatformSyncStatus } from '@/types/item';
+import { duplicateItem, deleteItem, syncPlatformListings } from '@/lib/api/items';
+import { Badge } from '@/components/ui/badge';
 
 interface ItemActionsProps {
   item: UserItem;
@@ -74,6 +77,8 @@ export function ItemActions({
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showPlatformPicker, setShowPlatformPicker] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncingPlatform, setSyncingPlatform] = useState<Platform | 'all' | null>(null);
   
   const isDraft = item.status === 'draft' || item.stage === 'draft';
   const isPublished = item.stage === 'published' || (item.publish_results && item.publish_results.some((r: PlatformPublishResult) => r.status === 'success'));
@@ -90,9 +95,101 @@ export function ItemActions({
     platform => connectedPlatforms[platform] && !publishedPlatforms.has(platform)
   );
   
+  // Get dirty platforms that need syncing (only OLX and eBay support sync)
+  const syncablePlatforms: Platform[] = ['olx', 'ebay'];
+  const syncStatus = item.platform_sync_status || {};
+  const dirtyPlatforms = syncablePlatforms.filter(platform => {
+    const status = syncStatus[platform];
+    return publishedPlatforms.has(platform) && status?.dirty;
+  });
+  const hasDirtyPlatforms = dirtyPlatforms.length > 0;
+  
+  // Handler for syncing a single platform
+  const handleSyncPlatform = async (platform: Platform) => {
+    setIsSyncing(true);
+    setSyncingPlatform(platform);
+    try {
+      const response = await syncPlatformListings(item.uuid, [platform]);
+      const result = response.results?.[platform];
+      
+      if (result?.status === 'success') {
+        toast({
+          title: `✅ Synced to ${PLATFORM_CONFIG[platform].name}`,
+          description: result.message,
+        });
+        onRefresh?.();
+      } else {
+        const errorMsg = result?.message || result?.error || 'Unknown error';
+        toast({
+          title: `❌ Failed to sync to ${PLATFORM_CONFIG[platform].name}`,
+          description: errorMsg,
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: `❌ Failed to sync to ${PLATFORM_CONFIG[platform].name}`,
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSyncing(false);
+      setSyncingPlatform(null);
+    }
+  };
+  
+  // Handler for syncing all dirty platforms
+  const handleSyncAll = async () => {
+    if (dirtyPlatforms.length === 0) {
+      toast({
+        title: 'All platforms are up to date',
+        description: 'No changes need to be synced.',
+      });
+      return;
+    }
+    
+    setIsSyncing(true);
+    setSyncingPlatform('all');
+    try {
+      const response = await syncPlatformListings(item.uuid); // No platforms = sync all dirty
+      
+      const successCount = Object.values(response.results || {}).filter(r => r.status === 'success').length;
+      const errorCount = Object.values(response.results || {}).filter(r => r.status === 'error').length;
+      
+      if (errorCount === 0) {
+        toast({
+          title: `✅ Synced ${successCount} platform${successCount > 1 ? 's' : ''}`,
+          description: 'All changes have been synced.',
+        });
+      } else if (successCount > 0) {
+        toast({
+          title: `⚠️ Partially synced`,
+          description: `${successCount} succeeded, ${errorCount} failed`,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: `❌ Sync failed`,
+          description: response.detail || 'Failed to sync to all platforms',
+          variant: 'destructive',
+        });
+      }
+      onRefresh?.();
+    } catch (error) {
+      toast({
+        title: '❌ Sync failed',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSyncing(false);
+      setSyncingPlatform(null);
+    }
+  };
+  
   const handleEdit = () => {
-    // Navigate to edit page (reusing AddItemPage with existing data)
-    navigate(`/add-item?edit=${item.uuid}`);
+    // Navigate to dedicated edit page
+    navigate(`/user/items/${item.uuid}/edit`);
   };
   
   const handleDuplicate = async () => {
@@ -323,6 +420,23 @@ export function ItemActions({
           )
         )}
         
+        {/* Sync All button - only show if there are dirty platforms */}
+        {!isDraft && hasDirtyPlatforms && (
+          <SecondaryAction
+            size="lg"
+            onClick={handleSyncAll}
+            disabled={isSyncing}
+            className="flex items-center gap-2"
+          >
+            {isSyncing && syncingPlatform === 'all' ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            Sync All ({dirtyPlatforms.length})
+          </SecondaryAction>
+        )}
+        
         {/* Secondary actions in dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -348,6 +462,38 @@ export function ItemActions({
               )}
               {t.actions.duplicate}
             </DropdownMenuItem>
+            
+            {/* Sync options for published platforms */}
+            {!isDraft && syncablePlatforms.some(p => publishedPlatforms.has(p)) && (
+              <>
+                <DropdownMenuSeparator className="bg-neutral-700" />
+                {syncablePlatforms.map(platform => {
+                  if (!publishedPlatforms.has(platform)) return null;
+                  const isDirty = syncStatus[platform]?.dirty;
+                  const isSyncingThis = isSyncing && syncingPlatform === platform;
+                  return (
+                    <DropdownMenuItem
+                      key={`sync-${platform}`}
+                      onClick={() => handleSyncPlatform(platform)}
+                      disabled={isSyncing}
+                      className="cursor-pointer text-white"
+                    >
+                      {isSyncingThis ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                      )}
+                      Sync {PLATFORM_CONFIG[platform].name}
+                      {isDirty && (
+                        <Badge className="ml-2 bg-amber-500/20 text-amber-400 border-amber-500/50 text-xs">
+                          Changed
+                        </Badge>
+                      )}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </>
+            )}
             
             <DropdownMenuSeparator className="bg-neutral-700" />
             

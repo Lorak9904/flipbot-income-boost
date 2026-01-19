@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NavbarLogin, NavbarSignup, AddItemButton } from '@/components/ui/button-presets';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Menu, X, CreditCard } from 'lucide-react';
+import { Menu, X, CreditCard, Lightbulb, DollarSign, Trophy, Package, Link2, BookOpen, Video, HelpCircle, MoreHorizontal } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCredits } from '@/hooks/useCredits';
@@ -25,24 +25,25 @@ const Navbar = () => {
   const { data: credits } = useCredits();
   const t = getTranslations(navbarTranslations);
   const lang = getCurrentLanguage();
-  const flagCode = lang === 'pl' ? 'PL' : 'GB';
+  // Show TARGET language flag (if current is PL, show GB for switching to EN)
+  const flagCode = lang === 'pl' ? 'GB' : 'PL';
 
   const primaryNavItems = [
-    { name: t.howItWorks, path: '/how-it-works' },
-    { name: t.pricing, path: '/pricing' },
-    { name: t.successStories, path: '/success-stories' },
+    { name: t.howItWorks, path: '/how-it-works', icon: Lightbulb },
+    { name: t.pricing, path: '/pricing', icon: DollarSign },
+    { name: t.successStories, path: '/success-stories', icon: Trophy },
   ];
 
   const resourceItems = [
-    { name: t.guide, path: '/automated-reselling-platform-guide' },
-    { name: t.tutorials, path: '/articles' },
-    { name: t.faq, path: '/faq' },
+    { name: t.guide, path: '/automated-reselling-platform-guide', icon: BookOpen },
+    { name: t.tutorials, path: '/articles', icon: Video },
+    { name: t.faq, path: '/faq', icon: HelpCircle },
   ];
   
   const accountNavItems = isAuthenticated
     ? [
-        { name: t.myItems, path: '/user/items' },
-        { name: t.connectAccounts, path: '/connect-accounts' },
+        { name: t.myItems, path: '/user/items', icon: Package },
+        { name: t.connectAccounts, path: '/connect-accounts', icon: Link2 },
       ]
     : [];
 
@@ -50,6 +51,7 @@ const Navbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  // Mobile link class (text always visible)
   const linkClass = (path: string) =>
     `relative px-2 py-1 text-sm transition-colors ${
       isActive(path)
@@ -70,31 +72,61 @@ const Navbar = () => {
           </span>
         </Link>
 
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-6">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={linkClass(item.path)}
-            >
-              {item.name}
-            </Link>
-          ))}
+        {/* Desktop nav - Icon-first with hover text reveal */}
+        <div className="hidden md:flex items-center gap-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
+            return (
+              <Link
+                key={item.name}
+                to={item.path}
+                className="group relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg transition-all hover:bg-neutral-800/50"
+              >
+                {Icon && (
+                  <Icon 
+                    className={`h-5 w-5 transition-colors ${
+                      active ? 'text-cyan-400' : 'text-neutral-300 group-hover:text-white'
+                    }`} 
+                  />
+                )}
+                <span 
+                  className={`text-xs font-medium transition-all duration-200 ease-out ${
+                    active 
+                      ? 'opacity-100 max-h-4 text-cyan-400' 
+                      : 'opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-4 text-neutral-300 group-hover:text-white'
+                  }`}
+                >
+                  {item.name}
+                </span>
+              </Link>
+            );
+          })}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-neutral-300 hover:text-white hover:bg-neutral-800/50">
-                {t.resources}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="group relative flex flex-col items-center gap-0.5 px-3 py-2 h-auto text-neutral-300 hover:text-white hover:bg-neutral-800/50"
+              >
+                <MoreHorizontal className="h-5 w-5 transition-colors group-hover:text-white" />
+                <span className="text-xs font-medium opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-4 transition-all duration-200 ease-out">
+                  {t.resources}
+                </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-700">
-              {resourceItems.map((item) => (
-                <DropdownMenuItem key={item.name} className="text-neutral-200 hover:text-white">
-                  <Link to={item.path} className="w-full block">
-                    {item.name}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
+              {resourceItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <DropdownMenuItem key={item.name} className="text-neutral-200 hover:text-white">
+                    <Link to={item.path} className="w-full flex items-center gap-2">
+                      {Icon && <Icon className="h-4 w-4" />}
+                      {item.name}
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -239,29 +271,41 @@ const Navbar = () => {
                 </TooltipProvider>
               )}
               
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={linkClass(item.path)}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    className={linkClass(item.path)}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <span className="flex items-center gap-2">
+                      {Icon && <Icon className="h-4 w-4" />}
+                      {item.name}
+                    </span>
+                  </Link>
+                );
+              })}
               <div className="pt-1">
                 <p className="text-xs uppercase tracking-[0.25em] text-neutral-500 px-1">{t.resources}</p>
                 <div className="flex flex-col">
-                  {resourceItems.map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.path}
-                      className={linkClass(item.path)}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
+                  {resourceItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.path}
+                        className={linkClass(item.path)}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <span className="flex items-center gap-2">
+                          {Icon && <Icon className="h-4 w-4" />}
+                          {item.name}
+                        </span>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
               

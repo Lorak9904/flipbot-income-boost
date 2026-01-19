@@ -40,6 +40,7 @@ export interface GeneratedItemData {
   size?: string;
   gender?: string;
   draft_id?: string;
+  platform_listing_overrides?: PlatformOverrides;
   priceRange: {
     min: string;
     max: string;
@@ -48,6 +49,25 @@ export interface GeneratedItemData {
 }
 
 export type Platform = 'facebook' | 'olx' | 'vinted' | 'ebay';
+
+export interface PlatformOverrides {
+  olx?: {
+    category_id?: number | string;
+    /** Dynamic attribute values (key -> value) fetched from platform metadata */
+    attributes?: Record<string, string | number>;
+  };
+  vinted?: {
+    catalog_id?: number | string;
+    field_mappings?: Record<string, VintedFieldMapping>;
+  };
+  ebay?: {
+    category_path?: string;
+    category_id?: string;
+    /** Dynamic attribute values (aspects) for eBay */
+    attributes?: Record<string, string | number>;
+  };
+  [key: string]: unknown;
+}
 
 // Backend API types for user items
 export type ItemStatus = 'draft' | 'active' | 'inactive' | 'sold' | 'expired' | 'removed' | 'blocked';
@@ -67,6 +87,13 @@ export interface PlatformPublishResult {
   post_id?: string;
   error_message?: string;
   published_at?: string;
+}
+
+/** Per-platform sync status (dirty/clean + timestamps) */
+export interface PlatformSyncStatus {
+  dirty: boolean;
+  last_synced_at?: string | null;
+  last_payload_hash?: string | null;
 }
 
 export interface UserItem {
@@ -94,6 +121,9 @@ export interface UserItem {
   weight_kg?: number;
   shipping_advice?: Record<string, unknown>;
   catalog_path?: string;
+  platform_listing_overrides?: PlatformOverrides;
+  /** Per-platform sync status: {platform: {dirty, last_synced_at, last_payload_hash}} */
+  platform_sync_status?: Record<Platform, PlatformSyncStatus>;
 }
 
 export interface UserItemsListResponse {

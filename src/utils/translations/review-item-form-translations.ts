@@ -7,6 +7,10 @@ export const reviewItemFormTranslations = {
       successTitle: "Success!",
       publishedSuccess: "Published to {platform} successfully.",
       publishError: "Error publishing to {platform}",
+      updateLocalSuccess: "Item updated successfully.",
+      updatedSuccess: "Updated on {platform} successfully.",
+      updateError: "Error updating {platform}",
+      updateErrorDesc: "Failed to update listing on platform.",
       generalSuccess: "Your item has been published successfully",
       errorTitle: "Error",
       errorDesc: "Failed to publish item. Please try again.",
@@ -17,7 +21,9 @@ export const reviewItemFormTranslations = {
       images: "Images",
       itemDetails: "Item Details",
       productAttributes: "Product Attributes",
+      platformOverrides: "Platform Overrides",
       publishPlatforms: "Publish to Platforms",
+      updatePlatforms: "Update on Platforms",
     },
     
     // Form Labels
@@ -30,6 +36,9 @@ export const reviewItemFormTranslations = {
       size: "Size",
       gender: "Gender",
       price: "Price",
+      olxCategoryId: "OLX Category ID",
+      vintedCatalogId: "Vinted Catalog ID",
+      ebayCategoryPath: "eBay Category Path",
     },
     
     // Helper Text
@@ -43,6 +52,8 @@ export const reviewItemFormTranslations = {
       back: "Back",
       publishing: "Publishing...",
       publish: "Publish Item",
+      updating: "Updating...",
+      update: "Update Item",
     },
     
     // Platform Names (for capitalization)
@@ -62,6 +73,10 @@ export const reviewItemFormTranslations = {
       successTitle: "Sukces!",
       publishedSuccess: "Opublikowano na {platform}.",
       publishError: "Błąd publikacji na {platform}",
+      updateLocalSuccess: "Przedmiot został zaktualizowany.",
+      updatedSuccess: "Zaktualizowano na {platform}.",
+      updateError: "Błąd aktualizacji na {platform}",
+      updateErrorDesc: "Nie udało się zaktualizować ogłoszenia na platformie.",
       generalSuccess: "Przedmiot został opublikowany.",
       errorTitle: "Błąd",
       errorDesc: "Nie udało się opublikować przedmiotu. Spróbuj ponownie.",
@@ -72,7 +87,9 @@ export const reviewItemFormTranslations = {
       images: "Zdjęcia",
       itemDetails: "Szczegóły przedmiotu",
       productAttributes: "Atrybuty produktu",
+      platformOverrides: "Nadpisania platform",
       publishPlatforms: "Publikuj na platformach",
+      updatePlatforms: "Aktualizuj na platformach",
     },
     
     // Etykiety formularza
@@ -85,6 +102,9 @@ export const reviewItemFormTranslations = {
       size: "Rozmiar",
       gender: "Płeć",
       price: "Cena",
+      olxCategoryId: "ID kategorii OLX",
+      vintedCatalogId: "ID katalogu Vinted",
+      ebayCategoryPath: "Ścieżka kategorii eBay",
     },
     
     // Tekst pomocniczy
@@ -98,6 +118,8 @@ export const reviewItemFormTranslations = {
       back: "Wstecz",
       publishing: "Publikowanie...",
       publish: "Opublikuj przedmiot",
+      updating: "Aktualizowanie...",
+      update: "Zaktualizuj przedmiot",
     },
     
     // Nazwy platform

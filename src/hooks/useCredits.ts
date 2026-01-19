@@ -8,8 +8,10 @@ export function useCredits(): UseQueryResult<CreditsBalance, Error> {
   return useQuery({
     queryKey: ['credits'],
     queryFn: fetchCreditsBalance,
-    refetchInterval: 60000, // Refresh every minute to keep balance updated
-    staleTime: 30000, // Consider data stale after 30 seconds
+    // Keep credits fresh on focus or explicit invalidation; avoid constant polling.
+    staleTime: 300000, // 5 minutes
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });

@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { fetchItemDetail } from '@/lib/api/items';
-import { UserItem } from '@/types/item';
+import { deletePlatformListings, fetchItemDetail } from '@/lib/api/items';
+import { Platform, UserItem } from '@/types/item';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BackButtonGradient, BackButtonGhost } from '@/components/ui/button-presets';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, ArrowLeft, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Loader2, ArrowLeft, CheckCircle2, XCircle, Clock, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
 import { format } from 'date-fns';
@@ -17,6 +19,8 @@ import { ImagePreview } from '@/components/ImagePreview';
 import { ItemActions } from '@/components/ItemActions';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import { getTranslations } from '@/components/language-utils';
+import { itemDetailTranslations } from '@/utils/translations/item-detail-translations';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -32,6 +36,7 @@ const ItemDetailPage = () => {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const t = getTranslations(itemDetailTranslations);
 
   const [item, setItem] = useState<UserItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,6 +45,8 @@ const ItemDetailPage = () => {
   // Image preview state
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
+  const [deletePlatform, setDeletePlatform] = useState<Platform | null>(null);
+  const [isDeletingPlatform, setIsDeletingPlatform] = useState(false);
 
   // Fetch connected platforms for action buttons
   const { data: connectedPlatforms } = useQuery({
@@ -97,6 +104,36 @@ const ItemDetailPage = () => {
 
     loadItem();
   }, [isAuthenticated, uuid, navigate, toast]);
+
+  const handleDeletePlatform = async () => {
+    if (!uuid || !deletePlatform) return;
+    setIsDeletingPlatform(true);
+    try {
+      await deletePlatformListings(uuid, [deletePlatform]);
+      toast({
+        title: t.toasts.deletePlatformSuccess.replace('{platform}', formatPlatformLabel(deletePlatform)),
+      });
+      const itemData = await fetchItemDetail(uuid);
+      setItem(itemData);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : t.toasts.deletePlatformError.replace('{platform}', formatPlatformLabel(deletePlatform));
+      toast({
+        title: t.toasts.deletePlatformError.replace('{platform}', formatPlatformLabel(deletePlatform)),
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeletingPlatform(false);
+      setDeletePlatform(null);
+    }
+  };
+
+  const formatPlatformLabel = (platform: Platform) => {
+    if (platform === 'ebay') return 'eBay';
+    if (platform === 'olx') return 'OLX';
+    if (platform === 'facebook') return 'Facebook';
+    return platform.charAt(0).toUpperCase() + platform.slice(1);
+  };
 
   if (authLoading || loading) {
     return (
@@ -401,6 +438,7 @@ const ItemDetailPage = () => {
                         const isSuccess = result.status === 'success' || result.success;
                         const isPending = result.status === 'pending';
                         const isError = result.status === 'error' || result.error_message;
+                        const canRemove = isSuccess && (result.platform === 'olx' || result.platform === 'ebay');
                         
                         return (
                           <Card 
@@ -408,7 +446,7 @@ const ItemDetailPage = () => {
                             className="bg-neutral-800/30 border-neutral-700"
                           >
                             <CardContent className="pt-4">
-                              <div className="flex items-start justify-between">
+                              <div className="flex items-start justify-between gap-4">
                                 <div className="flex items-start gap-3 flex-1">
                                   {isSuccess ? (
                                     <CheckCircle2 className="h-5 w-5 text-emerald-400 mt-0.5" />
@@ -500,6 +538,17 @@ const ItemDetailPage = () => {
                                     })()}
                                   </div>
                                 </div>
+                                {canRemove && (
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    className="shrink-0"
+                                    onClick={() => setDeletePlatform(result.platform as Platform)}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    {t.actions.deleteFromPlatform}
+                                  </Button>
+                                )}
                               </div>
                             </CardContent>
                           </Card>
@@ -516,6 +565,28 @@ const ItemDetailPage = () => {
       </div>
 
       {/* Image Preview Modal */}
+      <Dialog open={!!deletePlatform} onOpenChange={(open) => !open && setDeletePlatform(null)}>
+        <DialogContent className="bg-neutral-900 border-neutral-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">{t.confirmations.deletePlatformTitle}</DialogTitle>
+            <DialogDescription className="text-neutral-400">
+              {deletePlatform
+                ? t.confirmations.deletePlatformDescription.replace('{platform}', formatPlatformLabel(deletePlatform))
+                : t.confirmations.deletePlatformDescription.replace('{platform}', '')}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setDeletePlatform(null)} disabled={isDeletingPlatform}>
+              {t.confirmations.deleteCancel}
+            </Button>
+            <Button variant="destructive" onClick={handleDeletePlatform} disabled={isDeletingPlatform}>
+              {isDeletingPlatform && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {t.confirmations.deletePlatformConfirm}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {item?.images && item.images.length > 0 && (
         <ImagePreview
           images={item.images.map(img => resolveItemImageUrl(img) || '').filter(Boolean)}

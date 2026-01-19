@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -12,12 +12,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getTranslations, getCurrentLanguage } from '@/components/language-utils';
 import { addItemFormTranslations } from '@/utils/translations/add-item-form-translations';
 import { useCredits } from '@/hooks/useCredits';
+import { useQueryClient } from '@tanstack/react-query';
 import { InsufficientCreditsAlert } from '@/components/credits';
 import { parseInsufficientCreditsError, parseErrorResponse } from '@/lib/api/error-handler';
 
 interface AddItemFormProps {
   onComplete: (generatedData: GeneratedItemDataWithVinted) => void;
   language?: string;
+  initialData?: Partial<GeneratedItemDataWithVinted>;
 }
 
 /**
@@ -25,7 +27,7 @@ interface AddItemFormProps {
  * backend, instead of re‑uploading binary data. This dramatically reduces
  * payload size and lets the server (or GPT‑4o Vision) fetch the images directly.
  */
-const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
+const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<ItemImage[]>([]);
@@ -36,6 +38,7 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
   } | null>(null);
   const { user } = useAuth();
   const { data: credits } = useCredits();
+  const queryClient = useQueryClient();
   const t = getTranslations(addItemFormTranslations);
 
   const {
@@ -44,10 +47,16 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
     formState: { errors },
   } = useForm<ItemFormData>({
     defaultValues: {
-      title: '',
-      expected_price: '',
+      title: initialData?.title || '',
+      expected_price: initialData?.price || '',
     },
   });
+
+  useEffect(() => {
+    if (initialData?.images && initialData.images.length > 0) {
+      setImages(initialData.images);
+    }
+  }, [initialData]);
 
   const onSubmit = async (data: ItemFormData) => {
     if (images.length === 0) {
@@ -117,6 +126,7 @@ const AddItemForm = ({ onComplete, language }: AddItemFormProps) => {
       }
 
       const generatedData = await response.json();
+      queryClient.invalidateQueries({ queryKey: ['credits'] });
 
       console.log('📦 /propose API Response:', generatedData);
 
