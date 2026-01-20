@@ -288,8 +288,8 @@ const Navbar = () => {
                 );
               })}
               <div className="pt-1">
-                <p className="text-xs uppercase tracking-[0.25em] text-neutral-500 px-1">{t.resources}</p>
-                <div className="flex flex-col">
+                <p className="text-xs uppercase tracking-[0.25em] text-neutral-500 px-1 mb-2">{t.resources}</p>
+                <div className="flex flex-col gap-2">
                   {resourceItems.map((item) => {
                     const Icon = item.icon;
                     return (
