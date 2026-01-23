@@ -8,6 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Loader2, Copy, Info, Clipboard, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -241,16 +243,16 @@ export const ConnectPlatformModal = ({
           </div>
 
           {/* Cookies Input */}
-          <div className="relative overflow-hidden">
-            <textarea
-              className="w-full p-3 border border-slate-600 bg-slate-800/60 rounded-lg text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+          <div className="relative">
+            <Textarea
               rows={4}
               placeholder={config.cookiePlaceholder}
               value={manualCookies}
               onChange={(e) => setManualCookies(e.target.value)}
               required
+              className="resize-none pr-10 text-foreground"
             />
-            <Clipboard className="absolute right-3 top-3 text-slate-400 h-5 w-5" />
+            <Clipboard className="absolute right-3 top-3 text-muted-foreground h-5 w-5 pointer-events-none" />
           </div>
 
           {/* DTSG Section (Facebook only) */}
@@ -373,14 +375,14 @@ export const ConnectPlatformModal = ({
                 )}
               </div>
 
-              <div className="relative overflow-hidden">
-                <input
+              <div className="relative">
+                <Input
                   type="text"
-                  className="w-full p-3 border border-slate-600 bg-slate-800/60 rounded-lg text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   placeholder="Paste your dtsg token here..."
                   value={manualDtsg}
                   onChange={(e) => setManualDtsg(e.target.value)}
                   required={config.showDtsg}
+                  className="text-foreground"
                 />
               </div>
             </>
