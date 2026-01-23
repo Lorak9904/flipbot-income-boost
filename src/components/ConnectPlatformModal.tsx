@@ -15,7 +15,7 @@ import { getTranslations } from '@/components/language-utils';
 import { connectCardTranslations } from './connect-card-translations';
 
 interface ConnectPlatformModalProps {
-  platform: 'facebook' | 'olx' | 'vinted' | 'ebay';
+  platform: 'facebook' | 'vinted';  // Only cookie-based platforms (OLX and eBay use OAuth)
   platformName: string;
   isOpen: boolean;
   onClose: () => void;
@@ -28,20 +28,10 @@ const platformConfig = {
     cookiePlaceholder: 'Paste Facebook cookies here...',
     howToConnectVideoId: null as string | null,
   },
-  olx: {
-    showDtsg: false,
-    cookiePlaceholder: 'Paste OLX cookies here...',
-    howToConnectVideoId: null as string | null,
-  },
   vinted: {
     showDtsg: false,
     cookiePlaceholder: 'Paste Vinted cookies here...',
     howToConnectVideoId: 'GxClZgY53_k',
-  },
-  ebay: {
-    showDtsg: false,
-    cookiePlaceholder: 'Not used for eBay (OAuth flow)',
-    howToConnectVideoId: null as string | null,
   },
 };
 
@@ -82,6 +72,13 @@ export const ConnectPlatformModal = ({
   };
 
   const config = platformConfig[platform];
+
+  // Safety check: OLX and eBay use OAuth, not manual cookie connection
+  if (!config) {
+    console.error(`Platform '${platform}' should use OAuth, not manual connection modal`);
+    onClose();
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

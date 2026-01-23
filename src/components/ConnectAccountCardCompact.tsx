@@ -146,10 +146,32 @@ const ConnectAccountCard = ({
     }
   };
 
+  // Handle OLX OAuth connection
+  const handleOlxConnect = async () => {
+    const token = localStorage.getItem('flipit_token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+    
+    setIsConnectingEbay(true); // Reuse loading state
+    try {
+      const { getOlxConnectUrl } = await import('@/lib/api/olx');
+      const data = await getOlxConnectUrl();
+      window.location.href = data.auth_url;
+    } catch (error) {
+      console.error('Failed to get OLX connect URL:', error);
+      toast.error('Failed to connect to OLX. Please try again.');
+      setIsConnectingEbay(false);
+    }
+  };
+
   // Handle platform-specific connection
   const handleConnect = () => {
     if (platform === 'ebay') {
       handleEbayConnect();
+    } else if (platform === 'olx') {
+      handleOlxConnect();
     } else {
       setShowConnectModal(true);
     }
@@ -336,14 +358,16 @@ const ConnectAccountCard = ({
         </Card>
       </motion.div>
 
-      {/* Connect Modal */}
-      <ConnectPlatformModal
-        platform={platform}
-        platformName={platformName}
-        isOpen={showConnectModal}
-        onClose={() => setShowConnectModal(false)}
-        onSuccess={handleConnectionSuccess}
-      />
+      {/* Connect Modal - Only for cookie-based platforms (Facebook, Vinted) */}
+      {(platform === 'facebook' || platform === 'vinted') && (
+        <ConnectPlatformModal
+          platform={platform}
+          platformName={platformName}
+          isOpen={showConnectModal}
+          onClose={() => setShowConnectModal(false)}
+          onSuccess={handleConnectionSuccess}
+        />
+      )}
     </>
   );
 };
