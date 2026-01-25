@@ -193,34 +193,34 @@ const ItemDetailPage = () => {
           custom={1}
         >
           <Card className="bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
-            <CardHeader>
-              <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-2">
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <CardTitle className="text-2xl sm:text-3xl text-white break-words">{item.title}</CardTitle>
-                  <div className="flex items-center gap-2 mt-2">
+                  <CardTitle className="text-xl sm:text-2xl text-white break-words">{item.title}</CardTitle>
+                  {item.stage && (
                     <Badge
-                      className={item.stage === 'published' 
-                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50 text-sm px-2 py-0.5' 
-                        : 'bg-neutral-700/50 text-neutral-300 border-neutral-600 text-sm px-2 py-0.5'}
+                      className={`mt-2 ${item.stage === 'published' 
+                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' 
+                        : 'bg-neutral-700/50 text-neutral-300 border-neutral-600'} text-sm px-2 py-0.5`}
                     >
                       {item.stage}
                     </Badge>
-                  </div>
+                  )}
                 </div>
-                <div className="flex-shrink-0 w-full sm:w-auto">
+                <div className="flex-shrink-0">
                   <ItemActions 
                     item={item} 
                     connectedPlatforms={connectedPlatforms || {}}
                     onRefresh={() => {
-                      // Reload item data
                       if (uuid) {
                         fetchItemDetail(uuid).then(setItem).catch(console.error);
                       }
                     }}
+                    variant="compact"
                   />
                 </div>
               </div>
-              <CardDescription className="text-base text-neutral-400">
+              <CardDescription className="text-sm sm:text-base text-neutral-400 mt-4">
                 {item.description}
               </CardDescription>
             </CardHeader>
@@ -228,23 +228,28 @@ const ItemDetailPage = () => {
               {/* Images */}
               {item.images && item.images.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3 text-white">Images</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Images</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {item.images.map((image, index) => {
                       const imageUrl = resolveItemImageUrl(image);
                       if (!imageUrl) return null;
                       return (
-                        <img
+                        <button
                           key={`${imageUrl}-${index}`}
-                          src={cdnThumb(imageUrl)}
-                          alt={`${item.title} - ${index + 1}`}
-                          className="w-full h-48 object-cover rounded-md border border-neutral-800 cursor-pointer hover:opacity-80 hover:ring-2 hover:ring-cyan-400/50 transition-all"
-                          loading="lazy"
+                          type="button"
                           onClick={() => {
                             setPreviewIndex(index);
                             setPreviewOpen(true);
                           }}
-                        />
+                          className="relative aspect-square w-full rounded-lg overflow-hidden border border-neutral-800 hover:border-cyan-400/50 transition-all focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                        >
+                          <img
+                            src={cdnThumb(imageUrl)}
+                            alt={`${item.title} - ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </button>
                       );
                     })}
                   </div>
@@ -254,17 +259,17 @@ const ItemDetailPage = () => {
               <Separator className="my-6 bg-neutral-800" />
 
               {/* Item Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 text-white">Details</h3>
-                  <dl className="space-y-2">
-                    <div className="flex justify-between">
-                      <dt className="text-neutral-400">UUID:</dt>
+              <div className="mb-6">
+                <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Details</h3>
+                <div className="bg-neutral-800/50 rounded-lg p-4 space-y-3">
+                  <dl className="space-y-2.5">
+                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                      <dt className="text-sm text-neutral-400">UUID:</dt>
                       <dd className="font-mono text-xs text-neutral-300 break-all">{item.uuid}</dd>
                     </div>
-                    <div className="flex justify-between">
-                      <dt className="text-neutral-400">Status:</dt>
-                      <dd className="font-medium text-white">
+                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                      <dt className="text-sm text-neutral-400">Status:</dt>
+                      <dd className="flex items-center">
                         <Badge className={
                           item.status === 'active' 
                             ? 'bg-green-500/20 text-green-400 border-green-500/50'
@@ -279,68 +284,73 @@ const ItemDetailPage = () => {
                         </Badge>
                       </dd>
                     </div>
-                    <div className="flex justify-between">
-                      <dt className="text-neutral-400">Price:</dt>
-                      <dd className="font-semibold text-xl bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                      <dt className="text-sm text-neutral-400">Price:</dt>
+                      <dd className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
                         ${item.price}
                       </dd>
                     </div>
                     {item.brand && (
-                      <div className="flex justify-between">
-                        <dt className="text-neutral-400">Brand:</dt>
-                        <dd className="font-medium text-white">{item.brand}</dd>
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                        <dt className="text-sm text-neutral-400">Brand:</dt>
+                        <dd className="text-neutral-300">{item.brand}</dd>
                       </div>
                     )}
                     {item.condition && (
-                      <div className="flex justify-between">
-                        <dt className="text-neutral-400">Condition:</dt>
-                        <dd className="font-medium text-white">{item.condition}</dd>
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                        <dt className="text-sm text-neutral-400">Condition:</dt>
+                        <dd className="text-neutral-300">{item.condition}</dd>
                       </div>
                     )}
                     {item.category && (
-                      <div className="flex justify-between">
-                        <dt className="text-neutral-400">Category:</dt>
-                        <dd className="font-medium text-white">{item.category}</dd>
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                        <dt className="text-sm text-neutral-400">Category:</dt>
+                        <dd className="text-neutral-300">{item.category}</dd>
                       </div>
                     )}
                     {item.size && (
-                      <div className="flex justify-between">
-                        <dt className="text-neutral-400">Size:</dt>
-                        <dd className="font-medium text-white">{item.size}</dd>
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                        <dt className="text-sm text-neutral-400">Size:</dt>
+                        <dd className="text-neutral-300">{item.size}</dd>
                       </div>
                     )}
                     {item.gender && (
-                      <div className="flex justify-between">
-                        <dt className="text-neutral-400">Gender:</dt>
-                        <dd className="font-medium text-white">{item.gender}</dd>
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                        <dt className="text-sm text-neutral-400">Gender:</dt>
+                        <dd className="text-neutral-300">{item.gender}</dd>
                       </div>
                     )}
                   </dl>
                 </div>
+              </div>
 
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 text-white">Timestamps</h3>
-                  <dl className="space-y-2">
+              <Separator className="my-6 bg-neutral-800" />
+
+              {/* Timestamps */}
+              <div className="mb-6">
+                <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Timestamps</h3>
+                <div className="bg-neutral-800/50 rounded-lg p-4 space-y-3">
+                  <dl className="space-y-2.5">
                     {item.created_at && (
-                      <div className="flex justify-between">
-                        <dt className="text-neutral-400">Created:</dt>
-                        <dd className="font-medium text-white">
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                        <dt className="text-sm text-neutral-400">Created:</dt>
+                        <dd className="text-neutral-300">
                           {format(new Date(item.created_at), 'PPp')}
                         </dd>
                       </div>
                     )}
                     {item.updated_at && (
-                      <div className="flex justify-between">
-                        <dt className="text-neutral-400">Updated:</dt>
-                        <dd className="font-medium text-white">
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                        <dt className="text-sm text-neutral-400">Updated:</dt>
+                        <dd className="text-neutral-300">
                           {format(new Date(item.updated_at), 'PPp')}
                         </dd>
                       </div>
                     )}
                     {item.published_at && (
-                      <div className="flex justify-between">
-                        <dt className="text-neutral-400">Published:</dt>
-                        <dd className="font-medium text-white">
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                        <dt className="text-sm text-neutral-400">Published:</dt>
+                        <dd className="text-neutral-300">
                           {format(new Date(item.published_at), 'PPp')}
                         </dd>
                       </div>
@@ -355,7 +365,7 @@ const ItemDetailPage = () => {
               {(item.description_full || item.weight_kg || item.dimensions_cm || item.shipping_advice || item.catalog_path) && (
                 <>
                   <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-3 text-white">Enriched Analysis</h3>
+                    <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Enriched Analysis</h3>
                     
                     {item.description_full && (
                       <div className="mb-4">
@@ -414,7 +424,7 @@ const ItemDetailPage = () => {
 
               {/* Platforms */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-3 text-white">Target Platforms</h3>
+                <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Target Platforms</h3>
                 <div className="flex gap-2">
                   {(Array.isArray(item.platforms) ? item.platforms : []).map((platform) => (
                     <Badge 
@@ -432,7 +442,7 @@ const ItemDetailPage = () => {
                 <>
                   <Separator className="my-6 bg-neutral-800" />
                   <div>
-                    <h3 className="text-lg font-semibold mb-3 text-white">Publish Results</h3>
+                    <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Publishing Status</h3>
                     <div className="space-y-3">
                       {item.publish_results.map((result) => {
                         const isSuccess = result.status === 'success' || result.success;
@@ -446,8 +456,8 @@ const ItemDetailPage = () => {
                             className="bg-neutral-800/30 border-neutral-700"
                           >
                             <CardContent className="pt-4">
-                              <div className="flex items-start justify-between gap-4">
-                                <div className="flex items-start gap-3 flex-1">
+                              <div className="flex flex-col sm:flex-row items-start gap-3">
+                                <div className="flex items-start gap-3 flex-1 min-w-0">
                                   {isSuccess ? (
                                     <CheckCircle2 className="h-5 w-5 text-emerald-400 mt-0.5" />
                                   ) : isError ? (
@@ -542,11 +552,11 @@ const ItemDetailPage = () => {
                                   <Button
                                     variant="destructive"
                                     size="sm"
-                                    className="shrink-0"
+                                    className="w-full sm:w-auto shrink-0"
                                     onClick={() => setDeletePlatform(result.platform as Platform)}
                                   >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    {t.actions.deleteFromPlatform}
+                                    <Trash2 className="h-4 w-4 sm:mr-2" />
+                                    <span className="sm:inline">{t.actions.deleteFromPlatform}</span>
                                   </Button>
                                 )}
                               </div>

@@ -382,13 +382,15 @@ const UserItemsPage = () => {
                         <CardTitle className="text-lg line-clamp-2 text-white">
                           {item.title}
                         </CardTitle>
-                        <Badge
-                          className={item.stage === 'published' 
-                            ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' 
-                            : 'bg-neutral-700/50 text-neutral-300 border-neutral-600'}
-                        >
-                          {item.stage}
-                        </Badge>
+                        {item.stage && (
+                          <Badge
+                            className={item.stage === 'published' 
+                              ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' 
+                              : 'bg-neutral-700/50 text-neutral-300 border-neutral-600'}
+                          >
+                            {item.stage}
+                          </Badge>
+                        )}
                       </div>
                       <CardDescription className="line-clamp-2 text-neutral-400">
                         {item.description}

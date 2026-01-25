@@ -221,7 +221,7 @@ const EditItemPage = () => {
     }
   };
 
-  const isPublished = item?.stage === 'published' || item?.status === 'active';
+  const isPublished = item?.stage === 'published';
   const lastUpdated = item?.updated_at;
   const lastPublished = item?.published_at;
   const hasUnpublishedChanges =

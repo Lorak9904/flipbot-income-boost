@@ -80,8 +80,8 @@ export function ItemActions({
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncingPlatform, setSyncingPlatform] = useState<Platform | 'all' | null>(null);
   
-  const isDraft = item.status === 'draft' || item.stage === 'draft';
-  const isPublished = item.stage === 'published' || (item.publish_results && item.publish_results.some((r: PlatformPublishResult) => r.status === 'success'));
+  const isDraft = item.stage === 'draft';
+  const isPublished = item.stage === 'published';
   
   // Get platforms already published to
   const publishedPlatforms = new Set(

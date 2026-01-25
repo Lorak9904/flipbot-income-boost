@@ -429,81 +429,89 @@ const handleSubmit = async (e: React.FormEvent) => {
         />
       </div>
       
-      <div className="space-y-4 ">
-        <h3 className="text-lg font-medium text-neutral-300">{t.sections.itemDetails}</h3>
+      <div className="space-y-4">
+        <h3 className="text-base sm:text-lg font-medium text-neutral-300">{t.sections.itemDetails}</h3>
         
-        <div>
-          <Label htmlFor="title" className="text-neutral-300">{t.labels.title}</Label>
+        <div className="space-y-2">
+          <Label htmlFor="title" className="text-sm font-medium text-neutral-300">{t.labels.title}</Label>
           <Input 
             id="title"
             value={data.title}
             onChange={(e) => updateField('title', e.target.value)}
             disabled={isSubmitting}
             required
+            className="h-12 text-base"
           />
         </div>
         
-        <div>
-          <Label htmlFor="description" className="text-neutral-300">{t.labels.description}</Label>
+        <div className="space-y-2">
+          <Label htmlFor="description" className="text-sm font-medium text-neutral-300">{t.labels.description}</Label>
           <Textarea 
             id="description" 
             value={data.description}
             onChange={(e) => updateField('description', e.target.value)}
-            className="min-h-[150px]"
+            className="min-h-[200px] sm:min-h-[150px] text-base resize-y"
             disabled={isSubmitting}
             required
           />
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="brand" className="text-neutral-300">{t.labels.brand}</Label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="brand" className="text-sm font-medium text-neutral-300">{t.labels.brand}</Label>
             <Input
               id="brand"
               value={data.brand ?? ''}
               onChange={(e) => updateField('brand', e.target.value)}
               disabled={isSubmitting}
+              className="h-12 text-base"
             />
           </div>
 
-          <div>
-            <Label htmlFor="condition" className="text-neutral-300">{t.labels.condition}</Label>
+          <div className="space-y-2">
+            <Label htmlFor="condition" className="text-sm font-medium text-neutral-300">{t.labels.condition}</Label>
             <Input
               id="condition"
               value={data.condition ?? ''}
               onChange={(e) => updateField('condition', e.target.value)}
               disabled={isSubmitting}
+              className="h-12 text-base"
             />
           </div>
 
-          <div>
-            <Label htmlFor="category" className="text-neutral-300">{t.labels.category}</Label>
+          <div className="space-y-2">
+            <Label htmlFor="category" className="text-sm font-medium text-neutral-300">{t.labels.category}</Label>
             <Input
               id="category"
               value={data.category ?? ''}
               onChange={(e) => updateField('category', e.target.value)}
               disabled={isSubmitting}
+              className="h-12 text-base"
             />
           </div>
 
-          <div>
-            <Label htmlFor="size" className="text-neutral-300">{t.labels.size}</Label>
+          <div className="space-y-2">
+            <Label htmlFor="size" className="text-sm font-medium text-neutral-300">{t.labels.size}</Label>
             <Input
               id="size"
               value={data.size ?? ''}
               onChange={(e) => updateField('size', e.target.value)}
               disabled={isSubmitting}
+              className="h-12 text-base"
             />
           </div>
 
-          <div>
-            <Label htmlFor="price" className="text-neutral-300">{t.labels.price}</Label>
+          <div className="space-y-2">
+            <Label htmlFor="price" className="text-sm font-medium text-neutral-300">{t.labels.price}</Label>
             <Input 
               id="price" 
+              type="number"
               value={data.price}
               onChange={(e) => updateField('price', e.target.value)}
               disabled={isSubmitting}
               required
+              className="h-12 text-base"
+              inputMode="decimal"
             />
             {data.priceRange.min && data.priceRange.max && (
               <p className="text-xs text-slate-500 mt-1">
@@ -528,9 +536,9 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
       )}
       <div className="space-y-4 border-t border-neutral-700 pt-6">
-        <h3 className="text-lg font-medium text-neutral-300">{t.sections.platformOverrides}</h3>
+        <h3 className="text-base sm:text-lg font-medium text-neutral-300">{t.sections.platformOverrides}</h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="olx-category-id" className="text-neutral-300">
               {t.labels.olxCategoryId}
@@ -561,14 +569,14 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       {/* Per-Platform Customization Cards (Task 2) */}
       <div className="space-y-4 border-t border-neutral-700 pt-6">
-        <h3 className="text-lg font-medium text-neutral-300">
+        <h3 className="text-base sm:text-lg font-medium text-neutral-300">
           {t.sections.platformOverrides || 'Platform Customization'}
         </h3>
         <p className="text-sm text-neutral-400">
           Optionally customize category mapping and required attributes for each platform.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-4 sm:space-y-0">
           {/* OLX Platform Override Card */}
           <PlatformOverrideCard
             platform="olx"
@@ -601,44 +609,58 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       {/* Platform Selection - Unified for both original publish and re-publishing */}
       {isPublishIntent && availablePublishPlatforms.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-neutral-300">{t.sections.publishPlatforms}</h3>
+        <div className="space-y-4 border-t border-neutral-700 pt-6">
+          <h3 className="text-base sm:text-lg font-medium text-neutral-300">{t.sections.publishPlatforms}</h3>
           
-          <div className="flex flex-col gap-3">
+          <div className="space-y-3">
             {availablePublishPlatforms.map((typedPlatform) => {
               const isConnected = connectedPlatforms[typedPlatform];
               const platformName =
                 t.platforms[typedPlatform] || typedPlatform.charAt(0).toUpperCase() + typedPlatform.slice(1);
               return (
-                <div key={typedPlatform} className="flex items-center space-x-2 text-neutral-300">
+                <label
+                  key={typedPlatform}
+                  htmlFor={`platform-${typedPlatform}`}
+                  className={`flex items-center gap-3 p-4 rounded-lg border transition-all cursor-pointer min-h-[56px] ${
+                    selectedPlatforms.includes(typedPlatform)
+                      ? 'bg-cyan-500/10 border-cyan-500/50'
+                      : 'bg-neutral-800/30 border-neutral-700'
+                  } ${!isConnected ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
                   <Checkbox 
                     id={`platform-${typedPlatform}`}
                     checked={selectedPlatforms.includes(typedPlatform)}
                     onCheckedChange={() => handlePlatformToggle(typedPlatform)}
                     disabled={!isConnected || isSubmitting}
+                    className="h-5 w-5"
                   />
-                  <Label 
-                    htmlFor={`platform-${typedPlatform}`}
-                    className={!isConnected ? "text-slate-400 " : ""}
-                  >
-                    {platformName}
-                    {!isConnected && ` ${t.helper.notConnected}`}
-                  </Label>
-                </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-base text-white">
+                      {platformName}
+                    </div>
+                    {!isConnected && (
+                      <div className="text-xs text-neutral-400">
+                        {t.helper.notConnected}
+                      </div>
+                    )}
+                  </div>
+                </label>
               );
             })}
           </div>
           
           {/* Credits cost preview */}
           {selectedPlatforms.length > 0 && (
-            <div className="flex items-center justify-between p-3 bg-neutral-800/50 rounded-lg border border-neutral-700">
-              <div className="flex items-center gap-2 text-sm text-neutral-300">
-                <CreditCard className="h-4 w-4 text-cyan-400" />
-                <span>Publishing cost:</span>
+            <div className="bg-gradient-to-r from-cyan-500/10 to-fuchsia-500/10 border border-cyan-500/30 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-cyan-400" />
+                  <span className="text-sm font-medium text-neutral-300">Publishing cost:</span>
+                </div>
+                <span className="text-lg font-bold text-cyan-400">
+                  {selectedPlatforms.length} {selectedPlatforms.length === 1 ? 'credit' : 'credits'}
+                </span>
               </div>
-              <span className="text-sm font-semibold text-cyan-400">
-                {selectedPlatforms.length} {selectedPlatforms.length === 1 ? 'credit' : 'credits'}
-              </span>
             </div>
           )}
           
@@ -660,37 +682,48 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
       )}
       
-      <div className="flex justify-between">\n        <Button type="button" variant="outline" onClick={onBack} disabled={isSubmitting}>
-          {t.buttons.back}
-        </Button>
-        
-        <Button 
-          type="submit" 
-          disabled={
-            isSubmitting || 
-            (isPublishIntent &&
-              (selectedPlatforms.length === 0 ||
-                (credits &&
-                  credits.publish_remaining !== null &&
-                  credits.publish_remaining < selectedPlatforms.length)))
-          }
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {isPublishIntent ? t.buttons.publishing : t.buttons.updating}
-            </>
-          ) : isPublishIntent &&
-            credits &&
-            credits.publish_remaining !== null &&
-            credits.publish_remaining < selectedPlatforms.length ? (
-            <>
-              <CreditCard className="mr-2 h-4 w-4" /> Insufficient Credits
-            </>
-          ) : (
-            isPublishIntent ? t.buttons.publish : t.buttons.update
-          )}
-        </Button>
+      {/* Sticky Action Buttons - Mobile Optimized */}
+      <div className="fixed bottom-0 left-0 right-0 bg-neutral-950/95 backdrop-blur-sm border-t border-neutral-800 p-4 sm:relative sm:bg-transparent sm:border-0 sm:p-0 z-50">
+        <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-between max-w-7xl mx-auto">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onBack} 
+            disabled={isSubmitting}
+            className="h-12 sm:h-10 w-full sm:w-auto text-base sm:text-sm"
+          >
+            {t.buttons.back}
+          </Button>
+          
+          <Button 
+            type="submit" 
+            disabled={
+              isSubmitting || 
+              (isPublishIntent &&
+                (selectedPlatforms.length === 0 ||
+                  (credits &&
+                    credits.publish_remaining !== null &&
+                    credits.publish_remaining < selectedPlatforms.length)))
+            }
+            className="h-12 sm:h-10 w-full sm:w-auto text-base sm:text-sm font-semibold"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
+                {isPublishIntent ? t.buttons.publishing : t.buttons.updating}
+              </>
+            ) : isPublishIntent &&
+              credits &&
+              credits.publish_remaining !== null &&
+              credits.publish_remaining < selectedPlatforms.length ? (
+              <>
+                <CreditCard className="mr-2 h-5 w-5 sm:h-4 sm:w-4" /> Insufficient Credits
+              </>
+            ) : (
+              isPublishIntent ? t.buttons.publish : t.buttons.update
+            )}
+          </Button>
+        </div>
       </div>
       
       {/* Insufficient Credits Dialog */}
