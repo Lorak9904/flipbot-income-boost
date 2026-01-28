@@ -25,6 +25,7 @@ import {
   LogOut,
   Link as LinkIcon,
   Loader2,
+  RefreshCw,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -104,6 +105,7 @@ const ConnectAccountCard = ({
   const [isConnected, setIsConnected] = useState(initialConnected);
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [isConnectingEbay, setIsConnectingEbay] = useState(false);
+  const [isRefreshingVinted, setIsRefreshingVinted] = useState(false);
   const t = getTranslations(connectCardTranslations);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -126,6 +128,8 @@ const ConnectAccountCard = ({
   const connectionStatus = getConnectionStatus(isConnected, sessionStatus);
   const config = statusConfig[connectionStatus];
   const StatusIcon = config.icon;
+  const showVintedRefresh =
+    platform === 'vinted' && isConnected && (sessionStatus === 'expired' || sessionStatus === 'invalid');
 
   // Handle eBay OAuth connection
   const handleEbayConnect = async () => {
@@ -198,6 +202,44 @@ const ConnectAccountCard = ({
   const handleConnectionSuccess = () => {
     setIsConnected(true);
     if (onConnected) onConnected();
+  };
+
+  const handleVintedRefresh = async () => {
+    const token = localStorage.getItem('flipit_token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    setIsRefreshingVinted(true);
+    try {
+      const response = await fetch('/api/vinted/refresh/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        toast.success(t.vintedRefreshSuccess || 'Vinted cookies refreshed.');
+        if (onConnected) onConnected();
+        return;
+      }
+
+      if (response.status === 401 || response.status === 403) {
+        toast.error(t.vintedRefreshInvalid || 'Vinted session invalid. Please re-add cookies.');
+        setShowConnectModal(true);
+        return;
+      }
+
+      toast.error(t.vintedRefreshFailed || 'Vinted refresh failed. Please try again.');
+    } catch (error) {
+      console.error('Failed to refresh Vinted cookies:', error);
+      toast.error(t.vintedRefreshFailed || 'Vinted refresh failed. Please try again.');
+    } finally {
+      setIsRefreshingVinted(false);
+    }
   };
 
   // Get tooltip text based on status
@@ -281,14 +323,30 @@ const ConnectAccountCard = ({
             <div className="flex items-center justify-between gap-2">
               {/* Primary Action */}
               {isConnected ? (
-                <SecondaryAction
-                  size="sm"
-                  className="px-3 py-2 text-xs"
-                  onClick={() => navigate(`/platform-settings/${platform}`)}
-                >
-                  <Settings className="w-3.5 h-3.5 mr-1.5" />
-                  {t.settingsButton}
-                </SecondaryAction>
+                showVintedRefresh ? (
+                  <SecondaryAction
+                    size="sm"
+                    className="px-3 py-2 text-xs"
+                    onClick={handleVintedRefresh}
+                    disabled={isRefreshingVinted}
+                  >
+                    {isRefreshingVinted ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    {t.vintedRefreshButton || 'Refresh Cookies'}
+                  </SecondaryAction>
+                ) : (
+                  <SecondaryAction
+                    size="sm"
+                    className="px-3 py-2 text-xs"
+                    onClick={() => navigate(`/platform-settings/${platform}`)}
+                  >
+                    <Settings className="w-3.5 h-3.5 mr-1.5" />
+                    {t.settingsButton}
+                  </SecondaryAction>
+                )
               ) : (
                 <SecondaryAction
                   size="sm"

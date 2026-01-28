@@ -13,6 +13,8 @@ import WaitlistBadge from "./components/WaitlistBadge";
 
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import SuccessStoriesPage from "./pages/SuccessStoriesPage";
 import FeaturesPage from "./pages/FeaturesPage";
@@ -39,6 +41,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import SettingsPage from "./pages/SettingsPage";
 import PlatformSettingsPage from "./pages/PlatformSettingsPage";
 import VisitorPing from "./components/useVisitorPing"; // This should resolve to useVisitorPing.tsx
+import SessionHealthCheck from "./components/SessionHealthCheck";
 import { ConnectOlxButton } from "./pages/ConnectOlxButton";
 import { OlxSuccessPage } from "./pages/OlxSuccessPage";
 import ButtonShowcase from "./pages/ButtonShowcase";
@@ -59,6 +62,7 @@ const App = () => {
             <BrowserRouter basename="/">
             <ScrollToTop />
             <VisitorPing />
+            <SessionHealthCheck />
             <div className="flex flex-col min-h-screen">
               <Navbar />
               <main className="flex-grow">
@@ -70,6 +74,8 @@ const App = () => {
                   <Route path="/articles/cross-list-vinted-to-facebook-marketplace" element={<CrossListVintedToFacebookMarketplaceArticle />} />
                   <Route path="/articles/product-relister-for-vinted" element={<ProductRelisterForVintedArticle />} />
                   <Route path="/login" element={<LoginPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
                   <Route path="/how-it-works" element={<HowItWorksPage />} />
                   <Route path="/success-stories" element={<SuccessStoriesPage />} />
                   <Route path="/pricing" element={<PricingPage />} />

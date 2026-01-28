@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { syncOlxListings, type OlxSyncResponse } from '@/lib/api/olx';
+import { syncVintedListings, type VintedSyncResponse } from '@/lib/api/vinted';
 import { getTranslations } from '@/components/language-utils';
 
 // Supported platforms for sync
@@ -42,7 +43,7 @@ interface PlatformConfig {
 
 const PLATFORMS: PlatformConfig[] = [
   { id: 'olx', name: 'OLX', enabled: true },
-  { id: 'vinted', name: 'Vinted', enabled: false, comingSoon: true },
+  { id: 'vinted', name: 'Vinted', enabled: true },
 ];
 
 // Translations for the component
@@ -97,7 +98,7 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
     setIsSyncing(true);
 
     try {
-      let response: OlxSyncResponse;
+      let response: OlxSyncResponse | VintedSyncResponse;
 
       // Call appropriate sync function based on platform
       switch (platform) {
@@ -105,8 +106,8 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
           response = await syncOlxListings();
           break;
         case 'vinted':
-          // Future: implement Vinted sync
-          throw new Error('Vinted sync not yet implemented');
+          response = await syncVintedListings();
+          break;
         default:
           throw new Error(`Unknown platform: ${platform}`);
       }

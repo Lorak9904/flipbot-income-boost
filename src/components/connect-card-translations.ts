@@ -77,6 +77,10 @@ export const connectCardTranslations: Translations = {
     facebookCookiePlaceholder: 'Paste Facebook cookies here...',
     olxCookiePlaceholder: 'Paste OLX cookies here...',
     vintedCookiePlaceholder: 'Paste Vinted cookies here...',
+    vintedRefreshButton: 'Refresh Cookies',
+    vintedRefreshSuccess: 'Vinted cookies refreshed.',
+    vintedRefreshFailed: 'Vinted refresh failed. Please try again.',
+    vintedRefreshInvalid: 'Vinted session invalid. Please re-add cookies.',
   },
   pl: {
     // Connection statuses
@@ -154,5 +158,9 @@ export const connectCardTranslations: Translations = {
     facebookCookiePlaceholder: 'Wklej ciasteczka Facebooka tutaj...',
     olxCookiePlaceholder: 'Wklej ciasteczka OLX tutaj...',
     vintedCookiePlaceholder: 'Wklej ciasteczka Vinted tutaj...',
+    vintedRefreshButton: 'Odśwież ciasteczka',
+    vintedRefreshSuccess: 'Ciasteczka Vinted odświeżone.',
+    vintedRefreshFailed: 'Odświeżenie Vinted nie powiodło się. Spróbuj ponownie.',
+    vintedRefreshInvalid: 'Sesja Vinted jest nieważna. Dodaj ciasteczka ponownie.',
   },
 };

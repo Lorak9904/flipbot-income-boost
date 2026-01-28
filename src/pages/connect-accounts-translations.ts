@@ -33,7 +33,7 @@ export const connectAccountsTranslations: Translations = {
     vintedRefreshMessage: "We couldn't verify your Vinted connection. Try refreshing your cookies.",
     vintedRefreshButton: 'Refresh Vinted Cookies',
     vintedDisconnectButton: 'Disconnect',
-    
+
     // Toast notifications
     toastOlxConnectedTitle: 'OLX Connected!',
     toastOlxConnectedDescription: 'Successfully connected to OLX!',
@@ -43,6 +43,8 @@ export const connectAccountsTranslations: Translations = {
     toastEbayReconnectDescription: 'Your eBay token has expired. Please reconnect your account.',
     toastVintedConnectedTitle: 'Vinted Connected',
     toastVintedConnectedDescription: 'Cookies refreshed successfully.',
+    toastVintedReconnectTitle: 'Vinted Reconnection Required',
+    toastVintedReconnectDescription: 'Your Vinted session expired. Please refresh your cookies.',
     toastVintedNotConnectedTitle: 'Vinted Not Connected',
     toastVintedRefreshFailedTitle: 'Refresh Failed',
     toastVintedDisconnectedTitle: 'Vinted Disconnected',
@@ -83,7 +85,7 @@ export const connectAccountsTranslations: Translations = {
     vintedRefreshMessage: 'Nie mogliśmy zweryfikować połączenia z Vinted. Spróbuj odświeżyć ciasteczka.',
     vintedRefreshButton: 'Odśwież ciasteczka Vinted',
     vintedDisconnectButton: 'Rozłącz',
-    
+
     // Toast notifications
     toastOlxConnectedTitle: 'OLX połączono!',
     toastOlxConnectedDescription: 'Połączono z OLX.',
@@ -93,6 +95,8 @@ export const connectAccountsTranslations: Translations = {
     toastEbayReconnectDescription: 'Twój token eBay wygasł. Połącz konto ponownie.',
     toastVintedConnectedTitle: 'Vinted połączono',
     toastVintedConnectedDescription: 'Ciasteczka zostały odświeżone.',
+    toastVintedReconnectTitle: 'Wymagane ponowne połączenie z Vinted',
+    toastVintedReconnectDescription: 'Sesja Vinted wygasła. Odśwież swoje ciasteczka.',
     toastVintedNotConnectedTitle: 'Vinted nie połączono',
     toastVintedRefreshFailedTitle: 'Odświeżanie nie powiodło się',
     toastVintedDisconnectedTitle: 'Vinted rozłączono',

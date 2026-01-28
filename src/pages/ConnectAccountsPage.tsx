@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { HeroCTA } from '@/components/ui/button-presets';
 import {
   Tooltip,
@@ -40,7 +40,7 @@ const ConnectAccountsPage = () => {
 
   const fetchConnectedPlatforms = async (): Promise<Record<string, any>> => {
     const token = localStorage.getItem('flipit_token');
-    const response = await fetch("/api/connected-platforms", {
+    const response = await fetch("/api/platforms/health-check/", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -52,48 +52,30 @@ const ConnectAccountsPage = () => {
       if (response.status === 401) {
         throw new Error('unauthorized');
       }
-      throw new Error("Failed to fetch connected platforms");
+      throw new Error("Failed to fetch platform health");
     }
 
     const data = await response.json();
-    // Preserve whether a session exists in DB for Vinted
-    const vinted_has_session = !!data.vinted;
-    // Validate Vinted connection live if session exists (Task 1: include status)
-    let vintedConnected = data.vinted;
-    let vinted_status_code: number | null = null;
-    let vinted_session_status: 'valid' | 'expired' | 'invalid' | null = null;
-    let vinted_invalid_reason: string | null = null;
-    if (vinted_has_session) {
-      try {
-        const statusResp = await fetch("/api/vinted/status", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          }
-        });
-        vinted_status_code = statusResp.status;
-        if (statusResp.ok) {
-          const st = await statusResp.json();
-          vintedConnected = !!st.connected;
-          if (typeof st.status_code === 'number') vinted_status_code = st.status_code;
-          // Task 1: Extract status and invalid_reason from backend
-          if (st.status) vinted_session_status = st.status;
-          if (st.invalid_reason) vinted_invalid_reason = st.invalid_reason;
-        } else {
-          vintedConnected = false;
-        }
-      } catch {
-        vintedConnected = false;
-      }
-    }
-    return { 
-      ...data, 
-      vinted: vintedConnected, 
-      vinted_has_session, 
-      vinted_status_code,
-      vinted_session_status,
-      vinted_invalid_reason
+    const platforms = data?.platforms || {};
+    const vintedInfo = platforms.vinted || {};
+    const olxInfo = platforms.olx || {};
+    const ebayInfo = platforms.ebay || {};
+    const facebookInfo = platforms.facebook || {};
+
+    return {
+      facebook: !!facebookInfo.stored,
+      olx: !!olxInfo.stored,
+      vinted: !!vintedInfo.stored,
+      ebay: !!ebayInfo.stored,
+      vinted_has_session: !!vintedInfo.stored,
+      vinted_status_code: typeof vintedInfo.status_code === 'number' ? vintedInfo.status_code : null,
+      vinted_session_status: vintedInfo.status || null,
+      vinted_invalid_reason: vintedInfo.invalid_reason || null,
+      olx_session_status: olxInfo.status || null,
+      olx_invalid_reason: olxInfo.reason || null,
+      ebay_session_status: ebayInfo.status || null,
+      ebay_invalid_reason: ebayInfo.reason || null,
+      facebook_session_status: facebookInfo.status || null,
     };
   };
 
@@ -236,6 +218,7 @@ const ConnectAccountsPage = () => {
               platformName={t.platformFacebook}
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png"
               isConnected={!!connectedPlatforms?.facebook}
+              sessionStatus={connectedPlatforms?.facebook_session_status}
               onConnected={handleAccountConnected}
             />
             <ConnectAccountCard
@@ -244,6 +227,8 @@ const ConnectAccountsPage = () => {
               platformName={t.platformOLX}
               logoSrc="https://images.seeklogo.com/logo-png/39/1/olx-logo-png_seeklogo-390322.png"
               isConnected={!!connectedPlatforms?.olx}
+              sessionStatus={connectedPlatforms?.olx_session_status}
+              invalidReason={connectedPlatforms?.olx_invalid_reason}
               onConnected={handleAccountConnected}
             />
             <ConnectAccountCard
@@ -262,10 +247,12 @@ const ConnectAccountsPage = () => {
               platformName={t.platformEbay}
               logoSrc="https://upload.wikimedia.org/wikipedia/commons/1/1b/EBay_logo.svg"
               isConnected={!!connectedPlatforms?.ebay}
+              sessionStatus={connectedPlatforms?.ebay_session_status}
+              invalidReason={connectedPlatforms?.ebay_invalid_reason}
               onConnected={handleAccountConnected}
             />
           </div>
-          
+
           <motion.div 
             initial="hidden"
             whileInView="visible"
