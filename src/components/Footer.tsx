@@ -1,6 +1,6 @@
 ﻿import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { getTranslations, getCurrentLanguage } from './language-utils';
+import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from './language-utils';
 import { footerTranslations } from './footer-translations';
 
 /**
@@ -9,6 +9,8 @@ import { footerTranslations } from './footer-translations';
  */
 const Footer = () => {
   const t = getTranslations(footerTranslations);
+  const language = getCurrentLanguage();
+  const getLocalized = (path: string) => getLocalizedPathForLanguage(path, language);
   return (
     <footer className="relative overflow-hidden bg-neutral-950 text-white">
       {/* Neon gradient blobs */}
@@ -72,17 +74,17 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/articles/vinted-relisting-tool" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <Link to={getLocalized('/articles/vinted-relisting-tool')} className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.vintedRelistingTool}
                 </Link>
               </li>
               <li>
-                <Link to="/articles/cross-list-vinted-to-facebook-marketplace" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <Link to={getLocalized('/articles/cross-list-vinted-to-facebook-marketplace')} className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.crosslistVintedFb}
                 </Link>
               </li>
               <li>
-                <Link to="/articles/product-relister-for-vinted" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <Link to={getLocalized('/articles/product-relister-for-vinted')} className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.productRelister}
                 </Link>
               </li>

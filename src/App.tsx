@@ -32,6 +32,7 @@ import ArticlesIndex from "./pages/articles/ArticlesIndex";
 import VintedRelistingToolArticle from "./pages/articles/VintedRelistingToolArticle";
 import CrossListVintedToFacebookMarketplaceArticle from "./pages/articles/CrossListVintedToFacebookMarketplaceArticle";
 import ProductRelisterForVintedArticle from "./pages/articles/ProductRelisterForVintedArticle";
+import SellOnAllegroArticle from "./pages/articles/SellOnAllegroArticle";
 // import FacebookCallbackPage from "./pages/FacebookCallbackPage";
 import TermsPage from "./pages/Terms";
 import PrivacyPolicyPage from "./pages/PrivacyPolicy";
@@ -71,8 +72,13 @@ const App = () => {
                   <Route path="/automated-reselling-platform-guide" element={<AutomatedResellingPlatformGuide />} />
                   <Route path="/articles" element={<ArticlesIndex />} />
                   <Route path="/articles/vinted-relisting-tool" element={<VintedRelistingToolArticle />} />
+                  <Route path="/articles/odswiezanie-ogloszen-vinted" element={<VintedRelistingToolArticle />} />
                   <Route path="/articles/cross-list-vinted-to-facebook-marketplace" element={<CrossListVintedToFacebookMarketplaceArticle />} />
+                  <Route path="/articles/crosslisting-z-vinted-na-facebook-marketplace" element={<CrossListVintedToFacebookMarketplaceArticle />} />
                   <Route path="/articles/product-relister-for-vinted" element={<ProductRelisterForVintedArticle />} />
+                  <Route path="/articles/relister-produktow-vinted" element={<ProductRelisterForVintedArticle />} />
+                  <Route path="/articles/jak-sprzedawac-na-allegro" element={<SellOnAllegroArticle />} />
+                  <Route path="/articles/how-to-sell-on-allegro" element={<SellOnAllegroArticle />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   <Route path="/reset-password" element={<ResetPasswordPage />} />

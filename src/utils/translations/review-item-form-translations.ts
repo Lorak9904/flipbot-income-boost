@@ -39,6 +39,7 @@ export const reviewItemFormTranslations = {
       olxCategoryId: "OLX Category ID",
       vintedCatalogId: "Vinted Catalog ID",
       ebayCategoryPath: "eBay Category Path",
+      ebayMarketplaceId: "eBay Marketplace ID",
     },
     
     // Helper Text
@@ -105,6 +106,7 @@ export const reviewItemFormTranslations = {
       olxCategoryId: "ID kategorii OLX",
       vintedCatalogId: "ID katalogu Vinted",
       ebayCategoryPath: "Ścieżka kategorii eBay",
+      ebayMarketplaceId: "ID giełdy eBay",
     },
     
     // Tekst pomocniczy

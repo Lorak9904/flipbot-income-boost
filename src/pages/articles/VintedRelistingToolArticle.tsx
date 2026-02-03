@@ -1,4 +1,4 @@
-import { getTranslations, getCurrentLanguage } from '@/components/language-utils';
+import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '@/components/language-utils';
 import { SeoArticleLayout } from '@/components/seo/SeoArticleLayout';
 import { vintedRelistingToolTranslations } from './translations/vinted-relisting-tool.translations';
 
@@ -17,7 +17,10 @@ const keywords = [
 const VintedRelistingToolArticle = () => {
   const t = getTranslations(vintedRelistingToolTranslations);
   const language = getCurrentLanguage();
-  const canonicalUrl = 'https://myflipit.live/articles/vinted-relisting-tool';
+  const canonicalUrl =
+    language === 'pl'
+      ? 'https://myflipit.live/articles/odswiezanie-ogloszen-vinted'
+      : 'https://myflipit.live/articles/vinted-relisting-tool';
   
   const articleStructuredData = {
     '@context': 'https://schema.org',
@@ -42,7 +45,7 @@ const VintedRelistingToolArticle = () => {
       '@id': canonicalUrl,
     },
     datePublished: '2026-01-06',
-    dateModified: '2026-01-06',
+    dateModified: '2026-02-01',
     keywords,
   };
 
@@ -77,8 +80,8 @@ const VintedRelistingToolArticle = () => {
   ];
 
   const relatedLinks = [
-    { text: t.relatedLink1, href: '/articles/cross-list-vinted-to-facebook-marketplace' },
-    { text: t.relatedLink2, href: '/articles/product-relister-for-vinted' },
+    { text: t.relatedLink1, href: getLocalizedPathForLanguage('/articles/cross-list-vinted-to-facebook-marketplace', language) },
+    { text: t.relatedLink2, href: getLocalizedPathForLanguage('/articles/product-relister-for-vinted', language) },
     { text: t.relatedLink3, href: '/automated-reselling-platform-guide' },
   ];
 

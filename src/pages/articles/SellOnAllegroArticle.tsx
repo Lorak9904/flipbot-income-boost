@@ -1,27 +1,27 @@
-import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '@/components/language-utils';
+import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from '@/components/language-utils';
 import { SeoArticleLayout } from '@/components/seo/SeoArticleLayout';
-import { crossListVintedFbTranslations } from './translations/cross-list-vinted-to-facebook-marketplace.translations';
+import { sellOnAllegroTranslations } from './translations/sell-on-allegro.translations';
 
 const keywords = [
-  'cross list vinted to facebook marketplace',
-  'cross list vinted to facebook',
-  'cross list from vinted to facebook marketplace',
-  'crosslist vinted facebook',
-  'vinted facebook marketplace',
-  'crosslisting tool',
-  'multi-platform selling',
-  'vinted to facebook',
-  'marketplace crosslisting',
+  'jak sprzedawac na allegro',
+  'sprzedaz na allegro',
+  'allegro poradnik',
+  'jak zaczac sprzedaz na allegro',
+  'allegro oferty',
+  'automatyzacja allegro',
+  'power seller allegro',
+  'sell on allegro',
+  'allegro selling guide',
 ];
 
-const CrossListVintedToFacebookMarketplaceArticle = () => {
-  const t = getTranslations(crossListVintedFbTranslations);
+const SellOnAllegroArticle = () => {
+  const t = getTranslations(sellOnAllegroTranslations);
   const language = getCurrentLanguage();
   const canonicalUrl =
     language === 'pl'
-      ? 'https://myflipit.live/articles/crosslisting-z-vinted-na-facebook-marketplace'
-      : 'https://myflipit.live/articles/cross-list-vinted-to-facebook-marketplace';
-  
+      ? 'https://myflipit.live/articles/jak-sprzedawac-na-allegro'
+      : 'https://myflipit.live/articles/how-to-sell-on-allegro';
+
   const articleStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -44,7 +44,7 @@ const CrossListVintedToFacebookMarketplaceArticle = () => {
       '@type': 'WebPage',
       '@id': canonicalUrl,
     },
-    datePublished: '2026-01-06',
+    datePublished: '2026-02-01',
     dateModified: '2026-02-01',
     keywords,
   };
@@ -74,6 +74,10 @@ const CrossListVintedToFacebookMarketplaceArticle = () => {
       heading: t.section6Title,
       bodyParagraphs: [t.section6Para1, t.section6Para2],
     },
+    {
+      heading: t.section7Title,
+      bodyParagraphs: [t.section7Para1, t.section7Para2],
+    },
   ];
 
   const faq = [
@@ -85,7 +89,7 @@ const CrossListVintedToFacebookMarketplaceArticle = () => {
 
   const relatedLinks = [
     { text: t.relatedLink1, href: getLocalizedPathForLanguage('/articles/vinted-relisting-tool', language) },
-    { text: t.relatedLink2, href: getLocalizedPathForLanguage('/articles/product-relister-for-vinted', language) },
+    { text: t.relatedLink2, href: getLocalizedPathForLanguage('/articles/cross-list-vinted-to-facebook-marketplace', language) },
     { text: t.relatedLink3, href: '/automated-reselling-platform-guide' },
   ];
 
@@ -96,7 +100,7 @@ const CrossListVintedToFacebookMarketplaceArticle = () => {
     buttonLink: '/get-started',
     footerText: t.ctaFooterText,
     footerLinkText: t.ctaFooterLinkText,
-    footerLinkHref: '/how-it-works',
+    footerLinkHref: '/login',
   };
 
   const highlights = [t.highlight1, t.highlight2, t.highlight3];
@@ -124,4 +128,4 @@ const CrossListVintedToFacebookMarketplaceArticle = () => {
   );
 };
 
-export default CrossListVintedToFacebookMarketplaceArticle;
+export default SellOnAllegroArticle;

@@ -25,6 +25,8 @@ interface PlatformOverrideCardProps {
   platformLabel: string;
   isConnected: boolean;
   isDisabled?: boolean;
+  /** Optional marketplace ID override (used for eBay attribute lookups) */
+  marketplaceId?: string;
   /** Current category ID override for this platform */
   categoryId?: string | number;
   /** Current attribute values for this platform */
@@ -44,6 +46,7 @@ const PlatformOverrideCard = ({
   platformLabel,
   isConnected,
   isDisabled = false,
+  marketplaceId,
   categoryId,
   attributeValues = {},
   onCategoryChange,
@@ -53,8 +56,9 @@ const PlatformOverrideCard = ({
 }: PlatformOverrideCardProps) => {
   // Toggle state: whether customization is enabled for this platform
   const [isCustomizing, setIsCustomizing] = useState(() => {
-    // Auto-enable if there's already a category ID set
-    return Boolean(categoryId);
+    // Auto-enable if there's already a category ID or attributes set
+    const hasAttributes = attributeValues && Object.keys(attributeValues).length > 0;
+    return Boolean(categoryId || hasAttributes);
   });
   
   // Expanded/collapsed state for the card content
@@ -89,7 +93,8 @@ const PlatformOverrideCard = ({
     try {
       const response = await getPlatformCategoryAttributes(
         platform,
-        debouncedCategoryId
+        debouncedCategoryId,
+        { marketplaceId }
       );
       setAttributes(response.required_fields || []);
     } catch (err) {
@@ -101,7 +106,7 @@ const PlatformOverrideCard = ({
     } finally {
       setIsLoadingAttributes(false);
     }
-  }, [debouncedCategoryId, platform, isCustomizing]);
+  }, [debouncedCategoryId, platform, isCustomizing, marketplaceId]);
   
   useEffect(() => {
     fetchAttributes();

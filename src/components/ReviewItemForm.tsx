@@ -215,14 +215,19 @@ const ReviewItemForm = ({
       overrides.vinted = vintedPayload;
     }
 
-    // eBay overrides: category_path OR category_id + dynamic attributes
+    // eBay overrides: marketplace_id + category_path/category_id + dynamic attributes
+    const ebayMarketplace = platformOverrides.ebay?.marketplace_id;
     const ebayPath = platformOverrides.ebay?.category_path;
     const ebayCategoryId = platformOverrides.ebay?.category_id;
     const ebayAttrs = platformOverrides.ebay?.attributes;
-    if ((ebayPath && String(ebayPath).trim()) ||
+    if ((ebayMarketplace && String(ebayMarketplace).trim()) ||
+        (ebayPath && String(ebayPath).trim()) ||
         (ebayCategoryId && String(ebayCategoryId).trim()) ||
         (ebayAttrs && Object.keys(ebayAttrs).length > 0)) {
       overrides.ebay = {};
+      if (ebayMarketplace && String(ebayMarketplace).trim()) {
+        overrides.ebay.marketplace_id = String(ebayMarketplace).trim();
+      }
       if (ebayPath && String(ebayPath).trim()) {
         overrides.ebay.category_path = String(ebayPath).trim();
       }
@@ -564,6 +569,20 @@ const handleSubmit = async (e: React.FormEvent) => {
               disabled={isSubmitting}
             />
           </div>
+
+          <div>
+            <Label htmlFor="ebay-marketplace-id" className="text-neutral-300">
+              {t.labels.ebayMarketplaceId}
+            </Label>
+            <Input
+              id="ebay-marketplace-id"
+              type="text"
+              value={platformOverrides.ebay?.marketplace_id ?? ''}
+              onChange={(e) => updatePlatformOverride('ebay', 'marketplace_id', e.target.value)}
+              disabled={isSubmitting}
+              placeholder="EBAY_PL"
+            />
+          </div>
         </div>
       </div>
 
@@ -597,6 +616,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             platformLabel="eBay"
             isConnected={connectedPlatforms.ebay}
             isDisabled={isSubmitting}
+            marketplaceId={platformOverrides.ebay?.marketplace_id?.toString()}
             categoryId={platformOverrides.ebay?.category_id?.toString() || platformOverrides.ebay?.category_path}
             attributeValues={platformOverrides.ebay?.attributes}
             onCategoryChange={(value) => updatePlatformOverride('ebay', 'category_id', value)}

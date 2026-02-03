@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
-import { getCurrentLanguage, getTranslations } from '@/components/language-utils';
+import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from '@/components/language-utils';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { articlesIndexTranslations } from './translations/articles-index.translations';
 import { HeroCTA } from '@/components/ui/button-presets';
@@ -29,6 +29,7 @@ const ArticlesIndex = () => {
   const t = getTranslations(articlesIndexTranslations);
   const language = getCurrentLanguage();
   const canonicalUrl = 'https://myflipit.live/articles';
+  const getLocalized = (path: string) => getLocalizedPathForLanguage(path, language);
 
   const breadcrumbStructuredData = {
     '@context': 'https://schema.org',
@@ -53,20 +54,26 @@ const ArticlesIndex = () => {
     {
       title: t.article1Title,
       description: t.article1Description,
-      href: '/articles/vinted-relisting-tool',
+      href: getLocalized('/articles/vinted-relisting-tool'),
       badge: 'Popular',
     },
     {
       title: t.article2Title,
       description: t.article2Description,
-      href: '/articles/cross-list-vinted-to-facebook-marketplace',
+      href: getLocalized('/articles/cross-list-vinted-to-facebook-marketplace'),
       badge: 'Crosslisting',
     },
     {
       title: t.article3Title,
       description: t.article3Description,
-      href: '/articles/product-relister-for-vinted',
+      href: getLocalized('/articles/product-relister-for-vinted'),
       badge: 'Lifecycle',
+    },
+    {
+      title: t.article4Title,
+      description: t.article4Description,
+      href: getLocalized('/articles/how-to-sell-on-allegro'),
+      badge: 'Allegro',
     },
   ];
 

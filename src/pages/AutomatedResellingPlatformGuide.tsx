@@ -1,7 +1,7 @@
 ﻿import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
-import { getCurrentLanguage, getTranslations } from '@/components/language-utils';
+import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from '@/components/language-utils';
 import { guideTranslations } from './guide-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { HeroCTA } from '@/components/ui/button-presets';
@@ -32,6 +32,8 @@ const keywords = [
 
 const AutomatedResellingPlatformGuide = () => {
   const t = getTranslations(guideTranslations);
+  const language = getCurrentLanguage();
+  const getLocalized = (path: string) => getLocalizedPathForLanguage(path, language);
   
   const pageTitle = t.pageTitle;
   const pageDescription = t.pageDescription;
@@ -74,7 +76,7 @@ const AutomatedResellingPlatformGuide = () => {
         type="article"
         keywords={keywords}
         structuredData={articleStructuredData}
-        language={getCurrentLanguage()}
+        language={language}
       />
 
       <AnimatedGradientBackground />
@@ -153,17 +155,17 @@ const AutomatedResellingPlatformGuide = () => {
           <p className="text-neutral-400 text-sm mb-4">{t.relatedTutorialsDesc}</p>
           <ul className="space-y-2 mb-4">
             <li>
-              <Link to="/articles/vinted-relisting-tool" className="text-cyan-300 hover:text-cyan-200 underline transition-colors">
+              <Link to={getLocalized('/articles/vinted-relisting-tool')} className="text-cyan-300 hover:text-cyan-200 underline transition-colors">
                 {t.relatedTutorial1}
               </Link>
             </li>
             <li>
-              <Link to="/articles/cross-list-vinted-to-facebook-marketplace" className="text-cyan-300 hover:text-cyan-200 underline transition-colors">
+              <Link to={getLocalized('/articles/cross-list-vinted-to-facebook-marketplace')} className="text-cyan-300 hover:text-cyan-200 underline transition-colors">
                 {t.relatedTutorial2}
               </Link>
             </li>
             <li>
-              <Link to="/articles/product-relister-for-vinted" className="text-cyan-300 hover:text-cyan-200 underline transition-colors">
+              <Link to={getLocalized('/articles/product-relister-for-vinted')} className="text-cyan-300 hover:text-cyan-200 underline transition-colors">
                 {t.relatedTutorial3}
               </Link>
             </li>

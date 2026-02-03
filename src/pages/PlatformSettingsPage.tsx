@@ -4,13 +4,19 @@ import { motion } from 'framer-motion';
 import { SaveButton, BackButtonGhost, SyncButton } from '@/components/ui/button-presets';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, RefreshCw, DollarSign, MapPin } from 'lucide-react';
+import { DollarSign, MapPin, Plus, Save as SaveIcon } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { getTranslations } from '@/components/language-utils';
 import { platformSettingsTranslations } from './platform-settings-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import {
+  getEbayMarketplacePolicies,
+  updateEbayMarketplacePolicy,
+  type EbayMarketplacePolicy,
+} from '@/lib/api/ebay-policies';
+import { EBAY_MARKETPLACE_OPTIONS } from '@/lib/ebay-marketplaces';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -30,6 +36,19 @@ interface PlatformSettings {
   address_postal_code: string;
   address_country: string;
   address_street: string;
+  ebay_marketplace_id: string;
+  ebay_payment_policy_id: string;
+  ebay_return_policy_id: string;
+  ebay_fulfillment_policy_id: string;
+}
+
+interface EbayMarketplacePolicyDraft {
+  rowId: string;
+  marketplace_id: string;
+  payment_policy_id: string;
+  return_policy_id: string;
+  fulfillment_policy_id: string;
+  saving?: boolean;
 }
 
 const PLATFORM_NAMES: Record<string, string> = {
@@ -42,13 +61,13 @@ const PLATFORM_NAMES: Record<string, string> = {
 const PlatformSettingsPage = () => {
   const { platform } = useParams<{ platform: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { toast } = useToast();
   const t = getTranslations(platformSettingsTranslations);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [policiesLoading, setPoliciesLoading] = useState(false);
   
   const [settings, setSettings] = useState<PlatformSettings>({
     platform: platform || '',
@@ -58,7 +77,12 @@ const PlatformSettingsPage = () => {
     address_postal_code: '',
     address_country: '',
     address_street: '',
+    ebay_marketplace_id: '',
+    ebay_payment_policy_id: '',
+    ebay_return_policy_id: '',
+    ebay_fulfillment_policy_id: '',
   });
+  const [ebayPolicies, setEbayPolicies] = useState<EbayMarketplacePolicyDraft[]>([]);
 
   // Validate platform param
   const validPlatforms = ['facebook', 'olx', 'vinted', 'ebay'];
@@ -90,7 +114,25 @@ const PlatformSettingsPage = () => {
             address_postal_code: data.address_postal_code || '',
             address_country: data.address_country || '',
             address_street: data.address_street || '',
+            ebay_marketplace_id: data.ebay_marketplace_id || '',
+            ebay_payment_policy_id: data.ebay_payment_policy_id || '',
+            ebay_return_policy_id: data.ebay_return_policy_id || '',
+            ebay_fulfillment_policy_id: data.ebay_fulfillment_policy_id || '',
           });
+        }
+
+        if (platform === 'ebay') {
+          setPoliciesLoading(true);
+          const policies = await getEbayMarketplacePolicies();
+          setEbayPolicies(
+            policies.map((policy) => ({
+              rowId: policy.marketplace_id,
+              marketplace_id: policy.marketplace_id,
+              payment_policy_id: policy.payment_policy_id || '',
+              return_policy_id: policy.return_policy_id || '',
+              fulfillment_policy_id: policy.fulfillment_policy_id || '',
+            }))
+          );
         }
       } catch (e) {
         console.error('Failed to load platform settings:', e);
@@ -100,6 +142,7 @@ const PlatformSettingsPage = () => {
           variant: 'destructive',
         });
       } finally {
+        setPoliciesLoading(false);
         setLoading(false);
       }
     };
@@ -129,20 +172,29 @@ const PlatformSettingsPage = () => {
         throw new Error('Not authenticated');
       }
 
+      const payload: Record<string, unknown> = {
+        margin: parseFloat(settings.margin) || 1.0,
+        surcharge: parseFloat(settings.surcharge) || 0,
+        address_city: settings.address_city || null,
+        address_postal_code: settings.address_postal_code || null,
+        address_country: settings.address_country || null,
+        address_street: settings.address_street || null,
+      };
+
+      if (platform === 'ebay') {
+        payload.ebay_marketplace_id = settings.ebay_marketplace_id || null;
+        payload.ebay_payment_policy_id = settings.ebay_payment_policy_id || null;
+        payload.ebay_return_policy_id = settings.ebay_return_policy_id || null;
+        payload.ebay_fulfillment_policy_id = settings.ebay_fulfillment_policy_id || null;
+      }
+
       const response = await fetch(`/api/platforms/${platform}/settings/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          margin: parseFloat(settings.margin) || 1.0,
-          surcharge: parseFloat(settings.surcharge) || 0,
-          address_city: settings.address_city || null,
-          address_postal_code: settings.address_postal_code || null,
-          address_country: settings.address_country || null,
-          address_street: settings.address_street || null,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -207,6 +259,83 @@ const PlatformSettingsPage = () => {
       });
     } finally {
       setSyncing(false);
+    }
+  };
+
+  const normalizeMarketplaceId = (value: string) => value.trim().toUpperCase();
+
+  const handleAddMarketplacePolicy = () => {
+    const newRow: EbayMarketplacePolicyDraft = {
+      rowId: `new-${Date.now()}`,
+      marketplace_id: '',
+      payment_policy_id: '',
+      return_policy_id: '',
+      fulfillment_policy_id: '',
+    };
+    setEbayPolicies((prev) => [newRow, ...prev]);
+  };
+
+  const updatePolicyField = (rowId: string, field: keyof EbayMarketplacePolicyDraft, value: string) => {
+    setEbayPolicies((prev) =>
+      prev.map((policy) =>
+        policy.rowId === rowId ? { ...policy, [field]: value } : policy
+      )
+    );
+  };
+
+  const handleSavePolicy = async (rowId: string) => {
+    const policy = ebayPolicies.find((item) => item.rowId === rowId);
+    if (!policy) return;
+
+    const marketplaceId = normalizeMarketplaceId(policy.marketplace_id);
+    if (!marketplaceId) {
+      toast({
+        title: t.toastErrorTitle,
+        description: t.ebayMarketplaceRequired,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setEbayPolicies((prev) =>
+      prev.map((item) => (item.rowId === rowId ? { ...item, saving: true } : item))
+    );
+
+    try {
+      const payload: Partial<EbayMarketplacePolicy> = {
+        payment_policy_id: policy.payment_policy_id.trim() || null,
+        return_policy_id: policy.return_policy_id.trim() || null,
+        fulfillment_policy_id: policy.fulfillment_policy_id.trim() || null,
+      };
+      const saved = await updateEbayMarketplacePolicy(marketplaceId, payload);
+      setEbayPolicies((prev) =>
+        prev.map((item) =>
+          item.rowId === rowId
+            ? {
+                rowId: saved.marketplace_id,
+                marketplace_id: saved.marketplace_id,
+                payment_policy_id: saved.payment_policy_id || '',
+                return_policy_id: saved.return_policy_id || '',
+                fulfillment_policy_id: saved.fulfillment_policy_id || '',
+                saving: false,
+              }
+            : item
+        )
+      );
+      toast({
+        title: t.toastSettingsSavedTitle,
+        description: t.ebayPolicySaved.replace('{marketplace}', saved.marketplace_id),
+      });
+    } catch (e: any) {
+      toast({
+        title: t.toastErrorTitle,
+        description: e.message || t.ebayPolicySaveError,
+        variant: 'destructive',
+      });
+    } finally {
+      setEbayPolicies((prev) =>
+        prev.map((item) => (item.rowId === rowId ? { ...item, saving: false } : item))
+      );
     }
   };
 
@@ -343,6 +472,169 @@ const PlatformSettingsPage = () => {
               </div>
             </div>
           </motion.div>
+
+          {platform === 'ebay' && (
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              className="mb-12 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20"
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+                <div>
+                  <h2 className="text-xl font-semibold">{t.ebayPoliciesTitle}</h2>
+                  <p className="text-neutral-300 text-sm mt-1">{t.ebayPoliciesDescription}</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-full border-cyan-400/70 text-cyan-200 hover:text-white hover:border-cyan-300 hover:bg-cyan-500/10"
+                  onClick={handleAddMarketplacePolicy}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  {t.ebayAddPolicy}
+                </Button>
+              </div>
+
+              {policiesLoading ? (
+                <div className="text-sm text-neutral-400">{t.ebayPoliciesLoading}</div>
+              ) : ebayPolicies.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-neutral-700 p-6 text-sm text-neutral-400">
+                  {t.ebayPoliciesEmpty}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {ebayPolicies.map((policy) => (
+                    <div
+                      key={policy.rowId}
+                      className="rounded-xl border border-neutral-700 bg-neutral-900/60 p-5"
+                    >
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor={`ebay-marketplace-${policy.rowId}`}>{t.ebayMarketplaceLabel}</Label>
+                          <Input
+                            id={`ebay-marketplace-${policy.rowId}`}
+                            value={policy.marketplace_id}
+                            onChange={(e) => updatePolicyField(policy.rowId, 'marketplace_id', e.target.value)}
+                            placeholder={t.ebayMarketplacePlaceholder}
+                            list="ebay-marketplaces"
+                            className="bg-neutral-800"
+                          />
+                          <p className="text-xs text-neutral-400">{t.ebayMarketplaceHelper}</p>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`ebay-payment-${policy.rowId}`}>{t.ebayPaymentPolicyLabel}</Label>
+                          <Input
+                            id={`ebay-payment-${policy.rowId}`}
+                            value={policy.payment_policy_id}
+                            onChange={(e) => updatePolicyField(policy.rowId, 'payment_policy_id', e.target.value)}
+                            placeholder={t.ebayPaymentPolicyLabel}
+                            className="bg-neutral-800"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`ebay-return-${policy.rowId}`}>{t.ebayReturnPolicyLabel}</Label>
+                          <Input
+                            id={`ebay-return-${policy.rowId}`}
+                            value={policy.return_policy_id}
+                            onChange={(e) => updatePolicyField(policy.rowId, 'return_policy_id', e.target.value)}
+                            placeholder={t.ebayReturnPolicyLabel}
+                            className="bg-neutral-800"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`ebay-fulfillment-${policy.rowId}`}>{t.ebayFulfillmentPolicyLabel}</Label>
+                          <Input
+                            id={`ebay-fulfillment-${policy.rowId}`}
+                            value={policy.fulfillment_policy_id}
+                            onChange={(e) => updatePolicyField(policy.rowId, 'fulfillment_policy_id', e.target.value)}
+                            placeholder={t.ebayFulfillmentPolicyLabel}
+                            className="bg-neutral-800"
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-4 flex items-center justify-end">
+                        <Button
+                          type="button"
+                          onClick={() => handleSavePolicy(policy.rowId)}
+                          disabled={policy.saving}
+                          className="rounded-full border-2 border-cyan-400/70 bg-cyan-600/90 text-white hover:bg-cyan-500 hover:border-cyan-300"
+                        >
+                          <SaveIcon className={`mr-2 h-4 w-4 ${policy.saving ? 'animate-pulse' : ''}`} />
+                          {policy.saving ? t.savingButton : t.ebaySavePolicy}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <datalist id="ebay-marketplaces">
+                {EBAY_MARKETPLACE_OPTIONS.map((market) => (
+                  <option key={market.id} value={market.id}>
+                    {market.label}
+                  </option>
+                ))}
+              </datalist>
+            </motion.div>
+          )}
+
+          {platform === 'ebay' && (
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              className="mb-12 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20"
+            >
+              <h2 className="mb-2 text-xl font-semibold">{t.ebayLegacyPoliciesTitle}</h2>
+              <p className="text-neutral-400 text-sm mb-6">{t.ebayLegacyPoliciesDescription}</p>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="ebayMarketplaceId">{t.ebayMarketplaceLabel}</Label>
+                  <Input
+                    id="ebayMarketplaceId"
+                    value={settings.ebay_marketplace_id}
+                    onChange={(e) => setSettings(prev => ({ ...prev, ebay_marketplace_id: e.target.value }))}
+                    placeholder={t.ebayMarketplacePlaceholder}
+                    list="ebay-marketplaces"
+                    className="bg-neutral-800"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ebayPaymentPolicyId">{t.ebayPaymentPolicyLabel}</Label>
+                  <Input
+                    id="ebayPaymentPolicyId"
+                    value={settings.ebay_payment_policy_id}
+                    onChange={(e) => setSettings(prev => ({ ...prev, ebay_payment_policy_id: e.target.value }))}
+                    placeholder={t.ebayPaymentPolicyLabel}
+                    className="bg-neutral-800"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ebayReturnPolicyId">{t.ebayReturnPolicyLabel}</Label>
+                  <Input
+                    id="ebayReturnPolicyId"
+                    value={settings.ebay_return_policy_id}
+                    onChange={(e) => setSettings(prev => ({ ...prev, ebay_return_policy_id: e.target.value }))}
+                    placeholder={t.ebayReturnPolicyLabel}
+                    className="bg-neutral-800"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ebayFulfillmentPolicyId">{t.ebayFulfillmentPolicyLabel}</Label>
+                  <Input
+                    id="ebayFulfillmentPolicyId"
+                    value={settings.ebay_fulfillment_policy_id}
+                    onChange={(e) => setSettings(prev => ({ ...prev, ebay_fulfillment_policy_id: e.target.value }))}
+                    placeholder={t.ebayFulfillmentPolicyLabel}
+                    className="bg-neutral-800"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Save Button */}
           <div className="text-center">

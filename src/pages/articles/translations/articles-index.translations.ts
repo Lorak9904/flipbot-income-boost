@@ -22,6 +22,9 @@ export const articlesIndexTranslations: Translations = {
     
     article3Title: 'Product Relister for Vinted',
     article3Description: 'Manage the full lifecycle of your Vinted listings — from first post to final sale. Post, refresh, relist, and crosslist efficiently.',
+
+    article4Title: 'How to Sell on Allegro',
+    article4Description: 'A step-by-step Allegro selling guide for power sellers: setup, offer creation, pricing, and automation.',
     
     // CTA
     ctaTitle: 'Ready to Automate Your Reselling?',
@@ -54,6 +57,9 @@ export const articlesIndexTranslations: Translations = {
     
     article3Title: 'Relister produktów dla Vinted',
     article3Description: 'Zarządzaj pełnym cyklem życia ogłoszeń na Vinted — od pierwszej publikacji do sprzedaży. Publikuj, odświeżaj, wznawiaj i crosslistuj sprawnie.',
+
+    article4Title: 'Jak sprzedawać na Allegro',
+    article4Description: 'Poradnik dla power sellerów: start, tworzenie ofert, ceny i automatyzacja sprzedaży na Allegro.',
     
     // CTA
     ctaTitle: 'Gotowy na automatyzację sprzedaży?',

@@ -37,6 +37,25 @@ export const platformSettingsTranslations: Translations = {
     syncAddressButton: 'Sync from General Settings',
     syncAddressSuccess: 'Address synced from general settings',
     syncAddressError: 'Failed to sync address. Make sure you have set your default address in General Settings.',
+
+    // eBay policy section
+    ebayPoliciesTitle: 'eBay Business Policies',
+    ebayPoliciesDescription: 'Save policy IDs per marketplace. These override the legacy fallback when present.',
+    ebayAddPolicy: 'Add marketplace policy',
+    ebaySavePolicy: 'Save policy',
+    ebayPoliciesLoading: 'Loading marketplace policies…',
+    ebayPoliciesEmpty: 'No marketplace policies yet. Add one to start.',
+    ebayPolicySaved: 'Saved policy for {marketplace}.',
+    ebayPolicySaveError: 'Failed to save marketplace policy.',
+    ebayMarketplaceRequired: 'Marketplace ID is required.',
+    ebayMarketplaceLabel: 'Marketplace ID',
+    ebayMarketplacePlaceholder: 'EBAY_PL',
+    ebayMarketplaceHelper: 'Use a marketplace ID like EBAY_PL or EBAY_DE.',
+    ebayPaymentPolicyLabel: 'Payment Policy ID',
+    ebayReturnPolicyLabel: 'Return Policy ID',
+    ebayFulfillmentPolicyLabel: 'Fulfillment Policy ID',
+    ebayLegacyPoliciesTitle: 'Legacy Policy Fallback',
+    ebayLegacyPoliciesDescription: 'Used only when a marketplace policy is missing. Leave blank if you do not need a fallback.',
     
     // Save button
     saveButton: 'Save Settings',
@@ -84,6 +103,25 @@ export const platformSettingsTranslations: Translations = {
     syncAddressButton: 'Synchronizuj z ustawieniami ogólnymi',
     syncAddressSuccess: 'Adres zsynchronizowany z ustawieniami ogólnymi',
     syncAddressError: 'Nie udało się zsynchronizować adresu. Upewnij się, że masz ustawiony domyślny adres w Ustawieniach ogólnych.',
+
+    // eBay policy section
+    ebayPoliciesTitle: 'Polityki eBay',
+    ebayPoliciesDescription: 'Zapisz polityki osobno dla każdej giełdy. Gdy istnieją, mają pierwszeństwo przed ustawieniami domyślnymi.',
+    ebayAddPolicy: 'Dodaj politykę giełdy',
+    ebaySavePolicy: 'Zapisz politykę',
+    ebayPoliciesLoading: 'Ładowanie polityk giełd…',
+    ebayPoliciesEmpty: 'Brak polityk giełd. Dodaj pierwszą.',
+    ebayPolicySaved: 'Zapisano politykę dla {marketplace}.',
+    ebayPolicySaveError: 'Nie udało się zapisać polityki giełdy.',
+    ebayMarketplaceRequired: 'Wymagane jest ID giełdy.',
+    ebayMarketplaceLabel: 'ID giełdy',
+    ebayMarketplacePlaceholder: 'EBAY_PL',
+    ebayMarketplaceHelper: 'Użyj ID giełdy, np. EBAY_PL lub EBAY_DE.',
+    ebayPaymentPolicyLabel: 'ID polityki płatności',
+    ebayReturnPolicyLabel: 'ID polityki zwrotów',
+    ebayFulfillmentPolicyLabel: 'ID polityki wysyłki',
+    ebayLegacyPoliciesTitle: 'Domyślne polityki (fallback)',
+    ebayLegacyPoliciesDescription: 'Używane tylko, gdy brakuje polityki dla giełdy. Zostaw puste, jeśli nie potrzebujesz fallbacku.',
     
     // Save button
     saveButton: 'Zapisz ustawienia',

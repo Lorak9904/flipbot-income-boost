@@ -63,6 +63,7 @@ export interface PlatformOverrides {
   ebay?: {
     category_path?: string;
     category_id?: string;
+    marketplace_id?: string;
     /** Dynamic attribute values (aspects) for eBay */
     attributes?: Record<string, string | number>;
   };

@@ -1,4 +1,4 @@
-import { getTranslations, getCurrentLanguage } from '@/components/language-utils';
+import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '@/components/language-utils';
 import { SeoArticleLayout } from '@/components/seo/SeoArticleLayout';
 import { productRelisterTranslations } from './translations/product-relister-for-vinted.translations';
 
@@ -16,7 +16,10 @@ const keywords = [
 const ProductRelisterForVintedArticle = () => {
   const t = getTranslations(productRelisterTranslations);
   const language = getCurrentLanguage();
-  const canonicalUrl = 'https://myflipit.live/articles/product-relister-for-vinted';
+  const canonicalUrl =
+    language === 'pl'
+      ? 'https://myflipit.live/articles/relister-produktow-vinted'
+      : 'https://myflipit.live/articles/product-relister-for-vinted';
   
   const articleStructuredData = {
     '@context': 'https://schema.org',
@@ -41,7 +44,7 @@ const ProductRelisterForVintedArticle = () => {
       '@id': canonicalUrl,
     },
     datePublished: '2026-01-06',
-    dateModified: '2026-01-06',
+    dateModified: '2026-02-01',
     keywords,
   };
 
@@ -76,8 +79,8 @@ const ProductRelisterForVintedArticle = () => {
   ];
 
   const relatedLinks = [
-    { text: t.relatedLink1, href: '/articles/vinted-relisting-tool' },
-    { text: t.relatedLink2, href: '/articles/cross-list-vinted-to-facebook-marketplace' },
+    { text: t.relatedLink1, href: getLocalizedPathForLanguage('/articles/vinted-relisting-tool', language) },
+    { text: t.relatedLink2, href: getLocalizedPathForLanguage('/articles/cross-list-vinted-to-facebook-marketplace', language) },
     { text: t.relatedLink3, href: '/automated-reselling-platform-guide' },
   ];
 
