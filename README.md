@@ -66,6 +66,8 @@ OPENAI_API_KEY=sk-...
 #### Frontend – `frontend/.env`
 ```env
 VITE_API_BASE_URL=http://localhost:8000
+VITE_PUBLIC_POSTHOG_KEY=phc_xxx
+VITE_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
 ```
 
 ### 3. Run Docker Compose

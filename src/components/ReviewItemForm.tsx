@@ -38,7 +38,7 @@ interface ReviewItemFormProps {
   publishPlatform?: Platform;
 }
 
-const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay'];
+const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay', 'allegro'];
 
 const ReviewItemForm = ({
   initialData,
@@ -78,6 +78,13 @@ const ReviewItemForm = ({
     // Otherwise, select all connected unpublished platforms (original publish)
     return availablePublishPlatforms;
   });
+  const requiredPublishCredits = isPublishIntent && selectedPlatforms.length > 0 ? 1 : 0;
+  const hasInsufficientPublishCredits =
+    isPublishIntent &&
+    requiredPublishCredits > 0 &&
+    !!credits &&
+    credits.publish_remaining !== null &&
+    credits.publish_remaining < requiredPublishCredits;
   
   // Separate state for dynamic Vinted fields
   const [dynamicFieldValues, setDynamicFieldValues] = useState<Record<string, VintedFieldMapping>>(
@@ -93,6 +100,7 @@ const ReviewItemForm = ({
       olx: overrides.olx ? { ...overrides.olx } : undefined,
       vinted: overrides.vinted ? { ...overrides.vinted } : undefined,
       ebay: overrides.ebay ? { ...overrides.ebay } : undefined,
+      allegro: overrides.allegro ? { ...overrides.allegro } : undefined,
     };
   });
   
@@ -132,7 +140,7 @@ const ReviewItemForm = ({
   };
 
   const updatePlatformOverride = (
-    platform: 'olx' | 'vinted' | 'ebay',
+    platform: 'olx' | 'vinted' | 'ebay' | 'allegro',
     field: string,
     value: string
   ) => {
@@ -175,7 +183,7 @@ const ReviewItemForm = ({
   const buildPlatformOverridesPayload = () => {
     const overrides: PlatformOverrides = {};
     Object.entries(platformOverrides || {}).forEach(([key, value]) => {
-      if (!['olx', 'vinted', 'ebay'].includes(key)) {
+      if (!['olx', 'vinted', 'ebay', 'allegro'].includes(key)) {
         overrides[key] = value as unknown;
       }
     });
@@ -213,6 +221,36 @@ const ReviewItemForm = ({
 
     if (Object.keys(vintedPayload).length > 0) {
       overrides.vinted = vintedPayload;
+    }
+
+    // Allegro overrides: category_id + marketplace_id + optional attributes
+    const allegroCategoryId = platformOverrides.allegro?.category_id;
+    const allegroMarketplaceId = platformOverrides.allegro?.marketplace_id;
+    const allegroAttrs = platformOverrides.allegro?.attributes;
+    if (
+      (allegroCategoryId !== undefined &&
+        allegroCategoryId !== null &&
+        String(allegroCategoryId).trim() !== '') ||
+      (allegroMarketplaceId && String(allegroMarketplaceId).trim()) ||
+      (allegroAttrs && Object.keys(allegroAttrs).length > 0)
+    ) {
+      const parsedCategory = Number(allegroCategoryId);
+      overrides.allegro = {};
+      if (
+        allegroCategoryId !== undefined &&
+        allegroCategoryId !== null &&
+        String(allegroCategoryId).trim() !== ''
+      ) {
+        overrides.allegro.category_id = Number.isNaN(parsedCategory)
+          ? String(allegroCategoryId).trim()
+          : parsedCategory;
+      }
+      if (allegroMarketplaceId && String(allegroMarketplaceId).trim()) {
+        overrides.allegro.marketplace_id = String(allegroMarketplaceId).trim();
+      }
+      if (allegroAttrs && Object.keys(allegroAttrs).length > 0) {
+        overrides.allegro.attributes = allegroAttrs;
+      }
     }
 
     // eBay overrides: marketplace_id + category_path/category_id + dynamic attributes
@@ -583,6 +621,34 @@ const handleSubmit = async (e: React.FormEvent) => {
               placeholder="EBAY_PL"
             />
           </div>
+
+          <div>
+            <Label htmlFor="allegro-category-id" className="text-neutral-300">
+              {t.labels.allegroCategoryId}
+            </Label>
+            <Input
+              id="allegro-category-id"
+              type="text"
+              value={platformOverrides.allegro?.category_id ?? ''}
+              onChange={(e) => updatePlatformOverride('allegro', 'category_id', e.target.value)}
+              disabled={isSubmitting}
+              placeholder="e.g., 175673"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="allegro-marketplace-id" className="text-neutral-300">
+              {t.labels.allegroMarketplaceId}
+            </Label>
+            <Input
+              id="allegro-marketplace-id"
+              type="text"
+              value={platformOverrides.allegro?.marketplace_id ?? ''}
+              onChange={(e) => updatePlatformOverride('allegro', 'marketplace_id', e.target.value)}
+              disabled={isSubmitting}
+              placeholder="allegro-pl"
+            />
+          </div>
         </div>
       </div>
 
@@ -678,23 +744,20 @@ const handleSubmit = async (e: React.FormEvent) => {
                   <span className="text-sm font-medium text-neutral-300">Publishing cost:</span>
                 </div>
                 <span className="text-lg font-bold text-cyan-400">
-                  {selectedPlatforms.length} {selectedPlatforms.length === 1 ? 'credit' : 'credits'}
+                  1 credit
                 </span>
               </div>
             </div>
           )}
           
           {/* Insufficient credits warning */}
-          {selectedPlatforms.length > 0 &&
-            credits &&
-            credits.publish_remaining !== null &&
-            credits.publish_remaining < selectedPlatforms.length && (
+          {selectedPlatforms.length > 0 && hasInsufficientPublishCredits && (
             <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
               <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
                 <p className="text-red-400 font-medium">Not Enough Listings</p>
                 <p className="text-neutral-300 text-xs mt-1">
-                  You have {credits.publish_remaining} {credits.publish_remaining === 1 ? 'listing' : 'listings'} left but need {selectedPlatforms.length} to publish to {selectedPlatforms.length} {selectedPlatforms.length === 1 ? 'platform' : 'platforms'}. Upgrade your plan to continue.
+                  You have {credits?.publish_remaining} {credits?.publish_remaining === 1 ? 'listing' : 'listings'} left but need 1 listing to publish this item to {selectedPlatforms.length} {selectedPlatforms.length === 1 ? 'platform' : 'platforms'}. Upgrade your plan to continue.
                 </p>
               </div>
             </div>
@@ -721,9 +784,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               isSubmitting || 
               (isPublishIntent &&
                 (selectedPlatforms.length === 0 ||
-                  (credits &&
-                    credits.publish_remaining !== null &&
-                    credits.publish_remaining < selectedPlatforms.length)))
+                  hasInsufficientPublishCredits))
             }
             className="h-12 sm:h-10 w-full sm:w-auto text-base sm:text-sm font-semibold"
           >
@@ -732,10 +793,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <Loader2 className="mr-2 h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
                 {isPublishIntent ? t.buttons.publishing : t.buttons.updating}
               </>
-            ) : isPublishIntent &&
-              credits &&
-              credits.publish_remaining !== null &&
-              credits.publish_remaining < selectedPlatforms.length ? (
+            ) : isPublishIntent && hasInsufficientPublishCredits ? (
               <>
                 <CreditCard className="mr-2 h-5 w-5 sm:h-4 sm:w-4" /> Insufficient Credits
               </>
@@ -750,7 +808,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       <InsufficientCreditsAlert
         open={!!insufficientCreditsError}
         onOpenChange={(open) => !open && setInsufficientCreditsError(null)}
-        required={insufficientCreditsError?.required || selectedPlatforms.length}
+        required={insufficientCreditsError?.required || 1}
         available={insufficientCreditsError?.available || 0}
       />
     </form>

@@ -287,7 +287,7 @@ export async function enhanceItemImages(
 }
 
 /**
- * Update listing on specific platforms (eBay/OLX).
+ * Update listing on specific platforms (eBay/OLX/Allegro).
  */
 export async function updatePlatformListings(uuid: string, platforms: Platform[]): Promise<any> {
   const token = localStorage.getItem('flipit_token');
@@ -335,7 +335,7 @@ export interface SyncPlatformsResponse {
 }
 
 /**
- * Sync item changes to specific platforms (OLX/eBay) without re-publishing.
+ * Sync item changes to specific platforms (OLX/eBay/Allegro) without re-publishing.
  * If platforms is omitted or empty, syncs only dirty platforms.
  */
 export async function syncPlatformListings(uuid: string, platforms?: Platform[]): Promise<SyncPlatformsResponse> {
@@ -377,7 +377,7 @@ export async function syncPlatformListings(uuid: string, platforms?: Platform[])
 }
 
 /**
- * Delete listing from specific platforms (eBay/OLX).
+ * Delete listing from specific platforms (eBay/OLX/Allegro).
  */
 export async function deletePlatformListings(uuid: string, platforms: Platform[]): Promise<any> {
   const token = localStorage.getItem('flipit_token');

@@ -43,6 +43,7 @@ import SettingsPage from "./pages/SettingsPage";
 import PlatformSettingsPage from "./pages/PlatformSettingsPage";
 import VisitorPing from "./components/useVisitorPing"; // This should resolve to useVisitorPing.tsx
 import SessionHealthCheck from "./components/SessionHealthCheck";
+import PostHogUserSync from "./components/PostHogUserSync";
 import { ConnectOlxButton } from "./pages/ConnectOlxButton";
 import { OlxSuccessPage } from "./pages/OlxSuccessPage";
 import ButtonShowcase from "./pages/ButtonShowcase";
@@ -62,6 +63,7 @@ const App = () => {
             <Sonner />
             <BrowserRouter basename="/">
             <ScrollToTop />
+            <PostHogUserSync />
             <VisitorPing />
             <SessionHealthCheck />
             <div className="flex flex-col min-h-screen">

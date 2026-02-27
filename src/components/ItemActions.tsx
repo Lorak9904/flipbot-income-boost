@@ -59,9 +59,13 @@ const PLATFORM_CONFIG: Record<Platform, { name: string; logo: string }> = {
     name: 'eBay',
     logo: 'https://upload.wikimedia.org/wikipedia/commons/1/1b/EBay_logo.svg',
   },
+  allegro: {
+    name: 'Allegro',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Allegro_logo.svg/512px-Allegro_logo.svg.png',
+  },
 };
 
-const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay'];
+const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay', 'allegro'];
 
 export function ItemActions({ 
   item, 
@@ -95,8 +99,8 @@ export function ItemActions({
     platform => connectedPlatforms[platform] && !publishedPlatforms.has(platform)
   );
   
-  // Get dirty platforms that need syncing (only OLX and eBay support sync)
-  const syncablePlatforms: Platform[] = ['olx', 'ebay'];
+  // Get dirty platforms that need syncing
+  const syncablePlatforms: Platform[] = ['olx', 'ebay', 'allegro'];
   const syncStatus = item.platform_sync_status || {};
   const dirtyPlatforms = syncablePlatforms.filter(platform => {
     const status = syncStatus[platform];

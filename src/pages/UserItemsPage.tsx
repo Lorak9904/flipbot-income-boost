@@ -61,7 +61,7 @@ const UserItemsPage = () => {
     'removed',
     'blocked',
   ];
-  const platformOptions: Array<Platform | 'all'> = ['all', 'facebook', 'olx', 'vinted', 'ebay'];
+  const platformOptions: Array<Platform | 'all'> = ['all', 'facebook', 'olx', 'vinted', 'ebay', 'allegro'];
   const statusFilter: ItemStatus | 'all' = statusParam && statusOptions.includes(statusParam as ItemStatus | 'all')
     ? (statusParam as ItemStatus | 'all')
     : 'active';
@@ -314,6 +314,7 @@ const UserItemsPage = () => {
               <SelectItem value="olx">{t.filters.olx}</SelectItem>
               <SelectItem value="vinted">{t.filters.vinted}</SelectItem>
               <SelectItem value="ebay">{t.filters.ebay}</SelectItem>
+              <SelectItem value="allegro">{t.filters.allegro}</SelectItem>
             </SelectContent>
           </Select>
         </motion.div>

@@ -131,6 +131,7 @@ const ItemDetailPage = () => {
   const formatPlatformLabel = (platform: Platform) => {
     if (platform === 'ebay') return 'eBay';
     if (platform === 'olx') return 'OLX';
+    if (platform === 'allegro') return 'Allegro';
     if (platform === 'facebook') return 'Facebook';
     return platform.charAt(0).toUpperCase() + platform.slice(1);
   };
@@ -448,7 +449,11 @@ const ItemDetailPage = () => {
                         const isSuccess = result.status === 'success' || result.success;
                         const isPending = result.status === 'pending';
                         const isError = result.status === 'error' || result.error_message;
-                        const canRemove = isSuccess && (result.platform === 'olx' || result.platform === 'ebay');
+                        const canRemove =
+                          isSuccess &&
+                          (result.platform === 'olx' ||
+                            result.platform === 'ebay' ||
+                            result.platform === 'allegro');
                         
                         return (
                           <Card 

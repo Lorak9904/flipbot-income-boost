@@ -28,6 +28,7 @@ export const userItemsTranslations = {
       olx: "OLX",
       vinted: "Vinted",
       ebay: "eBay",
+      allegro: "Allegro",
     },
     
     // Loading & Error States
@@ -95,6 +96,7 @@ export const userItemsTranslations = {
       olx: "OLX",
       vinted: "Vinted",
       ebay: "eBay",
+      allegro: "Allegro",
     },
     
     // Stany ładowania i błędów

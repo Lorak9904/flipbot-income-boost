@@ -40,11 +40,12 @@ const AddItemPage = () => {
     facebook: false,
     olx: false,
     vinted: false,
-    ebay: false
+    ebay: false,
+    allegro: false,
   });
   const editId = searchParams.get('edit');
   const publishParam = searchParams.get('publish');
-  const publishPlatform = (['facebook', 'olx', 'vinted', 'ebay'] as Platform[]).includes(publishParam as Platform)
+  const publishPlatform = (['facebook', 'olx', 'vinted', 'ebay', 'allegro'] as Platform[]).includes(publishParam as Platform)
     ? (publishParam as Platform)
     : null;
 
@@ -208,7 +209,7 @@ const AddItemPage = () => {
       <div className="relative min-h-screen text-white overflow-hidden">
         <SEOHead
           title="Add Item | FlipIt"
-          description="Add an item for marketplace automation — FlipIt generates descriptions, pricing, and categories, then crosslists to OLX, Vinted, Facebook Marketplace, and eBay."
+          description="Add an item for marketplace automation — FlipIt generates descriptions, pricing, and categories, then crosslists to OLX, Vinted, Facebook Marketplace, eBay, and Allegro."
           canonicalUrl="https://myflipit.live/add-item"
           robots="noindex, nofollow"
         />

@@ -1,11 +1,14 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-function pingBackend(path: string) {
+const AUTH_PING_MIN_INTERVAL_MS = 60_000;
+const AUTH_LAST_PING_KEY = "flipit_auth_last_ping_at";
+
+function pingVisitor(path: string) {
   const visitorId = localStorage.getItem("visitor_id");
   if (!visitorId) return;
 
-  fetch("/api/cookies/visitor/ping", {
+  fetch("/api/cookies/visitor/ping/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -16,12 +19,47 @@ function pingBackend(path: string) {
   });
 }
 
+function shouldThrottleAuthPing(force = false): boolean {
+  if (force) return false;
+  const lastPing = Number(sessionStorage.getItem(AUTH_LAST_PING_KEY) || "0");
+  const now = Date.now();
+  return now - lastPing < AUTH_PING_MIN_INTERVAL_MS;
+}
+
+function pingAuthenticated(path: string, trigger: "route" | "click" | "heartbeat") {
+  const token = localStorage.getItem("flipit_token");
+  if (!token) return;
+
+  const force = trigger === "route";
+  if (shouldThrottleAuthPing(force)) return;
+
+  const now = Date.now();
+  sessionStorage.setItem(AUTH_LAST_PING_KEY, String(now));
+
+  fetch("/api/auth/ping/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      event_type: "page_view",
+      path,
+      metadata: {
+        trigger,
+        ts: now,
+      },
+    }),
+  });
+}
+
 export default function VisitorPing() {
   const location = useLocation();
 
   useEffect(() => {
     // Ping on route change
-    pingBackend(location.pathname);
+    pingVisitor(location.pathname);
+    pingAuthenticated(location.pathname, "route");
 
     // Handler for <a> clicks
     const handleAnchorClick = (e: MouseEvent) => {
@@ -31,17 +69,23 @@ export default function VisitorPing() {
         // Only ping for internal links
         const url = new URL(anchor.href, window.location.origin);
         if (url.origin === window.location.origin) {
-          pingBackend(url.pathname);
+          pingVisitor(url.pathname);
+          pingAuthenticated(url.pathname, "click");
         }
       }
     };
+
+    const heartbeat = window.setInterval(() => {
+      pingAuthenticated(location.pathname, "heartbeat");
+    }, AUTH_PING_MIN_INTERVAL_MS);
 
     document.addEventListener("click", handleAnchorClick);
 
     return () => {
       document.removeEventListener("click", handleAnchorClick);
+      window.clearInterval(heartbeat);
     };
-  }, [location]);
+  }, [location.pathname]);
 
   return null;
 }

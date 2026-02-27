@@ -40,6 +40,8 @@ export const reviewItemFormTranslations = {
       vintedCatalogId: "Vinted Catalog ID",
       ebayCategoryPath: "eBay Category Path",
       ebayMarketplaceId: "eBay Marketplace ID",
+      allegroCategoryId: "Allegro Category ID",
+      allegroMarketplaceId: "Allegro Marketplace ID",
     },
     
     // Helper Text
@@ -63,6 +65,7 @@ export const reviewItemFormTranslations = {
       olx: "OLX",
       vinted: "Vinted",
       ebay: "eBay",
+      allegro: "Allegro",
     },
   },
   
@@ -107,6 +110,8 @@ export const reviewItemFormTranslations = {
       vintedCatalogId: "ID katalogu Vinted",
       ebayCategoryPath: "Ścieżka kategorii eBay",
       ebayMarketplaceId: "ID giełdy eBay",
+      allegroCategoryId: "ID kategorii Allegro",
+      allegroMarketplaceId: "ID rynku Allegro",
     },
     
     // Tekst pomocniczy
@@ -130,6 +135,7 @@ export const reviewItemFormTranslations = {
       olx: "OLX",
       vinted: "Vinted",
       ebay: "eBay",
+      allegro: "Allegro",
     },
   },
 };

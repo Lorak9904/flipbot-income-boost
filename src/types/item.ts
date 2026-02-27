@@ -48,7 +48,7 @@ export interface GeneratedItemData {
   images: ItemImage[];
 }
 
-export type Platform = 'facebook' | 'olx' | 'vinted' | 'ebay';
+export type Platform = 'facebook' | 'olx' | 'vinted' | 'ebay' | 'allegro';
 
 export interface PlatformOverrides {
   olx?: {
@@ -65,6 +65,12 @@ export interface PlatformOverrides {
     category_id?: string;
     marketplace_id?: string;
     /** Dynamic attribute values (aspects) for eBay */
+    attributes?: Record<string, string | number>;
+  };
+  allegro?: {
+    category_id?: string | number;
+    marketplace_id?: string;
+    /** Dynamic parameter values for Allegro payload overrides */
     attributes?: Record<string, string | number>;
   };
   [key: string]: unknown;
