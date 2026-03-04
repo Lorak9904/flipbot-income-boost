@@ -18,8 +18,13 @@ Twoje dane są dla nas ważne – choć FlipIt jest obecnie w wersji testowej i 
  - Wystarczy napisać na adres: info@arrpo.com .
 
 ## Pliki cookies
-FlipIt korzysta tylko z niezbędnych plików cookies – do działania konta i sesji.  
-Nie używamy cookies marketingowych ani analitycznych.
+FlipIt korzysta z:
+- plików cookie niezbędnych (konto, sesja, działanie aplikacji),
+- lokalnych ustawień (np. język),
+- plików cookie analitycznych (PostHog, region EU) do analizy użycia i jakości działania.
+
+Analityka może obejmować odsłony, zdarzenia interakcji oraz nagrania sesji z maskowaniem pól wejściowych.  
+Nie używamy cookies marketingowych.
 
 ## Bezpieczeństwo
 - Połączenia są szyfrowane (HTTPS).
@@ -29,4 +34,4 @@ Nie używamy cookies marketingowych ani analitycznych.
 
 **Pamiętaj:** FlipIt jest projektem testowym. Korzystasz z niego na własną odpowiedzialność.
 
-*Ostatnia aktualizacja: 18/06/2025r*
+*Ostatnia aktualizacja: 04/03/2026r*

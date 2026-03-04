@@ -416,7 +416,10 @@ const SettingsPage = () => {
             <h2 className="mb-6 text-xl font-semibold">{t.notificationsTitle}</h2>
             <div className="flex items-center justify-between">
               <span className="text-neutral-200">{t.productUpdates}</span>
-              <Switch onCheckedChange={setNewsletter} />
+              <Switch
+                aria-label={t.productUpdates}
+                onCheckedChange={setNewsletter}
+              />
             </div>
           </motion.div>
 

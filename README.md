@@ -141,6 +141,23 @@ Open your browser at:
 | `npm run dev`     | Start dev server                |
 | `npm run build`   | Build production files          |
 | `npm run preview` | Preview production build        |
+| `npm run test:e2e` | Run local-only Playwright smoke tests |
+
+### 🧪 Local E2E (Playwright)
+
+- E2E tests are intentionally **local-only**.
+- The runner blocks execution when `CI=true` or `NODE_ENV=production`.
+- First-time setup:
+
+```bash
+npx playwright install chromium
+```
+
+- Run tests:
+
+```bash
+npm run test:e2e
+```
 
 ---
 
