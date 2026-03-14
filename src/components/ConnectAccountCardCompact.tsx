@@ -35,9 +35,10 @@ import { connectCardTranslations } from './connect-card-translations';
 import { useNavigate } from 'react-router-dom';
 import ConnectPlatformModal from './ConnectPlatformModal';
 import { getEbayConnectUrl } from '@/lib/api/ebay';
+import { getAllegroConnectUrl } from '@/lib/api/allegro';
 
 interface ConnectAccountCardProps {
-  platform: 'facebook' | 'olx' | 'vinted' | 'ebay';
+  platform: 'facebook' | 'olx' | 'vinted' | 'ebay' | 'allegro';
   platformName: string;
   logoSrc: string;
   onConnected?: () => void;
@@ -104,7 +105,7 @@ const ConnectAccountCard = ({
 }: ConnectAccountCardProps) => {
   const [isConnected, setIsConnected] = useState(initialConnected);
   const [showConnectModal, setShowConnectModal] = useState(false);
-  const [isConnectingEbay, setIsConnectingEbay] = useState(false);
+  const [isConnectingOauth, setIsConnectingOauth] = useState(false);
   const [isRefreshingVinted, setIsRefreshingVinted] = useState(false);
   const t = getTranslations(connectCardTranslations);
   const navigate = useNavigate();
@@ -139,14 +140,14 @@ const ConnectAccountCard = ({
       return;
     }
     
-    setIsConnectingEbay(true);
+    setIsConnectingOauth(true);
     try {
       const data = await getEbayConnectUrl('EBAY_PL');
       window.location.href = data.auth_url;
     } catch (error) {
       console.error('Failed to get eBay connect URL:', error);
       toast.error('Failed to connect to eBay. Please try again.');
-      setIsConnectingEbay(false);
+      setIsConnectingOauth(false);
     }
   };
 
@@ -158,7 +159,7 @@ const ConnectAccountCard = ({
       return;
     }
     
-    setIsConnectingEbay(true); // Reuse loading state
+    setIsConnectingOauth(true);
     try {
       const { getOlxConnectUrl } = await import('@/lib/api/olx');
       const data = await getOlxConnectUrl();
@@ -166,7 +167,26 @@ const ConnectAccountCard = ({
     } catch (error) {
       console.error('Failed to get OLX connect URL:', error);
       toast.error('Failed to connect to OLX. Please try again.');
-      setIsConnectingEbay(false);
+      setIsConnectingOauth(false);
+    }
+  };
+
+  // Handle Allegro OAuth connection
+  const handleAllegroConnect = async () => {
+    const token = localStorage.getItem('flipit_token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    setIsConnectingOauth(true);
+    try {
+      const data = await getAllegroConnectUrl('allegro-pl');
+      window.location.href = data.auth_url;
+    } catch (error) {
+      console.error('Failed to get Allegro connect URL:', error);
+      toast.error('Failed to connect to Allegro. Please try again.');
+      setIsConnectingOauth(false);
     }
   };
 
@@ -176,6 +196,8 @@ const ConnectAccountCard = ({
       handleEbayConnect();
     } else if (platform === 'olx') {
       handleOlxConnect();
+    } else if (platform === 'allegro') {
+      handleAllegroConnect();
     } else {
       setShowConnectModal(true);
     }
@@ -352,14 +374,16 @@ const ConnectAccountCard = ({
                   size="sm"
                   className="px-3 py-2 text-xs text-teal-200"
                   onClick={handleConnect}
-                  disabled={isConnectingEbay && platform === 'ebay'}
+                  disabled={isConnectingOauth && ['ebay', 'olx', 'allegro'].includes(platform)}
                 >
-                  {isConnectingEbay && platform === 'ebay' ? (
+                  {isConnectingOauth && ['ebay', 'olx', 'allegro'].includes(platform) ? (
                     <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                   ) : (
                     <LinkIcon className="w-3.5 h-3.5 mr-1.5" />
                   )}
-                  {isConnectingEbay && platform === 'ebay' ? 'Connecting...' : (t.connectButton || 'Connect')}
+                  {isConnectingOauth && ['ebay', 'olx', 'allegro'].includes(platform)
+                    ? 'Connecting...'
+                    : (t.connectButton || 'Connect')}
                 </SecondaryAction>
               )}
 
@@ -386,7 +410,7 @@ const ConnectAccountCard = ({
                       <DropdownMenuItem
                         className="text-slate-200 hover:text-white hover:bg-slate-700 cursor-pointer"
                         onClick={handleConnect}
-                        disabled={isConnectingEbay && platform === 'ebay'}
+                        disabled={isConnectingOauth && ['ebay', 'olx', 'allegro'].includes(platform)}
                       >
                         <LinkIcon className="w-4 h-4 mr-2" />
                         {t.reconnectButton || 'Reconnect'}
@@ -403,7 +427,7 @@ const ConnectAccountCard = ({
                     <DropdownMenuItem
                       className="text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 cursor-pointer"
                       onClick={handleConnect}
-                      disabled={isConnectingEbay && platform === 'ebay'}
+                      disabled={isConnectingOauth && ['ebay', 'olx', 'allegro'].includes(platform)}
                     >
                       <LinkIcon className="w-4 h-4 mr-2" />
                       {t.connectButton || 'Connect'}

@@ -56,7 +56,7 @@ export default function SessionHealthCheck() {
 
     inFlightRef.current = true;
 
-    const notifyPlatform = (platform: 'olx' | 'ebay' | 'vinted', info?: HealthPlatformInfo) => {
+    const notifyPlatform = (platform: 'olx' | 'ebay' | 'allegro' | 'vinted', info?: HealthPlatformInfo) => {
       if (!info?.stored) return;
 
       const status = info.status;
@@ -79,6 +79,14 @@ export default function SessionHealthCheck() {
         toast({
           title: t.toastEbayReconnectTitle,
           description: t.toastEbayReconnectDescription,
+          variant: 'destructive',
+        });
+      }
+
+      if (platform === 'allegro') {
+        toast({
+          title: t.toastAllegroReconnectTitle,
+          description: t.toastAllegroReconnectDescription,
           variant: 'destructive',
         });
       }
@@ -113,6 +121,7 @@ export default function SessionHealthCheck() {
 
         notifyPlatform('olx', platforms.olx);
         notifyPlatform('ebay', platforms.ebay);
+        notifyPlatform('allegro', platforms.allegro);
         notifyPlatform('vinted', platforms.vinted);
 
         localStorage.setItem(LAST_CHECK_KEY, String(now));

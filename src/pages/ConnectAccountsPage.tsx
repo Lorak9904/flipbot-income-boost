@@ -1,18 +1,10 @@
 import { useEffect } from 'react';
 import { HeroCTA } from '@/components/ui/button-presets';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import ConnectAccountCard from '@/components/ConnectAccountCardCompact';
-import { CheckCircle, ArrowRight, Lock, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { ConnectOlxButton } from '@/pages/ConnectOlxButton';
-import { ConnectEbayButton } from '@/pages/ConnectEbayButton';
 import { useToast } from '@/hooks/use-toast';
 import { SEOHead } from '@/components/SEOHead';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -60,6 +52,7 @@ const ConnectAccountsPage = () => {
     const vintedInfo = platforms.vinted || {};
     const olxInfo = platforms.olx || {};
     const ebayInfo = platforms.ebay || {};
+    const allegroInfo = platforms.allegro || {};
     const facebookInfo = platforms.facebook || {};
 
     return {
@@ -67,6 +60,7 @@ const ConnectAccountsPage = () => {
       olx: !!olxInfo.stored,
       vinted: !!vintedInfo.stored,
       ebay: !!ebayInfo.stored,
+      allegro: !!allegroInfo.stored,
       vinted_has_session: !!vintedInfo.stored,
       vinted_status_code: typeof vintedInfo.status_code === 'number' ? vintedInfo.status_code : null,
       vinted_session_status: vintedInfo.status || null,
@@ -75,6 +69,8 @@ const ConnectAccountsPage = () => {
       olx_invalid_reason: olxInfo.reason || null,
       ebay_session_status: ebayInfo.status || null,
       ebay_invalid_reason: ebayInfo.reason || null,
+      allegro_session_status: allegroInfo.status || null,
+      allegro_invalid_reason: allegroInfo.reason || null,
       facebook_session_status: facebookInfo.status || null,
     };
   };
@@ -119,34 +115,59 @@ const ConnectAccountsPage = () => {
     const reconnect = params.get("reconnect");
     const message = params.get("message");
     
-    if (platform === "olx" && status === "connected") {
-      toast({
-        title: t.toastOlxConnectedTitle,
-        description: t.toastOlxConnectedDescription,
-        variant: "default",
-      });
+    if (status === "connected" && platform) {
+      const successToastMap: Record<string, { title: string; description: string }> = {
+        olx: {
+          title: t.toastOlxConnectedTitle,
+          description: t.toastOlxConnectedDescription,
+        },
+        ebay: {
+          title: t.toastEbayConnectedTitle,
+          description: t.toastEbayConnectedDescription,
+        },
+        allegro: {
+          title: t.toastAllegroConnectedTitle,
+          description: t.toastAllegroConnectedDescription,
+        },
+      };
+      const toastConfig = successToastMap[platform];
+      if (toastConfig) {
+        toast({
+          title: toastConfig.title,
+          description: toastConfig.description,
+          variant: "default",
+        });
+      }
       // Immediately refetch to reflect status without manual refresh
       refetch();
       window.history.replaceState({}, document.title, location.pathname);
     }
     
     // Handle reconnect requests (expired token)
-    if (reconnect === "olx") {
-      toast({
-        title: t.toastOlxReconnectTitle,
-        description: message || t.toastOlxReconnectDescription,
-        variant: "destructive",
-      });
+    if (reconnect) {
+      const reconnectToastMap: Record<string, { title: string; description: string }> = {
+        olx: {
+          title: t.toastOlxReconnectTitle,
+          description: t.toastOlxReconnectDescription,
+        },
+        ebay: {
+          title: t.toastEbayReconnectTitle,
+          description: t.toastEbayReconnectDescription,
+        },
+        allegro: {
+          title: t.toastAllegroReconnectTitle,
+          description: t.toastAllegroReconnectDescription,
+        },
+      };
+      const toastConfig = reconnectToastMap[reconnect];
+      if (toastConfig) {
+        toast({
+          title: toastConfig.title,
+          description: message || toastConfig.description,
+          variant: "destructive",
+        });
+      }
       // Clear URL params but keep user on page to reconnect
-      window.history.replaceState({}, document.title, location.pathname);
-    }
-
-    if (reconnect === "ebay") {
-      toast({
-        title: t.toastEbayReconnectTitle,
-        description: message || t.toastEbayReconnectDescription,
-        variant: "destructive",
-      });
       window.history.replaceState({}, document.title, location.pathname);
     }
   }, [location, toast, refetch]);
@@ -211,7 +232,7 @@ const ConnectAccountsPage = () => {
             </motion.p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
             <ConnectAccountCard
               key="facebook-card"
               platform="facebook"
@@ -251,6 +272,16 @@ const ConnectAccountsPage = () => {
               invalidReason={connectedPlatforms?.ebay_invalid_reason}
               onConnected={handleAccountConnected}
             />
+            <ConnectAccountCard
+              key="allegro-card"
+              platform="allegro"
+              platformName={t.platformAllegro}
+              logoSrc="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Allegro_logo.svg/512px-Allegro_logo.svg.png"
+              isConnected={!!connectedPlatforms?.allegro}
+              sessionStatus={connectedPlatforms?.allegro_session_status}
+              invalidReason={connectedPlatforms?.allegro_invalid_reason}
+              onConnected={handleAccountConnected}
+            />
           </div>
 
           <motion.div 
@@ -265,7 +296,8 @@ const ConnectAccountsPage = () => {
               (!!connectedPlatforms.facebook ||
                 !!connectedPlatforms.olx ||
                 !!connectedPlatforms.vinted ||
-                !!connectedPlatforms.ebay)
+                !!connectedPlatforms.ebay ||
+                !!connectedPlatforms.allegro)
                 ? t.ctaConnectedMessage
                 : t.ctaNotConnectedMessage}
             </p>

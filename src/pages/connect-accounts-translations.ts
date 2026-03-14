@@ -4,7 +4,7 @@ export const connectAccountsTranslations: Translations = {
   en: {
     // Page metadata
     pageTitle: 'Connect Accounts | FlipIt',
-    pageDescription: 'Connect OLX, Vinted, Facebook, and eBay to power AI crosslisting — FlipIt drafts listings from photos and you publish with your approval.',
+    pageDescription: 'Connect OLX, Vinted, Facebook, eBay, and Allegro to power AI crosslisting — FlipIt drafts listings from photos and you publish with your approval.',
     
     // Loading state
     loadingTitle: 'Loading your connected platforms...',
@@ -23,6 +23,7 @@ export const connectAccountsTranslations: Translations = {
     platformOLX: 'OLX',
     platformVinted: 'Vinted',
     platformEbay: 'eBay',
+    platformAllegro: 'Allegro',
     
     // Bottom CTA section
     ctaConnectedMessage: "Great! You've connected at least one platform. You're ready to publish listings from FlipIt.",
@@ -39,8 +40,14 @@ export const connectAccountsTranslations: Translations = {
     toastOlxConnectedDescription: 'Successfully connected to OLX!',
     toastOlxReconnectTitle: 'OLX Reconnection Required',
     toastOlxReconnectDescription: 'Your OLX token has expired. Please reconnect your account.',
+    toastEbayConnectedTitle: 'eBay Connected!',
+    toastEbayConnectedDescription: 'Successfully connected to eBay!',
     toastEbayReconnectTitle: 'eBay Reconnection Required',
     toastEbayReconnectDescription: 'Your eBay token has expired. Please reconnect your account.',
+    toastAllegroConnectedTitle: 'Allegro Connected!',
+    toastAllegroConnectedDescription: 'Successfully connected to Allegro!',
+    toastAllegroReconnectTitle: 'Allegro Reconnection Required',
+    toastAllegroReconnectDescription: 'Your Allegro token has expired. Please reconnect your account.',
     toastVintedConnectedTitle: 'Vinted Connected',
     toastVintedConnectedDescription: 'Cookies refreshed successfully.',
     toastVintedReconnectTitle: 'Vinted Reconnection Required',
@@ -56,7 +63,7 @@ export const connectAccountsTranslations: Translations = {
   pl: {
     // Page metadata
     pageTitle: 'Połącz konta | FlipIt',
-    pageDescription: 'Połącz OLX, Vinted, Facebook i eBay, aby uruchomić crosslisting z AI — FlipIt przygotuje szkic ogłoszenia, a Ty zatwierdzisz publikację.',
+    pageDescription: 'Połącz OLX, Vinted, Facebook, eBay i Allegro, aby uruchomić crosslisting z AI — FlipIt przygotuje szkic ogłoszenia, a Ty zatwierdzisz publikację.',
     
     // Loading state
     loadingTitle: 'Ładowanie połączonych platform...',
@@ -75,6 +82,7 @@ export const connectAccountsTranslations: Translations = {
     platformOLX: 'OLX',
     platformVinted: 'Vinted',
     platformEbay: 'eBay',
+    platformAllegro: 'Allegro',
     
     // Bottom CTA section
     ctaConnectedMessage: 'Świetnie! Połączyłeś co najmniej jedną platformę. Możesz publikować ogłoszenia z FlipIt.',
@@ -91,8 +99,14 @@ export const connectAccountsTranslations: Translations = {
     toastOlxConnectedDescription: 'Połączono z OLX.',
     toastOlxReconnectTitle: 'Wymagane ponowne połączenie z OLX',
     toastOlxReconnectDescription: 'Twój token OLX wygasł. Połącz konto ponownie.',
+    toastEbayConnectedTitle: 'eBay połączono!',
+    toastEbayConnectedDescription: 'Połączono z eBay.',
     toastEbayReconnectTitle: 'Wymagane ponowne połączenie z eBay',
     toastEbayReconnectDescription: 'Twój token eBay wygasł. Połącz konto ponownie.',
+    toastAllegroConnectedTitle: 'Allegro połączono!',
+    toastAllegroConnectedDescription: 'Połączono z Allegro.',
+    toastAllegroReconnectTitle: 'Wymagane ponowne połączenie z Allegro',
+    toastAllegroReconnectDescription: 'Twój token Allegro wygasł. Połącz konto ponownie.',
     toastVintedConnectedTitle: 'Vinted połączono',
     toastVintedConnectedDescription: 'Ciasteczka zostały odświeżone.',
     toastVintedReconnectTitle: 'Wymagane ponowne połączenie z Vinted',
