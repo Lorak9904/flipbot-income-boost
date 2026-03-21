@@ -28,7 +28,7 @@ import { getTranslations } from '@/components/language-utils';
 import { creditsTranslations } from './credits-translations';
 import { useCredits } from '@/hooks/useCredits';
 import { useToast } from '@/hooks/use-toast';
-import { createBillingPortalSession, createCheckoutSession } from '@/lib/api/billing';
+import { createBillingPortalSession, createCheckoutSession, createImageAddonCheckoutSession } from '@/lib/api/billing';
 import { normalizePlan } from '@/lib/api/credits';
 
 interface PlanManagementDialogProps {
@@ -37,7 +37,7 @@ interface PlanManagementDialogProps {
 }
 
 interface PlanDetails {
-  id: 'start' | 'plus' | 'scale';
+  id: 'start' | 'plus' | 'scale' | 'unlimited';
   name: string;
   price: string;
   credits: string;
@@ -60,7 +60,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     action: 'upgrade' | 'downgrade' | 'cancel';
-    targetPlan?: 'start' | 'plus' | 'scale';
+    targetPlan?: 'start' | 'plus' | 'scale' | 'unlimited';
   }>({ open: false, action: 'upgrade' });
   
   const [processing, setProcessing] = useState(false);
@@ -111,9 +111,25 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
         'Priority email support',
       ],
     },
+    {
+      id: 'unlimited',
+      name: t.planUnlimited,
+      price: '149 PLN/month',
+      credits: 'Unlimited listings + 150 included images/month',
+      platforms: 'All supported marketplaces',
+      support: 'Priority email',
+      features: [
+        'Unlimited listings per month',
+        '150 included AI image enhancements per month',
+        'Image add-on packs available (+50 / +100)',
+        'All supported marketplaces',
+        'Manual review before publish',
+        'Priority email support',
+      ],
+    },
   ];
   
-  const handlePlanAction = async (targetPlan: 'start' | 'plus' | 'scale') => {
+  const handlePlanAction = async (targetPlan: 'start' | 'plus' | 'scale' | 'unlimited') => {
     if (!credits || !currentPlan) return;
     
     // Open confirmation dialog
@@ -143,7 +159,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
           description: `Upgrading to ${targetPlanDetails.name}...`,
         });
         
-        const checkoutPlan = targetPlanDetails.id as 'plus' | 'scale';
+        const checkoutPlan = targetPlanDetails.id as 'plus' | 'scale' | 'unlimited';
         const checkoutUrl = await createCheckoutSession(checkoutPlan, billingCycle);
         window.location.href = checkoutUrl;
         return;
@@ -161,12 +177,32 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
       setProcessing(false);
     }
   };
+
+  const purchaseImageAddon = async (pack: 'image_50' | 'image_100') => {
+    setProcessing(true);
+    try {
+      toast({
+        title: t.redirectingToCheckout,
+        description: t.buyAddonCredits || 'Redirecting to image add-on checkout...',
+      });
+      const checkoutUrl = await createImageAddonCheckoutSession(pack);
+      window.location.href = checkoutUrl;
+    } catch (error: any) {
+      toast({
+        title: t.errorUpgrade,
+        description: error.message || 'Please try again later.',
+        variant: 'destructive',
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
   
   const getPlanChangeAction = (
     currentPlan: string,
     targetPlan: string
   ): 'upgrade' | 'downgrade' | null => {
-    const planOrder = { start: 1, plus: 2, scale: 3 };
+    const planOrder = { start: 1, plus: 2, scale: 3, unlimited: 4 };
     const current = planOrder[currentPlan as keyof typeof planOrder];
     const target = planOrder[targetPlan as keyof typeof planOrder];
     if (!current || !target) return null;
@@ -194,7 +230,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
           </DialogHeader>
           
           {/* Plans comparison table */}
-          <div className="grid md:grid-cols-3 gap-6 mt-6">
+          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 mt-6">
             {plans.map((plan) => {
               const isCurrent = currentPlan === plan.id;
               const action = currentPlan ? getPlanChangeAction(currentPlan, plan.id) : null;
@@ -290,6 +326,32 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
               );
             })}
           </div>
+
+          {currentPlan === 'unlimited' && (
+            <div className="mt-6 p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-lg">
+              <p className="text-sm text-neutral-300 mb-3">
+                {t.buyAddonCredits || 'Buy add-on image credits'}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  variant="outline"
+                  className="border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10"
+                  disabled={processing}
+                  onClick={() => purchaseImageAddon('image_50')}
+                >
+                  {t.addonPack50 || 'Buy +50 credits'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10"
+                  disabled={processing}
+                  onClick={() => purchaseImageAddon('image_100')}
+                >
+                  {t.addonPack100 || 'Buy +100 credits'}
+                </Button>
+              </div>
+            </div>
+          )}
           
           {/* Additional info */}
           <div className="mt-6 p-4 bg-cyan-500/5 border border-cyan-500/20 rounded-lg">

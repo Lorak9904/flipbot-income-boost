@@ -284,7 +284,7 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
               <div className="text-sm">
                 <p className="text-red-400 font-medium">No AI Photo Credits Left</p>
                 <p className="text-neutral-300 text-xs mt-1">
-                  You have {credits.image_remaining} AI photo enhancements remaining. Upgrade your plan to generate enhanced thumbnails.
+                  You have {credits.image_remaining} AI photo enhancements remaining. Upgrade your plan or buy add-on image credits in Settings to continue.
                 </p>
               </div>
             </div>

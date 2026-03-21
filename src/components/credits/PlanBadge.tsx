@@ -37,9 +37,14 @@ export function PlanBadge({ plan, size = 'md' }: PlanBadgeProps) {
       bgClass: 'bg-purple-500/10 border-purple-400/30',
       textClass: 'text-purple-400',
     },
+    unlimited: {
+      label: t.planUnlimited,
+      bgClass: 'bg-emerald-500/10 border-emerald-400/30',
+      textClass: 'text-emerald-400',
+    },
   };
-  
-  const config = planConfig[normalizedPlan];
+
+  const config = planConfig[normalizedPlan] || planConfig.start;
   
   return (
     <span

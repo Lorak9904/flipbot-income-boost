@@ -4,7 +4,7 @@
  */
 
 export async function createCheckoutSession(
-  plan: 'plus' | 'scale',
+  plan: 'plus' | 'scale' | 'unlimited',
   billingCycle: 'monthly' | 'annual'
 ): Promise<string> {
   const token = localStorage.getItem('flipit_token');
@@ -27,6 +27,32 @@ export async function createCheckoutSession(
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
     throw new Error(data.error || `Checkout failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.url;
+}
+
+export async function createImageAddonCheckoutSession(
+  pack: 'image_50' | 'image_100'
+): Promise<string> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('Not authenticated');
+  }
+
+  const response = await fetch('/api/billing/addons/checkout/', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ pack }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || `Add-on checkout failed: ${response.status}`);
   }
 
   const data = await response.json();

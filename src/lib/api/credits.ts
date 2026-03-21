@@ -3,7 +3,7 @@
  * Handles all credits-related backend communication
  */
 
-export type PlanSlug = 'start' | 'plus' | 'scale';
+export type PlanSlug = 'start' | 'plus' | 'scale' | 'unlimited';
 
 export interface CreditsBalance {
   plan: PlanSlug | string;
@@ -22,6 +22,12 @@ export interface CreditsBalance {
   image_credits_used: number;
   image_limit: number | null;
   image_remaining: number | null;
+  // Included/add-on image split
+  image_included_credits_used?: number;
+  image_included_limit?: number | null;
+  image_included_remaining?: number | null;
+  image_addon_remaining?: number;
+  image_total_remaining?: number | null;
 }
 
 export interface CreditTransaction {
@@ -119,9 +125,11 @@ export function normalizePlan(plan?: string | null): PlanSlug {
     start: 'start',
     plus: 'plus',
     scale: 'scale',
+    unlimited: 'unlimited',
     starter: 'start',
     pro: 'plus',
     business: 'scale',
+    enterprise: 'unlimited',
     free: 'start',
   };
   return mapping[key] || 'start';
@@ -132,6 +140,7 @@ export function getPlanDisplayName(plan: string): string {
     start: 'Start',
     plus: 'Plus',
     scale: 'Scale',
+    unlimited: 'Unlimited',
   };
   const normalized = normalizePlan(plan);
   return names[normalized] || plan;
@@ -145,6 +154,7 @@ export function getPlanColor(plan: string): string {
     start: 'text-neutral-400',
     plus: 'text-cyan-400',
     scale: 'text-purple-400',
+    unlimited: 'text-emerald-400',
   };
   const normalized = normalizePlan(plan);
   return colors[normalized] || 'text-neutral-400';

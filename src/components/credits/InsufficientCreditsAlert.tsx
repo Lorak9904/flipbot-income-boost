@@ -97,7 +97,7 @@ export function InsufficientCreditsAlert({
             {/* Call to action */}
             <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
               <p className="text-sm text-neutral-300">
-                💡 <strong>Need more credits?</strong> Upgrade your plan to continue using FlipIt without interruption.
+                💡 <strong>Need more credits?</strong> Upgrade your plan, or if you are on Unlimited buy add-on image credits from Settings.
               </p>
             </div>
           </AlertDialogDescription>

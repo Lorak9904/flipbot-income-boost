@@ -63,6 +63,7 @@ export const creditsTranslations = {
     planStarter: "Start",
     planPro: "Plus",
     planBusiness: "Scale",
+    planUnlimited: "Unlimited",
     
     // Plan management
     planManagement: "Manage Your Subscription",
@@ -120,6 +121,11 @@ export const creditsTranslations = {
     cancelScheduled: "Subscription will cancel at period end",
     listingsRemaining: "Listings Remaining",
     imageEnhancements: "AI Photo Enhancements",
+    includedImageEnhancements: "Included AI Photo Enhancements",
+    addonImageCredits: "Add-on AI Photo Credits",
+    buyAddonCredits: "Buy Add-on Credits",
+    addonPack50: "Buy +50 credits",
+    addonPack100: "Buy +100 credits",
     usedLabel: "Used",
   },
   
@@ -182,6 +188,7 @@ export const creditsTranslations = {
     planStarter: "Start",
     planPro: "Plus",
     planBusiness: "Scale",
+    planUnlimited: "Unlimited",
     
     // Plan management
     planManagement: "Zarządzaj subskrypcją",
@@ -237,8 +244,14 @@ export const creditsTranslations = {
     billingMonthly: "Miesięczne",
     billingAnnual: "Roczne",
     startedLabel: "Rozpoczęto",
-    nextBillingmaining: "Pozostałe ogłoszenia",
+    nextBillingLabel: "Następna płatność",
+    listingsRemaining: "Pozostałe ogłoszenia",
     imageEnhancements: "Ulepszenia zdjęć AI",
+    includedImageEnhancements: "Wliczone ulepszenia zdjęć AI",
+    addonImageCredits: "Dodatkowe kredyty AI",
+    buyAddonCredits: "Kup dodatkowe kredyty",
+    addonPack50: "Kup +50 kredytów",
+    addonPack100: "Kup +100 kredytów",
     usedLabel: "Wykorzystano",
   },
 };

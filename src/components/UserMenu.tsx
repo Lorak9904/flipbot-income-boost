@@ -113,7 +113,12 @@ const UserMenu = () => {
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-xs text-muted-foreground">Images</span>
                   <span className="text-xs font-medium text-fuchsia-400">
-                    {credits.image_remaining}/{credits.image_limit}
+                    {credits.image_total_remaining === null || credits.image_remaining === null
+                      ? '∞'
+                      : (credits.image_addon_remaining || 0) > 0
+                        ? `${credits.image_total_remaining ?? credits.image_remaining} total`
+                        : `${credits.image_total_remaining ?? credits.image_remaining}/${credits.image_included_limit ?? credits.image_limit}`
+                    }
                   </span>
                 </div>
               )}

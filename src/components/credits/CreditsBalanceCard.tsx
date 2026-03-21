@@ -49,6 +49,11 @@ export function CreditsBalanceCard({ onManagePlan, onViewHistory }: CreditsBalan
   if (!credits) return null;
   
   const activePlan = normalizePlan(credits.effective_plan ?? credits.plan);
+  const includedImageRemaining = credits.image_included_remaining ?? credits.image_remaining;
+  const includedImageLimit = credits.image_included_limit ?? credits.image_limit;
+  const includedImageUsed = credits.image_included_credits_used ?? credits.image_credits_used;
+  const addonImageRemaining = credits.image_addon_remaining ?? 0;
+  const showAddonBalance = activePlan === 'unlimited' || addonImageRemaining > 0;
   
   // Format subscription dates
   const formatDate = (timestamp: number | null | undefined) => {
@@ -156,17 +161,26 @@ export function CreditsBalanceCard({ onManagePlan, onViewHistory }: CreditsBalan
           <p className="text-xs text-neutral-500">{t.usedLabel || 'Used'}: {credits.publish_credits_used}</p>
         </div>
         
-        {/* Image Credits */}
+        {/* Included Image Credits */}
         <div className="space-y-2">
-          <p className="text-sm text-neutral-400">{t.imageEnhancements || 'AI Photo Enhancements'}</p>
+          <p className="text-sm text-neutral-400">{t.includedImageEnhancements || t.imageEnhancements || 'AI Photo Enhancements'}</p>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-fuchsia-400">
-              {credits.image_remaining === null ? '∞' : credits.image_remaining}
+              {includedImageRemaining === null ? '∞' : includedImageRemaining}
             </span>
-            <span className="text-lg text-neutral-500">/ {credits.image_limit ?? '∞'}</span>
+            <span className="text-lg text-neutral-500">/ {includedImageLimit ?? '∞'}</span>
           </div>
-          <p className="text-xs text-neutral-500">{t.usedLabel || 'Used'}: {credits.image_credits_used}</p>
+          <p className="text-xs text-neutral-500">{t.usedLabel || 'Used'}: {includedImageUsed}</p>
         </div>
+
+        {showAddonBalance && (
+          <div className="space-y-2">
+            <p className="text-sm text-neutral-400">{t.addonImageCredits || 'Add-on AI Photo Credits'}</p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold text-emerald-400">{addonImageRemaining}</span>
+            </div>
+          </div>
+        )}
         
         {/* View history button */}
         <Button

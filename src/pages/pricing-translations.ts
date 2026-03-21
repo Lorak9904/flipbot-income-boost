@@ -25,6 +25,13 @@ export const pricingTranslations = {
     businessPrice: "59 PLN",
     businessAnnualPrice: "569 PLN",
     businessCta: "Start Scale",
+
+    unlimitedName: "Unlimited",
+    unlimitedDescription: "For high-volume resellers without listing caps",
+    unlimitedPrice: "149 PLN",
+    unlimitedAnnualPrice: "1430 PLN",
+    unlimitedCta: "Start Unlimited",
+    unlimitedBadge: "NO LISTING LIMIT",
     
     perMonth: "per month",
     perYear: "per year",
@@ -68,6 +75,16 @@ export const pricingTranslations = {
     businessFeature7: "Manual review before publish",
     businessFeature8: "Multi-marketplace publishing",
     businessFeature9: "Priority email support",
+
+    unlimitedFeature1: "Unlimited listings per month",
+    unlimitedFeature2: "150 included AI image enhancements per month",
+    unlimitedFeature3: "Buy image add-ons when included credits are used",
+    unlimitedFeature4: "AI-generated descriptions",
+    unlimitedFeature5: "Suggested pricing and categories",
+    unlimitedFeature6: "Required attributes auto-fill",
+    unlimitedFeature7: "Manual review before publish",
+    unlimitedFeature8: "Multi-marketplace publishing",
+    unlimitedFeature9: "Priority email support",
     
     // Comparison Table
     comparisonTitle: "Compare All Features",
@@ -148,6 +165,13 @@ export const pricingTranslations = {
     businessPrice: "59 PLN",
     businessAnnualPrice: "569 PLN",
     businessCta: "Wybierz Scale",
+
+    unlimitedName: "Unlimited",
+    unlimitedDescription: "Dla sprzedawców o dużym wolumenie bez limitu ogłoszeń",
+    unlimitedPrice: "149 PLN",
+    unlimitedAnnualPrice: "1430 PLN",
+    unlimitedCta: "Wybierz Unlimited",
+    unlimitedBadge: "BEZ LIMITU OGŁOSZEŃ",
     
     perMonth: "miesięcznie",
     perYear: "rocznie",
@@ -191,6 +215,16 @@ export const pricingTranslations = {
     businessFeature7: "Ręczna akceptacja przed publikacją",
     businessFeature8: "Publikacja na wielu marketplace'ach",
     businessFeature9: "Priorytetowe wsparcie e-mail",
+
+    unlimitedFeature1: "Nielimitowana liczba ogłoszeń miesięcznie",
+    unlimitedFeature2: "150 wliczonych ulepszeń zdjęć AI miesięcznie",
+    unlimitedFeature3: "Możliwość dokupienia pakietów ulepszeń po wykorzystaniu limitu",
+    unlimitedFeature4: "Opisy generowane przez AI",
+    unlimitedFeature5: "Sugestie cen i kategorii",
+    unlimitedFeature6: "Automatyczne uzupełnianie atrybutów",
+    unlimitedFeature7: "Ręczna akceptacja przed publikacją",
+    unlimitedFeature8: "Publikacja na wielu marketplace'ach",
+    unlimitedFeature9: "Priorytetowe wsparcie e-mail",
     
     // Comparison Table
     comparisonTitle: "Porównaj wszystkie funkcje",

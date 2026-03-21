@@ -33,7 +33,7 @@ const PricingPage = () => {
   const location = useLocation();
 
   const pageTitle = 'FlipIt Pricing - Choose Your Reselling Plan | myflipit.live';
-  const pageDescription = 'Transparent pricing for FlipIt\'s marketplace automation. Start is free, Plus is 29 PLN/month, Scale is 59 PLN/month. All plans include the supported marketplaces.';
+  const pageDescription = 'Transparent pricing for FlipIt\'s marketplace automation. Start is free, Plus is 29 PLN/month, Scale is 59 PLN/month, Unlimited is 149 PLN/month. All plans include supported marketplaces.';
   const keywords = [
     'FlipIt pricing',
     'reselling platform cost',
@@ -42,7 +42,7 @@ const PricingPage = () => {
     'Vinted automation cost',
   ];
 
-  const startCheckout = async (plan: 'plus' | 'scale', cycle: 'monthly' | 'annual') => {
+  const startCheckout = async (plan: 'plus' | 'scale' | 'unlimited', cycle: 'monthly' | 'annual') => {
     try {
       const checkoutUrl = await createCheckoutSession(plan, cycle);
       window.location.href = checkoutUrl;
@@ -55,7 +55,7 @@ const PricingPage = () => {
     }
   };
 
-  const handleCheckout = async (plan: 'plus' | 'scale') => {
+  const handleCheckout = async (plan: 'plus' | 'scale' | 'unlimited') => {
     if (!isAuthenticated) {
       sessionStorage.setItem('flipit_checkout_plan', plan);
       sessionStorage.setItem('flipit_checkout_billing', billingCycle);
@@ -76,14 +76,15 @@ const PricingPage = () => {
       return;
     }
 
-    if (plan !== 'plus' && plan !== 'scale') {
+    if (plan !== 'plus' && plan !== 'scale' && plan !== 'unlimited') {
       return;
     }
 
     sessionStorage.removeItem('flipit_checkout_plan');
     sessionStorage.removeItem('flipit_checkout_billing');
     setCheckoutAttempted(true);
-    void startCheckout(plan, cycle === 'annual' ? 'annual' : 'monthly');
+    const normalizedCycle: 'monthly' | 'annual' = cycle === 'annual' ? 'annual' : 'monthly';
+    void startCheckout(plan, normalizedCycle);
   }, [billingCycle, checkoutAttempted, isAuthenticated, location.search]);
 
   const pricingPlans = [
@@ -143,6 +144,28 @@ const PricingPage = () => {
       ctaText: t.businessCta,
       ctaOnClick: () => handleCheckout('scale'),
       ctaLink: '/login?register=1&plan=scale',
+      featured: false,
+    },
+    {
+      name: t.unlimitedName,
+      description: t.unlimitedDescription,
+      price: t.unlimitedPrice,
+      annualPrice: t.unlimitedAnnualPrice,
+      features: [
+        t.unlimitedFeature1,
+        t.unlimitedFeature2,
+        t.unlimitedFeature3,
+        t.unlimitedFeature4,
+        t.unlimitedFeature5,
+        t.unlimitedFeature6,
+        t.unlimitedFeature7,
+        t.unlimitedFeature8,
+        t.unlimitedFeature9,
+      ],
+      badge: t.unlimitedBadge,
+      ctaText: t.unlimitedCta,
+      ctaOnClick: () => handleCheckout('unlimited'),
+      ctaLink: '/login?register=1&plan=unlimited',
       featured: false,
     },
   ];
@@ -221,7 +244,7 @@ const PricingPage = () => {
       {/* Pricing Cards Section */}
       <section className="relative py-24">
         <div className="container mx-auto px-8 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {pricingPlans.map((plan, index) => (
               <PricingCard
                 key={plan.name}

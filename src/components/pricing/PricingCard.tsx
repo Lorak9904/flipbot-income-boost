@@ -14,6 +14,7 @@ interface PricingCardProps {
   badge?: string;
   perMonthLabel?: string;
   perYearLabel?: string;
+  billingLabelOverride?: string;
   ctaText: string;
   ctaLink?: string;
   ctaOnClick?: () => void;
@@ -40,6 +41,7 @@ export const PricingCard = ({
   badge,
   perMonthLabel = 'per month',
   perYearLabel = 'per year',
+  billingLabelOverride,
   ctaText,
   ctaLink,
   ctaOnClick,
@@ -82,7 +84,7 @@ export const PricingCard = ({
                 {displayPrice}
               </div>
               <p className="text-sm text-neutral-400 mt-1">
-                {billingCycle === 'monthly' ? perMonthLabel : perYearLabel}
+                {billingLabelOverride || (billingCycle === 'monthly' ? perMonthLabel : perYearLabel)}
               </p>
             </>
           )}
