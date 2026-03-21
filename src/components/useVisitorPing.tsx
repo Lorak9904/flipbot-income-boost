@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 
 const AUTH_PING_MIN_INTERVAL_MS = 60_000;
 const AUTH_LAST_PING_KEY = "flipit_auth_last_ping_at";
+const AUTH_LAST_PING_PATH_KEY = "flipit_auth_last_ping_path";
+const AUTH_DUPLICATE_PING_WINDOW_MS = 5_000;
 
 function pingVisitor(path: string) {
   const visitorId = localStorage.getItem("visitor_id");
@@ -19,22 +21,29 @@ function pingVisitor(path: string) {
   });
 }
 
-function shouldThrottleAuthPing(force = false): boolean {
+function shouldThrottleAuthPing(now: number, force = false): boolean {
   if (force) return false;
   const lastPing = Number(sessionStorage.getItem(AUTH_LAST_PING_KEY) || "0");
-  const now = Date.now();
   return now - lastPing < AUTH_PING_MIN_INTERVAL_MS;
+}
+
+function shouldSkipDuplicateAuthPing(path: string, now: number): boolean {
+  const lastPingPath = sessionStorage.getItem(AUTH_LAST_PING_PATH_KEY) || "";
+  const lastPing = Number(sessionStorage.getItem(AUTH_LAST_PING_KEY) || "0");
+  return lastPingPath === path && now - lastPing < AUTH_DUPLICATE_PING_WINDOW_MS;
 }
 
 function pingAuthenticated(path: string, trigger: "route" | "click" | "heartbeat") {
   const token = localStorage.getItem("flipit_token");
   if (!token) return;
 
-  const force = trigger === "route";
-  if (shouldThrottleAuthPing(force)) return;
-
   const now = Date.now();
+  if (shouldSkipDuplicateAuthPing(path, now)) return;
+
+  const force = trigger === "route";
+  if (shouldThrottleAuthPing(now, force)) return;
   sessionStorage.setItem(AUTH_LAST_PING_KEY, String(now));
+  sessionStorage.setItem(AUTH_LAST_PING_PATH_KEY, path);
 
   fetch("/api/auth/ping/", {
     method: "POST",
