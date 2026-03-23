@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { NavbarLogin } from '@/components/ui/button-presets';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -35,12 +36,12 @@ const UserMenu = () => {
 
   if (!isAuthenticated) {
     return (
-      <Button asChild variant="default" className="bg-teal-500 hover:bg-teal-600 text-white">
+      <NavbarLogin asChild>
         <Link to="/login">
           <LogIn className="mr-2 h-4 w-4" />
           Log in
         </Link>
-      </Button>
+      </NavbarLogin>
     );
   }
 

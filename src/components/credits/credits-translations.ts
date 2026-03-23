@@ -104,6 +104,9 @@ export const creditsTranslations = {
     // Stripe integration
     redirectingToCheckout: "Redirecting to secure checkout...",
     processingPayment: "Processing payment...",
+    portalManagedNotice: "Your subscription is active. Plan and billing cycle changes are managed in Stripe Billing Portal.",
+    openBillingPortal: "Open Stripe Billing Portal",
+    managedInStripe: "Managed in Stripe",
     
     // Credits health status
     healthyBalance: "Healthy balance",
@@ -232,6 +235,9 @@ export const creditsTranslations = {
     // Stripe integration
     redirectingToCheckout: "Przekierowywanie do bezpiecznej płatności...",
     processingPayment: "Przetwarzanie płatności...",
+    portalManagedNotice: "Twoja subskrypcja jest aktywna. Zmiany planu i cyklu rozliczeń są zarządzane w Stripe Billing Portal.",
+    openBillingPortal: "Otwórz Stripe Billing Portal",
+    managedInStripe: "Zarządzane w Stripe",
     
     // Credits health status
     healthyBalance: "Dobry stan",

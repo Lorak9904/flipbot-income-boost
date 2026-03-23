@@ -3,7 +3,7 @@
  * Main visual display for user's credit balance and subscription info
  */
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { ManageButton } from '@/components/ui/button-presets';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar, CreditCard, RefreshCw } from 'lucide-react';
 import { PlanBadge } from './PlanBadge';
@@ -89,14 +89,12 @@ export function CreditsBalanceCard({ onManagePlan, onViewHistory }: CreditsBalan
               {t.currentPlan}: <PlanBadge plan={activePlan} size="sm" />
             </CardDescription>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
+          <ManageButton
             onClick={onManagePlan}
-            className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+            className="min-h-[44px] px-5"
           >
             {t.changePlan || 'Change Plan'}
-          </Button>
+          </ManageButton>
         </div>
       </CardHeader>
       
@@ -183,13 +181,14 @@ export function CreditsBalanceCard({ onManagePlan, onViewHistory }: CreditsBalan
         )}
         
         {/* View history button */}
-        <Button
-          variant="ghost"
-          className="w-full text-cyan-400 hover:bg-cyan-400/10"
+        <ManageButton
+          icon={RefreshCw}
+          size="sm"
+          className="w-full h-10 min-h-0 px-4 py-0 text-sm"
           onClick={onViewHistory}
         >
-          {t.viewHistory} →
-        </Button>
+          {t.viewHistory}
+        </ManageButton>
       </CardContent>
     </Card>
   );

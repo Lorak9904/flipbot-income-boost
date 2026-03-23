@@ -8,7 +8,7 @@ import {
   VintedFieldMapping 
 } from '@/types/item';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
+import { AddItemButton, BackButtonGhost } from '@/components/ui/button-presets';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -768,18 +768,18 @@ const handleSubmit = async (e: React.FormEvent) => {
       {/* Sticky Action Buttons - Mobile Optimized */}
       <div className="fixed bottom-0 left-0 right-0 bg-neutral-950/95 backdrop-blur-sm border-t border-neutral-800 p-4 sm:relative sm:bg-transparent sm:border-0 sm:p-0 z-50">
         <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-between max-w-7xl mx-auto">
-          <Button 
+          <BackButtonGhost
             type="button" 
-            variant="outline" 
             onClick={onBack} 
             disabled={isSubmitting}
             className="h-12 sm:h-10 w-full sm:w-auto text-base sm:text-sm"
           >
             {t.buttons.back}
-          </Button>
+          </BackButtonGhost>
           
-          <Button 
+          <AddItemButton
             type="submit" 
+            sizeVariant="md"
             disabled={
               isSubmitting || 
               (isPublishIntent &&
@@ -800,7 +800,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             ) : (
               isPublishIntent ? t.buttons.publish : t.buttons.update
             )}
-          </Button>
+          </AddItemButton>
         </div>
       </div>
       

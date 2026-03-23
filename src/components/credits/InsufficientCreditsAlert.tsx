@@ -4,7 +4,6 @@
  */
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -12,7 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+import { HeroCTA, SecondaryAction } from '@/components/ui/button-presets';
 import { CreditCard, Calendar, ArrowRight } from 'lucide-react';
 import { getTranslations } from '@/components/language-utils';
 import { creditsTranslations } from './credits-translations';
@@ -104,24 +103,25 @@ export function InsufficientCreditsAlert({
         </AlertDialogHeader>
         
         <AlertDialogFooter className="flex-col sm:flex-col gap-2">
-          <Button
+          <HeroCTA
             onClick={handleViewPlans}
-            className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white"
+            className="w-full min-h-[44px] px-6 py-2"
           >
             {t.viewPlans}
             <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          </HeroCTA>
           
-          <Button
-            variant="outline"
+          <SecondaryAction
             onClick={handleGoToSettings}
-            className="w-full border-neutral-700 hover:bg-neutral-800"
+            className="w-full min-h-[44px] px-6 py-2"
           >
             {t.goToSettings}
-          </Button>
+          </SecondaryAction>
           
-          <AlertDialogCancel className="w-full mt-2 bg-neutral-800 hover:bg-neutral-700 border-0">
-            {t.cancel}
+          <AlertDialogCancel asChild>
+            <SecondaryAction className="w-full min-h-[44px] px-6 py-2 mt-2">
+              {t.cancel}
+            </SecondaryAction>
           </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>

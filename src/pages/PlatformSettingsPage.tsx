@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { SaveButton, BackButtonGhost, SyncButton } from '@/components/ui/button-presets';
+import { AddItemButton, SaveButton, BackButtonGhost, SyncButton } from '@/components/ui/button-presets';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { DollarSign, MapPin, Plus, Save as SaveIcon } from 'lucide-react';
+import { DollarSign, MapPin, Plus } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { getTranslations } from '@/components/language-utils';
 import { platformSettingsTranslations } from './platform-settings-translations';
@@ -487,15 +486,15 @@ const PlatformSettingsPage = () => {
                   <h2 className="text-xl font-semibold">{t.ebayPoliciesTitle}</h2>
                   <p className="text-neutral-300 text-sm mt-1">{t.ebayPoliciesDescription}</p>
                 </div>
-                <Button
+                <AddItemButton
                   type="button"
-                  variant="outline"
-                  className="rounded-full border-cyan-400/70 text-cyan-200 hover:text-white hover:border-cyan-300 hover:bg-cyan-500/10"
+                  sizeVariant="md"
+                  className="w-auto"
                   onClick={handleAddMarketplacePolicy}
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   {t.ebayAddPolicy}
-                </Button>
+                </AddItemButton>
               </div>
 
               {policiesLoading ? (
@@ -556,15 +555,14 @@ const PlatformSettingsPage = () => {
                         </div>
                       </div>
                       <div className="mt-4 flex items-center justify-end">
-                        <Button
+                        <SaveButton
                           type="button"
                           onClick={() => handleSavePolicy(policy.rowId)}
                           disabled={policy.saving}
-                          className="rounded-full border-2 border-cyan-400/70 bg-cyan-600/90 text-white hover:bg-cyan-500 hover:border-cyan-300"
+                          className="h-10 min-h-0 px-4 py-0"
                         >
-                          <SaveIcon className={`mr-2 h-4 w-4 ${policy.saving ? 'animate-pulse' : ''}`} />
                           {policy.saving ? t.savingButton : t.ebaySavePolicy}
-                        </Button>
+                        </SaveButton>
                       </div>
                     </div>
                   ))}

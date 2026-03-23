@@ -2,7 +2,7 @@
  * PlanManagementDialog Component
  * Plan comparison and upgrade/downgrade with Stripe integration
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -53,12 +53,20 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
   const { data: credits } = useCredits();
   const { toast } = useToast();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [cycleInitialized, setCycleInitialized] = useState(false);
   const currentPlan = credits ? normalizePlan(credits.effective_plan ?? credits.plan) : null;
   const hasStripeSubscription = Boolean(
     credits?.subscription_status &&
     credits.subscription_status !== 'canceled' &&
     credits.subscription_status !== 'incomplete_expired'
   );
+  const currentBillingCycle: 'monthly' | 'annual' | null = credits?.billing_interval === 'year'
+    ? 'annual'
+    : credits?.billing_interval === 'month'
+      ? 'monthly'
+      : null;
+  const inferredCurrentBillingCycle: 'monthly' | 'annual' | null = currentBillingCycle
+    ?? (currentPlan && currentPlan !== 'start' ? 'monthly' : null);
   
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
@@ -67,6 +75,13 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
   }>({ open: false, action: 'upgrade' });
   
   const [processing, setProcessing] = useState(false);
+
+  const getErrorMessage = (error: unknown): string => {
+    if (error instanceof Error && error.message) {
+      return error.message;
+    }
+    return 'Please try again later.';
+  };
   
   const plans: PlanDetails[] = [
     {
@@ -141,9 +156,51 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     }
     return billingCycle === 'annual' && plan.annualPrice ? plan.annualPrice : plan.monthlyPrice;
   };
+
+  useEffect(() => {
+    if (!cycleInitialized && currentBillingCycle) {
+      setBillingCycle(currentBillingCycle);
+      setCycleInitialized(true);
+    }
+  }, [cycleInitialized, currentBillingCycle]);
+
+  const openBillingPortal = async () => {
+    setProcessing(true);
+    try {
+      const portalUrl = await createBillingPortalSession();
+      window.location.href = portalUrl;
+    } catch (error: unknown) {
+      toast({
+        title: t.errorUpgrade,
+        description: getErrorMessage(error),
+        variant: 'destructive',
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
   
   const handlePlanAction = async (targetPlan: 'start' | 'plus' | 'scale' | 'unlimited') => {
     if (!credits || !currentPlan) return;
+
+    if (hasStripeSubscription) {
+      await openBillingPortal();
+      return;
+    }
+
+    const samePlanCycleSwitch =
+      targetPlan === currentPlan &&
+      targetPlan !== 'start' &&
+      inferredCurrentBillingCycle !== null &&
+      inferredCurrentBillingCycle !== billingCycle;
+    if (samePlanCycleSwitch) {
+      setConfirmDialog({
+        open: true,
+        action: billingCycle === 'annual' ? 'upgrade' : 'downgrade',
+        targetPlan,
+      });
+      return;
+    }
     
     // Open confirmation dialog
     const action = getPlanChangeAction(currentPlan, targetPlan);
@@ -160,12 +217,6 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
       const targetPlanDetails = plans.find(p => p.id === confirmDialog.targetPlan);
       
       if (confirmDialog.action === 'upgrade' && targetPlanDetails?.id && targetPlanDetails.id !== 'start') {
-        if (hasStripeSubscription) {
-          const portalUrl = await createBillingPortalSession();
-          window.location.href = portalUrl;
-          return;
-        }
-        
         toast({
           title: t.redirectingToCheckout,
           description: `Upgrading to ${targetPlanDetails.name}...`,
@@ -177,12 +228,11 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
         return;
       }
       
-      const portalUrl = await createBillingPortalSession();
-      window.location.href = portalUrl;
-    } catch (error: any) {
+      await openBillingPortal();
+    } catch (error: unknown) {
       toast({
         title: t.errorUpgrade,
-        description: error.message || 'Please try again later.',
+        description: getErrorMessage(error),
         variant: 'destructive',
       });
     } finally {
@@ -199,10 +249,10 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
       });
       const checkoutUrl = await createImageAddonCheckoutSession(pack);
       window.location.href = checkoutUrl;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: t.errorUpgrade,
-        description: error.message || 'Please try again later.',
+        description: getErrorMessage(error),
         variant: 'destructive',
       });
     } finally {
@@ -264,14 +314,43 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
               </Button>
             </div>
           </div>
+
+          {hasStripeSubscription && (
+            <div className="mt-4 rounded-lg border border-cyan-500/30 bg-cyan-500/5 p-4">
+              <p className="text-sm text-neutral-300">
+                {t.portalManagedNotice || 'Your subscription is active. Plan and billing cycle changes are managed in Stripe Billing Portal.'}
+              </p>
+              <Button
+                type="button"
+                className="mt-3 bg-cyan-500 text-white hover:bg-cyan-600"
+                disabled={processing}
+                onClick={openBillingPortal}
+              >
+                {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {t.openBillingPortal || 'Open Stripe Billing Portal'}
+              </Button>
+            </div>
+          )}
           
           {/* Plans comparison table */}
           <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 mt-6">
             {plans.map((plan) => {
-              const isCurrent = currentPlan === plan.id;
+              const isCurrentPlan = currentPlan === plan.id;
+              const isCurrentCycle =
+                !hasStripeSubscription ||
+                !inferredCurrentBillingCycle ||
+                billingCycle === inferredCurrentBillingCycle;
+              const isCurrent = isCurrentPlan && isCurrentCycle;
               const showMostPopular = plan.id === 'plus' && currentPlan === 'start';
               const action = currentPlan ? getPlanChangeAction(currentPlan, plan.id) : null;
               const displayedPrice = getDisplayedPrice(plan);
+              const isPortalManaged = hasStripeSubscription;
+              const samePlanCycleSwitch =
+                !hasStripeSubscription &&
+                isCurrentPlan &&
+                plan.id !== 'start' &&
+                inferredCurrentBillingCycle !== null &&
+                billingCycle !== inferredCurrentBillingCycle;
               
               return (
                 <div
@@ -298,7 +377,9 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
                   {isCurrent && (
                     <div className="absolute -top-3 right-4">
                       <Badge className="bg-cyan-500 text-white">
-                        {t.currentlyActive}
+                        {hasStripeSubscription && currentBillingCycle
+                          ? `${t.currentlyActive} (${currentBillingCycle === 'annual' ? (t.billingAnnual || 'Annual') : (t.billingMonthly || 'Monthly')})`
+                          : t.currentlyActive}
                       </Badge>
                     </div>
                   )}
@@ -344,9 +425,11 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
                   <Button
                     className={`
                       w-full
-                      ${isCurrent 
+                      ${isCurrent
                         ? 'bg-neutral-700 cursor-default' 
-                        : action === 'upgrade'
+                        : isPortalManaged
+                          ? 'bg-neutral-700 hover:bg-neutral-600'
+                          : action === 'upgrade'
                           ? 'bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600'
                           : 'bg-neutral-700 hover:bg-neutral-600'
                       }
@@ -357,7 +440,11 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
                     {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {isCurrent 
                       ? t.currentlyActive
-                      : action === 'upgrade'
+                      : isPortalManaged
+                        ? (t.managedInStripe || 'Managed in Stripe')
+                        : samePlanCycleSwitch
+                          ? (billingCycle === 'annual' ? t.upgrade : t.downgrade)
+                        : action === 'upgrade'
                         ? t.upgrade
                         : t.downgrade
                     }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
+import { AddItemButton } from '@/components/ui/button-presets';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -292,14 +292,16 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
         </div>
       </div>
 
-      <Button 
+      <AddItemButton
         type="submit" 
         disabled={
           isSubmitting || 
           images.length === 0 || 
           (generateEnhancedImage && credits && credits.image_remaining !== null && credits.image_remaining < 1)
-        } 
-        className="w-full">
+        }
+        sizeVariant="md"
+        className="w-full"
+      >
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t.buttons.generating}
@@ -311,7 +313,7 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
         ) : (
           t.buttons.continue
         )}
-      </Button>
+      </AddItemButton>
       
       {/* Insufficient Credits Dialog */}
       <InsufficientCreditsAlert

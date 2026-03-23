@@ -19,9 +19,14 @@ function pingVisitor(path: string) {
   });
 }
 
-function shouldThrottleAuthPing(force = false): boolean {
-  if (force) return false;
-  const lastPing = Number(sessionStorage.getItem(AUTH_LAST_PING_KEY) || "0");
+function getLastAuthPingAt(): number {
+  const raw = localStorage.getItem(AUTH_LAST_PING_KEY);
+  const parsed = Number(raw || "0");
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function shouldThrottleAuthPing(): boolean {
+  const lastPing = getLastAuthPingAt();
   const now = Date.now();
   return now - lastPing < AUTH_PING_MIN_INTERVAL_MS;
 }
@@ -30,11 +35,10 @@ function pingAuthenticated(path: string, trigger: "route" | "click" | "heartbeat
   const token = localStorage.getItem("flipit_token");
   if (!token) return;
 
-  const force = trigger === "route";
-  if (shouldThrottleAuthPing(force)) return;
+  if (shouldThrottleAuthPing()) return;
 
   const now = Date.now();
-  sessionStorage.setItem(AUTH_LAST_PING_KEY, String(now));
+  localStorage.setItem(AUTH_LAST_PING_KEY, String(now));
 
   fetch("/api/auth/ping/", {
     method: "POST",
