@@ -32,6 +32,11 @@ const PricingPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const clearCheckoutIntent = () => {
+    sessionStorage.removeItem('flipit_checkout_plan');
+    sessionStorage.removeItem('flipit_checkout_billing');
+  };
+
   const pageTitle = 'FlipIt Pricing - Choose Your Reselling Plan | myflipit.live';
   const pageDescription = 'Transparent pricing for FlipIt\'s marketplace automation. Start is free, Plus is 29 PLN/month, Scale is 59 PLN/month, Unlimited is 149 PLN/month. All plans include supported marketplaces.';
   const keywords = [
@@ -64,6 +69,11 @@ const PricingPage = () => {
     }
 
     await startCheckout(plan, billingCycle);
+  };
+
+  const handleStartSignup = () => {
+    clearCheckoutIntent();
+    navigate('/login?register=1');
   };
 
   useEffect(() => {
@@ -100,7 +110,7 @@ const PricingPage = () => {
         t.starterFeature5,
       ],
       ctaText: t.starterCta,
-      ctaLink: '/login?register=1',
+      ctaOnClick: handleStartSignup,
       featured: false,
     },
     {
@@ -282,7 +292,7 @@ const PricingPage = () => {
               {t.ctaDescription}
             </p>
             <HeroCTA asChild>
-              <Link to="/login?register=1">{t.ctaButton}</Link>
+              <Link to="/login?register=1" onClick={clearCheckoutIntent}>{t.ctaButton}</Link>
             </HeroCTA>
             <p className="text-sm text-neutral-400 mt-4">{t.ctaSubtext}</p>
           </motion.div>

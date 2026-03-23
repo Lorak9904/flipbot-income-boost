@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Loader2, Sparkles } from 'lucide-react';
 import { PlanBadge } from './PlanBadge';
+import { HeroCTA, SecondaryAction } from '@/components/ui/button-presets';
 import { getTranslations } from '@/components/language-utils';
 import { creditsTranslations } from './credits-translations';
 import { useCredits } from '@/hooks/useCredits';
@@ -39,7 +40,8 @@ interface PlanManagementDialogProps {
 interface PlanDetails {
   id: 'start' | 'plus' | 'scale' | 'unlimited';
   name: string;
-  price: string;
+  monthlyPrice: string;
+  annualPrice?: string;
   credits: string;
   platforms: string;
   support: string;
@@ -50,6 +52,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
   const t = getTranslations(creditsTranslations);
   const { data: credits } = useCredits();
   const { toast } = useToast();
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const currentPlan = credits ? normalizePlan(credits.effective_plan ?? credits.plan) : null;
   const hasStripeSubscription = Boolean(
     credits?.subscription_status &&
@@ -69,7 +72,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     {
       id: 'start',
       name: t.planStarter,
-      price: t.free,
+      monthlyPrice: t.free,
       credits: '5 listings + 1 image/month',
       platforms: 'All supported marketplaces',
       support: 'Community',
@@ -84,7 +87,8 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     {
       id: 'plus',
       name: t.planPro,
-      price: '29 PLN/month',
+      monthlyPrice: '29 PLN/month',
+      annualPrice: '279 PLN/year',
       credits: '30 listings + 20 images/month',
       platforms: 'All supported marketplaces',
       support: 'Email',
@@ -99,7 +103,8 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     {
       id: 'scale',
       name: t.planBusiness,
-      price: '59 PLN/month',
+      monthlyPrice: '59 PLN/month',
+      annualPrice: '569 PLN/year',
       credits: '100 listings + 100 images/month',
       platforms: 'All supported marketplaces',
       support: 'Priority email',
@@ -114,7 +119,8 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     {
       id: 'unlimited',
       name: t.planUnlimited,
-      price: '149 PLN/month',
+      monthlyPrice: '149 PLN/month',
+      annualPrice: '1430 PLN/year',
       credits: 'Unlimited listings + 150 included images/month',
       platforms: 'All supported marketplaces',
       support: 'Priority email',
@@ -128,6 +134,13 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
       ],
     },
   ];
+
+  const getDisplayedPrice = (plan: PlanDetails): string => {
+    if (plan.id === 'start') {
+      return plan.monthlyPrice;
+    }
+    return billingCycle === 'annual' && plan.annualPrice ? plan.annualPrice : plan.monthlyPrice;
+  };
   
   const handlePlanAction = async (targetPlan: 'start' | 'plus' | 'scale' | 'unlimited') => {
     if (!credits || !currentPlan) return;
@@ -145,7 +158,6 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     
     try {
       const targetPlanDetails = plans.find(p => p.id === confirmDialog.targetPlan);
-      const billingCycle: 'monthly' | 'annual' = 'monthly';
       
       if (confirmDialog.action === 'upgrade' && targetPlanDetails?.id && targetPlanDetails.id !== 'start') {
         if (hasStripeSubscription) {
@@ -228,12 +240,38 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
               )}
             </DialogDescription>
           </DialogHeader>
+
+          <div className="mt-2 flex items-center justify-center gap-3">
+            <p className="text-sm text-neutral-400">{t.billingLabel || 'Billing'}</p>
+            <div className="inline-flex rounded-lg border border-neutral-700 bg-neutral-800/40 p-1">
+              <Button
+                type="button"
+                size="sm"
+                variant={billingCycle === 'monthly' ? 'default' : 'ghost'}
+                className={billingCycle === 'monthly' ? 'bg-cyan-500 hover:bg-cyan-600 text-white' : 'text-neutral-300'}
+                onClick={() => setBillingCycle('monthly')}
+              >
+                {t.billingMonthly || 'Monthly'}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={billingCycle === 'annual' ? 'default' : 'ghost'}
+                className={billingCycle === 'annual' ? 'bg-cyan-500 hover:bg-cyan-600 text-white' : 'text-neutral-300'}
+                onClick={() => setBillingCycle('annual')}
+              >
+                {t.billingAnnual || 'Annual'}
+              </Button>
+            </div>
+          </div>
           
           {/* Plans comparison table */}
           <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 mt-6">
             {plans.map((plan) => {
               const isCurrent = currentPlan === plan.id;
+              const showMostPopular = plan.id === 'plus' && currentPlan === 'start';
               const action = currentPlan ? getPlanChangeAction(currentPlan, plan.id) : null;
+              const displayedPrice = getDisplayedPrice(plan);
               
               return (
                 <div
@@ -248,7 +286,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
                   `}
                 >
                   {/* Featured badge for Plus */}
-                  {plan.id === 'plus' && (
+                  {showMostPopular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                       <Badge className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white">
                         Most Popular
@@ -268,9 +306,11 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
                   {/* Plan header */}
                   <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                    <div className="text-3xl font-bold text-cyan-400 mb-1">{plan.price}</div>
+                    <div className="text-3xl font-bold text-cyan-400 mb-1">{displayedPrice}</div>
                     {plan.id !== 'start' && (
-                      <p className="text-xs text-neutral-400">{t.perMonth}</p>
+                      <p className="text-xs text-neutral-400">
+                        {billingCycle === 'monthly' ? t.perMonth : (t.perYear || 'per year')}
+                      </p>
                     )}
                   </div>
                   
@@ -378,21 +418,25 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
             <AlertDialogDescription className="text-neutral-400">
               {confirmDialog.action === 'upgrade'
                 ? t.confirmUpgradeMessage
-                    .replace('{price}', plans.find(p => p.id === confirmDialog.targetPlan)?.price || '')
+                    .replace('{price}', getDisplayedPrice(plans.find(p => p.id === confirmDialog.targetPlan) || plans[0]))
                     .replace('{credits}', plans.find(p => p.id === confirmDialog.targetPlan)?.credits || '')
                 : t.confirmDowngradeMessage
               }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-neutral-800 hover:bg-neutral-700">
-              {t.cancel}
+            <AlertDialogCancel asChild>
+              <SecondaryAction className="min-h-[44px] px-6 py-2 sm:w-auto">
+                {t.cancel}
+              </SecondaryAction>
             </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmPlanChange}
-              className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600"
-            >
-              {t.confirm}
+            <AlertDialogAction asChild>
+              <HeroCTA
+                onClick={confirmPlanChange}
+                className="min-h-[44px] px-6 py-2 sm:w-auto"
+              >
+                {t.confirm}
+              </HeroCTA>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
