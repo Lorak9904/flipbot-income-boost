@@ -22,7 +22,12 @@ const LoginPage = () => {
   const t = getTranslations(loginTranslations);
   const navigate = useNavigate();
   const location = useLocation();
-  const { loginWithEmail, registerWithEmail } = useAuth();
+  const {
+    loginWithEmail,
+    registerWithEmail,
+    isAuthenticated,
+    isLoading: isAuthLoading,
+  } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -105,6 +110,12 @@ const LoginPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthLoading, isAuthenticated, navigate]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
