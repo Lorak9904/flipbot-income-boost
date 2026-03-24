@@ -53,7 +53,7 @@ const ItemDetailPage = () => {
     queryKey: ['connected-platforms'],
     queryFn: async () => {
       const token = localStorage.getItem('flipit_token');
-      const response = await fetch("/api/connected-platforms", {
+      const response = await fetch("/api/connected-platforms/", {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`

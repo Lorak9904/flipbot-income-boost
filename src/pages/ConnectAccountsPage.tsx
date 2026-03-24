@@ -75,6 +75,23 @@ const ConnectAccountsPage = () => {
     };
   };
 
+  const fetchSimpleConnectedPlatforms = async (): Promise<Record<string, boolean>> => {
+    const token = localStorage.getItem('flipit_token');
+    const response = await fetch("/api/connected-platforms/", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch connected platforms");
+    }
+
+    return response.json();
+  };
+
   const {
     data: connectedPlatforms,
     isLoading,
@@ -109,6 +126,7 @@ const ConnectAccountsPage = () => {
   }, [isAuthenticated, navigate, toast, user]);
 
   useEffect(() => {
+    const handleOAuthRedirect = async () => {
     const params = new URLSearchParams(location.search);
     const platform = params.get("platform");
     const status = params.get("status");
@@ -116,6 +134,35 @@ const ConnectAccountsPage = () => {
     const message = params.get("message");
     
     if (status === "connected" && platform) {
+      if (platform === "ebay") {
+        try {
+          const verifiedPlatforms = await fetchSimpleConnectedPlatforms();
+          if (!verifiedPlatforms.ebay) {
+            toast({
+              title: t.toastEbayReconnectTitle,
+              description:
+                message ||
+                "We couldn't verify a saved eBay connection after callback. Please reconnect and try again.",
+              variant: "destructive",
+            });
+            await refetch();
+            window.history.replaceState({}, document.title, location.pathname);
+            return;
+          }
+        } catch {
+          toast({
+            title: t.toastEbayReconnectTitle,
+            description:
+              message ||
+              "We couldn't verify a saved eBay connection after callback. Please reconnect and try again.",
+            variant: "destructive",
+          });
+          await refetch();
+          window.history.replaceState({}, document.title, location.pathname);
+          return;
+        }
+      }
+
       const successToastMap: Record<string, { title: string; description: string }> = {
         olx: {
           title: t.toastOlxConnectedTitle,
@@ -141,6 +188,22 @@ const ConnectAccountsPage = () => {
       // Immediately refetch to reflect status without manual refresh
       refetch();
       window.history.replaceState({}, document.title, location.pathname);
+    }
+
+    if (status === "error" && platform) {
+      const errorTitleMap: Record<string, string> = {
+        olx: t.toastOlxReconnectTitle,
+        ebay: t.toastEbayReconnectTitle,
+        allegro: t.toastAllegroReconnectTitle,
+      };
+      toast({
+        title: errorTitleMap[platform] || "Connection failed",
+        description: message || "Connection failed. Please try again.",
+        variant: "destructive",
+      });
+      await refetch();
+      window.history.replaceState({}, document.title, location.pathname);
+      return;
     }
     
     // Handle reconnect requests (expired token)
@@ -170,6 +233,9 @@ const ConnectAccountsPage = () => {
       // Clear URL params but keep user on page to reconnect
       window.history.replaceState({}, document.title, location.pathname);
     }
+    };
+
+    void handleOAuthRedirect();
   }, [location, toast, refetch]);
 
   const handleAccountConnected = () => {
