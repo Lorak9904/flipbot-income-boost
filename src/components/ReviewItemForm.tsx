@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { 
   GeneratedItemData, 
   GeneratedItemDataWithVinted, 
@@ -66,8 +66,12 @@ const ReviewItemForm = ({
   const t = getTranslations(reviewItemFormTranslations);
   
   // Calculate available platforms for publishing (excluding already published)
-  const availablePublishPlatforms = SUPPORTED_PLATFORMS.filter(
-    (platform) => connectedPlatforms[platform] && !publishedPlatforms.includes(platform)
+  const availablePublishPlatforms = useMemo(
+    () =>
+      SUPPORTED_PLATFORMS.filter(
+        (platform) => connectedPlatforms[platform] && !publishedPlatforms.includes(platform)
+      ),
+    [connectedPlatforms, publishedPlatforms]
   );
   
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(() => {
@@ -104,18 +108,28 @@ const ReviewItemForm = ({
     };
   });
   
-  // Debug: Log initial data on mount
-  console.log('📝 ReviewItemForm initialized:', initialData);
-  console.log('🔍 Vinted field definitions:', initialData.vinted_field_definitions);
-  console.log('🔍 Vinted field mappings:', initialData.vinted_field_mappings);
-  console.log('🔍 Brand data:', { brand: initialData.brand, brand_id: initialData.brand_id, brand_title: initialData.brand_title });
-  console.log('🎨 Enhanced images:', initialData.enhanced_images);
+  // Debug logs should run only when incoming item data changes (dev-only).
+  useEffect(() => {
+    if (!import.meta.env.DEV) {
+      return;
+    }
+    console.debug('📝 ReviewItemForm initialized:', initialData);
+    console.debug('🔍 Vinted field definitions:', initialData.vinted_field_definitions);
+    console.debug('🔍 Vinted field mappings:', initialData.vinted_field_mappings);
+    console.debug('🔍 Brand data:', {
+      brand: initialData.brand,
+      brand_id: initialData.brand_id,
+      brand_title: initialData.brand_title,
+    });
+    console.debug('🎨 Enhanced images:', initialData.enhanced_images);
+  }, [initialData]);
 
   // Update selected platforms when publishPlatform prop changes
   useEffect(() => {
-    if (publishPlatform && availablePublishPlatforms.includes(publishPlatform)) {
-      setSelectedPlatforms([publishPlatform]);
-    }
+    if (!publishPlatform || !availablePublishPlatforms.includes(publishPlatform)) return;
+    setSelectedPlatforms((prev) =>
+      prev.length === 1 && prev[0] === publishPlatform ? prev : [publishPlatform]
+    );
   }, [publishPlatform, availablePublishPlatforms]);
   
   // Make sure draft_id is never lost when updating fields
