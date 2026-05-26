@@ -5,6 +5,13 @@ import { AddItemButton } from '@/components/ui/button-presets';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { ToastAction } from '@/components/ui/toast';
 import { ItemFormData, ItemImage, GeneratedItemDataWithVinted } from '@/types/item';
 import ImageUploader from './ImageUploader';
@@ -16,6 +23,7 @@ import { useCredits } from '@/hooks/useCredits';
 import { useQueryClient } from '@tanstack/react-query';
 import { InsufficientCreditsAlert } from '@/components/credits';
 import { parseInsufficientCreditsError, parseErrorResponse } from '@/lib/api/error-handler';
+import { SUPPORTED_CURRENCIES, resolveCurrency } from '@/lib/currency';
 
 interface AddItemFormProps {
   onComplete: (generatedData: GeneratedItemDataWithVinted) => void;
@@ -76,17 +84,22 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
   const { data: credits } = useCredits();
   const queryClient = useQueryClient();
   const t = getTranslations(addItemFormTranslations);
+  const defaultCurrency = resolveCurrency(initialData?.currency, user?.language || language || getCurrentLanguage());
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ItemFormData>({
     defaultValues: {
       title: initialData?.title || '',
       expected_price: initialData?.price || '',
+      currency: defaultCurrency,
     },
   });
+  const selectedCurrency = watch('currency') || defaultCurrency;
 
   useEffect(() => {
     if (initialData?.images && initialData.images.length > 0) {
@@ -134,6 +147,7 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
       if (data.expected_price && data.expected_price.trim()) {
         payload.expected_price = parseFloat(data.expected_price.trim());
       }
+      payload.currency = resolveCurrency(data.currency, user?.language || language || getCurrentLanguage());
 
       const token = localStorage.getItem('flipit_token');
       const response = await fetch('/api/items/propose', {
@@ -200,6 +214,7 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
         condition: generatedData.condition || '',
         category: generatedData.category || '',
         price: generatedData.price?.toString() || data.expected_price || '',
+        currency: resolveCurrency(generatedData.currency || data.currency, user?.language || language || getCurrentLanguage()),
         catalog_path: generatedData.catalog_path,
         size: generatedData.size,
         draft_id: generatedData.draft_id,
@@ -282,19 +297,43 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
             />
           </div>
 
-          <div>
-            <Label htmlFor="expected_price" className="text-neutral-300">
-              {t.labels.expectedPrice} <span className="text-slate-500 text-xs">(optional)</span>
-            </Label>
-            <Input 
-              id="expected_price" 
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder={t.placeholders.expectedPrice}
-              {...register('expected_price')} 
-              disabled={isSubmitting} 
-            />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_160px]">
+            <div>
+              <Label htmlFor="expected_price" className="text-neutral-300">
+                {t.labels.expectedPrice} <span className="text-slate-500 text-xs">(optional)</span>
+              </Label>
+              <Input
+                id="expected_price"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder={t.placeholders.expectedPrice.replace('{currency}', selectedCurrency)}
+                {...register('expected_price')}
+                disabled={isSubmitting}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="currency" className="text-neutral-300">
+                {t.labels.currency}
+              </Label>
+              <Select
+                value={selectedCurrency}
+                onValueChange={(value) => setValue('currency', value)}
+                disabled={isSubmitting}
+              >
+                <SelectTrigger id="currency" className="bg-neutral-950/60 border-neutral-700 text-white">
+                  <SelectValue placeholder={defaultCurrency} />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
+                  {SUPPORTED_CURRENCIES.map((currency) => (
+                    <SelectItem key={currency} value={currency}>
+                      {currency}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-700">

@@ -16,6 +16,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import ImageUploader from './ImageUploader';
 import MarketplaceAttributesPanel from './MarketplaceAttributesPanel';
 import PlatformOverrideCard from './PlatformOverrideCard';
@@ -37,6 +45,7 @@ import {
 } from './review-item-form-mode';
 import { submitEditDraft } from './review-item/submit-edit';
 import { getVintedCategoryAttributes } from '@/lib/api/vinted';
+import { SUPPORTED_CURRENCIES, resolveCurrency } from '@/lib/currency';
 
 interface ReviewItemFormProps {
   initialData: GeneratedItemDataWithVinted;
@@ -54,6 +63,7 @@ const ReviewItemForm = ({
   mode,
   connectedPlatforms,
   onBack,
+  language,
   editItemId,
   publishedPlatforms = [],
   publishPlatform,
@@ -65,8 +75,12 @@ const ReviewItemForm = ({
     available: number;
   } | null>(null);
   const isPublishingMode = isPublishMode(mode);
+  const defaultCurrency = resolveCurrency(initialData.currency, language);
   // Ensure draft_id is preserved in state
-  const [data, setData] = useState<GeneratedItemData & { draft_id?: string }>(initialData);
+  const [data, setData] = useState<GeneratedItemData & { draft_id?: string }>(() => ({
+    ...initialData,
+    currency: defaultCurrency,
+  }));
   const navigate = useNavigate();
   const { data: credits } = useCredits();
   const queryClient = useQueryClient();
@@ -146,6 +160,9 @@ const ReviewItemForm = ({
   };
   
   const handlePlatformToggle = (platform: Platform) => {
+    if (isPublishingMode && !connectedPlatforms[platform]) {
+      return;
+    }
     setSelectedPlatforms(prev => 
       prev.includes(platform)
         ? prev.filter(p => p !== platform)
@@ -307,6 +324,8 @@ const ReviewItemForm = ({
       } else if (field === 'price') {
         const parsed = Number(cleanedValue);
         existingFieldOverrides[field] = Number.isFinite(parsed) ? parsed : cleanedValue;
+      } else if (field === 'currency') {
+        existingFieldOverrides[field] = resolveCurrency(cleanedValue, language);
       } else {
         existingFieldOverrides[field] = cleanedValue;
       }
@@ -554,6 +573,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       category: string;
       size?: string;
       price: number;
+      currency: string;
       description: string;
       catalog_path?: string;
       platforms: Platform[];
@@ -568,6 +588,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       category: data.category,
       size: data.size,
       price: numericPrice,
+      currency: resolveCurrency(data.currency, language),
       description: data.description,
       catalog_path: data.catalog_path,
       platforms: selectedPlatforms,
@@ -683,23 +704,30 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className="space-y-3">
           {platformSelectionOptions.map((typedPlatform) => {
             const isConnected = connectedPlatforms[typedPlatform];
+            const isDisabled = isSubmitting || (isPublishingMode && !isConnected);
+            const isSelected = selectedPlatforms.includes(typedPlatform);
             const platformName =
               t.platforms[typedPlatform] || typedPlatform.charAt(0).toUpperCase() + typedPlatform.slice(1);
-            return (
+            const reason = !isConnected
+              ? `${platformName} is not connected yet. Connect it in platform settings before publishing.`
+              : undefined;
+            const platformOption = (
               <label
                 key={typedPlatform}
                 htmlFor={`platform-${typedPlatform}`}
-                className={`flex items-center gap-3 p-4 rounded-lg border transition-all cursor-pointer min-h-[56px] ${
-                  selectedPlatforms.includes(typedPlatform)
+                className={`flex items-center gap-3 p-4 rounded-lg border transition-all min-h-[56px] ${
+                  isDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                } ${
+                  isSelected
                     ? 'bg-cyan-500/10 border-cyan-500/50'
                     : 'bg-neutral-800/30 border-neutral-700'
                 }`}
               >
                 <Checkbox
                   id={`platform-${typedPlatform}`}
-                  checked={selectedPlatforms.includes(typedPlatform)}
+                  checked={isSelected}
                   onCheckedChange={() => handlePlatformToggle(typedPlatform)}
-                  disabled={isSubmitting}
+                  disabled={isDisabled}
                   className="h-5 w-5"
                 />
                 <div className="flex-1">
@@ -708,11 +736,26 @@ const handleSubmit = async (e: React.FormEvent) => {
                   </div>
                   {!isConnected && (
                     <div className="text-xs text-neutral-400">
-                      Not connected (you can still preconfigure)
+                      {isPublishingMode ? 'Not connected' : 'Not connected (you can still preconfigure)'}
                     </div>
                   )}
                 </div>
               </label>
+            );
+            if (!reason || !isPublishingMode) {
+              return platformOption;
+            }
+            return (
+              <TooltipProvider key={typedPlatform} delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>{platformOption}</div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs border-neutral-700 bg-neutral-900 text-neutral-200">
+                    <p className="text-sm">{reason}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             );
           })}
         </div>
@@ -752,6 +795,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 title: data.title ?? '',
                 description: data.description ?? '',
                 price: data.price ?? '',
+                currency: resolveCurrency(data.currency, language),
                 brand: data.brand ?? '',
                 condition: data.condition ?? '',
                 category: data.category ?? '',
@@ -966,21 +1010,40 @@ const handleSubmit = async (e: React.FormEvent) => {
 
           <div className="space-y-2">
             <Label htmlFor="price" className="text-sm font-medium text-neutral-300">{t.labels.price}</Label>
-            <Input 
-              id="price" 
-              type="number"
-              value={data.price}
-              onChange={(e) => updateField('price', e.target.value)}
-              disabled={isSubmitting}
-              required
-              className="h-12 text-base"
-              inputMode="decimal"
-            />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_140px]">
+              <Input
+                id="price"
+                type="number"
+                value={data.price}
+                onChange={(e) => updateField('price', e.target.value)}
+                disabled={isSubmitting}
+                required
+                className="h-12 text-base"
+                inputMode="decimal"
+              />
+              <Select
+                value={resolveCurrency(data.currency, language)}
+                onValueChange={(value) => updateField('currency', value)}
+                disabled={isSubmitting}
+              >
+                <SelectTrigger className="h-12 bg-neutral-950/60 border-neutral-700 text-white">
+                  <SelectValue placeholder={defaultCurrency} />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
+                  {SUPPORTED_CURRENCIES.map((currency) => (
+                    <SelectItem key={currency} value={currency}>
+                      {currency}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {data.priceRange.min && data.priceRange.max && (
               <p className="text-xs text-slate-500 mt-1">
                 {t.helper.priceRange
                   .replace('{min}', data.priceRange.min)
-                  .replace('{max}', data.priceRange.max)}
+                  .replace('{max}', data.priceRange.max)
+                  .replace('{currency}', resolveCurrency(data.currency, language))}
               </p>
             )}
           </div>

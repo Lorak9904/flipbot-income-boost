@@ -1,5 +1,6 @@
 import type { GeneratedItemDataWithVinted, ItemImage, MarketplaceAttributeField, Platform } from '@/types/item';
 import { resolveItemImageUrl } from '@/lib/images';
+import { resolveCurrency } from '@/lib/currency';
 
 interface RawItem {
   id?: string;
@@ -11,6 +12,7 @@ interface RawItem {
   condition?: string;
   category?: string;
   price?: string | number;
+  currency?: string;
   catalog_path?: string;
   catalog_path_detected?: string;
   size?: string;
@@ -66,6 +68,11 @@ export function toReviewFormData(item: RawItem): GeneratedItemDataWithVinted {
     })();
   const priceText =
     item.price !== undefined && item.price !== null && item.price !== '' ? String(item.price) : '0';
+  const currency = resolveCurrency(
+    item.currency ||
+      (analysis.olx_currency as string | undefined) ||
+      (analysis.vinted_currency as string | undefined)
+  );
 
   return {
     title: item.title || '',
@@ -74,6 +81,7 @@ export function toReviewFormData(item: RawItem): GeneratedItemDataWithVinted {
     condition: item.condition || '',
     category: item.category || '',
     price: priceText,
+    currency,
     catalog_path: item.catalog_path || item.catalog_path_detected || '',
     size: item.size || '',
     gender: item.gender,

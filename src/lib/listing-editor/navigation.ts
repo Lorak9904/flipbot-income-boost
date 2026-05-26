@@ -12,8 +12,8 @@ interface BuildListingEditorUrlInput {
 
 /**
  * Listing editor routing policy:
- * - Global entry points (navbar/marketing) should use page mode: /add-item
- * - Contextual entry points (item detail/list actions) should use modal mode with returnTo
+ * - Add-item entry points should use page mode: /add-item
+ * - Contextual edit/republish actions should use modal mode with returnTo
  */
 export function isSafeReturnPath(path: string | null | undefined): path is string {
   return Boolean(path && path.startsWith('/'));

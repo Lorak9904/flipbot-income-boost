@@ -304,13 +304,12 @@ const ConnectAccountCard = ({
           <CardContent className="p-4 h-full flex flex-col">
             {/* Top Row: Logo, Name, Status */}
             <div className="flex items-center justify-between gap-3">
-              {/* Platform Logo & Name */}
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div className="h-10 w-10 flex items-center justify-center flex-shrink-0">
                   <img
                     src={logoSrc}
                     alt={`${platformName} logo`}
-                    className="h-6 w-auto"
+                    className="h-6 max-w-10 object-contain"
                   />
                 </div>
                 <h3 className="font-semibold text-base text-white truncate">
@@ -318,7 +317,6 @@ const ConnectAccountCard = ({
                 </h3>
               </div>
 
-              {/* Status Icon with Tooltip */}
               <TooltipProvider delayDuration={100}>
                 <Tooltip>
                   <TooltipTrigger asChild>

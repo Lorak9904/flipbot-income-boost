@@ -25,6 +25,7 @@ export interface ItemFormData {
   // Simplified: only optional title and expected_price
   title?: string;
   expected_price?: string;
+  currency?: string;
   images: ItemImage[];
   // All other fields (brand, description, condition, category, size, gender) are AI-generated
 }
@@ -36,6 +37,7 @@ export interface GeneratedItemData {
   condition: string;
   category: string;
   price: string;
+  currency: string;
   catalog_path?: string;
   size?: string;
   gender?: string;
@@ -54,6 +56,7 @@ export interface PlatformFieldOverrides {
   title?: string;
   description?: string;
   price?: string | number;
+  currency?: string;
   brand?: string;
   condition?: string;
   category?: string;
@@ -196,6 +199,7 @@ export interface UserItem {
   title: string;
   description: string;
   price: string;
+  currency?: string;
   brand?: string;
   condition?: string;
   category?: string;

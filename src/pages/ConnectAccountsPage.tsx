@@ -11,6 +11,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getTranslations } from '@/components/language-utils';
 import { connectAccountsTranslations } from './connect-accounts-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import { PLATFORM_LOGOS } from '@/lib/platform-logos';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -232,12 +233,12 @@ const ConnectAccountsPage = () => {
             </motion.p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <ConnectAccountCard
               key="facebook-card"
               platform="facebook"
               platformName={t.platformFacebook}
-              logoSrc="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png"
+              logoSrc={PLATFORM_LOGOS.facebook}
               isConnected={!!connectedPlatforms?.facebook}
               sessionStatus={connectedPlatforms?.facebook_session_status}
               onConnected={handleAccountConnected}
@@ -246,7 +247,7 @@ const ConnectAccountsPage = () => {
               key="olx-card"
               platform="olx"
               platformName={t.platformOLX}
-              logoSrc="https://images.seeklogo.com/logo-png/39/1/olx-logo-png_seeklogo-390322.png"
+              logoSrc={PLATFORM_LOGOS.olx}
               isConnected={!!connectedPlatforms?.olx}
               sessionStatus={connectedPlatforms?.olx_session_status}
               invalidReason={connectedPlatforms?.olx_invalid_reason}
@@ -256,7 +257,7 @@ const ConnectAccountsPage = () => {
               key="vinted-card"
               platform="vinted"
               platformName={t.platformVinted}
-              logoSrc="https://upload.wikimedia.org/wikipedia/commons/2/29/Vinted_logo.png"
+              logoSrc={PLATFORM_LOGOS.vinted}
               isConnected={!!connectedPlatforms?.vinted}
               onConnected={handleAccountConnected}
               sessionStatus={connectedPlatforms?.vinted_session_status}
@@ -266,7 +267,7 @@ const ConnectAccountsPage = () => {
               key="ebay-card"
               platform="ebay"
               platformName={t.platformEbay}
-              logoSrc="https://upload.wikimedia.org/wikipedia/commons/1/1b/EBay_logo.svg"
+              logoSrc={PLATFORM_LOGOS.ebay}
               isConnected={!!connectedPlatforms?.ebay}
               sessionStatus={connectedPlatforms?.ebay_session_status}
               invalidReason={connectedPlatforms?.ebay_invalid_reason}
@@ -276,7 +277,7 @@ const ConnectAccountsPage = () => {
               key="allegro-card"
               platform="allegro"
               platformName={t.platformAllegro}
-              logoSrc="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Allegro_logo.svg/512px-Allegro_logo.svg.png"
+              logoSrc={PLATFORM_LOGOS.allegro}
               isConnected={!!connectedPlatforms?.allegro}
               sessionStatus={connectedPlatforms?.allegro_session_status}
               invalidReason={connectedPlatforms?.allegro_invalid_reason}

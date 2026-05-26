@@ -474,6 +474,29 @@ test('user items and item detail load with mocked data', async ({ page }) => {
   tracker.assertNoNewIssues(detailCheckpoint, `/user/items/${TEST_ITEM_UUID}`);
 });
 
+test('empty user items add button opens add page without modal', async ({ page }) => {
+  await preparePage(page, { authenticated: true });
+  await page.route(/\/api\/items\/\?.*$/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        items: [],
+        total: 0,
+        total_pages: 1,
+        page: 1,
+      }),
+    });
+  });
+
+  await page.goto('/user/items');
+  await expect(page).toHaveURL('/user/items');
+  await page.getByRole('button', { name: 'Add Listing' }).click();
+
+  await expect(page).toHaveURL('/add-item');
+  expect(new URL(page.url()).searchParams.has('modal')).toBe(false);
+});
+
 test('pricing page preserves gradient accent styling', async ({ page }) => {
   const tracker = await preparePage(page, { authenticated: false });
   const checkpoint = tracker.checkpoint();

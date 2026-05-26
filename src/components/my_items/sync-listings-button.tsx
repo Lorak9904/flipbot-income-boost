@@ -29,6 +29,11 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { syncOlxListings, type OlxSyncResponse } from '@/lib/api/olx';
 import { syncVintedListings, type VintedSyncResponse } from '@/lib/api/vinted';
+import {
+  fetchPlatformHealth,
+  type PlatformHealthInfo,
+  type PlatformHealthResponse,
+} from '@/lib/api/platform-health';
 import { getTranslations } from '@/components/language-utils';
 
 // Supported platforms for sync
@@ -51,34 +56,52 @@ const translations = {
   en: {
     syncListings: 'Sync Listings',
     syncing: 'Syncing...',
+    syncAllConnected: 'All connected platforms',
     selectPlatform: 'Select platform',
     comingSoon: 'Coming Soon',
+    unavailable: 'Unavailable',
     tooltipTitle: 'Import listings',
     tooltipDescription: 'Imports your current listings from the selected platform and adds any missing ones to FlipIt.',
     syncSuccess: 'Sync completed!',
     syncSuccessDescription: (inserted: number, updated: number) => 
       `Imported ${inserted} new listings, updated ${updated} existing ones.`,
     syncSuccessNoNew: 'All your listings are already synced.',
+    syncPartial: 'Sync partially completed',
+    syncAllSuccess: 'All connected platforms synced',
+    syncAllSummary: (succeeded: number, failed: number, skipped: number) =>
+      `${succeeded} succeeded, ${failed} failed, ${skipped} skipped.`,
     syncError: 'Sync failed',
     connectFirst: 'Please connect your account first',
     platformNotConnected: (platform: string) => 
       `Please connect your ${platform} account in Settings first.`,
+    platformExpired: (platform: string) =>
+      `${platform} connection is expired or invalid. Reconnect it before syncing.`,
+    noConnectedPlatforms: 'No connected platforms available for sync.',
   },
   pl: {
     syncListings: 'Synchronizuj ogłoszenia',
     syncing: 'Synchronizuję...',
+    syncAllConnected: 'Wszystkie połączone platformy',
     selectPlatform: 'Wybierz platformę',
     comingSoon: 'Wkrótce',
+    unavailable: 'Niedostępne',
     tooltipTitle: 'Importuj ogłoszenia',
     tooltipDescription: 'Importuje Twoje aktualne ogłoszenia z wybranej platformy i dodaje brakujące do FlipIt.',
     syncSuccess: 'Synchronizacja zakończona!',
     syncSuccessDescription: (inserted: number, updated: number) => 
       `Zaimportowano ${inserted} nowych ogłoszeń, zaktualizowano ${updated} istniejących.`,
     syncSuccessNoNew: 'Wszystkie ogłoszenia są już zsynchronizowane.',
+    syncPartial: 'Synchronizacja częściowo zakończona',
+    syncAllSuccess: 'Połączone platformy zsynchronizowane',
+    syncAllSummary: (succeeded: number, failed: number, skipped: number) =>
+      `${succeeded} zakończone, ${failed} nieudane, ${skipped} pominięte.`,
     syncError: 'Błąd synchronizacji',
     connectFirst: 'Najpierw połącz swoje konto',
     platformNotConnected: (platform: string) => 
       `Najpierw połącz swoje konto ${platform} w ustawieniach.`,
+    platformExpired: (platform: string) =>
+      `Połączenie ${platform} wygasło lub jest nieprawidłowe. Połącz je ponownie przed synchronizacją.`,
+    noConnectedPlatforms: 'Brak połączonych platform dostępnych do synchronizacji.',
   },
 };
 
@@ -90,31 +113,82 @@ interface SyncListingsButtonProps {
 export function SyncListingsButton({ onSyncComplete, className }: SyncListingsButtonProps) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<SyncPlatform | null>(null);
+  const [platformHealth, setPlatformHealth] = useState<PlatformHealthResponse | null>(null);
+  const [healthLoading, setHealthLoading] = useState(false);
   const { toast } = useToast();
   const t = getTranslations(translations);
+
+  const refreshPlatformHealth = async (): Promise<PlatformHealthResponse | null> => {
+    setHealthLoading(true);
+    try {
+      const health = await fetchPlatformHealth();
+      setPlatformHealth(health);
+      return health;
+    } catch (error) {
+      console.error('Failed to fetch platform health:', error);
+      setPlatformHealth(null);
+      return null;
+    } finally {
+      setHealthLoading(false);
+    }
+  };
+
+  const getPlatformHealth = async (): Promise<PlatformHealthResponse | null> =>
+    platformHealth || refreshPlatformHealth();
+
+  const platformInfo = (platform: SyncPlatform): PlatformHealthInfo | undefined =>
+    platformHealth?.platforms?.[platform];
+
+  const isPlatformConnected = (platform: SyncPlatform, health = platformHealth): boolean => {
+    const info = health?.platforms?.[platform];
+    return !!info?.stored && info.status !== 'expired' && info.status !== 'invalid';
+  };
+
+  const platformUnavailableReason = (platform: SyncPlatform): string | null => {
+    const info = platformInfo(platform);
+    if (!info) {
+      return null;
+    }
+    if (!info.stored) {
+      return t.platformNotConnected(platform.toUpperCase());
+    }
+    if (info.status === 'expired' || info.status === 'invalid') {
+      return t.platformExpired(platform.toUpperCase());
+    }
+    return null;
+  };
+
+  const syncPlatform = async (platform: SyncPlatform): Promise<OlxSyncResponse | VintedSyncResponse> => {
+    switch (platform) {
+      case 'olx':
+        return syncOlxListings();
+      case 'vinted':
+        return syncVintedListings();
+      default:
+        throw new Error(`Unknown platform: ${platform}`);
+    }
+  };
 
   const handleSync = async (platform: SyncPlatform) => {
     setSelectedPlatform(platform);
     setIsSyncing(true);
 
     try {
-      let response: OlxSyncResponse | VintedSyncResponse;
-
-      // Call appropriate sync function based on platform
-      switch (platform) {
-        case 'olx':
-          response = await syncOlxListings();
-          break;
-        case 'vinted':
-          response = await syncVintedListings();
-          break;
-        default:
-          throw new Error(`Unknown platform: ${platform}`);
+      const health = await getPlatformHealth();
+      if (health && !isPlatformConnected(platform, health)) {
+        toast({
+          title: t.connectFirst,
+          description: platformUnavailableReason(platform) || t.platformNotConnected(platform.toUpperCase()),
+          variant: 'destructive',
+        });
+        return;
       }
+
+      const response = await syncPlatform(platform);
 
       // Show success toast with summary
       if (response.success && response.summary) {
-        const { inserted, updated, total_fetched } = response.summary;
+        const { inserted, updated } = response.summary;
         
         if (inserted === 0 && updated === 0) {
           toast({
@@ -158,13 +232,67 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
     }
   };
 
+  const handleSyncAllConnected = async () => {
+    setSelectedPlatform(null);
+    setIsSyncing(true);
+
+    try {
+      const health = await getPlatformHealth();
+      const connectedPlatforms = PLATFORMS
+        .filter((platform) => platform.enabled && isPlatformConnected(platform.id, health))
+        .map((platform) => platform.id);
+      const skippedCount = PLATFORMS.length - connectedPlatforms.length;
+
+      if (connectedPlatforms.length === 0) {
+        toast({
+          title: t.connectFirst,
+          description: t.noConnectedPlatforms,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const results = await Promise.allSettled(
+        connectedPlatforms.map(async (platform) => ({
+          platform,
+          response: await syncPlatform(platform),
+        }))
+      );
+      const succeeded = results.filter((result) => result.status === 'fulfilled').length;
+      const failed = results.length - succeeded;
+
+      toast({
+        title: failed > 0 ? t.syncPartial : t.syncAllSuccess,
+        description: t.syncAllSummary(succeeded, failed, skippedCount),
+        variant: failed > 0 ? 'destructive' : undefined,
+      });
+
+      if (succeeded > 0 && onSyncComplete) {
+        onSyncComplete();
+      }
+    } catch (error) {
+      toast({
+        title: t.syncError,
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSyncing(false);
+      setSelectedPlatform(null);
+    }
+  };
+
   return (
     <div className={`flex items-center gap-2 ${className || ''}`}>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="inline-flex items-center">
-              <DropdownMenu>
+              <DropdownMenu onOpenChange={(open) => {
+                if (open && !platformHealth && !healthLoading) {
+                  void refreshPlatformHealth();
+                }
+              }}>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
@@ -181,21 +309,30 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
                   align="end" 
                   className="bg-neutral-800 border-neutral-700"
                 >
+                  <DropdownMenuItem
+                    onClick={handleSyncAllConnected}
+                    disabled={isSyncing || healthLoading}
+                    className="cursor-pointer text-neutral-200 hover:text-white hover:bg-neutral-700"
+                  >
+                    <span className="flex items-center gap-2">
+                      {t.syncAllConnected}
+                    </span>
+                  </DropdownMenuItem>
                   {PLATFORMS.map((platform) => (
                     <DropdownMenuItem
                       key={platform.id}
                       onClick={() => platform.enabled && handleSync(platform.id)}
-                      disabled={!platform.enabled || isSyncing}
+                      disabled={!platform.enabled || isSyncing || healthLoading || platformUnavailableReason(platform.id) !== null}
                       className={`
                         text-neutral-200 hover:text-white hover:bg-neutral-700
-                        ${!platform.enabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                        ${(!platform.enabled || platformUnavailableReason(platform.id)) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                       `}
                     >
                       <span className="flex items-center gap-2">
                         {platform.name}
-                        {platform.comingSoon && (
+                        {(platform.comingSoon || platformUnavailableReason(platform.id)) && (
                           <span className="text-xs text-neutral-500 bg-neutral-700/50 px-1.5 py-0.5 rounded">
-                            {t.comingSoon}
+                            {platform.comingSoon ? t.comingSoon : t.unavailable}
                           </span>
                         )}
                       </span>

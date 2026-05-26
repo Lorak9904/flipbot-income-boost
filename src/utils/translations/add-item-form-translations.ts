@@ -22,12 +22,13 @@ export const addItemFormTranslations = {
     labels: {
       title: "Title",
       expectedPrice: "Expected Price",
+      currency: "Currency",
     },
     
     // Placeholders
     placeholders: {
       title: "Leave empty for AI to generate",
-      expectedPrice: "Your price expectation (e.g., 50.00)",
+      expectedPrice: "Your price expectation in {currency} (e.g., 50.00)",
     },
     
     // Buttons
@@ -60,12 +61,13 @@ export const addItemFormTranslations = {
     labels: {
       title: "Tytuł",
       expectedPrice: "Oczekiwana cena",
+      currency: "Waluta",
     },
     
     // Placeholdery
     placeholders: {
       title: "Zostaw puste, aby AI wygenerowało tytuł",
-      expectedPrice: "Podaj cenę (np. 50,00)",
+      expectedPrice: "Podaj cenę w {currency} (np. 50,00)",
     },
     
     // Przyciski

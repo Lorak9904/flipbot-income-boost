@@ -4,13 +4,22 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { SecondaryAction } from '@/components/ui/button-presets';
 import type { Platform, PlatformFieldOverrides, PlatformOverrides } from '@/types/item';
+import { SUPPORTED_CURRENCIES, resolveCurrency } from '@/lib/currency';
 
 interface BaseListingValues {
   title: string;
   description: string;
   price: string;
+  currency: string;
   brand: string;
   condition: string;
   category: string;
@@ -190,6 +199,27 @@ export default function PlatformFieldOverridesSection({
                 placeholder={basePlaceholder('price', baseValues.price)}
                 disabled={disabled}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-neutral-300 text-xs">Currency override</Label>
+              <Select
+                value={resolveCurrency(overrides?.currency || baseValues.currency)}
+                onValueChange={(value) => onFieldChange(platform, 'currency', value)}
+                disabled={disabled}
+              >
+                <SelectTrigger className="bg-neutral-950/60 border-neutral-700 text-white">
+                  <SelectValue placeholder={baseValues.currency} />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
+                  {SUPPORTED_CURRENCIES.map((currency) => (
+                    <SelectItem key={currency} value={currency}>
+                      {currency}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-neutral-500">Default: {baseValues.currency}</p>
             </div>
 
             <div className="space-y-2">

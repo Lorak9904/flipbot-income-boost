@@ -9,6 +9,12 @@ export const addItemTranslations = {
       title: "Upload Item",
       description: "Start by adding images and basic information about your item",
     },
+
+    platformConnectionNotice: {
+      title: "No marketplace ready for publishing",
+      description: "You can create a listing now, but connect or reconnect at least one marketplace before publishing it.",
+      ctaLabel: "Connect platforms",
+    },
     
     // Step: Review
     reviewCard: {
@@ -56,6 +62,12 @@ export const addItemTranslations = {
     addCard: {
       title: "Dodaj przedmiot",
       description: "Zacznij od dodania zdjęć i podstawowych informacji o przedmiocie",
+    },
+
+    platformConnectionNotice: {
+      title: "Brak platformy gotowej do publikacji",
+      description: "Możesz przygotować ogłoszenie teraz, ale przed publikacją połącz lub odśwież połączenie z co najmniej jedną platformą.",
+      ctaLabel: "Połącz platformy",
     },
     
     // Krok: Przegląd

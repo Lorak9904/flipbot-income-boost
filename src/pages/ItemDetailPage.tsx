@@ -16,6 +16,7 @@ import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
 import { format } from 'date-fns';
 import { cdnThumb, resolveItemImageUrl } from '@/lib/images';
+import { formatMoney } from '@/lib/currency';
 import { ImagePreview } from '@/components/ImagePreview';
 import { ItemActions } from '@/components/ItemActions';
 import { useQuery } from '@tanstack/react-query';
@@ -358,7 +359,7 @@ const ItemDetailPage = () => {
                   <div className="rounded-lg bg-neutral-800/50 p-4">
                     <p className="text-xs uppercase tracking-wide text-neutral-400">Price</p>
                     <p className="mt-2 text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
-                      ${item.price}
+                      {formatMoney(item.price, item.currency)}
                     </p>
                   </div>
                   <div className="rounded-lg bg-neutral-800/50 p-4">

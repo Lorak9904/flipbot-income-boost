@@ -36,6 +36,7 @@ export const reviewItemFormTranslations = {
       size: "Size",
       gender: "Gender",
       price: "Price",
+      currency: "Currency",
       olxCategoryId: "OLX Category ID",
       vintedCatalogId: "Vinted Catalog ID",
       ebayCategoryPath: "eBay Category Path",
@@ -46,7 +47,7 @@ export const reviewItemFormTranslations = {
     
     // Helper Text
     helper: {
-      priceRange: "Suggested price range: PLN{min} - PLN{max}",
+      priceRange: "Suggested price range: {min}-{max} {currency}",
       notConnected: "(not connected)",
     },
     
@@ -106,6 +107,7 @@ export const reviewItemFormTranslations = {
       size: "Rozmiar",
       gender: "Płeć",
       price: "Cena",
+      currency: "Waluta",
       olxCategoryId: "ID kategorii OLX",
       vintedCatalogId: "ID katalogu Vinted",
       ebayCategoryPath: "Ścieżka kategorii eBay",
@@ -116,7 +118,7 @@ export const reviewItemFormTranslations = {
     
     // Tekst pomocniczy
     helper: {
-      priceRange: "Sugerowany zakres: {min}–{max} PLN",
+      priceRange: "Sugerowany zakres: {min}-{max} {currency}",
       notConnected: "(nie połączono)",
     },
     

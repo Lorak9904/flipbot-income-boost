@@ -29,9 +29,7 @@ export function getPlatformSelectionOptions({
   if (mode === 'edit') {
     return SUPPORTED_PLATFORMS;
   }
-  return SUPPORTED_PLATFORMS.filter(
-    (platform) => connectedPlatforms[platform] && !publishedPlatforms.includes(platform)
-  );
+  return SUPPORTED_PLATFORMS.filter((platform) => !publishedPlatforms.includes(platform));
 }
 
 export function getDefaultSelectedPlatforms(

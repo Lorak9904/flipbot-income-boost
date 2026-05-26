@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Edit, Copy, Upload, Trash2, MoreVertical, Loader2, CheckCircle2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getTranslations } from '@/components/language-utils';
@@ -25,6 +26,7 @@ import { UserItem, Platform, PlatformPublishResult } from '@/types/item';
 import { duplicateItem, deleteItem, removeListingFromMarketplaces, syncPlatformListings } from '@/lib/api/items';
 import { Badge } from '@/components/ui/badge';
 import { buildListingEditorUrl } from '@/lib/listing-editor/navigation';
+import { PLATFORM_LOGOS } from '@/lib/platform-logos';
 
 interface ItemActionsProps {
   item: UserItem;
@@ -36,23 +38,23 @@ interface ItemActionsProps {
 const PLATFORM_CONFIG: Record<Platform, { name: string; logo: string }> = {
   facebook: {
     name: 'Facebook Marketplace',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png',
+    logo: PLATFORM_LOGOS.facebook,
   },
   olx: {
     name: 'OLX',
-    logo: 'https://images.seeklogo.com/logo-png/39/1/olx-logo-png_seeklogo-390322.png',
+    logo: PLATFORM_LOGOS.olx,
   },
   vinted: {
     name: 'Vinted',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/2/29/Vinted_logo.png',
+    logo: PLATFORM_LOGOS.vinted,
   },
   ebay: {
     name: 'eBay',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/1/1b/EBay_logo.svg',
+    logo: PLATFORM_LOGOS.ebay,
   },
   allegro: {
     name: 'Allegro',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Allegro_logo.svg/512px-Allegro_logo.svg.png',
+    logo: PLATFORM_LOGOS.allegro,
   },
 };
 
@@ -320,6 +322,68 @@ export function ItemActions({
     setShowPlatformPicker(false);
     navigateToListingEditor({ publishPlatform: platform });
   };
+
+  const renderPlatformPickerOption = (platform: Platform) => {
+    const isConnected = connectedPlatforms[platform];
+    const isAlreadyPublished = publishedPlatforms.has(platform);
+    const config = PLATFORM_CONFIG[platform];
+    const disabledReason = isAlreadyPublished
+      ? `${config.name} is already published for this listing.`
+      : !isConnected
+        ? `${config.name} is not connected yet. Connect it in platform settings before publishing.`
+        : null;
+    const option = (
+      <button
+        key={platform}
+        onClick={() => !disabledReason && handleSelectPlatform(platform)}
+        disabled={!!disabledReason}
+        className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+          isAlreadyPublished
+            ? 'border-green-500/30 bg-green-500/10 cursor-not-allowed'
+            : isConnected
+            ? 'border-neutral-700 hover:border-cyan-500/50 hover:bg-neutral-800 cursor-pointer'
+            : 'border-neutral-800 bg-neutral-900/50 cursor-not-allowed opacity-50'
+        }`}
+      >
+        <img
+          src={config.logo}
+          alt={config.name}
+          className="w-8 h-8 object-contain"
+        />
+        <span className="flex-1 text-left text-white font-medium">
+          {config.name}
+        </span>
+        {isAlreadyPublished && (
+          <span className="flex items-center gap-1 text-green-400 text-sm">
+            <CheckCircle2 className="w-4 h-4" />
+            {t.platformPicker.alreadyPublished}
+          </span>
+        )}
+        {!isConnected && !isAlreadyPublished && (
+          <span className="text-neutral-500 text-sm">
+            {t.platformPicker.connectAccount}
+          </span>
+        )}
+      </button>
+    );
+
+    if (!disabledReason) {
+      return option;
+    }
+
+    return (
+      <TooltipProvider key={platform} delayDuration={100}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div>{option}</div>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-xs border-neutral-700 bg-neutral-900 text-neutral-200">
+            <p className="text-sm">{disabledReason}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  };
   
   if (variant === 'compact') {
     return (
@@ -504,46 +568,7 @@ export function ItemActions({
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-3 py-4">
-              {SUPPORTED_PLATFORMS.map((platform) => {
-                const isConnected = connectedPlatforms[platform];
-                const isAlreadyPublished = publishedPlatforms.has(platform);
-                const config = PLATFORM_CONFIG[platform];
-                
-                return (
-                  <button
-                    key={platform}
-                    onClick={() => !isAlreadyPublished && isConnected && handleSelectPlatform(platform)}
-                    disabled={!isConnected || isAlreadyPublished}
-                    className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-                      isAlreadyPublished 
-                        ? 'border-green-500/30 bg-green-500/10 cursor-not-allowed'
-                        : isConnected 
-                        ? 'border-neutral-700 hover:border-cyan-500/50 hover:bg-neutral-800 cursor-pointer'
-                        : 'border-neutral-800 bg-neutral-900/50 cursor-not-allowed opacity-50'
-                    }`}
-                  >
-                    <img 
-                      src={config.logo} 
-                      alt={config.name} 
-                      className="w-8 h-8 object-contain rounded"
-                    />
-                    <span className="flex-1 text-left text-white font-medium">
-                      {config.name}
-                    </span>
-                    {isAlreadyPublished && (
-                      <span className="flex items-center gap-1 text-green-400 text-sm">
-                        <CheckCircle2 className="w-4 h-4" />
-                        {t.platformPicker.alreadyPublished}
-                      </span>
-                    )}
-                    {!isConnected && !isAlreadyPublished && (
-                      <span className="text-neutral-500 text-sm">
-                        {t.platformPicker.connectAccount}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+              {SUPPORTED_PLATFORMS.map(renderPlatformPickerOption)}
             </div>
             <DialogFooter>
               <SecondaryAction onClick={() => setShowPlatformPicker(false)} className="px-4 py-2">
@@ -760,46 +785,7 @@ export function ItemActions({
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3 py-4">
-            {SUPPORTED_PLATFORMS.map((platform) => {
-              const isConnected = connectedPlatforms[platform];
-              const isAlreadyPublished = publishedPlatforms.has(platform);
-              const config = PLATFORM_CONFIG[platform];
-              
-              return (
-                <button
-                  key={platform}
-                  onClick={() => !isAlreadyPublished && isConnected && handleSelectPlatform(platform)}
-                  disabled={!isConnected || isAlreadyPublished}
-                  className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-                    isAlreadyPublished 
-                      ? 'border-green-500/30 bg-green-500/10 cursor-not-allowed'
-                      : isConnected 
-                      ? 'border-neutral-700 hover:border-cyan-500/50 hover:bg-neutral-800 cursor-pointer'
-                      : 'border-neutral-800 bg-neutral-900/50 cursor-not-allowed opacity-50'
-                  }`}
-                >
-                  <img 
-                    src={config.logo} 
-                    alt={config.name} 
-                    className="w-8 h-8 object-contain rounded"
-                  />
-                  <span className="flex-1 text-left text-white font-medium">
-                    {config.name}
-                  </span>
-                  {isAlreadyPublished && (
-                    <span className="flex items-center gap-1 text-green-400 text-sm">
-                      <CheckCircle2 className="w-4 h-4" />
-                      {t.platformPicker.alreadyPublished}
-                    </span>
-                  )}
-                  {!isConnected && !isAlreadyPublished && (
-                    <span className="text-neutral-500 text-sm">
-                      {t.platformPicker.connectAccount}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+            {SUPPORTED_PLATFORMS.map(renderPlatformPickerOption)}
           </div>
           <DialogFooter>
             <SecondaryAction onClick={() => setShowPlatformPicker(false)} className="px-4 py-2">

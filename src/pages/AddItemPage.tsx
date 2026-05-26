@@ -35,6 +35,8 @@ const AddItemPage = () => {
     ebay: false,
     allegro: false,
   });
+  const [isCheckingPlatformConnections, setIsCheckingPlatformConnections] = useState(true);
+  const [platformConnectionCheckFailed, setPlatformConnectionCheckFailed] = useState(false);
   const editId = searchParams.get('edit');
   const publishParam = searchParams.get('publish');
   const modalParam = searchParams.get('modal');
@@ -82,6 +84,8 @@ const AddItemPage = () => {
     }
 
     const fetchConnectedPlatforms = async () => {
+      setIsCheckingPlatformConnections(true);
+      setPlatformConnectionCheckFailed(false);
       try {
         const health = await fetchPlatformHealth();
         setConnectedPlatforms(toPlatformConnectedMap(health.platforms));
@@ -95,7 +99,10 @@ const AddItemPage = () => {
           redirectToLoginWithReturn();
           return;
         }
+        setPlatformConnectionCheckFailed(true);
         console.error('Error fetching connected platforms:', error);
+      } finally {
+        setIsCheckingPlatformConnections(false);
       }
     };
 
@@ -103,6 +110,14 @@ const AddItemPage = () => {
       fetchConnectedPlatforms();
     }
   }, [isAuthenticated, isLoading, redirectToLoginWithReturn, toast]);
+
+  const hasConnectedPlatform = Object.values(connectedPlatforms).some(Boolean);
+  const showNoPlatformConnectionNotice =
+    step === 'add' &&
+    !editId &&
+    !isCheckingPlatformConnections &&
+    !platformConnectionCheckFailed &&
+    !hasConnectedPlatform;
 
   useEffect(() => {
     if (!isAuthenticated || !editId) {
@@ -185,6 +200,8 @@ const AddItemPage = () => {
       generatedData={generatedData}
       reviewMode={reviewMode}
       connectedPlatforms={connectedPlatforms}
+      showNoPlatformConnectionNotice={showNoPlatformConnectionNotice}
+      platformConnectionNotice={t.platformConnectionNotice}
       onComplete={handleComplete}
       onBack={handleBack}
       editItemId={editItemId || undefined}

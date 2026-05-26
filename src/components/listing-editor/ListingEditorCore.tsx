@@ -4,6 +4,7 @@ import type { GeneratedItemDataWithVinted, Platform } from '@/types/item';
 import type { ReviewItemFormMode } from '@/components/review-item-form-mode';
 import AddItemForm from '@/components/AddItemForm';
 import ReviewItemForm from '@/components/ReviewItemForm';
+import { PlatformConnectionNotice } from '@/components/listing-editor/PlatformConnectionNotice';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -26,6 +27,12 @@ interface ListingEditorCoreProps {
   generatedData: GeneratedItemDataWithVinted | null;
   reviewMode: ReviewItemFormMode;
   connectedPlatforms: Record<Platform, boolean>;
+  showNoPlatformConnectionNotice: boolean;
+  platformConnectionNotice: {
+    title: string;
+    description: string;
+    ctaLabel: string;
+  };
   onComplete: (data: GeneratedItemDataWithVinted) => void;
   onBack: () => void;
   editItemId?: string;
@@ -45,6 +52,8 @@ export function ListingEditorCore({
   generatedData,
   reviewMode,
   connectedPlatforms,
+  showNoPlatformConnectionNotice,
+  platformConnectionNotice,
   onComplete,
   onBack,
   editItemId,
@@ -68,6 +77,13 @@ export function ListingEditorCore({
             <CardHeader>
               <CardTitle className="text-cyan-400">{addCardTitle}</CardTitle>
               <CardDescription className="text-neutral-300">{addCardDescription}</CardDescription>
+              {showNoPlatformConnectionNotice && (
+                <PlatformConnectionNotice
+                  title={platformConnectionNotice.title}
+                  description={platformConnectionNotice.description}
+                  ctaLabel={platformConnectionNotice.ctaLabel}
+                />
+              )}
             </CardHeader>
             <CardContent>
               <AddItemForm onComplete={onComplete} language={language} />

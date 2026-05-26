@@ -163,13 +163,13 @@ const ConnectAccountCard = ({
       <Card className="w-full overflow-hidden border border-slate-700/80 bg-slate-800/60">
         <CardHeader className="pb-0">
           <div className="flex items-center justify-between gap-2 min-w-0">
-            {/* Platform info - truncates gracefully */}
             <div className="flex items-center gap-3 min-w-0 flex-shrink">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <img src={logoSrc} alt={`${platformName} logo`} className="h-6 sm:h-8 w-auto" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center flex-shrink-0">
+                <img src={logoSrc} alt={`${platformName} logo`} className="h-6 sm:h-8 max-w-12 object-contain" />
               </div>
               <h3 className="font-semibold text-base sm:text-lg text-white truncate">{platformName}</h3>
             </div>
+
             {/* Status badge - never truncates, but shrinks gracefully */}
             <div className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-2 sm:px-3 py-1 text-xs font-medium border flex-shrink-0 whitespace-nowrap ${
               sessionStatus === 'invalid' 

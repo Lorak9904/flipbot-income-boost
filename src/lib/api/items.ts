@@ -228,6 +228,7 @@ export interface UpdateItemPayload {
   condition?: string;
   category?: string;
   price?: number;
+  currency?: string;
   size?: string;
   catalog_path?: string;
   images?: string[];
@@ -465,6 +466,7 @@ export async function publishItemToPlatform(
     images: string[];
     title: string;
     price: string;
+    currency?: string;
     description: string;
     category: string;
     catalog_path?: string;

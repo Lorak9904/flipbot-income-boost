@@ -19,6 +19,7 @@ import { Loader2, Package, Filter, ChevronLeft, ChevronRight } from 'lucide-reac
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
 import { cdnGrid, resolveItemImageUrl } from '@/lib/images';
+import { formatMoney } from '@/lib/currency';
 import { getTranslations } from '@/components/language-utils';
 import { userItemsTranslations } from '@/utils/translations/user-items-translations';
 import { StatCard, StatCardSkeleton } from '@/components/my_items/stat-card';
@@ -98,7 +99,9 @@ const UserItemsPage = () => {
   ];
   const platformOptions: Array<Platform | 'all'> = ['all', 'facebook', 'olx', 'vinted', 'ebay', 'allegro'];
   const hasExplicitStatusFilter =
-    !!statusParam && statusOptions.includes(statusParam as ItemStatus | 'all');
+    !!statusParam &&
+    statusParam !== 'all' &&
+    statusOptions.includes(statusParam as ItemStatus | 'all');
   const statusFilter: ItemStatus | 'all' = statusParam && statusOptions.includes(statusParam as ItemStatus | 'all')
     ? (statusParam as ItemStatus | 'all')
     : 'all';
@@ -195,16 +198,23 @@ const UserItemsPage = () => {
     } else {
       newParams.set('status_group', value);
     }
-    newParams.set('status', 'all');
+    newParams.delete('status');
     newParams.set('page', '1');
     setSearchParams(newParams);
   };
 
   const handleFilterChange = (filterType: 'status' | 'platform', value: string) => {
     const newParams = new URLSearchParams(searchParams);
-    newParams.set(filterType, value);
     if (filterType === 'status') {
-      newParams.set('status_group', 'all');
+      if (value === 'all') {
+        newParams.delete('status');
+        newParams.delete('status_group');
+      } else {
+        newParams.set('status', value);
+        newParams.set('status_group', 'all');
+      }
+    } else {
+      newParams.set(filterType, value);
     }
     newParams.set('page', '1'); // Reset to first page when filtering
     setSearchParams(newParams);
@@ -220,14 +230,8 @@ const UserItemsPage = () => {
     navigate(`/user/items/${uuid}`);
   };
 
-  const openAddItemModal = () => {
-    navigate(
-      buildListingEditorUrl({
-        mode: 'add',
-        modal: true,
-        returnTo: `${location.pathname}${location.search}`,
-      })
-    );
+  const goToAddItemPage = () => {
+    navigate(buildListingEditorUrl({ mode: 'add' }));
   };
 
   /**
@@ -453,7 +457,7 @@ const UserItemsPage = () => {
                     : t.empty.description.noItems}
                 </p>
                 <AddItemButton 
-                  onClick={openAddItemModal}
+                  onClick={goToAddItemPage}
                 >
                   {t.empty.addButton}
                 </AddItemButton>
@@ -502,7 +506,7 @@ const UserItemsPage = () => {
                       <ItemThumbnail imageUrl={primaryImage} title={item.title} />
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent text-balance">
-                          ${item.price}
+                          {formatMoney(item.price, item.currency)}
                         </span>
                         <div className="flex gap-1">
                           {platforms.map((platform) => (

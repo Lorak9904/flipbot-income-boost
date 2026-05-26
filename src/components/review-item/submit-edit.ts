@@ -1,6 +1,7 @@
 import type { GeneratedItemData, MarketplaceAttributes, PlatformOverrides } from '@/types/item';
 import { updateItem, type UpdateItemPayload } from '@/lib/api/items';
 import type { Platform } from '@/types/item';
+import { resolveCurrency } from '@/lib/currency';
 
 interface SubmitEditDraftInput {
   editItemId?: string;
@@ -37,6 +38,7 @@ export async function submitEditDraft({
     category: data.category,
     size: data.size,
     price: numericPrice,
+    currency: resolveCurrency(data.currency),
     catalog_path: data.catalog_path,
     images: uniqueImageUrls,
   };
