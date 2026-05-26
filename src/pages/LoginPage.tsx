@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AuthButton } from '@/components/ui/button-presets';
@@ -7,6 +7,7 @@ import LoginWithGmail from '@/components/LoginWithGmail';
 import { SEOHead } from '@/components/SEOHead';
 import { getTranslations, getCurrentLanguage } from '../components/language-utils';
 import { loginTranslations } from './login-translations';
+import { isSafeReturnPath } from '@/lib/listing-editor/navigation';
 
 // Fade‑up motion reused across inputs / header
 const fadeUp = {
@@ -37,6 +38,23 @@ const LoginPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [registerSuccess, setRegisterSuccess] = useState<string | null>(null);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+  const returnTo = new URLSearchParams(location.search).get('returnTo');
+
+  const getPostAuthRedirect = useCallback(() => {
+    const checkoutPlan = sessionStorage.getItem('flipit_checkout_plan');
+    const checkoutBilling = sessionStorage.getItem('flipit_checkout_billing') || 'monthly';
+    if (checkoutPlan) {
+      return `/pricing?checkout=1&plan=${checkoutPlan}&billing=${checkoutBilling}`;
+    }
+    if (
+      isSafeReturnPath(returnTo) &&
+      !returnTo.startsWith('/login') &&
+      !returnTo.startsWith('/logout')
+    ) {
+      return returnTo;
+    }
+    return '/';
+  }, [returnTo]);
 
   // Registration password validation (matches backend)
   const validatePassword = (password: string, name: string, email: string) => {
@@ -68,13 +86,7 @@ const LoginPage = () => {
     setLoading(true);
     try {
       await loginWithEmail(email, password);
-      const checkoutPlan = sessionStorage.getItem('flipit_checkout_plan');
-      const checkoutBilling = sessionStorage.getItem('flipit_checkout_billing') || 'monthly';
-      if (checkoutPlan) {
-        navigate(`/pricing?checkout=1&plan=${checkoutPlan}&billing=${checkoutBilling}`);
-      } else {
-        navigate('/');
-      }
+      navigate(getPostAuthRedirect(), { replace: true });
     } catch (err: any) {
       setError(err.message || t.loginFailed);
       setLoading(false);
@@ -113,9 +125,9 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated) {
-      navigate('/', { replace: true });
+      navigate(getPostAuthRedirect(), { replace: true });
     }
-  }, [isAuthLoading, isAuthenticated, navigate]);
+  }, [isAuthLoading, isAuthenticated, navigate, getPostAuthRedirect]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -372,3 +384,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+

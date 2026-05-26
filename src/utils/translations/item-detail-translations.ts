@@ -1,7 +1,7 @@
 export const itemDetailTranslations = {
   en: {
     // Page
-    backToItems: "Back to Items",
+    backToItems: "Back to Listings",
     
     // Actions
     actions: {
@@ -11,19 +11,30 @@ export const itemDetailTranslations = {
       publishTo: "Publish to…",
       publishToAnother: "Publish to another platform",
       duplicate: "Duplicate",
-      delete: "Delete",
-      deleteDraft: "Delete Draft",
+      delete: "Remove from FlipIt",
+      deleteDraft: "Remove unpublished listing",
       deleteFromPlatform: "Remove from platform",
+      removeFromMarketplaces: "Remove from marketplaces",
     },
     
     // Action confirmations
     confirmations: {
-      deleteTitle: "Delete Item",
-      deleteDescription: "Are you sure you want to delete this item? This action cannot be undone.",
-      deleteConfirm: "Delete",
+      deleteTitle: "Remove from FlipIt",
+      deleteDescription: "This removes the listing from FlipIt only. Marketplace listings are not removed.",
+      deleteConfirm: "Remove from FlipIt",
       deleteCancel: "Cancel",
-      deletePlatformTitle: "Remove Listing",
-      deletePlatformDescription: "Remove this listing from {platform}? This won't delete the item in FlipIt.",
+      removeFromFlipItTitle: "Remove from FlipIt",
+      removeFromFlipItDescription: "This removes the listing from FlipIt only. Marketplace listings are not removed.",
+      removeFromFlipItConfirm: "Remove from FlipIt",
+      removeUnpublishedTitle: "Remove unpublished listing",
+      removeUnpublishedDescription: "This listing has not been published yet. Removing it deletes it from FlipIt.",
+      removeUnpublishedConfirm: "Remove listing",
+      removeMarketplacesTitle: "Remove from marketplaces",
+      removeMarketplacesDescription: "FlipIt will remove this listing from: {platforms}. The listing record stays in FlipIt for history and retry visibility.",
+      removeMarketplacesUnsupported: "Manual removal is still required on: {platforms}.",
+      removeMarketplacesConfirm: "Remove from marketplaces",
+      deletePlatformTitle: "Remove from marketplace",
+      deletePlatformDescription: "Remove this listing from {platform}? The listing stays in FlipIt.",
       deletePlatformConfirm: "Remove",
     },
     
@@ -40,20 +51,23 @@ export const itemDetailTranslations = {
     
     // Toasts
     toasts: {
-      duplicateSuccess: "Item duplicated successfully",
-      duplicateError: "Failed to duplicate item",
-      deleteSuccess: "Item deleted successfully",
-      deleteError: "Failed to delete item",
+      duplicateSuccess: "Listing duplicated successfully",
+      duplicateError: "Failed to duplicate listing",
+      deleteSuccess: "Listing removed from FlipIt",
+      deleteError: "Failed to remove listing from FlipIt",
+      removeMarketplacesSuccess: "Listing removed from marketplaces",
+      removeMarketplacesPartial: "Some marketplaces could not be removed",
+      removeMarketplacesError: "Failed to remove listing from marketplaces",
       deletePlatformSuccess: "Listing removed from {platform}",
       deletePlatformError: "Failed to remove listing from {platform}",
-      publishSuccess: "Item published to {platform}",
+      publishSuccess: "Listing published to {platform}",
       publishError: "Failed to publish to {platform}",
       noCredits: "Insufficient credits to publish",
     },
     
     // Status badges
     status: {
-      draft: "Draft",
+      draft: "Unpublished",
       published: "Published",
       active: "Active",
       sold: "Sold",
@@ -63,7 +77,7 @@ export const itemDetailTranslations = {
   
   pl: {
     // Page
-    backToItems: "Wróć do przedmiotów",
+    backToItems: "Wróć do ogłoszeń",
     
     // Actions
     actions: {
@@ -73,19 +87,30 @@ export const itemDetailTranslations = {
       publishTo: "Opublikuj na…",
       publishToAnother: "Opublikuj na innej platformie",
       duplicate: "Duplikuj",
-      delete: "Usuń",
-      deleteDraft: "Usuń szkic",
+      delete: "Usuń z FlipIt",
+      deleteDraft: "Usuń nieopublikowane ogłoszenie",
       deleteFromPlatform: "Usuń z platformy",
+      removeFromMarketplaces: "Usuń z marketplace'ów",
     },
     
     // Action confirmations
     confirmations: {
-      deleteTitle: "Usuń przedmiot",
-      deleteDescription: "Czy na pewno chcesz usunąć ten przedmiot? Tej akcji nie da się cofnąć.",
-      deleteConfirm: "Usuń",
+      deleteTitle: "Usuń z FlipIt",
+      deleteDescription: "To usuwa ogłoszenie tylko z FlipIt. Ogłoszenia na marketplace'ach nie zostaną usunięte.",
+      deleteConfirm: "Usuń z FlipIt",
       deleteCancel: "Anuluj",
-      deletePlatformTitle: "Usuń ogłoszenie",
-      deletePlatformDescription: "Usunąć to ogłoszenie z {platform}? Nie usuwa to przedmiotu w FlipIt.",
+      removeFromFlipItTitle: "Usuń z FlipIt",
+      removeFromFlipItDescription: "To usuwa ogłoszenie tylko z FlipIt. Ogłoszenia na marketplace'ach nie zostaną usunięte.",
+      removeFromFlipItConfirm: "Usuń z FlipIt",
+      removeUnpublishedTitle: "Usuń nieopublikowane ogłoszenie",
+      removeUnpublishedDescription: "To ogłoszenie nie zostało jeszcze opublikowane. Usunięcie usuwa je z FlipIt.",
+      removeUnpublishedConfirm: "Usuń ogłoszenie",
+      removeMarketplacesTitle: "Usuń z marketplace'ów",
+      removeMarketplacesDescription: "FlipIt usunie to ogłoszenie z: {platforms}. Rekord ogłoszenia zostaje w FlipIt dla historii i ponowienia próby.",
+      removeMarketplacesUnsupported: "Ręczne usunięcie nadal jest wymagane na: {platforms}.",
+      removeMarketplacesConfirm: "Usuń z marketplace'ów",
+      deletePlatformTitle: "Usuń z marketplace'u",
+      deletePlatformDescription: "Usunąć to ogłoszenie z {platform}? Ogłoszenie zostaje w FlipIt.",
       deletePlatformConfirm: "Usuń",
     },
     
@@ -102,10 +127,13 @@ export const itemDetailTranslations = {
     
     // Toasts
     toasts: {
-      duplicateSuccess: "Przedmiot został zduplikowany.",
-      duplicateError: "Nie udało się zduplikować przedmiotu",
-      deleteSuccess: "Przedmiot został usunięty.",
-      deleteError: "Nie udało się usunąć przedmiotu",
+      duplicateSuccess: "Ogłoszenie zostało zduplikowane.",
+      duplicateError: "Nie udało się zduplikować ogłoszenia",
+      deleteSuccess: "Ogłoszenie zostało usunięte z FlipIt.",
+      deleteError: "Nie udało się usunąć ogłoszenia z FlipIt",
+      removeMarketplacesSuccess: "Ogłoszenie usunięte z marketplace'ów",
+      removeMarketplacesPartial: "Niektórych marketplace'ów nie udało się usunąć",
+      removeMarketplacesError: "Nie udało się usunąć ogłoszenia z marketplace'ów",
       deletePlatformSuccess: "Usunięto z {platform}",
       deletePlatformError: "Nie udało się usunąć z {platform}",
       publishSuccess: "Opublikowano na {platform}",
@@ -115,7 +143,7 @@ export const itemDetailTranslations = {
     
     // Status badges
     status: {
-      draft: "Szkic",
+      draft: "Nieopublikowane",
       published: "Opublikowano",
       active: "Aktywne",
       sold: "Sprzedane",

@@ -50,15 +50,74 @@ export interface GeneratedItemData {
 
 export type Platform = 'facebook' | 'olx' | 'vinted' | 'ebay' | 'allegro';
 
+export interface PlatformFieldOverrides {
+  title?: string;
+  description?: string;
+  price?: string | number;
+  brand?: string;
+  condition?: string;
+  category?: string;
+  size?: string;
+}
+
+export type MarketplaceAttributeInputType = 'text' | 'select' | 'multi_select' | 'number';
+
+export interface MarketplaceAttributeOption {
+  value: string | number;
+  label: string;
+  description?: string;
+}
+
+export interface MarketplaceAttributeField {
+  key: string;
+  platform: Platform;
+  native_code?: string;
+  native_id?: string | number;
+  label: string;
+  required: boolean;
+  input_type: MarketplaceAttributeInputType;
+  type?: MarketplaceAttributeInputType;
+  options?: MarketplaceAttributeOption[];
+  selection_type?: string;
+  selection_limit?: number;
+  source?: string;
+  description?: string;
+  placeholder?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface MarketplaceAttributeValue {
+  native_code?: string;
+  native_id?: string | number;
+  value_id?: string | number;
+  value_ids?: Array<string | number>;
+  value?: string | number;
+  values?: Array<string | number> | string | number;
+}
+
+export interface MarketplaceAttributeState {
+  platform: Platform;
+  category_id?: string | number | null;
+  fields: MarketplaceAttributeField[];
+  values: Record<string, MarketplaceAttributeValue>;
+}
+
+export type MarketplaceAttributes = Partial<Record<Platform, MarketplaceAttributeState>>;
+
 export interface PlatformOverrides {
   olx?: {
     category_id?: number | string;
+    category_path?: string;
     /** Dynamic attribute values (key -> value) fetched from platform metadata */
     attributes?: Record<string, string | number>;
+    /** Optional per-platform listing field overrides */
+    field_overrides?: PlatformFieldOverrides;
   };
   vinted?: {
     catalog_id?: number | string;
-    field_mappings?: Record<string, VintedFieldMapping>;
+    attribute_values?: Record<string, MarketplaceAttributeValue>;
+    /** Optional per-platform listing field overrides */
+    field_overrides?: PlatformFieldOverrides;
   };
   ebay?: {
     category_path?: string;
@@ -66,22 +125,28 @@ export interface PlatformOverrides {
     marketplace_id?: string;
     /** Dynamic attribute values (aspects) for eBay */
     attributes?: Record<string, string | number>;
+    /** Optional per-platform listing field overrides */
+    field_overrides?: PlatformFieldOverrides;
   };
   allegro?: {
     category_id?: string | number;
+    category_path?: string;
     marketplace_id?: string;
     /** Dynamic parameter values for Allegro payload overrides */
     attributes?: Record<string, string | number>;
+    /** Optional per-platform listing field overrides */
+    field_overrides?: PlatformFieldOverrides;
   };
   [key: string]: unknown;
 }
 
 // Backend API types for user items
 export type ItemStatus = 'draft' | 'active' | 'inactive' | 'sold' | 'expired' | 'removed' | 'blocked';
+export type ItemStatusGroup = 'live' | 'drafts' | 'needs_attention' | 'sold_ended';
 
 export interface PlatformPublishResult {
   platform: Platform;
-  status: 'pending' | 'success' | 'error';
+  status: 'pending' | 'success' | 'removed' | 'error';
   status_code?: number;
   message?: string;
   external_id?: string;
@@ -94,6 +159,29 @@ export interface PlatformPublishResult {
   post_id?: string;
   error_message?: string;
   published_at?: string;
+}
+
+export interface PlatformLifecycleStatus {
+  last_operation_type?: string;
+  last_result?: 'pending' | 'success' | 'error' | null;
+  last_attempted_at?: string | null;
+  last_completed_at?: string | null;
+  listing_url?: string | null;
+  external_listing_id?: string | null;
+  last_error_message?: string | null;
+}
+
+export interface LifecycleEvent {
+  id?: number;
+  platform: Platform;
+  operation_type: string;
+  direction?: 'push' | 'pull' | string;
+  status: 'pending' | 'success' | 'error';
+  attempted_at?: string;
+  completed_at?: string;
+  error_message?: string | null;
+  listing_url?: string | null;
+  [key: string]: unknown;
 }
 
 /** Per-platform sync status (dirty/clean + timestamps) */
@@ -129,8 +217,11 @@ export interface UserItem {
   shipping_advice?: Record<string, unknown>;
   catalog_path?: string;
   platform_listing_overrides?: PlatformOverrides;
+  marketplace_attributes?: MarketplaceAttributes;
   /** Per-platform sync status: {platform: {dirty, last_synced_at, last_payload_hash}} */
   platform_sync_status?: Record<Platform, PlatformSyncStatus>;
+  platform_lifecycle_status?: Partial<Record<Platform, PlatformLifecycleStatus>>;
+  recent_lifecycle_events?: LifecycleEvent[];
 }
 
 export interface UserItemsListResponse {
@@ -150,30 +241,9 @@ export interface ItemStats {
   total_errors: number;
 }
 
-// Dynamic Vinted field types for schema-driven forms
-export interface VintedFieldOption {
-  id: number;
-  title: string;
-  description?: string;
-}
-
-export interface VintedFieldDefinition {
-  id: number;              // Attribute ID for Vinted API
-  code: string;            // Field code (e.g., 'computer_ram', 'smartphone_storage')
-  title: string;           // Human-readable field name
-  required: boolean;       // Whether field is required
-  options: VintedFieldOption[];  // Available options for this field
-}
-
-export interface VintedFieldMapping {
-  attribute_id: number;    // Maps to VintedFieldDefinition.id
-  value_id: number;        // Maps to VintedFieldOption.id
-}
-
 // Extended GeneratedItemData with dynamic Vinted fields
 export interface GeneratedItemDataWithVinted extends GeneratedItemData {
-  vinted_field_definitions?: VintedFieldDefinition[];
-  vinted_field_mappings?: Record<string, VintedFieldMapping>;  // field_code -> {attribute_id, value_id}
+  marketplace_attributes?: MarketplaceAttributes;
   // Vinted-optimized content (LLM-generated for Vinted platform)
   vinted_title?: string;       // Vinted-optimized title (used during publishing)
   vinted_description?: string; // Vinted-optimized description (used during publishing)

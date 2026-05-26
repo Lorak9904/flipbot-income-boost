@@ -1,4 +1,13 @@
-import { UserItemsListResponse, UserItem, ItemStats, Platform, ItemStatus, PlatformOverrides } from '@/types/item';
+import {
+  UserItemsListResponse,
+  UserItem,
+  ItemStats,
+  Platform,
+  ItemStatus,
+  ItemStatusGroup,
+  MarketplaceAttributes,
+  PlatformOverrides,
+} from '@/types/item';
 
 const API_BASE = '/api';
 
@@ -6,6 +15,7 @@ export interface FetchItemsParams {
   page?: number;
   page_size?: number;
   status?: ItemStatus;
+  status_group?: ItemStatusGroup;
   platform?: Platform;
 }
 
@@ -22,6 +32,7 @@ export async function fetchUserItems(params: FetchItemsParams = {}): Promise<Use
   if (params.page !== undefined) searchParams.set('page', params.page.toString());
   if (params.page_size !== undefined) searchParams.set('page_size', params.page_size.toString());
   if (params.status) searchParams.set('status', params.status);
+  if (params.status_group) searchParams.set('status_group', params.status_group);
   if (params.platform) searchParams.set('platform', params.platform);
 
   const url = `${API_BASE}/items/?${searchParams.toString()}`;
@@ -42,27 +53,43 @@ export async function fetchUserItems(params: FetchItemsParams = {}): Promise<Use
   }
 
   const data: any = await response.json();
-  
-  // Transform backend response to frontend format (map 'id' to 'uuid')
-  if (data.items && Array.isArray(data.items)) {
-    data.items = data.items.map((item: any) => {
-      const transformed = {
-        ...item,
-        uuid: item.id || item.uuid,
-      };
-      
-      // Debug logging
-      if (!transformed.uuid) {
-        console.warn('Item missing UUID:', item);
-      }
-      
-      return transformed;
-    });
-  }
-  
-  console.log('Fetched items:', data.items?.length || 0, 'items');
-  
-  return data;
+  const rawItems: any[] = Array.isArray(data.items) ? data.items : [];
+
+  const items = rawItems.map((item: any) => {
+    const transformed = {
+      ...item,
+      uuid: item.id || item.uuid,
+    };
+    if (!transformed.uuid) {
+      console.warn('Item missing UUID:', item);
+    }
+    return transformed;
+  });
+
+  const defaultPage = params.page ?? 1;
+  const defaultPageSize = params.page_size ?? 10;
+  const total =
+    typeof data.total === 'number'
+      ? data.total
+      : typeof data.count === 'number'
+        ? data.count
+        : items.length;
+  const page = typeof data.page === 'number' ? data.page : defaultPage;
+  const pageSize = typeof data.page_size === 'number' ? data.page_size : defaultPageSize;
+  const totalPages =
+    typeof data.total_pages === 'number'
+      ? data.total_pages
+      : Math.max(1, Math.ceil(total / Math.max(pageSize, 1)));
+
+  console.log('Fetched items:', items.length, 'items');
+
+  return {
+    items,
+    total,
+    page,
+    page_size: pageSize,
+    total_pages: totalPages,
+  };
 }
 
 /**
@@ -210,6 +237,7 @@ export interface UpdateItemPayload {
   shipping_advice?: Record<string, unknown>;
   image_enhancement_prompt?: string;
   platform_listing_overrides?: PlatformOverrides;
+  marketplace_attributes?: MarketplaceAttributes;
 }
 
 /**
@@ -379,13 +407,25 @@ export async function syncPlatformListings(uuid: string, platforms?: Platform[])
 /**
  * Delete listing from specific platforms (eBay/OLX/Allegro).
  */
-export async function deletePlatformListings(uuid: string, platforms: Platform[]): Promise<any> {
+export interface MarketplaceRemovalResult {
+  status: 'success' | 'removed' | 'manual_required' | 'error' | string;
+  message?: string;
+}
+
+export interface MarketplaceRemovalResponse {
+  results: Partial<Record<Platform, MarketplaceRemovalResult>>;
+}
+
+export async function removeListingFromMarketplaces(
+  uuid: string,
+  platforms: Platform[]
+): Promise<MarketplaceRemovalResponse> {
   const token = localStorage.getItem('flipit_token');
   if (!token) {
     throw new Error('No authentication token found');
   }
 
-  const response = await fetch(`${API_BASE}/items/${uuid}/platforms/delete/`, {
+  const response = await fetch(`${API_BASE}/items/${uuid}/remove-from-marketplaces/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -402,10 +442,17 @@ export async function deletePlatformListings(uuid: string, platforms: Platform[]
       throw new Error('Item not found');
     }
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `Failed to delete platform listing: ${response.statusText}`);
+    throw new Error(errorData.detail || `Failed to remove marketplace listing: ${response.statusText}`);
   }
 
   return response.json();
+}
+
+export async function deletePlatformListings(
+  uuid: string,
+  platforms: Platform[]
+): Promise<MarketplaceRemovalResponse> {
+  return removeListingFromMarketplaces(uuid, platforms);
 }
 
 /**
@@ -421,7 +468,7 @@ export async function publishItemToPlatform(
     description: string;
     category: string;
     catalog_path?: string;
-    vinted_field_mappings?: Record<string, unknown>;
+    marketplace_attributes?: MarketplaceAttributes;
   }
 ): Promise<{ success: boolean; message?: string; listing_url?: string }> {
   const token = localStorage.getItem('flipit_token');

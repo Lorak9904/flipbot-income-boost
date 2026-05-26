@@ -1,7 +1,7 @@
 /**
  * Platform Metadata API
  * 
- * Fetches category-specific required attributes for OLX and eBay platforms.
+ * Fetches category-specific required attributes for OLX, eBay, and Allegro platforms.
  * Used by the Per-Platform Override Editor to show dynamic fields.
  */
 
@@ -94,10 +94,46 @@ export async function getEbayCategoryAttributes(
 }
 
 /**
+ * Get required parameters/attributes for an Allegro category
+ */
+export async function getAllegroCategoryAttributes(
+  categoryId: string | number,
+  marketplaceId: string = 'allegro-pl'
+): Promise<PlatformAttributesResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const params = new URLSearchParams({
+    category_id: String(categoryId),
+    marketplace_id: marketplaceId,
+  });
+
+  const response = await fetch(
+    `${API_BASE}/platforms/allegro/attributes/?${params}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Failed to fetch Allegro attributes: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
  * Get required attributes for any supported platform
  */
 export async function getPlatformCategoryAttributes(
-  platform: 'olx' | 'ebay',
+  platform: 'olx' | 'ebay' | 'allegro',
   categoryId: string | number,
   options?: { marketplaceId?: string }
 ): Promise<PlatformAttributesResponse> {
@@ -105,6 +141,8 @@ export async function getPlatformCategoryAttributes(
     return getOlxCategoryAttributes(categoryId);
   } else if (platform === 'ebay') {
     return getEbayCategoryAttributes(String(categoryId), options?.marketplaceId);
+  } else if (platform === 'allegro') {
+    return getAllegroCategoryAttributes(categoryId, options?.marketplaceId);
   }
   
   throw new Error(`Unsupported platform: ${platform}`);

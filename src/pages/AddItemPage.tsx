@@ -1,35 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { GeneratedItemDataWithVinted, ItemImage, Platform } from '@/types/item';
-import AddItemForm from '@/components/AddItemForm';
-import ReviewItemForm from '@/components/ReviewItemForm';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { motion } from 'framer-motion';
+import { GeneratedItemDataWithVinted, Platform } from '@/types/item';
 import { Loader2 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { getTranslations, getCurrentLanguage } from '@/components/language-utils';
 import { addItemTranslations } from '@/utils/translations/add-item-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { fetchItemDetail } from '@/lib/api/items';
-import { resolveItemImageUrl } from '@/lib/images';
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i = 1) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: 0.15 * i, duration: 0.6, ease: 'easeOut' },
-  }),
-};
+import { fetchPlatformHealth, toPlatformConnectedMap } from '@/lib/api/platform-health';
+import type { ReviewItemFormMode } from '@/components/review-item-form-mode';
+import { getPublishedPlatforms, toReviewFormData } from '@/lib/items/review-form-adapter';
+import { ListingEditorModal } from '@/components/listing-editor/ListingEditorModal';
+import { ListingEditorCore } from '@/components/listing-editor/ListingEditorCore';
+import { isSafeReturnPath } from '@/lib/listing-editor/navigation';
 
 const AddItemPage = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const [language, setLanguage] = useState(getCurrentLanguage());
+  const language = getCurrentLanguage();
   const t = getTranslations(addItemTranslations);
   const [step, setStep] = useState<'add' | 'review'>('add');
   const [generatedData, setGeneratedData] = useState<GeneratedItemDataWithVinted | null>(null);
@@ -45,60 +37,29 @@ const AddItemPage = () => {
   });
   const editId = searchParams.get('edit');
   const publishParam = searchParams.get('publish');
+  const modalParam = searchParams.get('modal');
+  const returnToParam = searchParams.get('returnTo');
   const publishPlatform = (['facebook', 'olx', 'vinted', 'ebay', 'allegro'] as Platform[]).includes(publishParam as Platform)
     ? (publishParam as Platform)
     : null;
+  const isModalView = modalParam === '1';
+  const returnToPath =
+    isSafeReturnPath(returnToParam) && !returnToParam.startsWith('/add-item')
+      ? returnToParam
+      : '/user/items';
+  const reviewMode: ReviewItemFormMode = editId
+    ? (publishPlatform ? 'republish' : 'edit')
+    : 'add';
 
-  // Edit flow: transform existing draft into review-form data without re-running AI.
-  const buildEditData = (item: any): GeneratedItemDataWithVinted => {
-    const imageUrls = (item.images || [])
-      .map((img: unknown) => resolveItemImageUrl(img))
-      .filter((url: string | null): url is string => Boolean(url));
-
-    const images: ItemImage[] = imageUrls.map((url, index) => ({
-      id: `existing-${index}`,
-      url,
-      isUploaded: true,
-    }));
-
-    const analysis = item.analysis && typeof item.analysis === 'object' ? item.analysis : {};
-    const platformOverrides =
-      item.platform_listing_overrides && typeof item.platform_listing_overrides === 'object'
-        ? item.platform_listing_overrides
-        : undefined;
-    const vintedFieldMappings =
-      platformOverrides?.vinted?.field_mappings || analysis.vinted_field_mappings;
-    const priceText = item.price !== undefined && item.price !== null ? String(item.price) : '0';
-
-    return {
-      title: item.title || '',
-      description: item.description || item.description_full || '',
-      brand: item.brand || '',
-      condition: item.condition || '',
-      category: item.category || '',
-      price: priceText,
-      catalog_path: item.catalog_path || item.catalog_path_detected || '',
-      size: item.size || '',
-      gender: item.gender,
-      draft_id: item.uuid || item.id,
-      priceRange: {
-        min: '',
-        max: '',
-      },
-      platform_listing_overrides: platformOverrides,
-      images,
-      vinted_field_definitions: analysis.vinted_field_definitions,
-      vinted_field_mappings: vintedFieldMappings,
-      brand_id: analysis.brand_id,
-      brand_title: analysis.brand_title,
-      brand_confidence: analysis.brand_confidence,
-      model_id: analysis.model_id,
-      package_size_id: analysis.package_size_id,
-      package_size: analysis.package_size,
-      enhanced_images: analysis.enhanced_images,
-    };
+  const closeModal = () => {
+    navigate(returnToPath, { replace: true });
   };
-  
+
+  const redirectToLoginWithReturn = useCallback(() => {
+    const returnTo = `${window.location.pathname}${window.location.search}`;
+    navigate(`/login?returnTo=${encodeURIComponent(returnTo)}`, { replace: true });
+  }, [navigate]);
+
   useEffect(() => {
     const token = localStorage.getItem('flipit_token');
     if (!token) {
@@ -107,7 +68,7 @@ const AddItemPage = () => {
         description: t.authMessage,
         variant: "destructive",
       });
-      navigate('/login');
+      redirectToLoginWithReturn();
       return;
     }
 
@@ -116,36 +77,24 @@ const AddItemPage = () => {
         title: t.authRequired,
         description: t.authMessage,
       });
-      navigate('/login');
+      redirectToLoginWithReturn();
       return;
     }
 
     const fetchConnectedPlatforms = async () => {
       try {
-        const response = await fetch("/api/connected-platforms", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          }
-        });
-        if (!response.ok) {
-          if (response.status === 401) {
-            toast({
-              title: t.sessionExpired,
-              description: t.sessionMessage,
-              variant: "destructive",
-            });
-            navigate("/login");
-            return;
-          }
-          throw new Error("Failed to fetch connected platforms");
-        }
-        if (response.ok) {
-          const data = await response.json();
-          setConnectedPlatforms(data);
-        }
+        const health = await fetchPlatformHealth();
+        setConnectedPlatforms(toPlatformConnectedMap(health.platforms));
       } catch (error) {
+        if (error instanceof Error && error.message.includes('Authentication')) {
+          toast({
+            title: t.sessionExpired,
+            description: t.sessionMessage,
+            variant: "destructive",
+          });
+          redirectToLoginWithReturn();
+          return;
+        }
         console.error('Error fetching connected platforms:', error);
       }
     };
@@ -153,7 +102,7 @@ const AddItemPage = () => {
     if (isAuthenticated) {
       fetchConnectedPlatforms();
     }
-  }, [isAuthenticated, isLoading, navigate, toast]);
+  }, [isAuthenticated, isLoading, redirectToLoginWithReturn, toast]);
 
   useEffect(() => {
     if (!isAuthenticated || !editId) {
@@ -164,15 +113,10 @@ const AddItemPage = () => {
       setIsLoadingItem(true);
       try {
         const item = await fetchItemDetail(editId);
-        const transformed = buildEditData(item);
+        const transformed = toReviewFormData(item);
         setGeneratedData(transformed);
         setEditItemId(item.uuid);
-
-        const published = (item.publish_results || [])
-          .filter((result: any) => result.status === 'success')
-          .map((result: any) => result.platform);
-        const fallbackPlatforms = (item.platforms_published || item.platforms || []) as Platform[];
-        setPublishedPlatforms(published.length > 0 ? published : fallbackPlatforms);
+        setPublishedPlatforms(getPublishedPlatforms(item));
 
         setStep('review');
       } catch (error) {
@@ -189,7 +133,7 @@ const AddItemPage = () => {
     };
 
     loadEditItem();
-  }, [editId, isAuthenticated, navigate, toast, t]);
+  }, [editId, isAuthenticated, navigate, toast]);
   
   const handleComplete = (data: GeneratedItemDataWithVinted) => {
     setGeneratedData(data);
@@ -198,6 +142,10 @@ const AddItemPage = () => {
   
   const handleBack = () => {
     if (editId) {
+      if (isModalView) {
+        closeModal();
+        return;
+      }
       navigate(`/user/items/${editId}`);
       return;
     }
@@ -224,6 +172,53 @@ const AddItemPage = () => {
     );
   }
 
+  const editorContent = (
+    <ListingEditorCore
+      step={step}
+      pageTitle={t.pageTitle}
+      reviewTitle={t.reviewTitle}
+      addCardTitle={t.addCard.title}
+      addCardDescription={t.addCard.description}
+      reviewCardTitle={t.reviewCard.title}
+      reviewCardDescription={t.reviewCard.description}
+      language={language}
+      generatedData={generatedData}
+      reviewMode={reviewMode}
+      connectedPlatforms={connectedPlatforms}
+      onComplete={handleComplete}
+      onBack={handleBack}
+      editItemId={editItemId || undefined}
+      publishedPlatforms={publishedPlatforms}
+      publishPlatform={publishPlatform || undefined}
+    />
+  );
+
+  if (isModalView) {
+    return (
+      <>
+        <SEOHead
+          title={`${step === 'add' ? t.pageTitle : t.reviewTitle} | FlipIt`}
+          description={step === 'add' ? t.addCard.description : t.reviewCard.description}
+          canonicalUrl="https://myflipit.live/add-item"
+          robots="noindex, nofollow"
+        />
+        <ListingEditorModal
+          open
+          onOpenChange={(open) => {
+            if (!open) {
+              closeModal();
+            }
+          }}
+        >
+          <div className="relative min-h-full text-white overflow-hidden">
+            <AnimatedGradientBackground />
+            {editorContent}
+          </div>
+        </ListingEditorModal>
+      </>
+    );
+  }
+
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
       <SEOHead
@@ -233,59 +228,7 @@ const AddItemPage = () => {
         robots="noindex, nofollow"
       />
       <AnimatedGradientBackground />
-
-      {/* Content */}
-      <div className="container mx-auto py-12 px-4 relative z-10">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="max-w-3xl mx-auto"
-        >
-          <motion.h1 
-            variants={fadeUp}
-            className="text-3xl font-bold mb-6"
-          >
-            {step === 'add' ? t.pageTitle : t.reviewTitle}
-          </motion.h1>
-          
-          {step === 'add' ? (
-            <Card className="bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 transition-all duration-300 hover:ring-cyan-400/40 hover:shadow-xl border-0">
-              <CardHeader>
-                <CardTitle className="text-cyan-400">{t.addCard.title}</CardTitle>
-                <CardDescription className="text-neutral-300">
-                  {t.addCard.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AddItemForm onComplete={handleComplete} language={language} />
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 transition-all duration-300 hover:ring-fuchsia-400/40 hover:shadow-xl border-0">
-              <CardHeader>
-                <CardTitle className="text-fuchsia-400">{t.reviewCard.title}</CardTitle>
-                <CardDescription className="text-neutral-300">
-                  {t.reviewCard.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {generatedData && (
-                  <ReviewItemForm 
-                    initialData={generatedData} 
-                    connectedPlatforms={connectedPlatforms}
-                    onBack={handleBack}
-                    language={language}
-                    editItemId={editItemId || undefined}
-                    publishedPlatforms={publishedPlatforms}
-                    publishPlatform={publishPlatform || undefined}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          )}
-        </motion.div>
-      </div>
+      {editorContent}
     </div>
   );
 };

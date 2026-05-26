@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { deletePlatformListings, fetchItemDetail } from '@/lib/api/items';
@@ -10,7 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Loader2, ArrowLeft, CheckCircle2, XCircle, Clock, Trash2 } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Loader2, CheckCircle2, XCircle, Clock, Trash2, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
 import { format } from 'date-fns';
@@ -21,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { getTranslations } from '@/components/language-utils';
 import { itemDetailTranslations } from '@/utils/translations/item-detail-translations';
+import { fetchPlatformHealth, toPlatformConnectedMap } from '@/lib/api/platform-health';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -35,8 +37,11 @@ const ItemDetailPage = () => {
   const { uuid } = useParams<{ uuid: string }>();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const t = getTranslations(itemDetailTranslations);
+  const editToastShownRef = useRef(false);
 
   const [item, setItem] = useState<UserItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,20 +52,24 @@ const ItemDetailPage = () => {
   const [previewIndex, setPreviewIndex] = useState(0);
   const [deletePlatform, setDeletePlatform] = useState<Platform | null>(null);
   const [isDeletingPlatform, setIsDeletingPlatform] = useState(false);
+  const loginRedirect = `/login?returnTo=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
 
   // Fetch connected platforms for action buttons
   const { data: connectedPlatforms } = useQuery({
     queryKey: ['connected-platforms'],
     queryFn: async () => {
-      const token = localStorage.getItem('flipit_token');
-      const response = await fetch("/api/connected-platforms", {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
-      });
-      if (!response.ok) return {};
-      return response.json();
+      try {
+        const health = await fetchPlatformHealth();
+        return toPlatformConnectedMap(health.platforms);
+      } catch (error) {
+        return {
+          facebook: false,
+          olx: false,
+          vinted: false,
+          ebay: false,
+          allegro: false,
+        };
+      }
     },
     enabled: !!isAuthenticated,
     staleTime: 30000,
@@ -70,12 +79,12 @@ const ItemDetailPage = () => {
     if (!authLoading && !isAuthenticated) {
       toast({
         title: 'Authentication Required',
-        description: 'Please log in to view item details',
+        description: 'Please log in to view listing details',
         variant: 'destructive',
       });
-      navigate('/login');
+      navigate(loginRedirect, { replace: true });
     }
-  }, [authLoading, isAuthenticated, navigate, toast]);
+  }, [authLoading, isAuthenticated, loginRedirect, navigate, toast]);
 
   useEffect(() => {
     if (!isAuthenticated || !uuid) return;
@@ -95,7 +104,7 @@ const ItemDetailPage = () => {
           variant: 'destructive',
         });
         if (errorMessage.includes('Authentication')) {
-          navigate('/login');
+          navigate(loginRedirect, { replace: true });
         }
       } finally {
         setLoading(false);
@@ -103,7 +112,7 @@ const ItemDetailPage = () => {
     };
 
     loadItem();
-  }, [isAuthenticated, uuid, navigate, toast]);
+  }, [isAuthenticated, uuid, navigate, toast, loginRedirect]);
 
   const handleDeletePlatform = async () => {
     if (!uuid || !deletePlatform) return;
@@ -136,6 +145,65 @@ const ItemDetailPage = () => {
     return platform.charAt(0).toUpperCase() + platform.slice(1);
   };
 
+  const getStatusBadgeClass = (statusValue: string) => {
+    if (statusValue === 'active') return 'bg-green-500/20 text-green-400 border-green-500/50';
+    if (statusValue === 'sold') return 'bg-blue-500/20 text-blue-400 border-blue-500/50';
+    if (statusValue === 'draft') return 'bg-neutral-700/50 text-neutral-300 border-neutral-600';
+    if (statusValue === 'blocked') return 'bg-red-500/20 text-red-400 border-red-500/50';
+    return 'bg-amber-500/20 text-amber-400 border-amber-500/50';
+  };
+
+  const publishedPlatformSet = useMemo(
+    () =>
+      new Set(
+        (item?.publish_results || [])
+          .filter((result) => result.status === 'success' || result.success)
+          .map((result) => result.platform)
+      ),
+    [item]
+  );
+
+  const dirtySyncPlatforms = useMemo(
+    () =>
+      (['olx', 'ebay', 'allegro'] as Platform[]).filter((platform) => {
+        const syncStatus = item?.platform_sync_status?.[platform];
+        return publishedPlatformSet.has(platform) && !!syncStatus?.dirty;
+      }),
+    [item, publishedPlatformSet]
+  );
+
+  useEffect(() => {
+    if (!item || editToastShownRef.current) return;
+    if (searchParams.get('updated') !== '1') return;
+
+    const dirtyQuery = searchParams.get('dirty');
+    const dirtyFromQuery = (dirtyQuery ? dirtyQuery.split(',') : [])
+      .map((value) => value.trim().toLowerCase())
+      .filter((value): value is Platform =>
+        ['facebook', 'olx', 'vinted', 'ebay', 'allegro'].includes(value)
+      );
+    const dirty = dirtyFromQuery.length > 0 ? dirtyFromQuery : dirtySyncPlatforms;
+
+    if (dirty.length > 0) {
+      const labels = dirty.map((platform) => formatPlatformLabel(platform)).join(', ');
+      toast({
+        title: 'Saved locally',
+        description: `Sync to ${labels} to update live listings.`,
+      });
+    } else {
+      toast({
+        title: 'Listing updated',
+        description: 'Your changes were saved successfully.',
+      });
+    }
+
+    editToastShownRef.current = true;
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete('updated');
+    nextParams.delete('dirty');
+    setSearchParams(nextParams, { replace: true });
+  }, [item, searchParams, setSearchParams, toast, dirtySyncPlatforms]);
+
   if (authLoading || loading) {
     return (
       <div className="relative min-h-screen bg-neutral-950 flex items-center justify-center">
@@ -150,11 +218,11 @@ const ItemDetailPage = () => {
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <Card className="p-12 bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
             <div className="text-center">
-              <p className="text-red-400 mb-4">{error || 'Item not found'}</p>
+              <p className="text-red-400 mb-4">{error || 'Listing not found'}</p>
               <BackButtonGradient 
                 onClick={() => navigate('/user/items')}
               >
-                Back to Items
+                Back to Listings
               </BackButtonGradient>
             </div>
           </Card>
@@ -166,7 +234,7 @@ const ItemDetailPage = () => {
   return (
     <>
       <SEOHead
-        title={`${item.title} - My Items - FlipIt`}
+        title={`${item.title} - My Listings - FlipIt`}
         description={item.description}
       />
       <div className="relative min-h-screen text-white overflow-hidden">
@@ -183,7 +251,7 @@ const ItemDetailPage = () => {
               onClick={() => navigate('/user/items')}
               className="mb-4"
             >
-              Back to Items
+                Back to Listings
             </BackButtonGhost>
           </motion.div>
 
@@ -205,6 +273,11 @@ const ItemDetailPage = () => {
                         : 'bg-neutral-700/50 text-neutral-300 border-neutral-600'} text-sm px-2 py-0.5`}
                     >
                       {item.stage}
+                    </Badge>
+                  )}
+                  {dirtySyncPlatforms.length > 0 && (
+                    <Badge className="ml-2 mt-2 bg-amber-500/20 text-amber-300 border-amber-500/50 text-sm px-2 py-0.5">
+                      {dirtySyncPlatforms.length} sync pending
                     </Badge>
                   )}
                 </div>
@@ -259,169 +332,170 @@ const ItemDetailPage = () => {
 
               <Separator className="my-6 bg-neutral-800" />
 
-              {/* Item Details */}
+              {dirtySyncPlatforms.length > 0 && (
+                <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-amber-300">Sync required</p>
+                      <p className="text-sm text-amber-100/90">
+                        Saved locally. Sync changes to {dirtySyncPlatforms.map((platform) => formatPlatformLabel(platform)).join(', ')} using the action menu.
+                      </p>
+                    </div>
+                    <Badge className="w-fit bg-amber-500/20 text-amber-300 border-amber-500/50">
+                      {dirtySyncPlatforms.length} pending
+                    </Badge>
+                  </div>
+                </div>
+              )}
+
               <div className="mb-6">
-                <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Details</h3>
-                <div className="bg-neutral-800/50 rounded-lg p-4 space-y-3">
-                  <dl className="space-y-2.5">
-                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                      <dt className="text-sm text-neutral-400">UUID:</dt>
-                      <dd className="font-mono text-xs text-neutral-300 break-all">{item.uuid}</dd>
-                    </div>
-                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                      <dt className="text-sm text-neutral-400">Status:</dt>
-                      <dd className="flex items-center">
-                        <Badge className={
-                          item.status === 'active' 
-                            ? 'bg-green-500/20 text-green-400 border-green-500/50'
-                            : item.status === 'sold'
-                            ? 'bg-blue-500/20 text-blue-400 border-blue-500/50'
-                            : item.status === 'draft'
-                            ? 'bg-neutral-700/50 text-neutral-300 border-neutral-600'
-                            : 'bg-amber-500/20 text-amber-400 border-amber-500/50'
-                        }
-                        >
-                          {item.status}
-                        </Badge>
-                      </dd>
-                    </div>
-                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                      <dt className="text-sm text-neutral-400">Price:</dt>
-                      <dd className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
-                        ${item.price}
-                      </dd>
-                    </div>
-                    {item.brand && (
-                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <dt className="text-sm text-neutral-400">Brand:</dt>
-                        <dd className="text-neutral-300">{item.brand}</dd>
-                      </div>
-                    )}
-                    {item.condition && (
-                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <dt className="text-sm text-neutral-400">Condition:</dt>
-                        <dd className="text-neutral-300">{item.condition}</dd>
-                      </div>
-                    )}
-                    {item.category && (
-                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <dt className="text-sm text-neutral-400">Category:</dt>
-                        <dd className="text-neutral-300">{item.category}</dd>
-                      </div>
-                    )}
-                    {item.size && (
-                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <dt className="text-sm text-neutral-400">Size:</dt>
-                        <dd className="text-neutral-300">{item.size}</dd>
-                      </div>
-                    )}
-                    {item.gender && (
-                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <dt className="text-sm text-neutral-400">Gender:</dt>
-                        <dd className="text-neutral-300">{item.gender}</dd>
-                      </div>
-                    )}
-                  </dl>
+                <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Listing Overview</h3>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="rounded-lg bg-neutral-800/50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-neutral-400">Status</p>
+                    <Badge className={`mt-2 ${getStatusBadgeClass(item.status)}`}>{item.status}</Badge>
+                  </div>
+                  <div className="rounded-lg bg-neutral-800/50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-neutral-400">Price</p>
+                    <p className="mt-2 text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+                      ${item.price}
+                    </p>
+                  </div>
+                  <div className="rounded-lg bg-neutral-800/50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-neutral-400">Category</p>
+                    <p className="mt-2 text-sm text-neutral-200">{item.category || 'Not set'}</p>
+                  </div>
+                  <div className="rounded-lg bg-neutral-800/50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-neutral-400">Condition</p>
+                    <p className="mt-2 text-sm text-neutral-200">{item.condition || 'Not set'}</p>
+                  </div>
+                  <div className="rounded-lg bg-neutral-800/50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-neutral-400">Brand</p>
+                    <p className="mt-2 text-sm text-neutral-200">{item.brand || 'Not set'}</p>
+                  </div>
+                  <div className="rounded-lg bg-neutral-800/50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-neutral-400">Size</p>
+                    <p className="mt-2 text-sm text-neutral-200">{item.size || 'Not set'}</p>
+                  </div>
                 </div>
               </div>
 
               <Separator className="my-6 bg-neutral-800" />
 
-              {/* Timestamps */}
               <div className="mb-6">
-                <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Timestamps</h3>
-                <div className="bg-neutral-800/50 rounded-lg p-4 space-y-3">
-                  <dl className="space-y-2.5">
-                    {item.created_at && (
-                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <dt className="text-sm text-neutral-400">Created:</dt>
-                        <dd className="text-neutral-300">
-                          {format(new Date(item.created_at), 'PPp')}
-                        </dd>
-                      </div>
-                    )}
-                    {item.updated_at && (
-                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <dt className="text-sm text-neutral-400">Updated:</dt>
-                        <dd className="text-neutral-300">
-                          {format(new Date(item.updated_at), 'PPp')}
-                        </dd>
-                      </div>
-                    )}
-                    {item.published_at && (
-                      <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <dt className="text-sm text-neutral-400">Published:</dt>
-                        <dd className="text-neutral-300">
-                          {format(new Date(item.published_at), 'PPp')}
-                        </dd>
-                      </div>
-                    )}
-                  </dl>
+                <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Activity</h3>
+                <div className="rounded-lg bg-neutral-800/50 p-4 space-y-3">
+                  {item.created_at && (
+                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                      <dt className="text-sm text-neutral-400">Created</dt>
+                      <dd className="text-neutral-200">{format(new Date(item.created_at), 'PPp')}</dd>
+                    </div>
+                  )}
+                  {item.updated_at && (
+                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                      <dt className="text-sm text-neutral-400">Last updated</dt>
+                      <dd className="text-neutral-200">{format(new Date(item.updated_at), 'PPp')}</dd>
+                    </div>
+                  )}
+                  {item.published_at && (
+                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                      <dt className="text-sm text-neutral-400">First published</dt>
+                      <dd className="text-neutral-200">{format(new Date(item.published_at), 'PPp')}</dd>
+                    </div>
+                  )}
+                  {item.platform_lifecycle_status && Object.keys(item.platform_lifecycle_status).length > 0 && (
+                    <div className="space-y-2 pt-2 border-t border-neutral-700">
+                      <p className="text-sm font-medium text-neutral-300">Platform sync timeline</p>
+                      {Object.entries(item.platform_lifecycle_status).map(([platform, lifecycle]) => (
+                        <div key={platform} className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
+                          <span className="text-neutral-400">{formatPlatformLabel(platform as Platform)}</span>
+                          <span className="text-neutral-200">
+                            {lifecycle?.last_operation_type || 'No operations yet'}
+                            {lifecycle?.last_result ? ` · ${lifecycle.last_result}` : ''}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <Separator className="my-6 bg-neutral-800" />
+              <Collapsible className="mb-6 rounded-lg border border-neutral-800 bg-neutral-900/40 p-4">
+                <CollapsibleTrigger asChild>
+                  <Button type="button" variant="ghost" className="w-full justify-between text-neutral-200 hover:bg-neutral-800/60">
+                    Advanced details
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-4 space-y-4">
+                  <div className="rounded-lg bg-neutral-800/50 p-4">
+                    <p className="text-xs uppercase tracking-wide text-neutral-400">UUID</p>
+                    <p className="mt-2 font-mono text-xs break-all text-neutral-200">{item.uuid}</p>
+                  </div>
 
-              {/* Enriched Analysis Data */}
-              {(item.description_full || item.weight_kg || item.dimensions_cm || item.shipping_advice || item.catalog_path) && (
-                <>
-                  <div className="mb-6">
-                    <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Enriched Analysis</h3>
-                    
-                    {item.description_full && (
-                      <div className="mb-4">
-                        <h4 className="text-sm font-medium text-neutral-400 mb-2">Full Description</h4>
-                        <p className="text-white whitespace-pre-wrap">{item.description_full}</p>
-                      </div>
-                    )}
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {item.weight_kg && (
+                  {item.description_full && (
+                    <div className="rounded-lg bg-neutral-800/50 p-4">
+                      <p className="text-xs uppercase tracking-wide text-neutral-400">Full description</p>
+                      <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-200">{item.description_full}</p>
+                    </div>
+                  )}
+
+                  {(item.catalog_path || item.weight_kg || item.dimensions_cm || item.shipping_advice) && (
+                    <div className="rounded-lg bg-neutral-800/50 p-4 space-y-3">
+                      {item.catalog_path && (
                         <div>
-                          <h4 className="text-sm font-medium text-neutral-400 mb-1">Weight</h4>
-                          <p className="text-white">{item.weight_kg} kg</p>
+                          <p className="text-xs uppercase tracking-wide text-neutral-400">Catalog path</p>
+                          <p className="mt-1 text-sm text-neutral-200">{item.catalog_path}</p>
                         </div>
                       )}
-                      
+                      {item.weight_kg && (
+                        <div>
+                          <p className="text-xs uppercase tracking-wide text-neutral-400">Weight</p>
+                          <p className="mt-1 text-sm text-neutral-200">{item.weight_kg} kg</p>
+                        </div>
+                      )}
                       {item.dimensions_cm && (
                         <div>
-                          <h4 className="text-sm font-medium text-neutral-400 mb-1">Dimensions (cm)</h4>
-                          <pre className="text-white text-xs bg-neutral-900/50 p-2 rounded border border-neutral-800 overflow-auto">
+                          <p className="text-xs uppercase tracking-wide text-neutral-400">Dimensions</p>
+                          <pre className="mt-1 text-xs bg-neutral-900/60 p-2 rounded border border-neutral-700 overflow-auto text-neutral-200">
                             {JSON.stringify(item.dimensions_cm, null, 2)}
                           </pre>
                         </div>
                       )}
-                      
-                      {item.catalog_path && (
-                        <div>
-                          <h4 className="text-sm font-medium text-neutral-400 mb-1">Catalog Path</h4>
-                          <p className="text-white text-sm">{item.catalog_path}</p>
-                        </div>
-                      )}
-                      
                       {item.shipping_advice && (
-                        <div className="md:col-span-2">
-                          <h4 className="text-sm font-medium text-neutral-400 mb-1">Shipping Advice</h4>
-                          <pre className="text-white text-xs bg-neutral-900/50 p-2 rounded border border-neutral-800 overflow-auto">
+                        <div>
+                          <p className="text-xs uppercase tracking-wide text-neutral-400">Shipping advice</p>
+                          <pre className="mt-1 text-xs bg-neutral-900/60 p-2 rounded border border-neutral-700 overflow-auto text-neutral-200">
                             {JSON.stringify(item.shipping_advice, null, 2)}
                           </pre>
                         </div>
                       )}
-                      
-                      {item.analysis && (
-                        <div className="md:col-span-2">
-                          <h4 className="text-sm font-medium text-neutral-400 mb-1">AI Analysis</h4>
-                          <pre className="text-white text-xs bg-neutral-900/50 p-2 rounded border border-neutral-800 overflow-auto max-h-96">
-                            {JSON.stringify(item.analysis, null, 2)}
-                          </pre>
-                        </div>
-                      )}
                     </div>
-                  </div>
-                  
-                  <Separator className="my-6 bg-neutral-800" />
-                </>
-              )}
+                  )}
+
+                  {item.analysis && (
+                    <div className="rounded-lg bg-neutral-800/50 p-4">
+                      <p className="text-xs uppercase tracking-wide text-neutral-400">AI analysis payload</p>
+                      <pre className="mt-2 text-xs bg-neutral-900/60 p-2 rounded border border-neutral-700 overflow-auto max-h-96 text-neutral-200">
+                        {JSON.stringify(item.analysis, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+
+                  {item.recent_lifecycle_events && item.recent_lifecycle_events.length > 0 && (
+                    <div className="rounded-lg bg-neutral-800/50 p-4">
+                      <p className="text-xs uppercase tracking-wide text-neutral-400">Recent lifecycle events</p>
+                      <div className="mt-2 space-y-1 text-xs text-neutral-300">
+                        {item.recent_lifecycle_events.slice(0, 8).map((event, index) => (
+                          <div key={`${event.platform}-${event.operation_type}-${event.attempted_at || index}`}>
+                            {formatPlatformLabel(event.platform)} · {event.operation_type} · {event.status}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Platforms */}
               <div className="mb-6">
@@ -446,7 +520,8 @@ const ItemDetailPage = () => {
                     <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Publishing Status</h3>
                     <div className="space-y-3">
                       {item.publish_results.map((result) => {
-                        const isSuccess = result.status === 'success' || result.success;
+                        const isRemoved = result.status === 'removed';
+                        const isSuccess = !isRemoved && (result.status === 'success' || result.success);
                         const isPending = result.status === 'pending';
                         const isError = result.status === 'error' || result.error_message;
                         const canRemove =
@@ -465,6 +540,8 @@ const ItemDetailPage = () => {
                                 <div className="flex items-start gap-3 flex-1 min-w-0">
                                   {isSuccess ? (
                                     <CheckCircle2 className="h-5 w-5 text-emerald-400 mt-0.5" />
+                                  ) : isRemoved ? (
+                                    <CheckCircle2 className="h-5 w-5 text-neutral-400 mt-0.5" />
                                   ) : isError ? (
                                     <XCircle className="h-5 w-5 text-red-400 mt-0.5" />
                                   ) : (
@@ -483,6 +560,11 @@ const ItemDetailPage = () => {
                                       {isPending && (
                                         <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/50">
                                           Pending
+                                        </Badge>
+                                      )}
+                                      {isRemoved && (
+                                        <Badge className="bg-neutral-500/20 text-neutral-300 border-neutral-500/50">
+                                          Removed
                                         </Badge>
                                       )}
                                       {isError && (

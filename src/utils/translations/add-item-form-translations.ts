@@ -7,7 +7,8 @@ export const addItemFormTranslations = {
       uploadInProgressTitle: "Upload in progress",
       uploadInProgressDesc: "Please wait until all images finish uploading",
       errorTitle: "Error",
-      errorDesc: "Failed to generate item data. Please try again.",
+      errorDesc: "We couldn't analyze this image right now. Please try again later or contact support if the problem continues.",
+      contactSupport: "Contact support",
     },
     
     // Section Headers
@@ -44,7 +45,8 @@ export const addItemFormTranslations = {
       uploadInProgressTitle: "Trwa przesyłanie",
       uploadInProgressDesc: "Poczekaj, aż wszystkie zdjęcia zostaną przesłane",
       errorTitle: "Błąd",
-      errorDesc: "Nie udało się wygenerować danych przedmiotu. Spróbuj ponownie.",
+      errorDesc: "Nie udało się teraz przeanalizować tego zdjęcia. Spróbuj ponownie później lub skontaktuj się ze wsparciem, jeśli problem będzie się powtarzał.",
+      contactSupport: "Kontakt ze wsparciem",
     },
     
     // Nagłówki sekcji

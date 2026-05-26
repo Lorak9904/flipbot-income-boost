@@ -5,6 +5,7 @@ import { AddItemButton } from '@/components/ui/button-presets';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { ToastAction } from '@/components/ui/toast';
 import { ItemFormData, ItemImage, GeneratedItemDataWithVinted } from '@/types/item';
 import ImageUploader from './ImageUploader';
 import { Loader2, CreditCard, AlertCircle } from 'lucide-react';
@@ -21,6 +22,41 @@ interface AddItemFormProps {
   language?: string;
   initialData?: Partial<GeneratedItemDataWithVinted>;
 }
+
+interface SupportAction {
+  label?: string;
+  email?: string;
+  subject?: string;
+  body?: string;
+}
+
+class ApiRequestError extends Error {
+  support?: SupportAction;
+
+  constructor(message: string, support?: SupportAction) {
+    super(message);
+    this.name = 'ApiRequestError';
+    this.support = support;
+  }
+}
+
+const buildSupportMailtoHref = (support?: SupportAction): string | undefined => {
+  const email = support?.email?.trim();
+  if (!email) {
+    return undefined;
+  }
+
+  const params = new URLSearchParams();
+  if (support?.subject) {
+    params.set('subject', support.subject);
+  }
+  if (support?.body) {
+    params.set('body', support.body);
+  }
+
+  const query = params.toString();
+  return `mailto:${email}${query ? `?${query}` : ''}`;
+};
 
 /**
  * AddItemForm now sends **only the R2 public URLs** of each uploaded image to the
@@ -122,7 +158,7 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
           return; // Don't throw, let the dialog handle it
         }
         
-        throw new Error('Failed to generate item data');
+        throw new ApiRequestError(error?.data?.detail || t.toast.errorDesc, error?.data?.support);
       }
 
       const generatedData = await response.json();
@@ -158,12 +194,12 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
 
       const transformedData: GeneratedItemDataWithVinted = {
         // All fields from AI (user only provided title and expected_price)
-        title: generatedData.title || data.title || 'Generated Title',
-        description: generatedData.description || 'AI-generated description',
+        title: generatedData.title || data.title || '',
+        description: generatedData.description || '',
         brand: generatedData.brand || '',
-        condition: generatedData.condition || 'Used as new',
-        category: generatedData.category || 'Generated category',
-        price: generatedData.price?.toString() || data.expected_price || '0',
+        condition: generatedData.condition || '',
+        category: generatedData.category || '',
+        price: generatedData.price?.toString() || data.expected_price || '',
         catalog_path: generatedData.catalog_path,
         size: generatedData.size,
         draft_id: generatedData.draft_id,
@@ -173,9 +209,7 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
           max: maxPrice?.toString() || '',
         },
         images: [...enhancedImages, ...images, ...aiImages], // Enhanced images first for better visibility
-        // Include Vinted dynamic fields if present
-        vinted_field_definitions: generatedData.vinted_field_definitions,
-        vinted_field_mappings: generatedData.vinted_field_mappings,
+        marketplace_attributes: generatedData.marketplace_attributes,
         // Include AI-generated metadata
         brand_id: generatedData.brand_id,
         brand_title: generatedData.brand_title,
@@ -192,10 +226,23 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
       onComplete(transformedData);
     } catch (error) {
       console.error('Error generating item data:', error);
+      const support = error instanceof ApiRequestError ? error.support : undefined;
+      const supportHref = buildSupportMailtoHref(support);
+      const supportLabel = support?.label || t.toast.contactSupport;
       toast({
         title: t.toast.errorTitle,
-        description: t.toast.errorDesc,
+        description: error instanceof Error && error.message ? error.message : t.toast.errorDesc,
         variant: 'destructive',
+        action: supportHref ? (
+          <ToastAction
+            altText={supportLabel}
+            onClick={() => {
+              window.location.href = supportHref;
+            }}
+          >
+            {supportLabel}
+          </ToastAction>
+        ) : undefined,
       });
     } finally {
       setIsSubmitting(false);

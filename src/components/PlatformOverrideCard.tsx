@@ -21,7 +21,7 @@ import {
 import { cn } from '@/lib/utils';
 
 interface PlatformOverrideCardProps {
-  platform: 'olx' | 'ebay';
+  platform: 'olx' | 'ebay' | 'allegro';
   platformLabel: string;
   isConnected: boolean;
   isDisabled?: boolean;
@@ -39,6 +39,8 @@ interface PlatformOverrideCardProps {
   categoryPlaceholder?: string;
   /** Optional label for category input */
   categoryLabel?: string;
+  /** Use a read-only category summary when category selection is handled elsewhere. */
+  categoryInputMode?: 'editable' | 'summary';
 }
 
 const PlatformOverrideCard = ({
@@ -53,16 +55,18 @@ const PlatformOverrideCard = ({
   onAttributeChange,
   categoryPlaceholder = 'Enter category ID',
   categoryLabel = 'Category ID',
+  categoryInputMode = 'editable',
 }: PlatformOverrideCardProps) => {
+  const categoryIsSummary = categoryInputMode === 'summary';
   // Toggle state: whether customization is enabled for this platform
   const [isCustomizing, setIsCustomizing] = useState(() => {
     // Auto-enable if there's already a category ID or attributes set
     const hasAttributes = attributeValues && Object.keys(attributeValues).length > 0;
-    return Boolean(categoryId || hasAttributes);
+    return categoryIsSummary || Boolean(categoryId || hasAttributes);
   });
   
   // Expanded/collapsed state for the card content
-  const [isExpanded, setIsExpanded] = useState(() => Boolean(categoryId));
+  const [isExpanded, setIsExpanded] = useState(() => categoryIsSummary || Boolean(categoryId));
   
   // Dynamic attributes fetched from backend
   const [attributes, setAttributes] = useState<PlatformAttributeField[]>([]);
@@ -84,6 +88,13 @@ const PlatformOverrideCard = ({
   const fetchAttributes = useCallback(async () => {
     if (!debouncedCategoryId || !isCustomizing) {
       setAttributes([]);
+      setAttributeError(null);
+      return;
+    }
+
+    if (!isConnected) {
+      setAttributes([]);
+      setAttributeError(null);
       return;
     }
     
@@ -106,11 +117,18 @@ const PlatformOverrideCard = ({
     } finally {
       setIsLoadingAttributes(false);
     }
-  }, [debouncedCategoryId, platform, isCustomizing, marketplaceId]);
+  }, [debouncedCategoryId, platform, isCustomizing, marketplaceId, isConnected]);
   
   useEffect(() => {
     fetchAttributes();
   }, [fetchAttributes]);
+
+  useEffect(() => {
+    if (categoryIsSummary) {
+      setIsCustomizing(true);
+      setIsExpanded(true);
+    }
+  }, [categoryIsSummary]);
   
   // Handle toggle change
   const handleToggleCustomization = (enabled: boolean) => {
@@ -173,22 +191,6 @@ const PlatformOverrideCard = ({
     );
   };
   
-  if (!isConnected) {
-    return (
-      <Card className="border-neutral-700 bg-neutral-800/30 opacity-60">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-neutral-400 flex items-center gap-2">
-            <Settings2 className="h-4 w-4" />
-            {platformLabel}
-          </CardTitle>
-          <CardDescription className="text-xs text-neutral-500">
-            Not connected – connect {platformLabel} to customize
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
-  
   return (
     <Card className={cn(
       "border-neutral-700 transition-all",
@@ -209,32 +211,40 @@ const PlatformOverrideCard = ({
             )}
           </CardTitle>
           
-          <div className="flex items-center gap-2">
-            <Label 
-              htmlFor={`${platform}-customize-toggle`} 
-              className="text-xs text-neutral-400"
-            >
-              Customize
-            </Label>
-            <Switch
-              id={`${platform}-customize-toggle`}
-              checked={isCustomizing}
-              onCheckedChange={handleToggleCustomization}
-              disabled={isDisabled}
-            />
-          </div>
+          {!categoryIsSummary && (
+            <div className="flex items-center gap-2">
+              <Label
+                htmlFor={`${platform}-customize-toggle`}
+                className="text-xs text-neutral-400"
+              >
+                Customize
+              </Label>
+              <Switch
+                id={`${platform}-customize-toggle`}
+                checked={isCustomizing}
+                onCheckedChange={handleToggleCustomization}
+                disabled={isDisabled}
+              />
+            </div>
+          )}
         </div>
         
-        {!isCustomizing && (
+        {!isCustomizing && !categoryIsSummary && (
           <CardDescription className="text-xs text-neutral-500 mt-1">
             Using default category mapping
+          </CardDescription>
+        )}
+
+        {!isConnected && (
+          <CardDescription className="text-xs text-amber-400 mt-1">
+            Not connected. You can prefill category/attributes manually; automatic attribute fetch needs connection.
           </CardDescription>
         )}
       </CardHeader>
       
       {isExpanded && isCustomizing && (
         <CardContent className="pt-0 space-y-4">
-          {/* Category ID Input */}
+          {/* Category Selection Summary / Input */}
           <div className="space-y-2">
             <Label 
               htmlFor={`${platform}-category-id`} 
@@ -242,15 +252,26 @@ const PlatformOverrideCard = ({
             >
               {categoryLabel}
             </Label>
-            <Input
-              id={`${platform}-category-id`}
-              type={platform === 'olx' ? 'number' : 'text'}
-              value={categoryId || ''}
-              onChange={(e) => onCategoryChange(e.target.value)}
-              placeholder={categoryPlaceholder}
-              disabled={isDisabled}
-              className="text-sm"
-            />
+            {categoryIsSummary ? (
+              <div
+                id={`${platform}-category-id`}
+                className="rounded-md border border-neutral-700 bg-neutral-900/60 px-3 py-2 text-sm text-neutral-300"
+              >
+                {categoryId
+                  ? `Selected category ID: ${categoryId}`
+                  : 'Choose a category in the Category section above to load required attributes.'}
+              </div>
+            ) : (
+              <Input
+                id={`${platform}-category-id`}
+                type={platform === 'olx' ? 'number' : 'text'}
+                value={categoryId || ''}
+                onChange={(e) => onCategoryChange(e.target.value)}
+                placeholder={categoryPlaceholder}
+                disabled={isDisabled}
+                className="text-sm"
+              />
+            )}
           </div>
           
           {/* Loading State */}

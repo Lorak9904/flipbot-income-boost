@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { SaveButton, ManageButton, DeleteButton, ChangePasswordButton } from '@/components/ui/button-presets';
 import { Input } from '@/components/ui/input';
@@ -35,6 +35,9 @@ const fadeUp = {
     transition: { delay: 0.15 * i, duration: 0.6, ease: 'easeOut' },
   }),
 };
+
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
 
 const SettingsPage = () => {
   const { user, logout } = useAuth();
@@ -126,10 +129,10 @@ const SettingsPage = () => {
         title: t.toastSettingsSavedTitle, 
         description: t.toastSettingsSavedDescription 
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({ 
         title: t.toastErrorTitle, 
-        description: e.message || 'Failed to save settings', 
+        description: getErrorMessage(e, 'Failed to save settings'),
         variant: 'destructive' 
       });
     } finally {
@@ -137,7 +140,9 @@ const SettingsPage = () => {
     }
   };
 
-  const handlePasswordChange = async () => {
+  const handlePasswordChange = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast({
         title: t.toastMissingFieldsTitle,
@@ -197,10 +202,10 @@ const SettingsPage = () => {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({
         title: t.toastErrorTitle,
-        description: e.message || 'Failed to change password',
+        description: getErrorMessage(e, 'Failed to change password'),
         variant: 'destructive',
       });
     } finally {
@@ -236,10 +241,10 @@ const SettingsPage = () => {
       // Logout and redirect
       logout();
       navigate('/');
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({
         title: t.toastErrorTitle,
-        description: e.message || 'Failed to delete account',
+        description: getErrorMessage(e, 'Failed to delete account'),
         variant: 'destructive',
       });
       setDeletingAccount(false);
@@ -341,12 +346,15 @@ const SettingsPage = () => {
               <Lock className="h-5 w-5 text-cyan-400" />
               {t.passwordTitle}
             </h2>
-            <div className="space-y-6">
+            <form className="space-y-6" onSubmit={handlePasswordChange} noValidate>
               <div className="space-y-2">
                 <Label htmlFor="currentPassword">{t.currentPasswordLabel}</Label>
                 <Input 
                   id="currentPassword" 
+                  name="current-password"
                   type="password" 
+                  autoComplete="current-password"
+                  required
                   placeholder={t.currentPasswordPlaceholder} 
                   value={currentPassword} 
                   onChange={(e) => setCurrentPassword(e.target.value)} 
@@ -357,7 +365,11 @@ const SettingsPage = () => {
                 <Label htmlFor="newPassword">{t.newPasswordLabel}</Label>
                 <Input 
                   id="newPassword" 
+                  name="new-password"
                   type="password" 
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
                   placeholder={t.newPasswordPlaceholder} 
                   value={newPassword} 
                   onChange={(e) => setNewPassword(e.target.value)} 
@@ -368,7 +380,11 @@ const SettingsPage = () => {
                 <Label htmlFor="confirmPassword">{t.confirmPasswordLabel}</Label>
                 <Input 
                   id="confirmPassword" 
+                  name="confirm-password"
                   type="password" 
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
                   placeholder={t.confirmPasswordPlaceholder} 
                   value={confirmPassword} 
                   onChange={(e) => setConfirmPassword(e.target.value)} 
@@ -376,12 +392,12 @@ const SettingsPage = () => {
                 />
               </div>
               <ChangePasswordButton 
-                onClick={handlePasswordChange}
+                type="submit"
                 disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
               >
                 {changingPassword ? t.changingPasswordButton : t.changePasswordButton}
               </ChangePasswordButton>
-            </div>
+            </form>
           </motion.div>
 
           {/* Marketplace Connections - Simplified (Task 3) */}

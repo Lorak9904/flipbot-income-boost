@@ -1,14 +1,14 @@
 export const userItemsTranslations = {
   en: {
     // SEO & Meta
-    pageTitle: "My Items",
+    pageTitle: "My Listings",
     pageDescription: "View and manage all your listings across platforms",
     
     // Statistics Cards
     stats: {
-      totalItems: "Total Items",
+      totalItems: "Total Listings",
       published: "Published",
-      drafts: "Drafts",
+      drafts: "Unpublished",
       successRate: "Success Rate",
     },
     
@@ -16,7 +16,7 @@ export const userItemsTranslations = {
     filters: {
       label: "Filters:",
       allStatuses: "All statuses",
-      draft: "Draft",
+      draft: "Unpublished",
       active: "Active",
       inactive: "Inactive",
       sold: "Sold",
@@ -30,6 +30,13 @@ export const userItemsTranslations = {
       ebay: "eBay",
       allegro: "Allegro",
     },
+    statusTabs: {
+      live: "Live",
+      drafts: "Unpublished",
+      needsAttention: "Needs attention",
+      soldEnded: "Sold / Ended",
+      all: "All statuses",
+    },
     
     // Loading & Error States
     loading: "Loading...",
@@ -38,12 +45,12 @@ export const userItemsTranslations = {
     
     // Empty State
     empty: {
-      title: "No items found",
+      title: "No listings found",
       description: {
         filtered: "Try adjusting your filters",
-        noItems: "Start by adding your first item",
+        noItems: "Start by adding your first listing",
       },
-      addButton: "Add Item",
+      addButton: "Add Listing",
     },
     
     // Item Card
@@ -56,12 +63,12 @@ export const userItemsTranslations = {
     pagination: {
       previous: "Previous",
       next: "Next",
-      pageInfo: "Page {page} of {totalPages} ({total} items)",
+      pageInfo: "Page {page} of {totalPages} ({total} listings)",
     },
     
     // Authentication
     authRequired: "Authentication Required",
-    authMessage: "Please log in to view your items",
+    authMessage: "Please log in to view your listings",
     sessionExpired: "Session Expired",
     sessionMessage: "Your session has expired. Please log in again.",
     goToLogin: "Go to Login",
@@ -69,14 +76,14 @@ export const userItemsTranslations = {
   
   pl: {
     // SEO & Meta
-    pageTitle: "Moje przedmioty",
+    pageTitle: "Moje ogłoszenia",
     pageDescription: "Przeglądaj i zarządzaj wszystkimi ogłoszeniami na różnych platformach",
     
     // Karty statystyk
     stats: {
-      totalItems: "Wszystkie przedmioty",
+      totalItems: "Wszystkie ogłoszenia",
       published: "Opublikowane",
-      drafts: "Szkice",
+      drafts: "Nieopublikowane",
       successRate: "Wskaźnik sukcesu",
     },
     
@@ -84,7 +91,7 @@ export const userItemsTranslations = {
     filters: {
       label: "Filtry:",
       allStatuses: "Wszystkie statusy",
-      draft: "Szkic",
+      draft: "Nieopublikowane",
       active: "Aktywne",
       inactive: "Nieaktywne",
       sold: "Sprzedane",
@@ -98,6 +105,13 @@ export const userItemsTranslations = {
       ebay: "eBay",
       allegro: "Allegro",
     },
+    statusTabs: {
+      live: "Aktywne",
+      drafts: "Nieopublikowane",
+      needsAttention: "Wymaga uwagi",
+      soldEnded: "Sprzedane / Zakończone",
+      all: "Wszystkie statusy",
+    },
     
     // Stany ładowania i błędów
     loading: "Ładowanie...",
@@ -106,12 +120,12 @@ export const userItemsTranslations = {
     
     // Pusty stan
     empty: {
-      title: "Nie znaleziono przedmiotów",
+      title: "Nie znaleziono ogłoszeń",
       description: {
         filtered: "Spróbuj dostosować filtry",
-        noItems: "Zacznij od dodania pierwszego przedmiotu",
+        noItems: "Zacznij od dodania pierwszego ogłoszenia",
       },
-      addButton: "Dodaj przedmiot",
+      addButton: "Dodaj ogłoszenie",
     },
     
     // Karta przedmiotu
@@ -124,12 +138,12 @@ export const userItemsTranslations = {
     pagination: {
       previous: "Poprzednia",
       next: "Następna",
-      pageInfo: "Strona {page} z {totalPages} ({total} przedmiotów)",
+      pageInfo: "Strona {page} z {totalPages} ({total} ogłoszeń)",
     },
     
     // Uwierzytelnianie
     authRequired: "Wymagane logowanie",
-    authMessage: "Zaloguj się, aby zobaczyć swoje przedmioty",
+    authMessage: "Zaloguj się, aby zobaczyć swoje ogłoszenia",
     sessionExpired: "Sesja wygasła",
     sessionMessage: "Twoja sesja wygasła. Zaloguj się ponownie.",
     goToLogin: "Przejdź do logowania",

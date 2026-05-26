@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { fetchUserItems, fetchItemStats } from '@/lib/api/items';
-import { UserItem, ItemStats, Platform, ItemStatus } from '@/types/item';
+import { UserItem, ItemStats, Platform, ItemStatus, ItemStatusGroup } from '@/types/item';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PaginationButton, AddItemButton, BackButtonGradient } from '@/components/ui/button-presets';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -23,6 +24,7 @@ import { userItemsTranslations } from '@/utils/translations/user-items-translati
 import { StatCard, StatCardSkeleton } from '@/components/my_items/stat-card';
 import { SyncListingsButton } from '@/components/my_items/sync-listings-button';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import { buildListingEditorUrl } from '@/lib/listing-editor/navigation';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -33,9 +35,34 @@ const fadeUp = {
   }),
 };
 
+function ItemThumbnail({ imageUrl, title }: { imageUrl: string; title: string }) {
+  const [failed, setFailed] = useState(false);
+  const src = imageUrl && !failed ? cdnGrid(imageUrl) : '';
+
+  if (!src) {
+    return (
+      <div className="w-full h-48 rounded-md mb-4 border border-neutral-800 bg-neutral-950/70 flex flex-col items-center justify-center text-neutral-500">
+        <Package className="h-10 w-10 mb-2" />
+        <span className="text-sm">{imageUrl ? 'Image unavailable' : 'No image'}</span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={title}
+      className="w-full h-48 object-cover rounded-md mb-4 border border-neutral-800"
+      loading="lazy"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 const UserItemsPage = () => {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const t = getTranslations(userItemsTranslations);
@@ -50,6 +77,7 @@ const UserItemsPage = () => {
   const page = parseInt(searchParams.get('page') || '1', 10);
   const pageSize = 10;
   const statusParam = searchParams.get('status');
+  const statusGroupParam = searchParams.get('status_group');
   const platformParam = searchParams.get('platform');
   const statusOptions: Array<ItemStatus | 'all'> = [
     'all',
@@ -61,19 +89,35 @@ const UserItemsPage = () => {
     'removed',
     'blocked',
   ];
+  const statusGroupOptions: Array<ItemStatusGroup | 'all'> = [
+    'live',
+    'drafts',
+    'needs_attention',
+    'sold_ended',
+    'all',
+  ];
   const platformOptions: Array<Platform | 'all'> = ['all', 'facebook', 'olx', 'vinted', 'ebay', 'allegro'];
+  const hasExplicitStatusFilter =
+    !!statusParam && statusOptions.includes(statusParam as ItemStatus | 'all');
   const statusFilter: ItemStatus | 'all' = statusParam && statusOptions.includes(statusParam as ItemStatus | 'all')
     ? (statusParam as ItemStatus | 'all')
-    : 'active';
+    : 'all';
+  const statusGroupFilter: ItemStatusGroup | 'all' =
+    statusGroupParam && statusGroupOptions.includes(statusGroupParam as ItemStatusGroup | 'all')
+      ? (statusGroupParam as ItemStatusGroup | 'all')
+      : hasExplicitStatusFilter
+        ? 'all'
+        : 'live';
   const platformFilter: Platform | 'all' =
     platformParam && platformOptions.includes(platformParam as Platform | 'all')
       ? (platformParam as Platform | 'all')
       : 'all';
   const hasActiveFilters =
-    statusFilter !== 'all' || platformFilter !== 'all';
+    statusFilter !== 'all' || platformFilter !== 'all' || statusGroupFilter !== 'live';
 
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const loginRedirect = `/login?returnTo=${encodeURIComponent(`${location.pathname}${location.search}`)}`;
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -82,9 +126,9 @@ const UserItemsPage = () => {
         description: t.authMessage,
         variant: 'destructive',
       });
-      navigate('/login');
+      navigate(loginRedirect, { replace: true });
     }
-  }, [authLoading, isAuthenticated, navigate, toast]);
+  }, [authLoading, isAuthenticated, loginRedirect, navigate, toast, t.authMessage, t.authRequired]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -97,12 +141,14 @@ const UserItemsPage = () => {
           page: number;
           page_size: number;
           status?: ItemStatus;
+          status_group?: ItemStatusGroup;
           platform?: Platform;
         } = {
           page,
           page_size: pageSize,
         };
 
+        if (statusGroupFilter !== 'all' && statusFilter === 'all') params.status_group = statusGroupFilter;
         if (statusFilter !== 'all') params.status = statusFilter;
         if (platformFilter !== 'all') params.platform = platformFilter;
 
@@ -114,7 +160,7 @@ const UserItemsPage = () => {
         const errorMessage = err instanceof Error ? err.message : 'Failed to load items';
         setError(errorMessage);
         if (errorMessage.includes('Authentication')) {
-          navigate('/login');
+          navigate(loginRedirect, { replace: true });
         }
       } finally {
         setLoading(false);
@@ -122,7 +168,7 @@ const UserItemsPage = () => {
     };
 
     loadItems();
-  }, [isAuthenticated, page, pageSize, statusFilter, platformFilter, navigate]);
+  }, [isAuthenticated, page, pageSize, statusFilter, statusGroupFilter, platformFilter, navigate, loginRedirect]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -142,9 +188,24 @@ const UserItemsPage = () => {
     loadStats();
   }, [isAuthenticated]);
 
+  const handleStatusGroupChange = (value: ItemStatusGroup | 'all') => {
+    const newParams = new URLSearchParams(searchParams);
+    if (value === 'live') {
+      newParams.delete('status_group');
+    } else {
+      newParams.set('status_group', value);
+    }
+    newParams.set('status', 'all');
+    newParams.set('page', '1');
+    setSearchParams(newParams);
+  };
+
   const handleFilterChange = (filterType: 'status' | 'platform', value: string) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set(filterType, value);
+    if (filterType === 'status') {
+      newParams.set('status_group', 'all');
+    }
     newParams.set('page', '1'); // Reset to first page when filtering
     setSearchParams(newParams);
   };
@@ -159,6 +220,16 @@ const UserItemsPage = () => {
     navigate(`/user/items/${uuid}`);
   };
 
+  const openAddItemModal = () => {
+    navigate(
+      buildListingEditorUrl({
+        mode: 'add',
+        modal: true,
+        returnTo: `${location.pathname}${location.search}`,
+      })
+    );
+  };
+
   /**
    * Refresh items list and stats after sync
    */
@@ -170,12 +241,14 @@ const UserItemsPage = () => {
         page: number;
         page_size: number;
         status?: ItemStatus;
+        status_group?: ItemStatusGroup;
         platform?: Platform;
       } = {
         page,
         page_size: pageSize,
       };
 
+      if (statusGroupFilter !== 'all' && statusFilter === 'all') params.status_group = statusGroupFilter;
       if (statusFilter !== 'all') params.status = statusFilter;
       if (platformFilter !== 'all') params.platform = platformFilter;
 
@@ -271,12 +344,40 @@ const UserItemsPage = () => {
           </motion.div>
         ) : null}
 
-        {/* Filters */}
         <motion.div
           initial="hidden"
           animate="visible"
           variants={fadeUp}
           custom={2}
+          className="mb-4"
+        >
+          <Tabs value={statusGroupFilter} onValueChange={(value) => handleStatusGroupChange(value as ItemStatusGroup | 'all')}>
+            <TabsList className="h-auto w-full flex-wrap justify-start gap-2 rounded-lg border border-neutral-800 bg-neutral-900/40 p-2">
+              <TabsTrigger value="live" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-300">
+                {t.statusTabs.live}
+              </TabsTrigger>
+              <TabsTrigger value="drafts" className="data-[state=active]:bg-violet-500/20 data-[state=active]:text-violet-300">
+                {t.statusTabs.drafts}
+              </TabsTrigger>
+              <TabsTrigger value="needs_attention" className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-300">
+                {t.statusTabs.needsAttention}
+              </TabsTrigger>
+              <TabsTrigger value="sold_ended" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-300">
+                {t.statusTabs.soldEnded}
+              </TabsTrigger>
+              <TabsTrigger value="all" className="data-[state=active]:bg-neutral-700/70 data-[state=active]:text-neutral-100">
+                {t.statusTabs.all}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </motion.div>
+
+        {/* Filters */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          custom={3}
           className="flex flex-wrap gap-4 mb-6 items-center bg-neutral-900/30 backdrop-blur-sm border border-neutral-800 rounded-lg p-4"
         >
           <div className="flex items-center gap-2">
@@ -352,7 +453,7 @@ const UserItemsPage = () => {
                     : t.empty.description.noItems}
                 </p>
                 <AddItemButton 
-                  onClick={() => navigate('/add-item')}
+                  onClick={openAddItemModal}
                 >
                   {t.empty.addButton}
                 </AddItemButton>
@@ -398,14 +499,7 @@ const UserItemsPage = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      {primaryImage && (
-                        <img
-                          src={cdnGrid(primaryImage)}
-                          alt={item.title}
-                          className="w-full h-48 object-cover rounded-md mb-4 border border-neutral-800"
-                          loading="lazy"
-                        />
-                      )}
+                      <ItemThumbnail imageUrl={primaryImage} title={item.title} />
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent text-balance">
                           ${item.price}

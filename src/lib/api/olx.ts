@@ -7,6 +7,9 @@
 // Base URL for API calls
 // Update this if your backend is hosted elsewhere
 const API_BASE = '/api';
+const OLX_TREE_CACHE_TTL_MS = 5 * 60 * 1000;
+
+const olxTreeCache = new Map<string, { expiresAt: number; payload: OlxCategoryTreeResponse }>();
 
 export interface OlxConnectionStatus {
   connected: boolean;
@@ -32,21 +35,68 @@ export interface OlxSyncResponse {
   action_required?: string;
 }
 
-/**
- * Get OLX connection status for the current user
- */
-export async function getOlxStatus(): Promise<OlxConnectionStatus> {
+export interface OlxCategoryNode {
+  category_id: number;
+  name: string;
+  path: string;
+  parent_id: number | null;
+  photos_limit?: number | null;
+  is_leaf: boolean;
+  has_children?: boolean;
+  ancestors?: OlxCategoryNode[];
+  score?: number;
+  source?: string;
+}
+
+export interface OlxCategoryTreeResponse {
+  parent_id: number | null;
+  count: number;
+  parent: OlxCategoryNode | null;
+  results: OlxCategoryNode[];
+  source?: 'local' | 'remote';
+}
+
+export interface OlxCategoryPathResponse {
+  category_id: number;
+  selected: OlxCategoryNode | null;
+  path: OlxCategoryNode[];
+  path_text: string;
+  source?: 'local' | 'remote';
+}
+
+export interface OlxCategorySearchResponse {
+  query: string;
+  count: number;
+  results: OlxCategoryNode[];
+  source?: 'local' | 'remote';
+}
+
+function getAuthHeaders(): HeadersInit {
   const token = localStorage.getItem('flipit_token');
   if (!token) {
     throw new Error('No authentication token found');
   }
 
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+  };
+}
+
+function buildOlxTreeCacheKey(params?: { parentId?: number | null; limit?: number }): string {
+  return JSON.stringify({
+    parentId: params?.parentId ?? null,
+    limit: params?.limit ?? 0,
+  });
+}
+
+/**
+ * Get OLX connection status for the current user
+ */
+export async function getOlxStatus(): Promise<OlxConnectionStatus> {
   const response = await fetch(`${API_BASE}/olx/status/`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -63,17 +113,9 @@ export async function getOlxStatus(): Promise<OlxConnectionStatus> {
  * Get OLX authorization URL to start OAuth flow
  */
 export async function getOlxConnectUrl(): Promise<{ auth_url: string }> {
-  const token = localStorage.getItem('flipit_token');
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-
   const response = await fetch(`${API_BASE}/olx/connect/`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -89,15 +131,25 @@ export async function getOlxConnectUrl(): Promise<{ auth_url: string }> {
 /**
  * Check if an error response indicates OLX token expiration
  */
-export function isOlxTokenExpiredError(error: any): boolean {
+type OlxErrorPayload = {
+  error?: string;
+  action_required?: string;
+  message?: string;
+  detail?: string;
+};
+
+export function isOlxTokenExpiredError(error: unknown): boolean {
   if (!error) return false;
+  if (typeof error !== 'object') return false;
+
+  const payload = error as OlxErrorPayload;
   
   // Check for specific error structure from backend
-  if (error.error === 'olx_token_expired') return true;
-  if (error.action_required === 'reconnect_olx') return true;
+  if (payload.error === 'olx_token_expired') return true;
+  if (payload.action_required === 'reconnect_olx') return true;
   
   // Check error message
-  const message = error.message || error.detail || '';
+  const message = payload.message || payload.detail || '';
   return message.toLowerCase().includes('olx') && 
          (message.toLowerCase().includes('expired') || 
           message.toLowerCase().includes('invalid') ||
@@ -123,17 +175,9 @@ export function handleOlxTokenExpired(): void {
  * New items are created as published drafts.
  */
 export async function syncOlxListings(): Promise<OlxSyncResponse> {
-  const token = localStorage.getItem('flipit_token');
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-
   const response = await fetch(`${API_BASE}/olx/sync/`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
+    headers: getAuthHeaders(),
   });
 
   const data: OlxSyncResponse = await response.json();
@@ -152,4 +196,89 @@ export async function syncOlxListings(): Promise<OlxSyncResponse> {
   }
 
   return data;
+}
+
+export async function getOlxCategoryTree(params?: {
+  parentId?: number | null;
+  signal?: AbortSignal;
+}): Promise<OlxCategoryTreeResponse> {
+  const cacheKey = buildOlxTreeCacheKey(params);
+  const cached = olxTreeCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.payload;
+  }
+
+  const query = new URLSearchParams();
+  if (params?.parentId !== undefined && params.parentId !== null) {
+    query.set('parent_id', String(params.parentId));
+  }
+
+  const response = await fetch(
+    `${API_BASE}/olx/categories/tree/${query.toString() ? `?${query.toString()}` : ''}`,
+    {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      signal: params?.signal,
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || errorData.message || `Failed to fetch OLX categories: ${response.status}`);
+  }
+
+  const payload = (await response.json()) as OlxCategoryTreeResponse;
+  olxTreeCache.set(cacheKey, {
+    expiresAt: Date.now() + OLX_TREE_CACHE_TTL_MS,
+    payload,
+  });
+  return payload;
+}
+
+export async function getOlxCategoryPath(params: {
+  categoryId: string | number;
+  signal?: AbortSignal;
+}): Promise<OlxCategoryPathResponse> {
+  const query = new URLSearchParams({ category_id: String(params.categoryId) });
+  const response = await fetch(`${API_BASE}/olx/categories/path/?${query.toString()}`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+    signal: params.signal,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || errorData.message || `Failed to resolve OLX category: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function searchOlxCategories(params: {
+  query: string;
+  limit?: number;
+  signal?: AbortSignal;
+}): Promise<OlxCategorySearchResponse> {
+  const queryString = params.query.trim();
+  if (queryString.length < 2) {
+    return { query: queryString, count: 0, results: [] };
+  }
+
+  const query = new URLSearchParams({ q: queryString });
+  if (params.limit) {
+    query.set('limit', String(params.limit));
+  }
+
+  const response = await fetch(`${API_BASE}/olx/categories/search/?${query.toString()}`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+    signal: params.signal,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || errorData.message || `Failed to search OLX categories: ${response.status}`);
+  }
+
+  return response.json();
 }

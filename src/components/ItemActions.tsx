@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { AddItemButton, SecondaryAction, DeleteButton, GhostIconButton } from '@/components/ui/button-presets';
 import {
@@ -17,23 +17,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { 
-  Edit, 
-  Copy, 
-  Upload, 
-  Trash2, 
-  MoreVertical, 
-  Loader2, 
-  CheckCircle2,
-  RefreshCw,
-  AlertCircle
-} from 'lucide-react';
+import { Edit, Copy, Upload, Trash2, MoreVertical, Loader2, CheckCircle2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getTranslations } from '@/components/language-utils';
 import { itemDetailTranslations } from '@/utils/translations/item-detail-translations';
-import { UserItem, Platform, PlatformPublishResult, PlatformSyncStatus } from '@/types/item';
-import { duplicateItem, deleteItem, syncPlatformListings } from '@/lib/api/items';
+import { UserItem, Platform, PlatformPublishResult } from '@/types/item';
+import { duplicateItem, deleteItem, removeListingFromMarketplaces, syncPlatformListings } from '@/lib/api/items';
 import { Badge } from '@/components/ui/badge';
+import { buildListingEditorUrl } from '@/lib/listing-editor/navigation';
 
 interface ItemActionsProps {
   item: UserItem;
@@ -74,6 +65,7 @@ export function ItemActions({
   variant = 'default' 
 }: ItemActionsProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const t = getTranslations(itemDetailTranslations);
   
@@ -83,6 +75,8 @@ export function ItemActions({
   const [showPlatformPicker, setShowPlatformPicker] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncingPlatform, setSyncingPlatform] = useState<Platform | 'all' | null>(null);
+  const [isRemovingFromMarketplaces, setIsRemovingFromMarketplaces] = useState(false);
+  const [showRemoveMarketplacesDialog, setShowRemoveMarketplacesDialog] = useState(false);
   
   const isDraft = item.stage === 'draft';
   const isPublished = item.stage === 'published';
@@ -107,6 +101,37 @@ export function ItemActions({
     return publishedPlatforms.has(platform) && status?.dirty;
   });
   const hasDirtyPlatforms = dirtyPlatforms.length > 0;
+  const removableMarketplacePlatforms = syncablePlatforms.filter(platform => publishedPlatforms.has(platform));
+  const unsupportedPublishedPlatforms = SUPPORTED_PLATFORMS.filter(
+    platform => publishedPlatforms.has(platform) && !syncablePlatforms.includes(platform)
+  );
+  const removableMarketplaceNames = removableMarketplacePlatforms
+    .map(platform => PLATFORM_CONFIG[platform].name)
+    .join(', ');
+  const unsupportedMarketplaceNames = unsupportedPublishedPlatforms
+    .map(platform => PLATFORM_CONFIG[platform].name)
+    .join(', ');
+  const localRemoveTitle = isDraft
+    ? t.confirmations.removeUnpublishedTitle
+    : t.confirmations.removeFromFlipItTitle;
+  const localRemoveDescription = isDraft
+    ? t.confirmations.removeUnpublishedDescription
+    : t.confirmations.removeFromFlipItDescription;
+  const localRemoveConfirm = isDraft
+    ? t.confirmations.removeUnpublishedConfirm
+    : t.confirmations.removeFromFlipItConfirm;
+
+  const navigateToListingEditor = (params: { publishPlatform?: Platform }) => {
+    navigate(
+      buildListingEditorUrl({
+        mode: params.publishPlatform ? 'republish' : 'edit',
+        itemId: item.uuid,
+        publishPlatform: params.publishPlatform,
+        modal: true,
+        returnTo: `${location.pathname}${location.search}`,
+      })
+    );
+  };
   
   // Handler for syncing a single platform
   const handleSyncPlatform = async (platform: Platform) => {
@@ -192,8 +217,7 @@ export function ItemActions({
   };
   
   const handleEdit = () => {
-    // Navigate to dedicated edit page
-    navigate(`/user/items/${item.uuid}/edit`);
+    navigateToListingEditor({});
   };
   
   const handleDuplicate = async () => {
@@ -236,6 +260,41 @@ export function ItemActions({
       setShowDeleteDialog(false);
     }
   };
+
+  const handleRemoveFromMarketplaces = async () => {
+    if (removableMarketplacePlatforms.length === 0) {
+      return;
+    }
+
+    setIsRemovingFromMarketplaces(true);
+    try {
+      const response = await removeListingFromMarketplaces(item.uuid, removableMarketplacePlatforms);
+      const failedPlatforms = removableMarketplacePlatforms.filter(
+        platform => response.results?.[platform]?.status === 'error'
+      );
+
+      toast({
+        title: failedPlatforms.length > 0
+          ? '⚠️ ' + t.toasts.removeMarketplacesPartial
+          : '✅ ' + t.toasts.removeMarketplacesSuccess,
+        description: failedPlatforms.length > 0
+          ? failedPlatforms.map(platform => PLATFORM_CONFIG[platform].name).join(', ')
+          : removableMarketplaceNames,
+        variant: failedPlatforms.length > 0 ? 'destructive' : 'default',
+      });
+
+      onRefresh?.();
+    } catch (error) {
+      toast({
+        title: '❌ ' + t.toasts.removeMarketplacesError,
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsRemovingFromMarketplaces(false);
+      setShowRemoveMarketplacesDialog(false);
+    }
+  };
   
   const handlePublishClick = () => {
     if (availablePlatforms.length === 0) {
@@ -250,7 +309,7 @@ export function ItemActions({
     
     if (availablePlatforms.length === 1) {
       // Single platform available - go directly to publish flow
-      navigate(`/add-item?edit=${item.uuid}&publish=${availablePlatforms[0]}`);
+      navigateToListingEditor({ publishPlatform: availablePlatforms[0] });
     } else {
       // Multiple platforms - show picker
       setShowPlatformPicker(true);
@@ -259,8 +318,7 @@ export function ItemActions({
   
   const handleSelectPlatform = (platform: Platform) => {
     setShowPlatformPicker(false);
-    // Navigate to publish flow with pre-selected platform
-    navigate(`/add-item?edit=${item.uuid}&publish=${platform}`);
+    navigateToListingEditor({ publishPlatform: platform });
   };
   
   if (variant === 'compact') {
@@ -297,8 +355,71 @@ export function ItemActions({
                 {isPublished ? t.actions.publishToAnother : t.actions.publish}
               </DropdownMenuItem>
             )}
+
+            {!isDraft && syncablePlatforms.some((platform) => publishedPlatforms.has(platform)) && (
+              <>
+                <DropdownMenuSeparator className="bg-neutral-700" />
+                {hasDirtyPlatforms && (
+                  <DropdownMenuItem
+                    onClick={handleSyncAll}
+                    disabled={isSyncing}
+                    className="cursor-pointer text-white"
+                  >
+                    {isSyncing && syncingPlatform === 'all' ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                    )}
+                    Sync All ({dirtyPlatforms.length})
+                  </DropdownMenuItem>
+                )}
+                {syncablePlatforms.map((platform) => {
+                  if (!publishedPlatforms.has(platform)) return null;
+                  const isDirty = syncStatus[platform]?.dirty;
+                  const isSyncingThis = isSyncing && syncingPlatform === platform;
+                  return (
+                    <DropdownMenuItem
+                      key={`compact-sync-${platform}`}
+                      onClick={() => handleSyncPlatform(platform)}
+                      disabled={isSyncing}
+                      className="cursor-pointer text-white"
+                    >
+                      {isSyncingThis ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                      )}
+                      Sync {PLATFORM_CONFIG[platform].name}
+                      {isDirty && (
+                        <Badge className="ml-2 bg-amber-500/20 text-amber-400 border-amber-500/50 text-xs">
+                          Changed
+                        </Badge>
+                      )}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </>
+            )}
             
             <DropdownMenuSeparator className="bg-neutral-700" />
+
+            {!isDraft && removableMarketplacePlatforms.length > 0 && (
+              <>
+                <DropdownMenuItem
+                  onClick={() => setShowRemoveMarketplacesDialog(true)}
+                  disabled={isRemovingFromMarketplaces}
+                  className="cursor-pointer text-red-400 focus:text-red-400"
+                >
+                  {isRemovingFromMarketplaces ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="mr-2 h-4 w-4" />
+                  )}
+                  {t.actions.removeFromMarketplaces}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-neutral-700" />
+              </>
+            )}
             
             <DropdownMenuItem 
               onClick={() => setShowDeleteDialog(true)}
@@ -314,9 +435,9 @@ export function ItemActions({
         <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <DialogContent className="bg-neutral-900 border-neutral-700">
             <DialogHeader>
-              <DialogTitle className="text-white">{t.confirmations.deleteTitle}</DialogTitle>
+              <DialogTitle className="text-white">{localRemoveTitle}</DialogTitle>
               <DialogDescription className="text-neutral-400">
-                {t.confirmations.deleteDescription}
+                {localRemoveDescription}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="gap-2 sm:gap-0">
@@ -328,7 +449,46 @@ export function ItemActions({
                 disabled={isDeleting}
               >
                 {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {t.confirmations.deleteConfirm}
+                {localRemoveConfirm}
+              </DeleteButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showRemoveMarketplacesDialog} onOpenChange={setShowRemoveMarketplacesDialog}>
+          <DialogContent className="bg-neutral-900 border-neutral-700">
+            <DialogHeader>
+              <DialogTitle className="text-white">{t.confirmations.removeMarketplacesTitle}</DialogTitle>
+              <DialogDescription className="space-y-2 text-neutral-400">
+                <span className="block">
+                  {t.confirmations.removeMarketplacesDescription.replace(
+                    '{platforms}',
+                    removableMarketplaceNames
+                  )}
+                </span>
+                {unsupportedPublishedPlatforms.length > 0 && (
+                  <span className="block text-amber-400">
+                    {t.confirmations.removeMarketplacesUnsupported.replace(
+                      '{platforms}',
+                      unsupportedMarketplaceNames
+                    )}
+                  </span>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <SecondaryAction
+                onClick={() => setShowRemoveMarketplacesDialog(false)}
+                className="px-4 py-2"
+              >
+                {t.confirmations.deleteCancel}
+              </SecondaryAction>
+              <DeleteButton
+                onClick={handleRemoveFromMarketplaces}
+                disabled={isRemovingFromMarketplaces}
+              >
+                {isRemovingFromMarketplaces && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {t.confirmations.removeMarketplacesConfirm}
               </DeleteButton>
             </DialogFooter>
           </DialogContent>
@@ -500,6 +660,24 @@ export function ItemActions({
             )}
             
             <DropdownMenuSeparator className="bg-neutral-700" />
+
+            {!isDraft && removableMarketplacePlatforms.length > 0 && (
+              <>
+                <DropdownMenuItem
+                  onClick={() => setShowRemoveMarketplacesDialog(true)}
+                  disabled={isRemovingFromMarketplaces}
+                  className="cursor-pointer text-red-400 focus:text-red-400"
+                >
+                  {isRemovingFromMarketplaces ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="mr-2 h-4 w-4" />
+                  )}
+                  {t.actions.removeFromMarketplaces}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-neutral-700" />
+              </>
+            )}
             
             <DropdownMenuItem 
               onClick={() => setShowDeleteDialog(true)}
@@ -516,9 +694,9 @@ export function ItemActions({
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent className="bg-neutral-900 border-neutral-700">
           <DialogHeader>
-            <DialogTitle className="text-white">{t.confirmations.deleteTitle}</DialogTitle>
+            <DialogTitle className="text-white">{localRemoveTitle}</DialogTitle>
             <DialogDescription className="text-neutral-400">
-              {t.confirmations.deleteDescription}
+              {localRemoveDescription}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
@@ -530,7 +708,43 @@ export function ItemActions({
               disabled={isDeleting}
             >
               {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t.confirmations.deleteConfirm}
+              {localRemoveConfirm}
+            </DeleteButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showRemoveMarketplacesDialog} onOpenChange={setShowRemoveMarketplacesDialog}>
+        <DialogContent className="bg-neutral-900 border-neutral-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">{t.confirmations.removeMarketplacesTitle}</DialogTitle>
+            <DialogDescription className="space-y-2 text-neutral-400">
+              <span className="block">
+                {t.confirmations.removeMarketplacesDescription.replace(
+                  '{platforms}',
+                  removableMarketplaceNames
+                )}
+              </span>
+              {unsupportedPublishedPlatforms.length > 0 && (
+                <span className="block text-amber-400">
+                  {t.confirmations.removeMarketplacesUnsupported.replace(
+                    '{platforms}',
+                    unsupportedMarketplaceNames
+                  )}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <SecondaryAction onClick={() => setShowRemoveMarketplacesDialog(false)}>
+              {t.confirmations.deleteCancel}
+            </SecondaryAction>
+            <DeleteButton
+              onClick={handleRemoveFromMarketplaces}
+              disabled={isRemovingFromMarketplaces}
+            >
+              {isRemovingFromMarketplaces && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {t.confirmations.removeMarketplacesConfirm}
             </DeleteButton>
           </DialogFooter>
         </DialogContent>

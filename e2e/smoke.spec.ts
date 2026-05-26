@@ -382,7 +382,7 @@ test('public pages render and remain runtime-clean', async ({ page }) => {
 test('protected route redirects to login when unauthenticated', async ({ page }) => {
   await preparePage(page, { authenticated: false });
   await page.goto('/user/items');
-  await expect(page).toHaveURL('/login');
+  await expect(page).toHaveURL('/login?returnTo=%2Fuser%2Fitems');
 });
 
 test('email login flow stores token and redirects home', async ({ page }) => {
