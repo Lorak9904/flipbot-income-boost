@@ -160,9 +160,6 @@ const ReviewItemForm = ({
   };
   
   const handlePlatformToggle = (platform: Platform) => {
-    if (isPublishingMode && !connectedPlatforms[platform]) {
-      return;
-    }
     setSelectedPlatforms(prev => 
       prev.includes(platform)
         ? prev.filter(p => p !== platform)
@@ -704,7 +701,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className="space-y-3">
           {platformSelectionOptions.map((typedPlatform) => {
             const isConnected = connectedPlatforms[typedPlatform];
-            const isDisabled = isSubmitting || (isPublishingMode && !isConnected);
+            const isDisabled = isSubmitting;
             const isSelected = selectedPlatforms.includes(typedPlatform);
             const platformName =
               t.platforms[typedPlatform] || typedPlatform.charAt(0).toUpperCase() + typedPlatform.slice(1);
