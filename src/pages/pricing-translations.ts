@@ -6,6 +6,7 @@ export const pricingTranslations = {
     monthly: "Monthly",
     annual: "Annual",
     savePercent: "Save 20%",
+    currencyLabel: "Currency",
     
     // Pricing Cards
     starterName: "Start",
@@ -146,6 +147,7 @@ export const pricingTranslations = {
     monthly: "Miesięcznie",
     annual: "Rocznie",
     savePercent: "Oszczędź 20%",
+    currencyLabel: "Waluta",
     
     // Pricing Cards
     starterName: "Start",

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { HeroCTA } from '@/components/ui/button-presets';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
 import { getTranslations, getCurrentLanguage } from '../components/language-utils';
 import { pricingTranslations } from './pricing-translations';
@@ -9,10 +8,31 @@ import { PricingToggle } from '@/components/pricing/PricingToggle';
 import { PricingCard } from '@/components/pricing/PricingCard';
 import { PricingFAQ } from '@/components/pricing/PricingFAQ';
 import { TrustSection } from '@/components/pricing/TrustSection';
+import { CurrencySelector } from '@/components/pricing/CurrencySelector';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { createCheckoutSession } from '@/lib/api/billing';
+import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
+import {
+  CHECKOUT_CURRENCY_STORAGE_KEY,
+  type BillingCurrency,
+  type PaidPlan,
+  formatPlanPrice,
+  getInitialBillingCurrency,
+  normalizeBillingCurrency,
+  persistBillingCurrency,
+} from '@/lib/billing-pricing';
+
+declare global {
+  interface Window {
+    Tawk_API?: {
+      hideWidget?: () => void;
+      showWidget?: () => void;
+      onLoad?: () => void;
+    };
+  }
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -25,6 +45,9 @@ const fadeUp = {
 
 const PricingPage = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [billingCurrency, setBillingCurrency] = useState<BillingCurrency>(() =>
+    getInitialBillingCurrency(getCurrentLanguage())
+  );
   const [checkoutAttempted, setCheckoutAttempted] = useState(false);
   const t = getTranslations(pricingTranslations);
   const { isAuthenticated } = useAuth();
@@ -35,10 +58,11 @@ const PricingPage = () => {
   const clearCheckoutIntent = () => {
     sessionStorage.removeItem('flipit_checkout_plan');
     sessionStorage.removeItem('flipit_checkout_billing');
+    sessionStorage.removeItem(CHECKOUT_CURRENCY_STORAGE_KEY);
   };
 
   const pageTitle = 'FlipIt Pricing - Choose Your Reselling Plan | myflipit.live';
-  const pageDescription = 'Transparent pricing for FlipIt\'s marketplace automation. Start is free, Plus is 29 PLN/month, Scale is 59 PLN/month, Unlimited is 149 PLN/month. All plans include supported marketplaces.';
+  const pageDescription = 'Transparent pricing for FlipIt\'s marketplace automation. Start is free and paid plans are available in PLN and EUR. All plans include supported marketplaces.';
   const keywords = [
     'FlipIt pricing',
     'reselling platform cost',
@@ -47,9 +71,18 @@ const PricingPage = () => {
     'Vinted automation cost',
   ];
 
-  const startCheckout = async (plan: 'plus' | 'scale' | 'unlimited', cycle: 'monthly' | 'annual') => {
+  const handleCurrencyChange = (currency: BillingCurrency) => {
+    setBillingCurrency(currency);
+    persistBillingCurrency(currency);
+  };
+
+  const startCheckout = async (
+    plan: PaidPlan,
+    cycle: 'monthly' | 'annual',
+    currency: BillingCurrency,
+  ) => {
     try {
-      const checkoutUrl = await createCheckoutSession(plan, cycle);
+      const checkoutUrl = await createCheckoutSession(plan, cycle, currency);
       window.location.href = checkoutUrl;
     } catch (error: any) {
       toast({
@@ -64,11 +97,12 @@ const PricingPage = () => {
     if (!isAuthenticated) {
       sessionStorage.setItem('flipit_checkout_plan', plan);
       sessionStorage.setItem('flipit_checkout_billing', billingCycle);
+      sessionStorage.setItem(CHECKOUT_CURRENCY_STORAGE_KEY, billingCurrency);
       navigate('/login?register=1');
       return;
     }
 
-    await startCheckout(plan, billingCycle);
+    await startCheckout(plan, billingCycle, billingCurrency);
   };
 
   const handleStartSignup = () => {
@@ -77,9 +111,43 @@ const PricingPage = () => {
   };
 
   useEffect(() => {
+    const tawk = window.Tawk_API || (window.Tawk_API = {});
+    const previousOnLoad = tawk.onLoad;
+    const hideTawkWidget = () => {
+      if (typeof tawk.hideWidget === 'function') {
+        tawk.hideWidget();
+      }
+    };
+
+    hideTawkWidget();
+    tawk.onLoad = () => {
+      if (typeof previousOnLoad === 'function') {
+        previousOnLoad();
+      }
+      hideTawkWidget();
+    };
+
+    return () => {
+      if (typeof previousOnLoad === 'function') {
+        tawk.onLoad = previousOnLoad;
+      } else {
+        delete tawk.onLoad;
+      }
+      if (typeof tawk.showWidget === 'function') {
+        tawk.showWidget();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const plan = params.get('plan') || sessionStorage.getItem('flipit_checkout_plan');
     const cycle = params.get('billing') || sessionStorage.getItem('flipit_checkout_billing') || billingCycle;
+    const currency = normalizeBillingCurrency(
+      params.get('currency') ||
+      sessionStorage.getItem(CHECKOUT_CURRENCY_STORAGE_KEY) ||
+      billingCurrency
+    ) || billingCurrency;
     const shouldCheckout = params.get('checkout') === '1' || sessionStorage.getItem('flipit_checkout_plan');
 
     if (checkoutAttempted || !isAuthenticated || !shouldCheckout || !plan) {
@@ -92,10 +160,14 @@ const PricingPage = () => {
 
     sessionStorage.removeItem('flipit_checkout_plan');
     sessionStorage.removeItem('flipit_checkout_billing');
+    sessionStorage.removeItem(CHECKOUT_CURRENCY_STORAGE_KEY);
     setCheckoutAttempted(true);
     const normalizedCycle: 'monthly' | 'annual' = cycle === 'annual' ? 'annual' : 'monthly';
-    void startCheckout(plan, normalizedCycle);
-  }, [billingCycle, checkoutAttempted, isAuthenticated, location.search]);
+    if (currency !== billingCurrency) {
+      handleCurrencyChange(currency);
+    }
+    void startCheckout(plan, normalizedCycle, currency);
+  }, [billingCycle, billingCurrency, checkoutAttempted, isAuthenticated, location.search]);
 
   const pricingPlans = [
     {
@@ -116,8 +188,8 @@ const PricingPage = () => {
     {
       name: t.proName,
       description: t.proDescription,
-      price: t.proPrice,
-      annualPrice: t.proAnnualPrice,
+      price: formatPlanPrice('plus', billingCurrency, 'monthly'),
+      annualPrice: formatPlanPrice('plus', billingCurrency, 'annual'),
       features: [
         t.proFeature1,
         t.proFeature2,
@@ -138,8 +210,8 @@ const PricingPage = () => {
     {
       name: t.businessName,
       description: t.businessDescription,
-      price: t.businessPrice,
-      annualPrice: t.businessAnnualPrice,
+      price: formatPlanPrice('scale', billingCurrency, 'monthly'),
+      annualPrice: formatPlanPrice('scale', billingCurrency, 'annual'),
       features: [
         t.businessFeature1,
         t.businessFeature2,
@@ -159,8 +231,8 @@ const PricingPage = () => {
     {
       name: t.unlimitedName,
       description: t.unlimitedDescription,
-      price: t.unlimitedPrice,
-      annualPrice: t.unlimitedAnnualPrice,
+      price: formatPlanPrice('unlimited', billingCurrency, 'monthly'),
+      annualPrice: formatPlanPrice('unlimited', billingCurrency, 'annual'),
       features: [
         t.unlimitedFeature1,
         t.unlimitedFeature2,
@@ -237,13 +309,18 @@ const PricingPage = () => {
                 {t.heroDescription}
               </p>
               
-              <div className="pt-4">
+              <div className="flex flex-col items-center gap-5 pt-4">
                 <PricingToggle
                   billingCycle={billingCycle}
                   onChange={setBillingCycle}
                   monthlyLabel={t.monthly}
                   annualLabel={t.annual}
                   savingsLabel={t.savePercent}
+                />
+                <CurrencySelector
+                  currency={billingCurrency}
+                  onChange={handleCurrencyChange}
+                  label={t.currencyLabel || 'Currency'}
                 />
               </div>
             </motion.div>
@@ -283,18 +360,18 @@ const PricingPage = () => {
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeUp}
-            className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center"
+            className="w-full"
           >
-            <h2 className="text-3xl md:text-5xl font-extrabold mb-6 text-white drop-shadow-lg">
-              {t.ctaTitle}
-            </h2>
-            <p className="md:text-lg text-neutral-300 mb-8">
-              {t.ctaDescription}
-            </p>
-            <HeroCTA asChild>
-              <Link to="/login?register=1" onClick={clearCheckoutIntent}>{t.ctaButton}</Link>
-            </HeroCTA>
-            <p className="text-sm text-neutral-400 mt-4">{t.ctaSubtext}</p>
+            <MarketingCtaBanner
+              title={t.ctaTitle}
+              description={t.ctaDescription}
+              primaryAction={{
+                text: t.ctaButton,
+                href: '/login?register=1',
+                onClick: clearCheckoutIntent,
+              }}
+              footer={t.ctaSubtext}
+            />
           </motion.div>
         </div>
       </section>

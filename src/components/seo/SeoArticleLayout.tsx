@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
 import { getCurrentLanguage } from '@/components/language-utils';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -89,6 +90,8 @@ export const SeoArticleLayout = ({
   highlights,
 }: SeoArticleLayoutProps) => {
   const language = getCurrentLanguage();
+  const highlightsLabel = language === 'pl' ? 'Najważniejsze punkty' : 'Key Points';
+  const faqTitle = language === 'pl' ? 'Najczęstsze pytania' : 'Frequently Asked Questions';
   
   // Build FAQ structured data if FAQ exists
   const faqStructuredData = faq && faq.length > 0 ? {
@@ -177,15 +180,15 @@ export const SeoArticleLayout = ({
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeUp}
-            className="mb-16 w-full max-w-3xl mx-auto rounded-3xl border border-white/10 bg-neutral-900/60 p-8 text-center shadow-xl shadow-fuchsia-500/10 backdrop-blur"
+            className="mb-16 w-full max-w-3xl mx-auto rounded-3xl border border-white/10 bg-neutral-950/95 p-8 text-center shadow-xl shadow-fuchsia-500/10 backdrop-blur"
           >
             {highlightsTitle && (
               <>
-                <span className="text-xs uppercase tracking-[0.4em] text-cyan-300">Key Points</span>
+                <span className="text-xs uppercase tracking-[0.4em] text-cyan-300">{highlightsLabel}</span>
                 <h2 className="mt-4 text-2xl font-semibold text-white sm:text-3xl">{highlightsTitle}</h2>
               </>
             )}
-            <ul className="mt-6 space-y-3 text-left text-neutral-200 max-w-xl mx-auto">
+            <ul className="mt-6 space-y-3 text-left text-neutral-100 max-w-xl mx-auto">
               {highlights.map((point, idx) => (
                 <li key={idx} className="flex items-start gap-2">
                   <span className="mt-[6px] h-2 w-2 flex-shrink-0 rounded-full bg-cyan-400" aria-hidden="true" />
@@ -253,7 +256,7 @@ export const SeoArticleLayout = ({
             variants={fadeUp}
             className="mb-16"
           >
-            <h2 className="text-2xl font-bold text-white mb-8 text-center">Frequently Asked Questions</h2>
+            <h2 className="text-2xl font-bold text-white mb-8 text-center">{faqTitle}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {faq.map((item, idx) => (
                 <div 
@@ -276,33 +279,26 @@ export const SeoArticleLayout = ({
           variants={fadeUp}
           className="mb-8 py-16"
         >
-          <div className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center">
-            <h2 className="text-3xl md:text-4xl font-extrabold mb-6 text-white drop-shadow-lg">
-              {cta.title}
-            </h2>
-            <p className="md:text-lg text-neutral-300 mb-8">
-              {cta.description}
-            </p>
-            <Link
-              to={cta.buttonLink}
-              className="inline-flex items-center rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 px-8 py-4 font-semibold text-white text-lg shadow-lg shadow-fuchsia-500/30 transition hover:to-fuchsia-600"
-            >
-              {cta.buttonText}
-            </Link>
-            {cta.footerText && (
-              <p className="mt-6 text-sm text-neutral-400">
-                {cta.footerText}
-                {cta.footerLinkText && cta.footerLinkHref && (
-                  <>
-                    {' '}
-                    <Link to={cta.footerLinkHref} className="text-cyan-300 underline hover:text-cyan-200">
-                      {cta.footerLinkText}
-                    </Link>
-                  </>
-                )}
-              </p>
-            )}
-          </div>
+          <MarketingCtaBanner
+            title={cta.title}
+            description={cta.description}
+            primaryAction={{ text: cta.buttonText, href: cta.buttonLink }}
+            footer={
+              cta.footerText ? (
+                <>
+                  {cta.footerText}
+                  {cta.footerLinkText && cta.footerLinkHref && (
+                    <>
+                      {' '}
+                      <Link to={cta.footerLinkHref} className="text-cyan-300 underline hover:text-cyan-200">
+                        {cta.footerLinkText}
+                      </Link>
+                    </>
+                  )}
+                </>
+              ) : null
+            }
+          />
         </motion.section>
       </article>
     </div>

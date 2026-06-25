@@ -9,12 +9,14 @@ import { getTranslations, getCurrentLanguage } from '@/components/language-utils
 import { addItemTranslations } from '@/utils/translations/add-item-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { fetchItemDetail } from '@/lib/api/items';
-import { fetchPlatformHealth, toPlatformConnectedMap } from '@/lib/api/platform-health';
+import {
+  fetchPlatformHealth,
+  toPlatformConnectedMap,
+  type PlatformHealthResponse,
+} from '@/lib/api/platform-health';
 import type { ReviewItemFormMode } from '@/components/review-item-form-mode';
 import { getPublishedPlatforms, toReviewFormData } from '@/lib/items/review-form-adapter';
-import { ListingEditorModal } from '@/components/listing-editor/ListingEditorModal';
 import { ListingEditorCore } from '@/components/listing-editor/ListingEditorCore';
-import { isSafeReturnPath } from '@/lib/listing-editor/navigation';
 
 const AddItemPage = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -35,27 +37,18 @@ const AddItemPage = () => {
     ebay: false,
     allegro: false,
   });
+  const [platformHealth, setPlatformHealth] = useState<PlatformHealthResponse['platforms'] | null>(null);
   const [isCheckingPlatformConnections, setIsCheckingPlatformConnections] = useState(true);
   const [platformConnectionCheckFailed, setPlatformConnectionCheckFailed] = useState(false);
   const editId = searchParams.get('edit');
+  const editorModeParam = searchParams.get('mode');
   const publishParam = searchParams.get('publish');
-  const modalParam = searchParams.get('modal');
-  const returnToParam = searchParams.get('returnTo');
   const publishPlatform = (['facebook', 'olx', 'vinted', 'ebay', 'allegro'] as Platform[]).includes(publishParam as Platform)
     ? (publishParam as Platform)
     : null;
-  const isModalView = modalParam === '1';
-  const returnToPath =
-    isSafeReturnPath(returnToParam) && !returnToParam.startsWith('/add-item')
-      ? returnToParam
-      : '/user/items';
   const reviewMode: ReviewItemFormMode = editId
-    ? (publishPlatform ? 'republish' : 'edit')
+    ? (editorModeParam === 'republish' || publishPlatform ? 'republish' : 'edit')
     : 'add';
-
-  const closeModal = () => {
-    navigate(returnToPath, { replace: true });
-  };
 
   const redirectToLoginWithReturn = useCallback(() => {
     const returnTo = `${window.location.pathname}${window.location.search}`;
@@ -88,8 +81,10 @@ const AddItemPage = () => {
       setPlatformConnectionCheckFailed(false);
       try {
         const health = await fetchPlatformHealth();
+        setPlatformHealth(health.platforms);
         setConnectedPlatforms(toPlatformConnectedMap(health.platforms));
       } catch (error) {
+        setPlatformHealth(null);
         if (error instanceof Error && error.message.includes('Authentication')) {
           toast({
             title: t.sessionExpired,
@@ -109,7 +104,16 @@ const AddItemPage = () => {
     if (isAuthenticated) {
       fetchConnectedPlatforms();
     }
-  }, [isAuthenticated, isLoading, redirectToLoginWithReturn, toast]);
+  }, [
+    isAuthenticated,
+    isLoading,
+    redirectToLoginWithReturn,
+    toast,
+    t.authMessage,
+    t.authRequired,
+    t.sessionExpired,
+    t.sessionMessage,
+  ]);
 
   const hasConnectedPlatform = Object.values(connectedPlatforms).some(Boolean);
   const showNoPlatformConnectionNotice =
@@ -157,10 +161,6 @@ const AddItemPage = () => {
   
   const handleBack = () => {
     if (editId) {
-      if (isModalView) {
-        closeModal();
-        return;
-      }
       navigate(`/user/items/${editId}`);
       return;
     }
@@ -200,6 +200,7 @@ const AddItemPage = () => {
       generatedData={generatedData}
       reviewMode={reviewMode}
       connectedPlatforms={connectedPlatforms}
+      platformHealth={platformHealth}
       showNoPlatformConnectionNotice={showNoPlatformConnectionNotice}
       platformConnectionNotice={t.platformConnectionNotice}
       onComplete={handleComplete}
@@ -209,32 +210,6 @@ const AddItemPage = () => {
       publishPlatform={publishPlatform || undefined}
     />
   );
-
-  if (isModalView) {
-    return (
-      <>
-        <SEOHead
-          title={`${step === 'add' ? t.pageTitle : t.reviewTitle} | FlipIt`}
-          description={step === 'add' ? t.addCard.description : t.reviewCard.description}
-          canonicalUrl="https://myflipit.live/add-item"
-          robots="noindex, nofollow"
-        />
-        <ListingEditorModal
-          open
-          onOpenChange={(open) => {
-            if (!open) {
-              closeModal();
-            }
-          }}
-        >
-          <div className="relative min-h-full text-white overflow-hidden">
-            <AnimatedGradientBackground />
-            {editorContent}
-          </div>
-        </ListingEditorModal>
-      </>
-    );
-  }
 
   return (
     <div className="relative min-h-screen text-white overflow-hidden">

@@ -68,6 +68,8 @@ const ConnectAccountsPage = () => {
       vinted_invalid_reason: vintedInfo.invalid_reason || null,
       olx_session_status: olxInfo.status || null,
       olx_invalid_reason: olxInfo.reason || null,
+      olx_accounts: Array.isArray(olxInfo.accounts) ? olxInfo.accounts : [],
+      olx_countries: Array.isArray(olxInfo.countries) ? olxInfo.countries : [],
       ebay_session_status: ebayInfo.status || null,
       ebay_invalid_reason: ebayInfo.reason || null,
       allegro_session_status: allegroInfo.status || null,
@@ -115,6 +117,7 @@ const ConnectAccountsPage = () => {
     const status = params.get("status");
     const reconnect = params.get("reconnect");
     const message = params.get("message");
+    const country = params.get("country");
     
     if (status === "connected" && platform) {
       const successToastMap: Record<string, { title: string; description: string }> = {
@@ -135,7 +138,10 @@ const ConnectAccountsPage = () => {
       if (toastConfig) {
         toast({
           title: toastConfig.title,
-          description: toastConfig.description,
+          description:
+            platform === 'olx' && country
+              ? `${toastConfig.description} (${country})`
+              : toastConfig.description,
           variant: "default",
         });
       }
@@ -251,6 +257,8 @@ const ConnectAccountsPage = () => {
               isConnected={!!connectedPlatforms?.olx}
               sessionStatus={connectedPlatforms?.olx_session_status}
               invalidReason={connectedPlatforms?.olx_invalid_reason}
+              olxAccounts={connectedPlatforms?.olx_accounts || []}
+              olxCountries={connectedPlatforms?.olx_countries || []}
               onConnected={handleAccountConnected}
             />
             <ConnectAccountCard

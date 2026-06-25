@@ -6,6 +6,7 @@ import { HeroCTA, SecondaryAction } from '@/components/ui/button-presets';
 import { SEOHead } from '@/components/SEOHead';
 import { getCurrentLanguage } from '@/components/language-utils';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -43,6 +44,13 @@ const faqSections = [
         question: 'How does one-photo crosslisting work in FlipIt?',
         answer:
           'Upload your product images and details once. FlipIt uses AI to draft optimized titles, descriptions, and hashtags tailored for OLX, Vinted, Facebook Marketplace, and eBay. You review, edit, and approve before publishing.',
+      },
+      {
+        question: 'Which OLX countries does FlipIt support?',
+        answer:
+          'FlipIt currently supports OLX country accounts for Poland, Bulgaria, Romania, Portugal, Ukraine, and Kazakhstan. Czechia / Czech Republic is not supported yet.',
+        linkText: 'Read the OLX country guide',
+        linkHref: '/articles/olx-listing-automation-by-country',
       },
       {
         question: 'Do I need to rewrite listings for each marketplace?',
@@ -206,6 +214,14 @@ const FAQPage = () => {
                         {isOpen && (
                           <div className="px-4 md:px-5 pb-5 text-sm text-neutral-300">
                             {item.answer}
+                            {'linkHref' in item && item.linkHref && (
+                              <Link
+                                to={item.linkHref}
+                                className="mt-3 block font-medium text-cyan-300 underline underline-offset-4 transition-colors hover:text-cyan-200"
+                              >
+                                {item.linkText}
+                              </Link>
+                            )}
                           </div>
                         )}
                       </div>
@@ -251,7 +267,7 @@ const FAQPage = () => {
         >
           <h2 className="text-2xl md:text-3xl font-bold text-white">Still have questions?</h2>
           <p className="mt-4 text-neutral-300">
-            Email us anytime at <a href="mailto:info@arrpo.com" className="text-cyan-300 underline hover:text-cyan-200">info@arrpo.com</a> and we’ll help tailor FlipIt to your workflow.
+            Email us anytime at <a href="mailto:myflipit@arrpo.com" className="text-cyan-300 underline hover:text-cyan-200">myflipit@arrpo.com</a> and we’ll help tailor FlipIt to your workflow.
           </p>
         </motion.div>
       </section>
@@ -262,18 +278,13 @@ const FAQPage = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeUp}
-           className="mx-auto max-w-3xl rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-10 shadow-2xl"
+          className="mx-auto w-full max-w-3xl"
          >
-           <h2 className="text-3xl md:text-4xl font-extrabold text-white">Ready to automate your crosslisting?</h2>
-           <p className="mt-4 text-neutral-100">
-            Create an account and turn a single photo into listing drafts for OLX, Vinted, Facebook Marketplace, and eBay — then publish with your approval.
-           </p>
-           <HeroCTA
-             asChild
-             className="mt-6"
-           >
-            <Link to="/login?register=1">Create your account</Link>
-           </HeroCTA>
+          <MarketingCtaBanner
+            title="Ready to automate your crosslisting?"
+            description="Create an account and turn a single photo into listing drafts for OLX, Vinted, Facebook Marketplace, and eBay — then publish with your approval."
+            primaryAction={{ text: 'Create your account', href: '/login?register=1' }}
+          />
          </motion.div>
        </section>
      </div>

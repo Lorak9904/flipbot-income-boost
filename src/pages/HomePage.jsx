@@ -1,11 +1,11 @@
-﻿import { ArrowRight } from 'lucide-react';
 import { HeroCTA, SecondaryActionWithArrow } from '@/components/ui/button-presets';
 import { SEOHead } from '@/components/SEOHead';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Users, Zap, BadgeCheck } from 'lucide-react';
-import { getTranslations, getCurrentLanguage } from '../components/language-utils';
+import { Users, Zap, BadgeCheck, UploadCloud } from 'lucide-react';
+import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '../components/language-utils';
 import { homePageTranslations } from './homepage-translations';
+import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
 
 // Simple fade-up animation variant
 const fadeUp = {
@@ -19,6 +19,8 @@ const fadeUp = {
 
   const HomePage = () => {
   const t = getTranslations(homePageTranslations);
+  const language = getCurrentLanguage();
+  const olxHubPath = getLocalizedPathForLanguage('/articles/olx-listing-automation-by-country', language);
   const pageTitle = 'AI Crosslisting for OLX, Vinted, Facebook Marketplace & eBay | myflipit.live';
   const pageDescription = 'FlipIt helps you create marketplace listings faster: upload photos once, get AI-generated drafts (description, pricing suggestions, categories, attributes), then review and publish with your approval.';
   const keywords = [
@@ -70,7 +72,7 @@ const fadeUp = {
         canonicalUrl="https://myflipit.live/"
         keywords={keywords}
         structuredData={structuredData}
-        language={getCurrentLanguage()}
+        language={language}
       />
       {/* Unified Animated Gradient Background */}
       <div className="fixed inset-0 -z-20">
@@ -174,8 +176,11 @@ const fadeUp = {
             variants={fadeUp}
             className="text-center mb-16"
           >
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-8 py-1 text-sm font-medium text-white backdrop-blur-md mb-8">
-              {t.newRelease}
+            <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-neutral-950/55 px-4 py-2 text-sm font-semibold text-neutral-100 shadow-[0_0_30px_rgba(6,182,212,0.12)] backdrop-blur-md mb-8">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-400/15 text-cyan-300 ring-1 ring-cyan-300/30">
+                <UploadCloud className="h-3.5 w-3.5" aria-hidden="true" />
+              </span>
+              {t.heroBadge}
             </span>
             <h1 className="my-custom-font hero-title font-extrabold tracking-tight leading-tight mb-8 max-w-5xl mx-auto">
               {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight1}</span> {t.heroTitleEnd}&nbsp;
@@ -186,7 +191,7 @@ const fadeUp = {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <HeroCTA asChild>
-                <Link to="/add-item">{t.startFlipping}</Link>
+                <Link to="/get-started">{t.startFlipping}</Link>
               </HeroCTA>
               <Link to="/how-it-works">
                 <SecondaryActionWithArrow>
@@ -301,6 +306,12 @@ const fadeUp = {
                 </li>
               ))}
             </ul>
+            <Link
+              to={olxHubPath}
+              className="mt-6 inline-flex text-sm font-medium text-cyan-300 underline underline-offset-4 transition-colors hover:text-cyan-200"
+            >
+              {t.olxHubLink}
+            </Link>
           </motion.div>
         </div>
 
@@ -322,17 +333,16 @@ const fadeUp = {
       {/* Greatest Call to Action Section */}
       <section className="relative py-12">
         <div className="container mx-auto px-4 sm:px-6 md:px-8 relative z-10 flex flex-col items-center justify-center">
-          <div className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center transition-all duration-300 hover:shadow-[0_0_50px_rgba(6,182,212,0.4)] hover:-translate-y-1">
-            <h2 className="text-3xl md:text-5xl font-extrabold mb-6 text-white drop-shadow-lg">
-              {t.ctaTitle}
-            </h2>
-            <p className="md:text-lg text-neutral-300 mb-8">
-              {t.ctaDescription}
-            </p>
-            <HeroCTA asChild>
-              <Link to="/add-item">{t.ctaButton}</Link>
-            </HeroCTA>
-          </div>
+          <MarketingCtaBanner
+            eyebrow={t.ctaEyebrow}
+            title={t.ctaTitle}
+            description={t.ctaDescription}
+            primaryAction={{ text: t.ctaButton, href: '/get-started' }}
+            secondaryAction={{ text: t.ctaSecondaryButton, href: '/how-it-works' }}
+            proofPoints={[t.ctaProof1, t.ctaProof2, t.ctaProof3]}
+            footer={t.ctaFooter}
+            maxWidthClassName="max-w-4xl"
+          />
         </div>
       </section>
     </div>

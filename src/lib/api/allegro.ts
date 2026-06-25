@@ -114,6 +114,180 @@ export interface AllegroCategorySearchResponse {
   results: AllegroCategorySearchMatch[];
 }
 
+export interface AllegroProductCategoryPathItem {
+  id: string;
+  name: string;
+}
+
+export interface AllegroProductCategory {
+  id: string;
+  path: AllegroProductCategoryPathItem[];
+  similar?: unknown[];
+}
+
+export interface AllegroProductParameter {
+  id: string;
+  name: string;
+  values?: Array<string | number>;
+  valuesIds?: Array<string | number>;
+  valuesLabels?: string[];
+  unit?: string | null;
+  options?: Record<string, unknown>;
+}
+
+export interface AllegroProductSearchResult {
+  id: string;
+  name: string;
+  category: AllegroProductCategory | null;
+  parameters: AllegroProductParameter[];
+  images: Array<{ url: string }>;
+  publication?: Record<string, unknown>;
+  has_protected_brand?: boolean;
+}
+
+export interface AllegroProductSearchResponse {
+  phrase: string;
+  category_id: string | null;
+  language: string | null;
+  count: number;
+  products: AllegroProductSearchResult[];
+  categories?: Record<string, unknown>;
+  filters?: unknown[];
+  next_page?: Record<string, unknown> | null;
+}
+
+export interface AllegroSellerSettings {
+  id?: number;
+  marketplace_id: string;
+  shipping_rates_id: string;
+  return_policy_id: string;
+  warranty_id: string;
+  implied_warranty_id: string;
+  invoice_type: string;
+  handling_time: string;
+  location_override?: Record<string, unknown> | null;
+}
+
+export interface AllegroResourceOption {
+  id: string;
+  name: string;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function asString(value: unknown): string {
+  return typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+}
+
+function toAllegroOption(value: unknown): AllegroResourceOption | null {
+  const record = asRecord(value);
+  if (!record) return null;
+
+  const id = asString(record.id);
+  if (!id) return null;
+
+  return {
+    id,
+    name: asString(record.name) || asString(record.label) || id,
+  };
+}
+
+function extractAllegroOptions(payload: unknown, keys: string[]): AllegroResourceOption[] {
+  let rows: unknown[] = [];
+  const record = asRecord(payload);
+
+  if (Array.isArray(payload)) {
+    rows = payload;
+  } else if (record) {
+    for (const key of keys) {
+      if (Array.isArray(record[key])) {
+        rows = record[key] as unknown[];
+        break;
+      }
+    }
+  }
+
+  return rows
+    .map(toAllegroOption)
+    .filter((option): option is AllegroResourceOption => Boolean(option));
+}
+
+async function parseJsonError(response: Response, fallback: string): Promise<Error> {
+  const errorData = await response.json().catch(() => ({}));
+  const message = asRecord(errorData)?.detail;
+  return new Error(asString(message) || fallback);
+}
+
+export async function getAllegroSellerSettings(
+  marketplaceId: string = 'allegro-pl'
+): Promise<AllegroSellerSettings> {
+  const query = new URLSearchParams({ marketplace_id: marketplaceId });
+  const response = await fetch(`${API_BASE}/platforms/allegro/seller-settings/?${query.toString()}`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw await parseJsonError(response, `Failed to fetch Allegro seller settings: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function updateAllegroSellerSettings(
+  settings: Partial<AllegroSellerSettings>,
+  marketplaceId: string = settings.marketplace_id || 'allegro-pl'
+): Promise<AllegroSellerSettings> {
+  const query = new URLSearchParams({ marketplace_id: marketplaceId });
+  const response = await fetch(`${API_BASE}/platforms/allegro/seller-settings/?${query.toString()}`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(settings),
+  });
+
+  if (!response.ok) {
+    throw await parseJsonError(response, `Failed to save Allegro seller settings: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+async function getAllegroResourceOptions(
+  path: string,
+  keys: string[]
+): Promise<AllegroResourceOption[]> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw await parseJsonError(response, `Failed to fetch Allegro resources: ${response.status}`);
+  }
+
+  return extractAllegroOptions(await response.json(), keys);
+}
+
+export function getAllegroShippingRates(): Promise<AllegroResourceOption[]> {
+  return getAllegroResourceOptions('/allegro/shipping-rates/', ['shippingRates']);
+}
+
+export function getAllegroReturnPolicies(): Promise<AllegroResourceOption[]> {
+  return getAllegroResourceOptions('/allegro/return-policies/', ['returnPolicies']);
+}
+
+export function getAllegroImpliedWarranties(): Promise<AllegroResourceOption[]> {
+  return getAllegroResourceOptions('/allegro/implied-warranties/', ['impliedWarranties']);
+}
+
+export function getAllegroWarranties(): Promise<AllegroResourceOption[]> {
+  return getAllegroResourceOptions('/allegro/warranties/', ['warranties']);
+}
+
 function buildAllegroTreeCacheKey(params?: {
   parentId?: string | null;
   marketplaceId?: string;
@@ -232,6 +406,37 @@ export async function searchAllegroCategories(params: {
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.detail || `Failed to search Allegro categories: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function searchAllegroProducts(params: {
+  phrase: string;
+  categoryId?: string | number | null;
+  language?: string;
+  pageSize?: number;
+  signal?: AbortSignal;
+}): Promise<AllegroProductSearchResponse> {
+  const phrase = (params.phrase || '').trim();
+  if (!phrase) {
+    throw new Error('Missing product search phrase');
+  }
+
+  const query = new URLSearchParams();
+  query.set('phrase', phrase);
+  if (params.categoryId) query.set('category_id', String(params.categoryId));
+  if (params.language) query.set('language', params.language);
+  if (params.pageSize) query.set('page_size', String(params.pageSize));
+
+  const response = await fetch(`${API_BASE}/allegro/products/search/?${query.toString()}`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+    signal: params.signal,
+  });
+
+  if (!response.ok) {
+    throw await parseJsonError(response, `Failed to search Allegro products: ${response.status}`);
   }
 
   return response.json();

@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { AddItemButton, SecondaryAction, DeleteButton, GhostIconButton } from '@/components/ui/button-presets';
 import {
   DropdownMenu,
@@ -17,8 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Edit, Copy, Upload, Trash2, MoreVertical, Loader2, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Edit, Copy, Trash2, MoreVertical, Loader2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getTranslations } from '@/components/language-utils';
 import { itemDetailTranslations } from '@/utils/translations/item-detail-translations';
@@ -26,7 +24,6 @@ import { UserItem, Platform, PlatformPublishResult } from '@/types/item';
 import { duplicateItem, deleteItem, removeListingFromMarketplaces, syncPlatformListings } from '@/lib/api/items';
 import { Badge } from '@/components/ui/badge';
 import { buildListingEditorUrl } from '@/lib/listing-editor/navigation';
-import { PLATFORM_LOGOS } from '@/lib/platform-logos';
 
 interface ItemActionsProps {
   item: UserItem;
@@ -35,27 +32,12 @@ interface ItemActionsProps {
   variant?: 'default' | 'compact';
 }
 
-const PLATFORM_CONFIG: Record<Platform, { name: string; logo: string }> = {
-  facebook: {
-    name: 'Facebook Marketplace',
-    logo: PLATFORM_LOGOS.facebook,
-  },
-  olx: {
-    name: 'OLX',
-    logo: PLATFORM_LOGOS.olx,
-  },
-  vinted: {
-    name: 'Vinted',
-    logo: PLATFORM_LOGOS.vinted,
-  },
-  ebay: {
-    name: 'eBay',
-    logo: PLATFORM_LOGOS.ebay,
-  },
-  allegro: {
-    name: 'Allegro',
-    logo: PLATFORM_LOGOS.allegro,
-  },
+const PLATFORM_CONFIG: Record<Platform, { name: string }> = {
+  facebook: { name: 'Facebook Marketplace' },
+  olx: { name: 'OLX' },
+  vinted: { name: 'Vinted' },
+  ebay: { name: 'eBay' },
+  allegro: { name: 'Allegro' },
 };
 
 const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay', 'allegro'];
@@ -67,21 +49,18 @@ export function ItemActions({
   variant = 'default' 
 }: ItemActionsProps) {
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
   const t = getTranslations(itemDetailTranslations);
   
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showPlatformPicker, setShowPlatformPicker] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncingPlatform, setSyncingPlatform] = useState<Platform | 'all' | null>(null);
   const [isRemovingFromMarketplaces, setIsRemovingFromMarketplaces] = useState(false);
   const [showRemoveMarketplacesDialog, setShowRemoveMarketplacesDialog] = useState(false);
   
   const isDraft = item.stage === 'draft';
-  const isPublished = item.stage === 'published';
   
   // Get platforms already published to
   const publishedPlatforms = new Set(
@@ -94,6 +73,10 @@ export function ItemActions({
   const availablePlatforms = SUPPORTED_PLATFORMS.filter(
     platform => connectedPlatforms[platform] && !publishedPlatforms.has(platform)
   );
+  const canPublishToMorePlatforms = availablePlatforms.length > 0;
+  const manageActionLabel = canPublishToMorePlatforms
+    ? t.actions.manageListing
+    : t.actions.editListing;
   
   // Get dirty platforms that need syncing
   const syncablePlatforms: Platform[] = ['olx', 'ebay', 'allegro'];
@@ -123,14 +106,11 @@ export function ItemActions({
     ? t.confirmations.removeUnpublishedConfirm
     : t.confirmations.removeFromFlipItConfirm;
 
-  const navigateToListingEditor = (params: { publishPlatform?: Platform }) => {
+  const navigateToListingEditor = () => {
     navigate(
       buildListingEditorUrl({
-        mode: params.publishPlatform ? 'republish' : 'edit',
+        mode: canPublishToMorePlatforms ? 'republish' : 'edit',
         itemId: item.uuid,
-        publishPlatform: params.publishPlatform,
-        modal: true,
-        returnTo: `${location.pathname}${location.search}`,
       })
     );
   };
@@ -219,7 +199,7 @@ export function ItemActions({
   };
   
   const handleEdit = () => {
-    navigateToListingEditor({});
+    navigateToListingEditor();
   };
   
   const handleDuplicate = async () => {
@@ -298,93 +278,6 @@ export function ItemActions({
     }
   };
   
-  const handlePublishClick = () => {
-    if (availablePlatforms.length === 0) {
-      // No platforms available - show message
-      toast({
-        title: t.platformPicker.noConnected,
-        description: 'Connect a platform in Settings to publish',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    if (availablePlatforms.length === 1) {
-      // Single platform available - go directly to publish flow
-      navigateToListingEditor({ publishPlatform: availablePlatforms[0] });
-    } else {
-      // Multiple platforms - show picker
-      setShowPlatformPicker(true);
-    }
-  };
-  
-  const handleSelectPlatform = (platform: Platform) => {
-    setShowPlatformPicker(false);
-    navigateToListingEditor({ publishPlatform: platform });
-  };
-
-  const renderPlatformPickerOption = (platform: Platform) => {
-    const isConnected = connectedPlatforms[platform];
-    const isAlreadyPublished = publishedPlatforms.has(platform);
-    const config = PLATFORM_CONFIG[platform];
-    const disabledReason = isAlreadyPublished
-      ? `${config.name} is already published for this listing.`
-      : !isConnected
-        ? `${config.name} is not connected yet. Connect it in platform settings before publishing.`
-        : null;
-    const option = (
-      <button
-        key={platform}
-        onClick={() => !disabledReason && handleSelectPlatform(platform)}
-        disabled={!!disabledReason}
-        className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-          isAlreadyPublished
-            ? 'border-green-500/30 bg-green-500/10 cursor-not-allowed'
-            : isConnected
-            ? 'border-neutral-700 hover:border-cyan-500/50 hover:bg-neutral-800 cursor-pointer'
-            : 'border-neutral-800 bg-neutral-900/50 cursor-not-allowed opacity-50'
-        }`}
-      >
-        <img
-          src={config.logo}
-          alt={config.name}
-          className="w-8 h-8 object-contain"
-        />
-        <span className="flex-1 text-left text-white font-medium">
-          {config.name}
-        </span>
-        {isAlreadyPublished && (
-          <span className="flex items-center gap-1 text-green-400 text-sm">
-            <CheckCircle2 className="w-4 h-4" />
-            {t.platformPicker.alreadyPublished}
-          </span>
-        )}
-        {!isConnected && !isAlreadyPublished && (
-          <span className="text-neutral-500 text-sm">
-            {t.platformPicker.connectAccount}
-          </span>
-        )}
-      </button>
-    );
-
-    if (!disabledReason) {
-      return option;
-    }
-
-    return (
-      <TooltipProvider key={platform} delayDuration={100}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div>{option}</div>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-xs border-neutral-700 bg-neutral-900 text-neutral-200">
-            <p className="text-sm">{disabledReason}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
-  };
-  
   if (variant === 'compact') {
     return (
       <>
@@ -397,7 +290,7 @@ export function ItemActions({
           <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-700">
             <DropdownMenuItem onClick={handleEdit} className="cursor-pointer text-white">
               <Edit className="mr-2 h-4 w-4" />
-              {t.actions.edit}
+              {manageActionLabel}
             </DropdownMenuItem>
             
             <DropdownMenuItem 
@@ -413,13 +306,6 @@ export function ItemActions({
               {t.actions.duplicate}
             </DropdownMenuItem>
             
-            {availablePlatforms.length > 0 && (
-              <DropdownMenuItem onClick={handlePublishClick} className="cursor-pointer text-white">
-                <Upload className="mr-2 h-4 w-4" />
-                {isPublished ? t.actions.publishToAnother : t.actions.publish}
-              </DropdownMenuItem>
-            )}
-
             {!isDraft && syncablePlatforms.some((platform) => publishedPlatforms.has(platform)) && (
               <>
                 <DropdownMenuSeparator className="bg-neutral-700" />
@@ -558,25 +444,6 @@ export function ItemActions({
           </DialogContent>
         </Dialog>
         
-        {/* Platform Picker Dialog */}
-        <Dialog open={showPlatformPicker} onOpenChange={setShowPlatformPicker}>
-          <DialogContent className="bg-neutral-900 border-neutral-700">
-            <DialogHeader>
-              <DialogTitle className="text-white">{t.platformPicker.title}</DialogTitle>
-              <DialogDescription className="text-neutral-400">
-                {t.platformPicker.description}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-3 py-4">
-              {SUPPORTED_PLATFORMS.map(renderPlatformPickerOption)}
-            </div>
-            <DialogFooter>
-              <SecondaryAction onClick={() => setShowPlatformPicker(false)} className="px-4 py-2">
-                {t.platformPicker.cancel}
-              </SecondaryAction>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </>
     );
   }
@@ -585,29 +452,14 @@ export function ItemActions({
   return (
     <>
       <div className="flex flex-wrap gap-2">
-        {/* Primary CTA - Publish button */}
-        {isDraft ? (
-          <AddItemButton 
-            size="lg"
-            onClick={handlePublishClick}
-            className="flex items-center gap-2"
-            disabled={availablePlatforms.length === 0}
-          >
-            <Upload className="h-4 w-4" />
-            {t.actions.publish}
-          </AddItemButton>
-        ) : (
-          availablePlatforms.length > 0 && (
-            <AddItemButton 
-              size="lg"
-              onClick={handlePublishClick}
-              className="flex items-center gap-2"
-            >
-              <Upload className="h-4 w-4" />
-              {t.actions.publishToAnother}
-            </AddItemButton>
-          )
-        )}
+        <AddItemButton 
+          size="lg"
+          onClick={handleEdit}
+          className="flex items-center gap-2"
+        >
+          <Edit className="h-4 w-4" />
+          {manageActionLabel}
+        </AddItemButton>
         
         {/* Sync All button - only show if there are dirty platforms */}
         {!isDraft && hasDirtyPlatforms && (
@@ -634,11 +486,6 @@ export function ItemActions({
             </GhostIconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-700">
-            <DropdownMenuItem onClick={handleEdit} className="cursor-pointer text-white">
-              <Edit className="mr-2 h-4 w-4" />
-              {isDraft ? t.actions.edit : t.actions.editListing}
-            </DropdownMenuItem>
-            
             <DropdownMenuItem 
               onClick={handleDuplicate} 
               disabled={isDuplicating}
@@ -775,25 +622,6 @@ export function ItemActions({
         </DialogContent>
       </Dialog>
       
-      {/* Platform Picker Dialog */}
-      <Dialog open={showPlatformPicker} onOpenChange={setShowPlatformPicker}>
-        <DialogContent className="bg-neutral-900 border-neutral-700">
-          <DialogHeader>
-            <DialogTitle className="text-white">{t.platformPicker.title}</DialogTitle>
-            <DialogDescription className="text-neutral-400">
-              {t.platformPicker.description}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-3 py-4">
-            {SUPPORTED_PLATFORMS.map(renderPlatformPickerOption)}
-          </div>
-          <DialogFooter>
-            <SecondaryAction onClick={() => setShowPlatformPicker(false)} className="px-4 py-2">
-              {t.platformPicker.cancel}
-            </SecondaryAction>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

@@ -15,7 +15,7 @@ Twoje dane są dla nas ważne – choć FlipIt jest obecnie w wersji testowej i 
 
 ## Twoje prawa
 - Możesz w każdej chwili poprosić o dostęp lub usunięcie danych.
- - Wystarczy napisać na adres: info@arrpo.com .
+ - Wystarczy napisać na adres: myflipit@arrpo.com .
 
 ## Pliki cookies
 FlipIt korzysta z:

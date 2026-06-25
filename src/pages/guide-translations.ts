@@ -26,7 +26,7 @@ export const guideTranslations: Translations = {
     section2Para1: 'An automated reselling platform centralizes your listing creation workflow. Add photos once — AI drafts descriptions, suggests pricing, and maps categories/attributes for each marketplace.',
     section2Para2: 'With FlipIt you stay in control of approvals while the system handles repetitive listing prep. Publishing runs asynchronously, and you can see success/errors per item and per platform.',
     section3Title: 'Introducing myflipit.live: Your Crosslisting Co-pilot',
-    section3Para1: 'myflipit.live learns your item categories, preferred price thresholds, and buyer tone to keep every listing consistent. AI-generated descriptions, titles, and hashtags give you a professional voice on OLX, Vinted, Facebook Marketplace, and eBay—no manual editing required.',
+    section3Para1: 'myflipit.live learns your item categories, preferred price thresholds, and buyer tone to keep every listing consistent. AI-generated descriptions, titles, and hashtags give you a strong draft for OLX, Vinted, Facebook Marketplace, and eBay, ready for your review before publishing.',
     section3Para2: 'The platform stores publishing results per marketplace, so you can quickly spot what succeeded, what needs edits, and what to retry. Curious how it fits into your workflow? Explore the product tour at',
     section3LinkText: 'how it works',
     stepsTitle: 'How to Maximize Your Profits with myflipit.live in 4 Simple Steps',

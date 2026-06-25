@@ -1,7 +1,7 @@
 /**
  * OLX API Integration
  * 
- * Handles OLX marketplace connection, status checks, and token management.
+ * Handles OLX country account connection, status checks, and token management.
  */
 
 // Base URL for API calls
@@ -17,6 +17,38 @@ export interface OlxConnectionStatus {
   expires_at: string | null;
   needs_reconnect: boolean;
   message?: string;
+  accounts?: OlxMarketplaceAccount[];
+  countries?: OlxCountry[];
+}
+
+export interface OlxCountry {
+  country_code: string;
+  country_name: string;
+  base_url: string;
+  currency: string;
+}
+
+export interface OlxMarketplaceAccount {
+  id: number | null;
+  country_code: string;
+  country_name: string;
+  base_url: string;
+  currency: string;
+  is_default?: boolean;
+  connected: boolean;
+  stored: boolean;
+  valid?: boolean;
+  needs_reconnect?: boolean;
+  status?: 'valid' | 'expired' | 'invalid' | null;
+  reason?: string | null;
+  expires_at?: string | null;
+  profile?: {
+    olx_user_id?: number;
+    email?: string;
+    name?: string;
+    status?: string;
+    is_business?: boolean;
+  } | null;
 }
 
 export interface OlxSyncSummary {
@@ -83,18 +115,20 @@ function getAuthHeaders(): HeadersInit {
   };
 }
 
-function buildOlxTreeCacheKey(params?: { parentId?: number | null; limit?: number }): string {
+function buildOlxTreeCacheKey(params?: { parentId?: number | null; limit?: number; countryCode?: string }): string {
   return JSON.stringify({
     parentId: params?.parentId ?? null,
     limit: params?.limit ?? 0,
+    countryCode: params?.countryCode ?? '',
   });
 }
 
 /**
  * Get OLX connection status for the current user
  */
-export async function getOlxStatus(): Promise<OlxConnectionStatus> {
-  const response = await fetch(`${API_BASE}/olx/status/`, {
+export async function getOlxStatus(countryCode?: string): Promise<OlxConnectionStatus> {
+  const query = countryCode ? `?country=${encodeURIComponent(countryCode)}` : '';
+  const response = await fetch(`${API_BASE}/olx/status/${query}`, {
     method: 'GET',
     headers: getAuthHeaders(),
   });
@@ -112,8 +146,24 @@ export async function getOlxStatus(): Promise<OlxConnectionStatus> {
 /**
  * Get OLX authorization URL to start OAuth flow
  */
-export async function getOlxConnectUrl(): Promise<{ auth_url: string }> {
-  const response = await fetch(`${API_BASE}/olx/connect/`, {
+export async function getOlxCountries(): Promise<{ countries: OlxCountry[] }> {
+  const response = await fetch(`${API_BASE}/olx/countries/`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    throw new Error(`Failed to get OLX countries: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getOlxConnectUrl(countryCode = 'PL'): Promise<{ auth_url: string }> {
+  const response = await fetch(`${API_BASE}/olx/connect/?country=${encodeURIComponent(countryCode)}`, {
     method: 'GET',
     headers: getAuthHeaders(),
   });
@@ -174,8 +224,9 @@ export function handleOlxTokenExpired(): void {
  * Existing items (matched by external_id) are updated with fresh data.
  * New items are created as published drafts.
  */
-export async function syncOlxListings(): Promise<OlxSyncResponse> {
-  const response = await fetch(`${API_BASE}/olx/sync/`, {
+export async function syncOlxListings(countryCode?: string): Promise<OlxSyncResponse> {
+  const query = countryCode ? `?country=${encodeURIComponent(countryCode)}` : '';
+  const response = await fetch(`${API_BASE}/olx/sync/${query}`, {
     method: 'POST',
     headers: getAuthHeaders(),
   });
@@ -200,6 +251,7 @@ export async function syncOlxListings(): Promise<OlxSyncResponse> {
 
 export async function getOlxCategoryTree(params?: {
   parentId?: number | null;
+  countryCode?: string;
   signal?: AbortSignal;
 }): Promise<OlxCategoryTreeResponse> {
   const cacheKey = buildOlxTreeCacheKey(params);
@@ -211,6 +263,9 @@ export async function getOlxCategoryTree(params?: {
   const query = new URLSearchParams();
   if (params?.parentId !== undefined && params.parentId !== null) {
     query.set('parent_id', String(params.parentId));
+  }
+  if (params?.countryCode) {
+    query.set('country', params.countryCode);
   }
 
   const response = await fetch(
@@ -237,9 +292,13 @@ export async function getOlxCategoryTree(params?: {
 
 export async function getOlxCategoryPath(params: {
   categoryId: string | number;
+  countryCode?: string;
   signal?: AbortSignal;
 }): Promise<OlxCategoryPathResponse> {
   const query = new URLSearchParams({ category_id: String(params.categoryId) });
+  if (params.countryCode) {
+    query.set('country', params.countryCode);
+  }
   const response = await fetch(`${API_BASE}/olx/categories/path/?${query.toString()}`, {
     method: 'GET',
     headers: getAuthHeaders(),
@@ -256,6 +315,7 @@ export async function getOlxCategoryPath(params: {
 
 export async function searchOlxCategories(params: {
   query: string;
+  countryCode?: string;
   limit?: number;
   signal?: AbortSignal;
 }): Promise<OlxCategorySearchResponse> {
@@ -267,6 +327,9 @@ export async function searchOlxCategories(params: {
   const query = new URLSearchParams({ q: queryString });
   if (params.limit) {
     query.set('limit', String(params.limit));
+  }
+  if (params.countryCode) {
+    query.set('country', params.countryCode);
   }
 
   const response = await fetch(`${API_BASE}/olx/categories/search/?${query.toString()}`, {

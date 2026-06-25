@@ -4,14 +4,14 @@ export const connectAccountsTranslations: Translations = {
   en: {
     // Page metadata
     pageTitle: 'Connect Accounts | FlipIt',
-    pageDescription: 'Connect OLX, Vinted, Facebook, eBay, and Allegro to power AI crosslisting — FlipIt drafts listings from photos and you publish with your approval.',
+    pageDescription: 'Connect OLX country accounts, Vinted, Facebook, eBay, and Allegro to prepare drafts from photos and publish with your approval.',
     
     // Loading state
-    loadingTitle: 'Loading your connected platforms...',
+    loadingTitle: 'Loading your connected accounts...',
     
     // Hero section
     heroTitle: 'Connect Your Accounts',
-    heroDescription: 'Connect your marketplace accounts so you can publish listings from FlipIt.',
+    heroDescription: 'Connect your marketplace accounts so you can prepare drafts, sync listings, and publish from FlipIt.',
     
     // Connection status messages
     statusConnected: 'Connected',
@@ -26,7 +26,7 @@ export const connectAccountsTranslations: Translations = {
     platformAllegro: 'Allegro',
     
     // Bottom CTA section
-    ctaConnectedMessage: "Great! You've connected at least one platform. You're ready to publish listings from FlipIt.",
+    ctaConnectedMessage: "Great! You've connected at least one account. You're ready to publish listings from FlipIt.",
     ctaNotConnectedMessage: "Connect at least one marketplace account to get started with FlipIt.",
     ctaDashboardButton: 'Return to Dashboard',
     
@@ -63,14 +63,14 @@ export const connectAccountsTranslations: Translations = {
   pl: {
     // Page metadata
     pageTitle: 'Połącz konta | FlipIt',
-    pageDescription: 'Połącz OLX, Vinted, Facebook, eBay i Allegro, aby uruchomić crosslisting z AI — FlipIt przygotuje szkic ogłoszenia, a Ty zatwierdzisz publikację.',
+    pageDescription: 'Połącz konta OLX według kraju, Vinted, Facebook, eBay i Allegro, aby przygotowywać szkice ze zdjęć i publikować po Twojej akceptacji.',
     
     // Loading state
-    loadingTitle: 'Ładowanie połączonych platform...',
+    loadingTitle: 'Ładowanie połączonych kont...',
     
     // Hero section
     heroTitle: 'Połącz swoje konta',
-    heroDescription: 'Połącz konta na platformach sprzedażowych, aby publikować ogłoszenia z poziomu FlipIt.',
+    heroDescription: 'Połącz konta sprzedażowe, aby przygotowywać szkice, synchronizować ogłoszenia i publikować z poziomu FlipIt.',
     
     // Connection status messages
     statusConnected: 'Połączono',
@@ -85,7 +85,7 @@ export const connectAccountsTranslations: Translations = {
     platformAllegro: 'Allegro',
     
     // Bottom CTA section
-    ctaConnectedMessage: 'Świetnie! Połączyłeś co najmniej jedną platformę. Możesz publikować ogłoszenia z FlipIt.',
+    ctaConnectedMessage: 'Świetnie! Połączyłeś co najmniej jedno konto. Możesz publikować ogłoszenia z FlipIt.',
     ctaNotConnectedMessage: 'Połącz co najmniej jedno konto, aby rozpocząć korzystanie z FlipIt.',
     ctaDashboardButton: 'Wróć do panelu',
     

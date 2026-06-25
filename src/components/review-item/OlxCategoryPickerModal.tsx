@@ -15,6 +15,7 @@ interface OlxCategoryPickerModalProps {
   onOpenChange: (open: boolean) => void;
   selectedCategoryId: number | string | null;
   selectedCategoryPath?: string | null;
+  countryCode?: string;
   onSelectCategory: (node: OlxCategoryNode) => void;
 }
 
@@ -51,6 +52,7 @@ export default function OlxCategoryPickerModal({
   onOpenChange,
   selectedCategoryId,
   selectedCategoryPath,
+  countryCode,
   onSelectCategory,
 }: OlxCategoryPickerModalProps) {
   const [pathNodes, setPathNodes] = useState<OlxCategoryNode[]>([]);
@@ -104,7 +106,7 @@ export default function OlxCategoryPickerModal({
           }
         : null
     );
-  }, [open, selectedCategoryId, selectedCategoryPath]);
+  }, [open, selectedCategoryId, selectedCategoryPath, countryCode]);
 
   useEffect(() => {
     if (!open) {
@@ -121,6 +123,7 @@ export default function OlxCategoryPickerModal({
       try {
         const payload = await getOlxCategoryPath({
           categoryId: normalizedSelected,
+          countryCode,
           signal: controller.signal,
         });
         if (controller.signal.aborted || !payload.path.length) {
@@ -137,7 +140,7 @@ export default function OlxCategoryPickerModal({
     })();
 
     return () => controller.abort();
-  }, [open, selectedCategoryId]);
+  }, [open, selectedCategoryId, countryCode]);
 
   useEffect(() => {
     if (!open) {
@@ -160,6 +163,7 @@ export default function OlxCategoryPickerModal({
       try {
         const payload = await searchOlxCategories({
           query: trimmedSearchQuery,
+          countryCode,
           limit: 30,
           signal: controller.signal,
         });
@@ -182,7 +186,7 @@ export default function OlxCategoryPickerModal({
     })();
 
     return () => controller.abort();
-  }, [open, isSearching, trimmedSearchQuery]);
+  }, [open, isSearching, trimmedSearchQuery, countryCode]);
 
   useEffect(() => {
     if (!open || isSearching) {
@@ -203,6 +207,7 @@ export default function OlxCategoryPickerModal({
       try {
         const payload = await getOlxCategoryTree({
           parentId,
+          countryCode,
           signal: controller.signal,
         });
 
@@ -228,7 +233,7 @@ export default function OlxCategoryPickerModal({
     })();
 
     return () => controller.abort();
-  }, [open, isSearching, currentParentId, treeByParent]);
+  }, [open, isSearching, currentParentId, treeByParent, countryCode]);
 
   const handleSelectNode = (node: OlxCategoryNode) => {
     const nodeWithPath = withPath(node, pathNodes);

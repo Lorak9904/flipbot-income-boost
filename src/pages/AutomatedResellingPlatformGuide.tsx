@@ -4,7 +4,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from '@/components/language-utils';
 import { guideTranslations } from './guide-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
-import { HeroCTA } from '@/components/ui/button-presets';
+import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -384,30 +384,24 @@ const AutomatedResellingPlatformGuide = () => {
           variants={fadeUp}
           className="mb-8 py-16"
         >
-          <div className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center">
-            <h2 className="text-3xl md:text-4xl font-extrabold mb-6 text-white drop-shadow-lg">
-              {t.ctaTitle}
-            </h2>
-            <p className="md:text-lg text-neutral-300 mb-8">
-              {t.ctaDescription}
-            </p>
-            <HeroCTA asChild>
-              <Link to="/get-started">
-                {t.ctaButton}
-              </Link>
-            </HeroCTA>
-            <p className="mt-6 text-sm text-neutral-400">
-              {t.ctaFooterText}{' '}
-              <Link to="/login" className="text-cyan-300 underline hover:text-cyan-200">
-                {t.ctaLoginLink}
-              </Link>
-              {t.ctaFooterMiddle}{' '}
-              <Link to="/how-it-works" className="text-cyan-300 underline hover:text-cyan-200">
-                {t.ctaHowItWorksLink}
-              </Link>
-              .
-            </p>
-          </div>
+          <MarketingCtaBanner
+            title={t.ctaTitle}
+            description={t.ctaDescription}
+            primaryAction={{ text: t.ctaButton, href: '/get-started' }}
+            footer={
+              <>
+                {t.ctaFooterText}{' '}
+                <Link to="/login" className="text-cyan-300 underline hover:text-cyan-200">
+                  {t.ctaLoginLink}
+                </Link>
+                {t.ctaFooterMiddle}{' '}
+                <Link to="/how-it-works" className="text-cyan-300 underline hover:text-cyan-200">
+                  {t.ctaHowItWorksLink}
+                </Link>
+                .
+              </>
+            }
+          />
         </motion.section>
       </article>
     </div>

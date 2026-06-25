@@ -2,10 +2,12 @@
  * Billing API Client
  * Handles Stripe Checkout and Billing Portal sessions
  */
+import type { BillingCurrency } from '@/lib/billing-pricing';
 
 export async function createCheckoutSession(
   plan: 'plus' | 'scale' | 'unlimited',
-  billingCycle: 'monthly' | 'annual'
+  billingCycle: 'monthly' | 'annual',
+  currency: BillingCurrency = 'pln',
 ): Promise<string> {
   const token = localStorage.getItem('flipit_token');
   if (!token) {
@@ -21,6 +23,7 @@ export async function createCheckoutSession(
     body: JSON.stringify({
       plan,
       billing_cycle: billingCycle,
+      currency,
     }),
   });
 
@@ -34,7 +37,8 @@ export async function createCheckoutSession(
 }
 
 export async function createImageAddonCheckoutSession(
-  pack: 'image_50' | 'image_100'
+  pack: 'image_50' | 'image_100',
+  currency: BillingCurrency = 'pln',
 ): Promise<string> {
   const token = localStorage.getItem('flipit_token');
   if (!token) {
@@ -47,7 +51,7 @@ export async function createImageAddonCheckoutSession(
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ pack }),
+    body: JSON.stringify({ pack, currency }),
   });
 
   if (!response.ok) {

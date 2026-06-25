@@ -54,6 +54,8 @@ export const reviewItemFormTranslations = {
     // Buttons
     buttons: {
       back: "Back",
+      saving: "Saving...",
+      saveChanges: "Save changes",
       publishing: "Publishing...",
       publish: "Publish Item",
       updating: "Updating...",
@@ -125,6 +127,8 @@ export const reviewItemFormTranslations = {
     // Przyciski
     buttons: {
       back: "Wstecz",
+      saving: "Zapisywanie...",
+      saveChanges: "Zapisz zmiany",
       publishing: "Publikowanie...",
       publish: "Opublikuj przedmiot",
       updating: "Aktualizowanie...",

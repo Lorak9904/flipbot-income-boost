@@ -7,11 +7,12 @@ import {
   MarketplaceAttributes,
   MarketplaceAttributeValue,
   Platform, 
+  PlatformDynamicAttributeValue,
   PlatformFieldOverrides,
   PlatformOverrides
 } from '@/types/item';
 import { useToast } from '@/hooks/use-toast';
-import { AddItemButton, BackButtonGhost } from '@/components/ui/button-presets';
+import { AddItemButton, BackButtonGhost, SecondaryAction } from '@/components/ui/button-presets';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -23,6 +24,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import ImageUploader from './ImageUploader';
 import MarketplaceAttributesPanel from './MarketplaceAttributesPanel';
@@ -38,6 +49,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { InsufficientCreditsAlert } from '@/components/credits';
 import { parseInsufficientCreditsError, parseErrorResponse } from '@/lib/api/error-handler';
 import type { ReviewItemFormMode } from './review-item-form-mode';
+import type { PlatformHealthResponse } from '@/lib/api/platform-health';
 import {
   getDefaultSelectedPlatforms,
   getPlatformSelectionOptions,
@@ -45,12 +57,14 @@ import {
 } from './review-item-form-mode';
 import { submitEditDraft } from './review-item/submit-edit';
 import { getVintedCategoryAttributes } from '@/lib/api/vinted';
+import type { AllegroProductSearchResult } from '@/lib/api/allegro';
 import { SUPPORTED_CURRENCIES, resolveCurrency } from '@/lib/currency';
 
 interface ReviewItemFormProps {
   initialData: GeneratedItemDataWithVinted;
   mode: ReviewItemFormMode;
   connectedPlatforms: Record<Platform, boolean>;
+  platformHealth?: PlatformHealthResponse['platforms'] | null;
   onBack: () => void;
   language?: string;
   editItemId?: string;
@@ -58,10 +72,16 @@ interface ReviewItemFormProps {
   publishPlatform?: Platform;
 }
 
+const formatAllegroProductCategoryPath = (product: AllegroProductSearchResult): string => {
+  const path = product.category?.path?.map((row) => row.name).filter(Boolean).join(' > ');
+  return path || product.category?.id || '';
+};
+
 const ReviewItemForm = ({
   initialData,
   mode,
   connectedPlatforms,
+  platformHealth,
   onBack,
   language,
   editItemId,
@@ -70,6 +90,7 @@ const ReviewItemForm = ({
 }: ReviewItemFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitIntent, setSubmitIntent] = useState<'save' | 'publish' | null>(null);
   const [insufficientCreditsError, setInsufficientCreditsError] = useState<{
     required: number;
     available: number;
@@ -101,8 +122,7 @@ const ReviewItemForm = ({
       if (!isPublishingMode) {
         return base;
       }
-      const connectedDefault = base.filter((platform) => connectedPlatforms[platform]);
-      return connectedDefault.length > 0 ? connectedDefault : base;
+      return base.filter((platform) => connectedPlatforms[platform]);
     },
     [mode, platformSelectionOptions, publishPlatform, isPublishingMode, connectedPlatforms]
   );
@@ -116,6 +136,8 @@ const ReviewItemForm = ({
     credits.publish_remaining !== null &&
     credits.publish_remaining < requiredPublishCredits;
   const showPlatformPreparation = platformSelectionOptions.length > 0;
+  const isSaving = isSubmitting && submitIntent === 'save';
+  const isPublishing = isSubmitting && submitIntent === 'publish';
   
   const [marketplaceAttributes, setMarketplaceAttributes] = useState<MarketplaceAttributes>(
     initialData.marketplace_attributes || {}
@@ -136,6 +158,56 @@ const ReviewItemForm = ({
       allegro: overrides.allegro ? { ...overrides.allegro } : undefined,
     };
   });
+  const [pendingOlxCountryCode, setPendingOlxCountryCode] = useState<string | null>(null);
+  const olxConnectedAccounts = useMemo(
+    () =>
+      (platformHealth?.olx?.accounts || []).filter(
+        (account) =>
+          !!account.country_code &&
+          (account.connected || account.stored) &&
+          account.status !== 'expired' &&
+          account.status !== 'invalid'
+      ),
+    [platformHealth]
+  );
+  const defaultOlxAccount = useMemo(
+    () => olxConnectedAccounts.find((account) => account.is_default) || olxConnectedAccounts[0],
+    [olxConnectedAccounts]
+  );
+  const selectedOlxCountryCode = useMemo(
+    () =>
+      String(
+        platformOverrides.olx?.country_code ||
+          platformOverrides.olx?.country ||
+          defaultOlxAccount?.country_code ||
+          'PL'
+      ).toUpperCase(),
+    [defaultOlxAccount?.country_code, platformOverrides.olx?.country, platformOverrides.olx?.country_code]
+  );
+  const selectedOlxAccount = useMemo(
+    () => olxConnectedAccounts.find((account) => account.country_code === selectedOlxCountryCode),
+    [olxConnectedAccounts, selectedOlxCountryCode]
+  );
+  const selectedOlxCountryLabel = selectedOlxAccount?.country_name
+    ? `${selectedOlxAccount.country_name} (${selectedOlxCountryCode})`
+    : selectedOlxCountryCode;
+  const hasOlxCountrySpecificData = useMemo(() => {
+    const olxOverrides = platformOverrides.olx;
+    if (!olxOverrides) {
+      return false;
+    }
+
+    const hasCategory =
+      olxOverrides.category_id !== undefined &&
+      olxOverrides.category_id !== null &&
+      String(olxOverrides.category_id).trim() !== '';
+    const hasCategoryPath = Boolean(olxOverrides.category_path?.trim());
+    const hasAttributes = Boolean(
+      olxOverrides.attributes && Object.keys(olxOverrides.attributes).length > 0
+    );
+
+    return hasCategory || hasCategoryPath || hasAttributes;
+  }, [platformOverrides.olx]);
   
   // Keep selected platforms aligned with available options and mode defaults.
   useEffect(() => {
@@ -160,6 +232,10 @@ const ReviewItemForm = ({
   };
   
   const handlePlatformToggle = (platform: Platform) => {
+    if (isPublishingMode && !connectedPlatforms[platform]) {
+      return;
+    }
+
     setSelectedPlatforms(prev => 
       prev.includes(platform)
         ? prev.filter(p => p !== platform)
@@ -201,12 +277,22 @@ const ReviewItemForm = ({
       const existing = prev[platform];
       const existingOverrides =
         existing && typeof existing === 'object' ? (existing as Record<string, unknown>) : {};
+      const nextOverrides: Record<string, unknown> = {
+        ...existingOverrides,
+        [field]: value,
+      };
+
+      if (
+        platform === 'ebay' &&
+        (field === 'category_id' || field === 'marketplace_id') &&
+        String(existingOverrides[field] || '') !== value
+      ) {
+        delete nextOverrides.attributes;
+      }
+
       return {
         ...prev,
-        [platform]: {
-          ...existingOverrides,
-          [field]: value,
-        },
+        [platform]: nextOverrides,
       };
     });
   };
@@ -268,6 +354,58 @@ const ReviewItemForm = ({
     });
   };
 
+  const applyOlxCountryOverride = (countryCode: string) => {
+    const nextCountry = countryCode.trim().toUpperCase();
+    if (!nextCountry) {
+      return;
+    }
+
+    setPlatformOverrides((prev) => {
+      const existing = prev.olx;
+      const existingOverrides =
+        existing && typeof existing === 'object' ? (existing as Record<string, unknown>) : {};
+      const previousCountry = String(
+        existingOverrides.country_code || existingOverrides.country || selectedOlxCountryCode
+      ).toUpperCase();
+      const nextOlxOverrides: Record<string, unknown> = {
+        ...existingOverrides,
+        country_code: nextCountry,
+      };
+
+      if (previousCountry && previousCountry !== nextCountry) {
+        delete nextOlxOverrides.category_id;
+        delete nextOlxOverrides.category_path;
+        delete nextOlxOverrides.attributes;
+      }
+
+      return {
+        ...prev,
+        olx: nextOlxOverrides,
+      };
+    });
+  };
+
+  const updateOlxCountryOverride = (countryCode: string) => {
+    const nextCountry = countryCode.trim().toUpperCase();
+    if (!nextCountry || nextCountry === selectedOlxCountryCode) {
+      return;
+    }
+
+    if (hasOlxCountrySpecificData) {
+      setPendingOlxCountryCode(nextCountry);
+      return;
+    }
+
+    applyOlxCountryOverride(nextCountry);
+  };
+
+  const confirmOlxCountryChange = () => {
+    if (pendingOlxCountryCode) {
+      applyOlxCountryOverride(pendingOlxCountryCode);
+    }
+    setPendingOlxCountryCode(null);
+  };
+
   const updateAllegroCategoryOverride = (
     categoryId: string | number,
     marketplaceId?: string,
@@ -292,6 +430,62 @@ const ReviewItemForm = ({
         nextAllegroOverrides.category_path = categoryPath.trim();
       } else {
         delete nextAllegroOverrides.category_path;
+      }
+
+      return {
+        ...prev,
+        allegro: nextAllegroOverrides,
+      };
+    });
+  };
+
+  const updateAllegroProductSelection = (product: AllegroProductSearchResult | null) => {
+    setPlatformOverrides((prev) => {
+      const existing = prev.allegro;
+      const existingOverrides =
+        existing && typeof existing === 'object' ? (existing as Record<string, unknown>) : {};
+
+      if (!product) {
+        const nextAllegroOverrides = { ...existingOverrides };
+        delete nextAllegroOverrides.product_id;
+        delete nextAllegroOverrides.product_name;
+        delete nextAllegroOverrides.product_image_url;
+        delete nextAllegroOverrides.product_category_path;
+        delete nextAllegroOverrides.product_parameters;
+
+        return {
+          ...prev,
+          allegro: nextAllegroOverrides,
+        };
+      }
+
+      const categoryId = product.category?.id || existingOverrides.category_id;
+      const categoryPath = formatAllegroProductCategoryPath(product);
+      const nextAllegroOverrides: Record<string, unknown> = {
+        ...existingOverrides,
+        product_id: product.id,
+        product_name: product.name,
+        product_image_url: product.images?.[0]?.url || '',
+        product_category_path: categoryPath,
+        product_parameters: (product.parameters || []).map((parameter) => ({
+          id: parameter.id,
+          name: parameter.name,
+          values: parameter.values,
+          valuesIds: parameter.valuesIds,
+          valuesLabels: parameter.valuesLabels,
+          unit: parameter.unit,
+          options: parameter.options,
+        })),
+      };
+
+      if (categoryId) {
+        nextAllegroOverrides.category_id = String(categoryId);
+      }
+      if (categoryPath) {
+        nextAllegroOverrides.category_path = categoryPath;
+      }
+      if (!nextAllegroOverrides.marketplace_id) {
+        nextAllegroOverrides.marketplace_id = 'allegro-pl';
       }
 
       return {
@@ -361,11 +555,12 @@ const ReviewItemForm = ({
   const updatePlatformAttribute = (
     platform: 'olx' | 'ebay' | 'allegro',
     key: string,
-    value: string | number
+    value: PlatformDynamicAttributeValue
   ) => {
     setPlatformOverrides(prev => {
       const existing = prev[platform] || {};
-      const existingAttrs = (existing as Record<string, unknown>).attributes as Record<string, string | number> || {};
+      const existingAttrs =
+        ((existing as Record<string, unknown>).attributes as Record<string, PlatformDynamicAttributeValue>) || {};
       return {
         ...prev,
         [platform]: {
@@ -392,12 +587,20 @@ const ReviewItemForm = ({
     const olxCategoryPath = platformOverrides.olx?.category_path;
     const olxAttrs = platformOverrides.olx?.attributes;
     const olxFieldOverrides = platformOverrides.olx?.field_overrides;
-    if ((olxCategory !== undefined && olxCategory !== null && String(olxCategory).trim() !== '') ||
+    const explicitOlxCountry = platformOverrides.olx?.country_code || platformOverrides.olx?.country;
+    const olxCountry =
+      explicitOlxCountry ||
+      (selectedPlatforms.includes('olx') && olxConnectedAccounts.length > 0 ? selectedOlxCountryCode : '');
+    if ((olxCountry && String(olxCountry).trim()) ||
+        (olxCategory !== undefined && olxCategory !== null && String(olxCategory).trim() !== '') ||
         (olxCategoryPath && String(olxCategoryPath).trim()) ||
         (olxAttrs && Object.keys(olxAttrs).length > 0) ||
         (olxFieldOverrides && Object.keys(olxFieldOverrides).length > 0)) {
       const parsed = Number(olxCategory);
       overrides.olx = {};
+      if (olxCountry && String(olxCountry).trim()) {
+        overrides.olx.country_code = String(olxCountry).trim().toUpperCase();
+      }
       if (olxCategory !== undefined && olxCategory !== null && String(olxCategory).trim() !== '') {
         overrides.olx.category_id = Number.isNaN(parsed) ? String(olxCategory).trim() : parsed;
       }
@@ -440,12 +643,18 @@ const ReviewItemForm = ({
     const allegroMarketplaceId = platformOverrides.allegro?.marketplace_id;
     const allegroAttrs = platformOverrides.allegro?.attributes;
     const allegroFieldOverrides = platformOverrides.allegro?.field_overrides;
+    const allegroProductId = platformOverrides.allegro?.product_id;
+    const allegroProductName = platformOverrides.allegro?.product_name;
+    const allegroProductImageUrl = platformOverrides.allegro?.product_image_url;
+    const allegroProductCategoryPath = platformOverrides.allegro?.product_category_path;
+    const allegroProductParameters = platformOverrides.allegro?.product_parameters;
     if (
       (allegroCategoryId !== undefined &&
         allegroCategoryId !== null &&
         String(allegroCategoryId).trim() !== '') ||
       (allegroCategoryPath && String(allegroCategoryPath).trim()) ||
       (allegroMarketplaceId && String(allegroMarketplaceId).trim()) ||
+      (allegroProductId && String(allegroProductId).trim()) ||
       (allegroAttrs && Object.keys(allegroAttrs).length > 0) ||
       (allegroFieldOverrides && Object.keys(allegroFieldOverrides).length > 0)
     ) {
@@ -465,6 +674,21 @@ const ReviewItemForm = ({
       }
       if (allegroMarketplaceId && String(allegroMarketplaceId).trim()) {
         overrides.allegro.marketplace_id = String(allegroMarketplaceId).trim();
+      }
+      if (allegroProductId && String(allegroProductId).trim()) {
+        overrides.allegro.product_id = String(allegroProductId).trim();
+      }
+      if (allegroProductName && String(allegroProductName).trim()) {
+        overrides.allegro.product_name = String(allegroProductName).trim();
+      }
+      if (allegroProductImageUrl && String(allegroProductImageUrl).trim()) {
+        overrides.allegro.product_image_url = String(allegroProductImageUrl).trim();
+      }
+      if (allegroProductCategoryPath && String(allegroProductCategoryPath).trim()) {
+        overrides.allegro.product_category_path = String(allegroProductCategoryPath).trim();
+      }
+      if (allegroProductParameters && allegroProductParameters.length > 0) {
+        overrides.allegro.product_parameters = allegroProductParameters;
       }
       if (allegroAttrs && Object.keys(allegroAttrs).length > 0) {
         overrides.allegro.attributes = allegroAttrs;
@@ -505,182 +729,201 @@ const ReviewItemForm = ({
 
     return Object.keys(overrides).length > 0 ? overrides : undefined;
   };
-  
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
 
-  if (isPublishingMode && selectedPlatforms.length === 0) {
-    toast({
-      title: t.toast.noPlatformsTitle,
-      description: t.toast.noPlatformsDesc,
-      variant: "destructive",
-    });
-    return;
-  }
-
-  setIsSubmitting(true);
-
-  try {
+  const saveLocalChanges = async () => {
     const platformOverridesPayload = buildPlatformOverridesPayload();
+    const result = await submitEditDraft({
+      editItemId,
+      draftId: data.draft_id,
+      data,
+      platformOverridesPayload,
+      marketplaceAttributes,
+    });
 
-    if (!isPublishingMode) {
-      const result = await submitEditDraft({
-        editItemId,
-        draftId: data.draft_id,
-        data,
-        platformOverridesPayload,
-        marketplaceAttributes,
-      });
+    toast({
+      title: t.toast.successTitle,
+      description: t.toast.updateLocalSuccess,
+    });
 
+    setTimeout(() => {
+      const params = new URLSearchParams({ updated: '1' });
+      if (result.dirtyPlatforms.length > 0) {
+        params.set('dirty', result.dirtyPlatforms.join(','));
+      }
+      navigate(`/user/items/${result.itemId}?${params.toString()}`);
+    }, 1200);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (isPublishingMode && selectedPlatforms.length === 0) {
       toast({
-        title: t.toast.successTitle,
-        description: t.toast.updateLocalSuccess,
+        title: t.toast.noPlatformsTitle,
+        description: t.toast.noPlatformsDesc,
+        variant: "destructive",
       });
-
-      setTimeout(() => {
-        const params = new URLSearchParams({ updated: '1' });
-        if (result.dirtyPlatforms.length > 0) {
-          params.set('dirty', result.dirtyPlatforms.join(','));
-        }
-        navigate(`/user/items/${result.itemId}?${params.toString()}`);
-      }, 1200);
       return;
     }
 
-    const numericPrice = parseFloat(data.price);
-    if (isNaN(numericPrice)) {
-      throw new Error('Invalid price format');
-    }
+    setIsSubmitting(true);
+    setSubmitIntent(isPublishingMode ? 'publish' : 'save');
 
-    // Deduplicate image URLs to avoid accidental duplicates
-    const uniqueImageUrls = Array.from(new Set(data.images.map(img => img.url)));
-
-    // UNIFIED PUBLISH FLOW: Always use /api/items/publish endpoint
-    // Backend handles both new drafts and re-publishing via draft_id parameter
-    const token = localStorage.getItem('flipit_token');
-    
-    // Build a clean payload the API will accept
-    // Always use draft_id (from initialData or editItemId) to support re-publishing
-    const payload: {
-      draft_id?: string;
-      images: string[];
-      title: string;
-      brand: string;
-      condition: string;
-      category: string;
-      size?: string;
-      price: number;
-      currency: string;
-      description: string;
-      catalog_path?: string;
-      platforms: Platform[];
-      platform_listing_overrides?: PlatformOverrides;
-      marketplace_attributes?: MarketplaceAttributes;
-    } = {
-      draft_id: data.draft_id || editItemId,
-      images: uniqueImageUrls,
-      title: data.title,
-      brand: data.brand,
-      condition: data.condition,
-      category: data.category,
-      size: data.size,
-      price: numericPrice,
-      currency: resolveCurrency(data.currency, language),
-      description: data.description,
-      catalog_path: data.catalog_path,
-      platforms: selectedPlatforms,
-    };
-
-    if (platformOverridesPayload) {
-      payload.platform_listing_overrides = platformOverridesPayload;
-    }
-
-    if (Object.keys(marketplaceAttributes).length > 0) {
-      payload.marketplace_attributes = marketplaceAttributes;
-    }
-
-    const response = await fetch('/api/items/publish', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      // Parse error response for insufficient credits (402)
-      const error = await parseErrorResponse(response);
-      const creditsError = parseInsufficientCreditsError(error);
-      
-      if (creditsError) {
-        setInsufficientCreditsError({
-          required: creditsError.required,
-          available: creditsError.available,
-        });
-        return; // Don't throw, let the dialog handle it
+    try {
+      if (!isPublishingMode) {
+        await saveLocalChanges();
+        return;
       }
 
-      const errorMessage =
-        error?.data?.detail ||
-        error?.data?.error ||
-        'Failed to publish item';
-      throw new Error(errorMessage);
-    }
+      const platformOverridesPayload = buildPlatformOverridesPayload();
+      const numericPrice = parseFloat(data.price);
+      if (isNaN(numericPrice)) {
+        throw new Error('Invalid price format');
+      }
 
-    const result = await response.json();
+      const uniqueImageUrls = Array.from(new Set(data.images.map(img => img.url)));
+      const token = localStorage.getItem('flipit_token');
+      const payload: {
+        draft_id?: string;
+        images: string[];
+        title: string;
+        brand: string;
+        condition: string;
+        category: string;
+        size?: string;
+        price: number;
+        currency: string;
+        description: string;
+        catalog_path?: string;
+        platforms: Platform[];
+        platform_listing_overrides?: PlatformOverrides;
+        marketplace_attributes?: MarketplaceAttributes;
+      } = {
+        draft_id: data.draft_id || editItemId,
+        images: uniqueImageUrls,
+        title: data.title,
+        brand: data.brand,
+        condition: data.condition,
+        category: data.category,
+        size: data.size,
+        price: numericPrice,
+        currency: resolveCurrency(data.currency, language),
+        description: data.description,
+        catalog_path: data.catalog_path,
+        platforms: selectedPlatforms,
+      };
 
-    if (result.platforms) {
-      Object.entries(result.platforms).forEach(([platform, status]) => {
-        if (status === "success") {
-          toast({
-            title: t.toast.successTitle,
-            description: t.toast.publishedSuccess.replace('{platform}', platform),
+      if (platformOverridesPayload) {
+        payload.platform_listing_overrides = platformOverridesPayload;
+      }
+
+      if (Object.keys(marketplaceAttributes).length > 0) {
+        payload.marketplace_attributes = marketplaceAttributes;
+      }
+
+      const response = await fetch('/api/items/publish', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const error = await parseErrorResponse(response);
+        const creditsError = parseInsufficientCreditsError(error);
+
+        if (creditsError) {
+          setInsufficientCreditsError({
+            required: creditsError.required,
+            available: creditsError.available,
           });
-        } else {
-          toast({
-            title: t.toast.publishError.replace('{platform}', platform),
-            description: String(status),
-            variant: "destructive",
-          });
+          return;
         }
-      });
-    } else {
+
+        const errorMessage =
+          error?.data?.detail ||
+          error?.data?.error ||
+          'Failed to publish item';
+        throw new Error(errorMessage);
+      }
+
+      const result = await response.json();
+
+      if (result.platforms) {
+        Object.entries(result.platforms).forEach(([platform, status]) => {
+          if (status === "success") {
+            toast({
+              title: t.toast.successTitle,
+              description: t.toast.publishedSuccess.replace('{platform}', platform),
+            });
+          } else {
+            toast({
+              title: t.toast.publishError.replace('{platform}', platform),
+              description: String(status),
+              variant: "destructive",
+            });
+          }
+        });
+      } else {
+        toast({
+          title: t.toast.successTitle,
+          description: t.toast.generalSuccess,
+        });
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['credits'] });
+
+      if (result.uuid) {
+        setTimeout(() => {
+          navigate(`/user/items/${result.uuid}`);
+        }, 1500);
+      } else {
+        setTimeout(() => {
+          navigate('/user/items');
+        }, 1500);
+      }
+    } catch (error) {
+      console.error('Error publishing item:', error);
+      const errorMessage =
+        error instanceof Error && error.message && error.message !== 'Failed to publish item'
+          ? error.message
+          : t.toast.errorDesc;
       toast({
-        title: t.toast.successTitle,
-        description: t.toast.generalSuccess,
+        title: t.toast.errorTitle,
+        description: errorMessage,
+        variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
+      setSubmitIntent(null);
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    if (mode !== 'republish') {
+      return;
     }
 
-    queryClient.invalidateQueries({ queryKey: ['credits'] });
+    setIsSubmitting(true);
+    setSubmitIntent('save');
 
-    // Redirect to the published item's detail page
-    if (result.uuid) {
-      setTimeout(() => {
-        navigate(`/user/items/${result.uuid}`);
-      }, 1500);
-    } else {
-      // Fallback to user items list if UUID not provided
-      setTimeout(() => {
-        navigate('/user/items');
-      }, 1500);
+    try {
+      await saveLocalChanges();
+    } catch (error) {
+      console.error('Error saving item:', error);
+      const errorMessage = error instanceof Error ? error.message : t.toast.errorDesc;
+      toast({
+        title: t.toast.errorTitle,
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+      setSubmitIntent(null);
     }
-    
-  } catch (error) {
-    console.error('Error publishing item:', error);
-    const errorMessage =
-      error instanceof Error && error.message && error.message !== 'Failed to publish item'
-        ? error.message
-        : t.toast.errorDesc;
-    toast({
-      title: t.toast.errorTitle,
-      description: errorMessage,
-      variant: "destructive",
-    });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
 
   const renderPlatformPreparation = () => {
     if (!showPlatformPreparation) {
@@ -701,7 +944,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className="space-y-3">
           {platformSelectionOptions.map((typedPlatform) => {
             const isConnected = connectedPlatforms[typedPlatform];
-            const isDisabled = isSubmitting;
+            const isDisabled = isSubmitting || (isPublishingMode && !isConnected);
             const isSelected = selectedPlatforms.includes(typedPlatform);
             const platformName =
               t.platforms[typedPlatform] || typedPlatform.charAt(0).toUpperCase() + typedPlatform.slice(1);
@@ -757,12 +1000,60 @@ const handleSubmit = async (e: React.FormEvent) => {
           })}
         </div>
 
+        {selectedPlatforms.includes('olx') && (
+          <div className="rounded-lg border border-neutral-700 bg-neutral-900/50 p-4">
+            <div className="grid gap-3 sm:grid-cols-[1fr_220px] sm:items-center">
+              <div>
+                <Label className="text-sm font-medium text-neutral-200">OLX country</Label>
+                <p className="mt-1 text-xs text-neutral-400">
+                  {olxConnectedAccounts.length > 0
+                    ? 'Used for OLX category data, required attributes, and publishing to the selected country.'
+                    : 'No OLX country connected yet. You can prepare OLX details now, but publishing requires a connected country.'}
+                </p>
+              </div>
+              {olxConnectedAccounts.length > 1 ? (
+                <Select
+                  value={selectedOlxCountryCode}
+                  onValueChange={updateOlxCountryOverride}
+                  disabled={isSubmitting}
+                >
+                  <SelectTrigger className="bg-neutral-950/60 border-neutral-700 text-white">
+                    <SelectValue placeholder="Select country" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
+                    {olxConnectedAccounts.map((account) => (
+                      <SelectItem key={account.country_code} value={account.country_code || 'PL'}>
+                        {account.country_name || account.country_code}
+                        {account.is_default ? ' (default)' : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : olxConnectedAccounts.length === 1 ? (
+                <div className="flex items-center justify-between gap-3 rounded-md border border-neutral-700 bg-neutral-950/60 px-3 py-2 text-sm text-neutral-200">
+                  <span>{selectedOlxCountryLabel}</span>
+                  <span className="shrink-0 text-xs text-neutral-500">
+                    {defaultOlxAccount?.country_code === selectedOlxCountryCode
+                      ? 'Default country'
+                      : 'Connected country'}
+                  </span>
+                </div>
+              ) : (
+                <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
+                  Not connected yet
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {selectedPlatforms.length > 0 && (
           <PlatformCategoryBooks
             draftId={data.draft_id || editItemId}
             selectedPlatforms={selectedPlatforms}
             connectedPlatforms={connectedPlatforms}
             platformOverrides={platformOverrides}
+            olxCountryCode={selectedOlxCountryCode}
             vintedSuggestedCatalogId={initialData.vinted_category_id}
             disabled={isSubmitting}
             onSetOlxCategory={(categoryId, categoryPath) =>
@@ -820,6 +1111,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 platformLabel="OLX"
                 isConnected={connectedPlatforms.olx}
                 isDisabled={isSubmitting}
+                countryCode={selectedOlxCountryCode}
                 categoryId={platformOverrides.olx?.category_id?.toString()}
                 attributeValues={platformOverrides.olx?.attributes}
                 onCategoryChange={() => undefined}
@@ -886,6 +1178,21 @@ const handleSubmit = async (e: React.FormEvent) => {
                 categoryLabel={t.labels?.allegroCategoryId || 'Allegro Category ID'}
                 categoryPlaceholder="e.g., 175673"
                 categoryInputMode="summary"
+                allegroSearchPhrase={data.title}
+                selectedAllegroProduct={
+                  platformOverrides.allegro?.product_id
+                    ? {
+                        id: platformOverrides.allegro.product_id,
+                        name: platformOverrides.allegro.product_name,
+                        imageUrl: platformOverrides.allegro.product_image_url,
+                        categoryPath:
+                          platformOverrides.allegro.product_category_path ||
+                          platformOverrides.allegro.category_path,
+                      }
+                    : null
+                }
+                onAllegroProductSelect={updateAllegroProductSelection}
+                onAllegroProductClear={() => updateAllegroProductSelection(null)}
               />
             )}
           </div>
@@ -1059,33 +1366,90 @@ const handleSubmit = async (e: React.FormEvent) => {
             {t.buttons.back}
           </BackButtonGhost>
           
-          <AddItemButton
-            type="submit" 
-            sizeVariant="md"
-            disabled={
-              isSubmitting || 
-              (isPublishingMode &&
-                (selectedPlatforms.length === 0 ||
-                  hasInsufficientPublishCredits))
-            }
-            className="h-12 sm:h-10 w-full sm:w-auto text-base sm:text-sm font-semibold"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
-                {isPublishingMode ? t.buttons.publishing : t.buttons.updating}
-              </>
-            ) : isPublishingMode && hasInsufficientPublishCredits ? (
-              <>
-                <CreditCard className="mr-2 h-5 w-5 sm:h-4 sm:w-4" /> Insufficient Credits
-              </>
-            ) : (
-              isPublishingMode ? t.buttons.publish : t.buttons.update
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            {mode === 'republish' && (
+              <SecondaryAction
+                type="button"
+                onClick={handleSaveChanges}
+                disabled={isSubmitting}
+                className="h-12 min-h-0 px-6 py-2 sm:h-10 text-base sm:text-sm font-semibold"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
+                    {t.buttons.saving}
+                  </>
+                ) : (
+                  t.buttons.saveChanges
+                )}
+              </SecondaryAction>
             )}
-          </AddItemButton>
+
+            <AddItemButton
+              type="submit"
+              sizeVariant="md"
+              disabled={
+                isSubmitting ||
+                (isPublishingMode &&
+                  (selectedPlatforms.length === 0 ||
+                    hasInsufficientPublishCredits))
+              }
+              className="h-12 sm:h-10 w-full sm:w-auto text-base sm:text-sm font-semibold"
+            >
+              {isPublishing ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
+                  {t.buttons.publishing}
+                </>
+              ) : isSaving && !isPublishingMode ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
+                  {t.buttons.updating}
+                </>
+              ) : isPublishingMode && hasInsufficientPublishCredits ? (
+                <>
+                  <CreditCard className="mr-2 h-5 w-5 sm:h-4 sm:w-4" /> Insufficient Credits
+                </>
+              ) : (
+                isPublishingMode ? t.buttons.publish : t.buttons.update
+              )}
+            </AddItemButton>
+          </div>
         </div>
       </div>
       
+      <AlertDialog
+        open={!!pendingOlxCountryCode}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingOlxCountryCode(null);
+          }
+        }}
+      >
+        <AlertDialogContent className="bg-neutral-900 border-amber-500/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Change OLX country?</AlertDialogTitle>
+            <AlertDialogDescription className="text-neutral-300">
+              Changing OLX country clears the selected OLX category and OLX attributes for this listing.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-neutral-700 bg-neutral-800 text-neutral-200 hover:bg-neutral-700 hover:text-white">
+              Keep current country
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <SecondaryAction
+                type="button"
+                onClick={confirmOlxCountryChange}
+                className="min-h-[44px] border-amber-400/70 bg-amber-500/15 px-5 py-2 text-amber-100 hover:bg-amber-500/25 hover:border-amber-300"
+              >
+                Change country
+              </SecondaryAction>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Insufficient Credits Dialog */}
       <InsufficientCreditsAlert
         open={!!insufficientCreditsError}

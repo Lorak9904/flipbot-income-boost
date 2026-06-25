@@ -8,6 +8,35 @@ export interface PlatformHealthInfo {
   status?: PlatformHealthStatus;
   reason?: string | null;
   invalid_reason?: string | null;
+  code?: string;
+  message?: string;
+  action_key?: string;
+  app_configured?: boolean;
+  marketplace_id?: string | null;
+  accounts?: Array<{
+    id?: number | null;
+    country_code?: string;
+    country_name?: string;
+    base_url?: string;
+    currency?: string;
+    is_default?: boolean;
+    connected?: boolean;
+    stored?: boolean;
+    status?: PlatformHealthStatus;
+    reason?: string | null;
+    profile?: {
+      name?: string;
+      email?: string;
+      status?: string;
+      is_business?: boolean;
+    } | null;
+  }>;
+  countries?: Array<{
+    country_code: string;
+    country_name: string;
+    base_url: string;
+    currency: string;
+  }>;
 }
 
 export interface PlatformHealthResponse {

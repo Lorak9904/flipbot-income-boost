@@ -27,8 +27,6 @@ export default function CookieBanner() {
       document.cookie = `visitor_id=${visitorId}; path=/; max-age=31536000`;
     }
 
-    // Optional: notify backend if needed
-    // console.log("new fucking Visitor ID. Fetch should be done now :", visitorId);
     fetch("/api/cookies/consent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -46,7 +44,10 @@ export default function CookieBanner() {
         Używamy tylko niezbędnych plików cookie, aby aplikacja działała poprawnie.{" "}
         <a href="/privacy" className="underline">Dowiedz się więcej</a>.
       </p>
-      <AddItemButton onClick={accept} className="w-full justify-center px-4 py-2 button-fluid-text">
+      <AddItemButton
+        onClick={accept}
+        className="w-full justify-center px-4 py-2 button-fluid-text !border-cyan-200 !bg-cyan-800 !text-white hover:!bg-cyan-700"
+      >
         Akceptuję
       </AddItemButton>
     </div>

@@ -20,6 +20,7 @@ interface PlatformCategoryBooksProps {
   selectedPlatforms: Platform[];
   connectedPlatforms: Record<Platform, boolean>;
   platformOverrides: PlatformOverrides;
+  olxCountryCode?: string;
   vintedSuggestedCatalogId?: number;
   disabled?: boolean;
   onSetOlxCategory: (categoryId: string | number, categoryPath?: string) => void;
@@ -38,6 +39,7 @@ const PLATFORM_LABELS: Record<Platform, string> = {
 export default function PlatformCategoryBooks({
   selectedPlatforms,
   platformOverrides,
+  olxCountryCode,
   vintedSuggestedCatalogId,
   disabled = false,
   onSetOlxCategory,
@@ -176,7 +178,7 @@ export default function PlatformCategoryBooks({
       }
       return null;
     });
-  }, [selectedOlxCategoryId]);
+  }, [selectedOlxCategoryId, olxCountryCode]);
 
   useEffect(() => {
     if (!hasOlx) {
@@ -194,6 +196,7 @@ export default function PlatformCategoryBooks({
       try {
         const payload = await getOlxCategoryPath({
           categoryId: selectedOlxCategoryId,
+          countryCode: olxCountryCode,
           signal: controller.signal,
         });
         if (controller.signal.aborted || !payload.selected?.path) {
@@ -206,7 +209,7 @@ export default function PlatformCategoryBooks({
     })();
 
     return () => controller.abort();
-  }, [hasOlx, selectedOlxCategoryId, olxSelectedHint]);
+  }, [hasOlx, selectedOlxCategoryId, olxSelectedHint, olxCountryCode]);
 
   useEffect(() => {
     // If selection changed externally (e.g. loaded draft), drop any stale hint. Keep it only if it still matches.
@@ -400,6 +403,7 @@ export default function PlatformCategoryBooks({
               onOpenChange={setOlxPickerOpen}
               selectedCategoryId={selectedOlxCategoryId}
               selectedCategoryPath={selectedOlxPath}
+              countryCode={olxCountryCode}
               onSelectCategory={(node: OlxCategoryNode) => {
                 setOlxSelectedHint({ id: String(node.category_id), path: node.path || '' });
                 onSetOlxCategory(node.category_id, node.path);

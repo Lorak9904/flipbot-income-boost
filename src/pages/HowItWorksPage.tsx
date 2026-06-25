@@ -1,11 +1,10 @@
 ﻿import { Plug, Upload, Repeat } from 'lucide-react';
-import { HeroCTAWithArrow } from '@/components/ui/button-presets';
 import { SEOHead } from '@/components/SEOHead';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getTranslations, getCurrentLanguage } from '../components/language-utils';
 import { howItWorksTranslations } from './howitworks-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -126,16 +125,12 @@ const iconMap = [Plug, Upload, Repeat]; // keep icons aligned with steps order
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeUp}
-            className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center"
+            className="w-full"
           >
-            <h2 className="text-3xl md:text-5xl font-extrabold mb-6 text-white drop-shadow-lg">
-              {t.ctaTitle}
-            </h2>
-            <Link to="/add-item">
-              <HeroCTAWithArrow>
-                {t.ctaButton}
-              </HeroCTAWithArrow>
-            </Link>
+            <MarketingCtaBanner
+              title={t.ctaTitle}
+              primaryAction={{ text: t.ctaButton, href: '/get-started' }}
+            />
           </motion.div>
         </div>
       </section>

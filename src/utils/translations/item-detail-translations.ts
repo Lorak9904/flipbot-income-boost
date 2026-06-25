@@ -6,7 +6,8 @@ export const itemDetailTranslations = {
     // Actions
     actions: {
       edit: "Edit",
-      editListing: "Edit",
+      editListing: "Edit listing",
+      manageListing: "Edit & publish",
       publish: "Publish",
       publishTo: "Publish to…",
       publishToAnother: "Publish to another platform",
@@ -82,7 +83,8 @@ export const itemDetailTranslations = {
     // Actions
     actions: {
       edit: "Edytuj",
-      editListing: "Edytuj",
+      editListing: "Edytuj ogłoszenie",
+      manageListing: "Edytuj i publikuj",
       publish: "Opublikuj",
       publishTo: "Opublikuj na…",
       publishToAnother: "Opublikuj na innej platformie",

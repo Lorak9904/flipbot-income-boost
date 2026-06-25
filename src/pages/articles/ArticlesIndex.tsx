@@ -4,7 +4,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from '@/components/language-utils';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { articlesIndexTranslations } from './translations/articles-index.translations';
-import { HeroCTA } from '@/components/ui/button-presets';
+import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -20,6 +20,9 @@ const keywords = [
   'vinted automation guide',
   'reselling tutorials',
   'crosslisting guide',
+  'ebay pricing guide',
+  'allegro selling guide',
+  'marketplace pricing',
   'facebook marketplace automation',
   'olx automation',
   'reseller tools',
@@ -55,25 +58,43 @@ const ArticlesIndex = () => {
       title: t.article1Title,
       description: t.article1Description,
       href: getLocalized('/articles/vinted-relisting-tool'),
-      badge: 'Popular',
+      badge: t.article1Badge,
     },
     {
       title: t.article2Title,
       description: t.article2Description,
       href: getLocalized('/articles/cross-list-vinted-to-facebook-marketplace'),
-      badge: 'Crosslisting',
+      badge: t.article2Badge,
     },
     {
       title: t.article3Title,
       description: t.article3Description,
       href: getLocalized('/articles/product-relister-for-vinted'),
-      badge: 'Lifecycle',
+      badge: t.article3Badge,
     },
     {
       title: t.article4Title,
       description: t.article4Description,
       href: getLocalized('/articles/how-to-sell-on-allegro'),
-      badge: 'Allegro',
+      badge: t.article4Badge,
+    },
+    {
+      title: t.article5Title,
+      description: t.article5Description,
+      href: getLocalized('/articles/how-to-price-items-for-ebay'),
+      badge: t.article5Badge,
+    },
+    {
+      title: t.article6Title,
+      description: t.article6Description,
+      href: getLocalized('/articles/ebay-active-listings-vs-sold-prices'),
+      badge: t.article6Badge,
+    },
+    {
+      title: t.article7Title,
+      description: t.article7Description,
+      href: getLocalized('/articles/olx-listing-automation-by-country'),
+      badge: t.article7Badge,
     },
   ];
 
@@ -148,7 +169,7 @@ const ArticlesIndex = () => {
                   {article.description}
                 </p>
                 <div className="mt-4 text-cyan-400 text-sm font-medium group-hover:text-cyan-300 transition-colors">
-                  Read more →
+                  {t.readMore}
                 </div>
               </Link>
             ))}
@@ -181,19 +202,11 @@ const ArticlesIndex = () => {
           variants={fadeUp}
           className="py-8"
         >
-          <div className="w-full max-w-2xl mx-auto rounded-3xl bg-gradient-to-r from-cyan-500/30 via-fuchsia-500/20 to-cyan-400/30 p-8 shadow-2xl text-center">
-            <h2 className="text-3xl md:text-4xl font-extrabold mb-6 text-white drop-shadow-lg">
-              {t.ctaTitle}
-            </h2>
-            <p className="md:text-lg text-neutral-300 mb-8">
-              {t.ctaDescription}
-            </p>
-            <HeroCTA asChild>
-              <Link to="/get-started">
-                {t.ctaButtonText}
-              </Link>
-            </HeroCTA>
-          </div>
+          <MarketingCtaBanner
+            title={t.ctaTitle}
+            description={t.ctaDescription}
+            primaryAction={{ text: t.ctaButtonText, href: '/get-started' }}
+          />
         </motion.section>
       </div>
     </div>

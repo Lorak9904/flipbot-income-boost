@@ -18,11 +18,13 @@ export interface PlatformAttributeField {
   required: boolean;
   type: 'text' | 'select' | 'multi_select' | 'number';
   options?: PlatformAttributeOption[];
+  metadata?: Record<string, unknown>;
 }
 
 export interface PlatformAttributesResponse {
   platform: string;
   category_id: string;
+  fields?: PlatformAttributeField[];
   required_fields: PlatformAttributeField[];
   error?: string;
 }
@@ -31,15 +33,21 @@ export interface PlatformAttributesResponse {
  * Get required attributes for an OLX category
  */
 export async function getOlxCategoryAttributes(
-  categoryId: string | number
+  categoryId: string | number,
+  countryCode?: string
 ): Promise<PlatformAttributesResponse> {
   const token = localStorage.getItem('flipit_token');
   if (!token) {
     throw new Error('No authentication token found');
   }
 
+  const query = new URLSearchParams({ category_id: String(categoryId) });
+  if (countryCode) {
+    query.set('country', countryCode);
+  }
+
   const response = await fetch(
-    `${API_BASE}/platforms/olx/attributes/?category_id=${categoryId}`,
+    `${API_BASE}/platforms/olx/attributes/?${query.toString()}`,
     {
       method: 'GET',
       headers: {
@@ -135,10 +143,10 @@ export async function getAllegroCategoryAttributes(
 export async function getPlatformCategoryAttributes(
   platform: 'olx' | 'ebay' | 'allegro',
   categoryId: string | number,
-  options?: { marketplaceId?: string }
+  options?: { marketplaceId?: string; countryCode?: string }
 ): Promise<PlatformAttributesResponse> {
   if (platform === 'olx') {
-    return getOlxCategoryAttributes(categoryId);
+    return getOlxCategoryAttributes(categoryId, options?.countryCode);
   } else if (platform === 'ebay') {
     return getEbayCategoryAttributes(String(categoryId), options?.marketplaceId);
   } else if (platform === 'allegro') {

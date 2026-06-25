@@ -6,14 +6,13 @@ interface BuildListingEditorUrlInput {
   mode: ListingEditorMode;
   itemId?: string;
   publishPlatform?: Platform;
-  modal?: boolean;
-  returnTo?: string;
 }
 
 /**
  * Listing editor routing policy:
  * - Add-item entry points should use page mode: /add-item
- * - Contextual edit/republish actions should use modal mode with returnTo
+ * - Listing edit/republish entry points should use full page mode: /add-item?edit=...
+ * - Republish mode is explicit because it may target all available unpublished platforms.
  */
 export function isSafeReturnPath(path: string | null | undefined): path is string {
   return Boolean(path && path.startsWith('/'));
@@ -23,8 +22,6 @@ export function buildListingEditorUrl({
   mode,
   itemId,
   publishPlatform,
-  modal = false,
-  returnTo,
 }: BuildListingEditorUrlInput): string {
   const query = new URLSearchParams();
 
@@ -39,12 +36,8 @@ export function buildListingEditorUrl({
     query.set('publish', publishPlatform);
   }
 
-  if (modal) {
-    query.set('modal', '1');
-  }
-
-  if (isSafeReturnPath(returnTo)) {
-    query.set('returnTo', returnTo);
+  if (mode === 'republish') {
+    query.set('mode', 'republish');
   }
 
   const queryString = query.toString();

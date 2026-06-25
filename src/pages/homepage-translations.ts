@@ -2,7 +2,7 @@
 
 export const homePageTranslations: Translations = {
   en: {
-    newRelease: '🚀 New Release',
+    heroBadge: 'One upload, multiple marketplaces',
     heroTitle: 'Turn one upload into a',
     heroTitleHighlight1: 'multi-marketplace',
     heroTitleEnd: 'sales',
@@ -16,6 +16,7 @@ export const homePageTranslations: Translations = {
     seoPoint1: 'AI turns a single image into marketplace-ready titles, descriptions, and hashtags.',
     seoPoint2: 'Publish to multiple marketplaces in one flow — results (success/error) are tracked per platform.',
     seoPoint3: 'You stay in control: edit title, description, price, category, and attributes before publishing.',
+    olxHubLink: 'See supported OLX countries',
     seoBadge1: 'AI crosslisting',
     seoBadge2: 'One-photo upload',
     seoBadge3: 'Manual approval',
@@ -27,12 +28,18 @@ export const homePageTranslations: Translations = {
     feature2Desc: 'FlipIt suggests the best price, title, and category — you review and approve before publishing.',
     feature3Title: 'Free During Beta',
     feature3Desc: 'Early access means full features, zero fees while we fine-tune.',
-    ctaTitle: 'Secure your free spot today!',
-    ctaDescription: 'Join thousands of smart sellers using FlipIt to multiply their reach and profits. One upload, multiple marketplaces. Start your journey now!',
-    ctaButton: "Get Started — It's Free"
+    ctaEyebrow: 'Start with one item',
+    ctaTitle: 'Create your first listing draft',
+    ctaDescription: 'Upload item photos, let FlipIt prepare the marketplace draft, then review the title, price, description, and platforms before anything goes live.',
+    ctaButton: 'Start a listing draft',
+    ctaSecondaryButton: 'See the workflow',
+    ctaProof1: 'Upload photos',
+    ctaProof2: 'Review the draft',
+    ctaProof3: 'Publish with control',
+    ctaFooter: 'Free during beta. You approve every listing before publishing.'
   },
   pl: {
-    newRelease: '🚀 Nowe wydanie',
+    heroBadge: 'Jedno zdjęcie, wiele marketplace’ów',
     heroTitle: 'Zamień jedno zdjęcie w',
     heroTitleHighlight1: 'wieloplatformową',
     heroTitleEnd: 'maszynę do',
@@ -46,6 +53,7 @@ export const homePageTranslations: Translations = {
     seoPoint1: 'AI tworzy gotowe do publikacji tytuły, opisy i hashtagi z jednego zdjęcia.',
     seoPoint2: 'Publikacja działa asynchronicznie, a wynik (sukces/błąd) widzisz osobno dla każdej platformy.',
     seoPoint3: 'Masz pełną kontrolę: edytuj tytuł, opis, cenę, kategorię i atrybuty przed publikacją.',
+    olxHubLink: 'Sprawdź obsługiwane kraje OLX',
     seoBadge1: 'AI do crosslistingu',
     seoBadge2: 'Jedno zdjęcie',
     seoBadge3: 'Ręczna akceptacja',
@@ -57,8 +65,14 @@ export const homePageTranslations: Translations = {
     feature2Desc: 'FlipIt sugeruje najlepszą cenę, tytuł i kategorię — Ty sprawdzasz i zatwierdzasz przed publikacją.',
     feature3Title: 'Darmowe w becie',
     feature3Desc: 'Wczesny dostęp oznacza pełne funkcje i zero opłat, gdy dopracowujemy szczegóły.',
-    ctaTitle: 'Zarezerwuj bezpłatne miejsce już dziś!',
-    ctaDescription: 'Dołącz do tysięcy sprzedawców, którzy używają FlipIt, by zwiększać zasięg i zyski. Jedno ogłoszenie, wiele marketplace’ów. Zacznij teraz!',
-    ctaButton: 'Rozpocznij — za darmo'
+    ctaEyebrow: 'Zacznij od jednego produktu',
+    ctaTitle: 'Utwórz pierwszy szkic oferty',
+    ctaDescription: 'Wgraj zdjęcia produktu, pozwól FlipIt przygotować szkic pod marketplace, a potem sprawdź tytuł, cenę, opis i platformy przed publikacją.',
+    ctaButton: 'Zacznij od szkicu',
+    ctaSecondaryButton: 'Zobacz proces',
+    ctaProof1: 'Wgraj zdjęcia',
+    ctaProof2: 'Sprawdź szkic',
+    ctaProof3: 'Publikuj z kontrolą',
+    ctaFooter: 'Darmowe w becie. Każdą ofertę zatwierdzasz przed publikacją.'
   }
 };

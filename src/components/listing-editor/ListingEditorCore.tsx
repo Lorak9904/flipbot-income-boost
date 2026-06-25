@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { GeneratedItemDataWithVinted, Platform } from '@/types/item';
 import type { ReviewItemFormMode } from '@/components/review-item-form-mode';
+import type { PlatformHealthResponse } from '@/lib/api/platform-health';
 import AddItemForm from '@/components/AddItemForm';
 import ReviewItemForm from '@/components/ReviewItemForm';
 import { PlatformConnectionNotice } from '@/components/listing-editor/PlatformConnectionNotice';
@@ -27,6 +28,7 @@ interface ListingEditorCoreProps {
   generatedData: GeneratedItemDataWithVinted | null;
   reviewMode: ReviewItemFormMode;
   connectedPlatforms: Record<Platform, boolean>;
+  platformHealth?: PlatformHealthResponse['platforms'] | null;
   showNoPlatformConnectionNotice: boolean;
   platformConnectionNotice: {
     title: string;
@@ -52,6 +54,7 @@ export function ListingEditorCore({
   generatedData,
   reviewMode,
   connectedPlatforms,
+  platformHealth,
   showNoPlatformConnectionNotice,
   platformConnectionNotice,
   onComplete,
@@ -101,6 +104,7 @@ export function ListingEditorCore({
                   initialData={generatedData}
                   mode={reviewMode}
                   connectedPlatforms={connectedPlatforms}
+                  platformHealth={platformHealth}
                   onBack={onBack}
                   language={language}
                   editItemId={editItemId}

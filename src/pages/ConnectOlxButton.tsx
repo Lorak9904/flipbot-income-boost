@@ -21,7 +21,7 @@ export function ConnectOlxButton() {
   return (
   <div className="space-y-4">
     <p className="text-slate-300">
-      Connect your OLX account to let FlipIt find and flip items automatically.
+      Connect your OLX account to import listings, prepare drafts, and publish with your approval.
     </p>
     <div className="flex flex-col gap-2">
       <ManageButton

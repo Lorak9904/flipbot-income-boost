@@ -101,7 +101,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="mailto:info@arrpo.com" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <a href="mailto:myflipit@arrpo.com" className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.contactUs}
                 </a>
               </li>

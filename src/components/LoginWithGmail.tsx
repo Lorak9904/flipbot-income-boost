@@ -4,6 +4,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { jwtDecode } from "jwt-decode";
+import {
+  CHECKOUT_CURRENCY_STORAGE_KEY,
+  normalizeBillingCurrency,
+} from "@/lib/billing-pricing";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -41,8 +45,11 @@ export default function LoginWithGmail() {
             setUserAndTokens(userData, token, refresh_token);
             const checkoutPlan = sessionStorage.getItem('flipit_checkout_plan');
             const checkoutBilling = sessionStorage.getItem('flipit_checkout_billing') || 'monthly';
+            const checkoutCurrency = normalizeBillingCurrency(
+              sessionStorage.getItem(CHECKOUT_CURRENCY_STORAGE_KEY)
+            ) || 'pln';
             if (checkoutPlan) {
-              navigate(`/pricing?checkout=1&plan=${checkoutPlan}&billing=${checkoutBilling}`);
+              navigate(`/pricing?checkout=1&plan=${checkoutPlan}&billing=${checkoutBilling}&currency=${checkoutCurrency}`);
             } else {
               navigate("/");
             }

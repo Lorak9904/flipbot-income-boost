@@ -25,12 +25,19 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Loader2, Sparkles } from 'lucide-react';
 import { PlanBadge } from './PlanBadge';
 import { HeroCTA, SecondaryAction } from '@/components/ui/button-presets';
-import { getTranslations } from '@/components/language-utils';
+import { getCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { creditsTranslations } from './credits-translations';
 import { useCredits } from '@/hooks/useCredits';
 import { useToast } from '@/hooks/use-toast';
 import { createBillingPortalSession, createCheckoutSession, createImageAddonCheckoutSession } from '@/lib/api/billing';
 import { normalizePlan } from '@/lib/api/credits';
+import { CurrencySelector } from '@/components/pricing/CurrencySelector';
+import {
+  type BillingCurrency,
+  formatPlanPrice,
+  getInitialBillingCurrency,
+  persistBillingCurrency,
+} from '@/lib/billing-pricing';
 
 interface PlanManagementDialogProps {
   open: boolean;
@@ -53,6 +60,9 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
   const { data: credits } = useCredits();
   const { toast } = useToast();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [billingCurrency, setBillingCurrency] = useState<BillingCurrency>(() =>
+    getInitialBillingCurrency(getCurrentLanguage())
+  );
   const [cycleInitialized, setCycleInitialized] = useState(false);
   const currentPlan = credits ? normalizePlan(credits.effective_plan ?? credits.plan) : null;
   const hasStripeSubscription = Boolean(
@@ -82,6 +92,11 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     }
     return 'Please try again later.';
   };
+
+  const handleCurrencyChange = (currency: BillingCurrency) => {
+    setBillingCurrency(currency);
+    persistBillingCurrency(currency);
+  };
   
   const plans: PlanDetails[] = [
     {
@@ -102,8 +117,8 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     {
       id: 'plus',
       name: t.planPro,
-      monthlyPrice: '29 PLN/month',
-      annualPrice: '279 PLN/year',
+      monthlyPrice: formatPlanPrice('plus', billingCurrency, 'monthly'),
+      annualPrice: formatPlanPrice('plus', billingCurrency, 'annual'),
       credits: '30 listings + 20 images/month',
       platforms: 'All supported marketplaces',
       support: 'Email',
@@ -118,8 +133,8 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     {
       id: 'scale',
       name: t.planBusiness,
-      monthlyPrice: '59 PLN/month',
-      annualPrice: '569 PLN/year',
+      monthlyPrice: formatPlanPrice('scale', billingCurrency, 'monthly'),
+      annualPrice: formatPlanPrice('scale', billingCurrency, 'annual'),
       credits: '100 listings + 100 images/month',
       platforms: 'All supported marketplaces',
       support: 'Priority email',
@@ -134,8 +149,8 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     {
       id: 'unlimited',
       name: t.planUnlimited,
-      monthlyPrice: '149 PLN/month',
-      annualPrice: '1430 PLN/year',
+      monthlyPrice: formatPlanPrice('unlimited', billingCurrency, 'monthly'),
+      annualPrice: formatPlanPrice('unlimited', billingCurrency, 'annual'),
       credits: 'Unlimited listings + 150 included images/month',
       platforms: 'All supported marketplaces',
       support: 'Priority email',
@@ -223,7 +238,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
         });
         
         const checkoutPlan = targetPlanDetails.id as 'plus' | 'scale' | 'unlimited';
-        const checkoutUrl = await createCheckoutSession(checkoutPlan, billingCycle);
+        const checkoutUrl = await createCheckoutSession(checkoutPlan, billingCycle, billingCurrency);
         window.location.href = checkoutUrl;
         return;
       }
@@ -247,7 +262,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
         title: t.redirectingToCheckout,
         description: t.buyAddonCredits || 'Redirecting to image add-on checkout...',
       });
-      const checkoutUrl = await createImageAddonCheckoutSession(pack);
+      const checkoutUrl = await createImageAddonCheckoutSession(pack, billingCurrency);
       window.location.href = checkoutUrl;
     } catch (error: unknown) {
       toast({
@@ -291,28 +306,37 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-2 flex items-center justify-center gap-3">
-            <p className="text-sm text-neutral-400">{t.billingLabel || 'Billing'}</p>
-            <div className="inline-flex rounded-lg border border-neutral-700 bg-neutral-800/40 p-1">
-              <Button
-                type="button"
-                size="sm"
-                variant={billingCycle === 'monthly' ? 'default' : 'ghost'}
-                className={billingCycle === 'monthly' ? 'bg-cyan-500 hover:bg-cyan-600 text-white' : 'text-neutral-300'}
-                onClick={() => setBillingCycle('monthly')}
-              >
-                {t.billingMonthly || 'Monthly'}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={billingCycle === 'annual' ? 'default' : 'ghost'}
-                className={billingCycle === 'annual' ? 'bg-cyan-500 hover:bg-cyan-600 text-white' : 'text-neutral-300'}
-                onClick={() => setBillingCycle('annual')}
-              >
-                {t.billingAnnual || 'Annual'}
-              </Button>
+          <div className="mt-2 flex flex-wrap items-end justify-center gap-5">
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
+                {t.billingLabel || 'Billing'}
+              </p>
+              <div className="inline-flex rounded-lg border border-neutral-700 bg-neutral-800/40 p-1">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={billingCycle === 'monthly' ? 'default' : 'ghost'}
+                  className={billingCycle === 'monthly' ? 'bg-cyan-500 hover:bg-cyan-600 text-white' : 'text-neutral-300'}
+                  onClick={() => setBillingCycle('monthly')}
+                >
+                  {t.billingMonthly || 'Monthly'}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={billingCycle === 'annual' ? 'default' : 'ghost'}
+                  className={billingCycle === 'annual' ? 'bg-cyan-500 hover:bg-cyan-600 text-white' : 'text-neutral-300'}
+                  onClick={() => setBillingCycle('annual')}
+                >
+                  {t.billingAnnual || 'Annual'}
+                </Button>
+              </div>
             </div>
+            <CurrencySelector
+              currency={billingCurrency}
+              onChange={handleCurrencyChange}
+              label={t.currencyLabel || 'Currency'}
+            />
           </div>
 
           {hasStripeSubscription && (
@@ -486,7 +510,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
               💳 <strong>Secure payments powered by Stripe</strong> - Your payment information is never stored on our servers.
             </p>
             <p className="text-xs text-neutral-400 mt-2">
-              Need help choosing? Contact us at support@myflipit.live
+              Need help choosing? Contact us at myflipit@arrpo.com
             </p>
           </div>
         </DialogContent>

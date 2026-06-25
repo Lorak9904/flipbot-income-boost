@@ -22,6 +22,25 @@ export interface EbayDisconnectResponse {
   message: string;
 }
 
+export interface EbaySyncSummary {
+  inserted: number;
+  updated: number;
+  skipped: number;
+  errors: number;
+  total_fetched: number;
+}
+
+export interface EbaySyncResponse {
+  success: boolean;
+  message: string;
+  summary?: EbaySyncSummary;
+  code?: string;
+  error?: string;
+  action_required?: string;
+  action_key?: string;
+  detail?: string;
+}
+
 /**
  * Get eBay connection status for the current user
  */
@@ -102,6 +121,41 @@ export async function disconnectEbay(): Promise<EbayDisconnectResponse> {
   }
 
   return response.json();
+}
+
+/**
+ * Sync eBay listings with FlipIt database.
+ */
+export async function syncEbayListings(): Promise<EbaySyncResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE}/ebay/sync/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  const data: EbaySyncResponse = await response.json();
+
+  if (!response.ok) {
+    if (response.status === 401 || data.action_key === 'reconnect_ebay') {
+      if (data.code === 'ebay_reconnect_required' || data.action_key === 'reconnect_ebay') {
+        handleEbayTokenExpired();
+      }
+      throw new Error(data.message || data.detail || 'Authentication required');
+    }
+    if (response.status === 400 && data.error === 'ebay_not_connected') {
+      throw new Error('Please connect your eBay account first');
+    }
+    throw new Error(data.message || data.detail || `Failed to sync eBay listings: ${response.statusText}`);
+  }
+
+  return data;
 }
 
 /**

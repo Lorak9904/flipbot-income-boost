@@ -76,6 +76,7 @@ export const creditsTranslations = {
     planPlatforms: "Platforms",
     planSupport: "Support",
     perMonth: "per month",
+    perYear: "per year",
     free: "Free",
     
     // Billing
@@ -121,6 +122,7 @@ export const creditsTranslations = {
     billingLabel: "Billing",
     billingMonthly: "Monthly",
     billingAnnual: "Annual",
+    currencyLabel: "Currency",
     startedLabel: "Started",
     nextBillingLabel: "Next billing",
     activeUntilLabel: "Active until",
@@ -207,6 +209,7 @@ export const creditsTranslations = {
     planPlatforms: "Platformy",
     planSupport: "Wsparcie",
     perMonth: "miesięcznie",
+    perYear: "rocznie",
     free: "Darmowy",
     
     // Billing
@@ -252,6 +255,7 @@ export const creditsTranslations = {
     billingLabel: "Rozliczenia",
     billingMonthly: "Miesięczne",
     billingAnnual: "Roczne",
+    currencyLabel: "Waluta",
     startedLabel: "Rozpoczęto",
     nextBillingLabel: "Następna płatność",
     listingsRemaining: "Pozostałe ogłoszenia",

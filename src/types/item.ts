@@ -63,6 +63,18 @@ export interface PlatformFieldOverrides {
   size?: string;
 }
 
+export type PlatformDynamicAttributeValue =
+  | string
+  | number
+  | Array<string | number>
+  | {
+      valuesIds?: Array<string | number>;
+      values?: Array<string | number>;
+      valueId?: string | number;
+      value?: string | number;
+      rangeValue?: Record<string, unknown> | null;
+    };
+
 export type MarketplaceAttributeInputType = 'text' | 'select' | 'multi_select' | 'number';
 
 export interface MarketplaceAttributeOption {
@@ -107,12 +119,24 @@ export interface MarketplaceAttributeState {
 
 export type MarketplaceAttributes = Partial<Record<Platform, MarketplaceAttributeState>>;
 
+export interface AllegroProductParameterSnapshot {
+  id: string;
+  name?: string;
+  values?: Array<string | number>;
+  valuesIds?: Array<string | number>;
+  valuesLabels?: string[];
+  unit?: string | null;
+  options?: Record<string, unknown>;
+}
+
 export interface PlatformOverrides {
   olx?: {
+    country_code?: string;
+    country?: string;
     category_id?: number | string;
     category_path?: string;
     /** Dynamic attribute values (key -> value) fetched from platform metadata */
-    attributes?: Record<string, string | number>;
+    attributes?: Record<string, PlatformDynamicAttributeValue>;
     /** Optional per-platform listing field overrides */
     field_overrides?: PlatformFieldOverrides;
   };
@@ -127,7 +151,7 @@ export interface PlatformOverrides {
     category_id?: string;
     marketplace_id?: string;
     /** Dynamic attribute values (aspects) for eBay */
-    attributes?: Record<string, string | number>;
+    attributes?: Record<string, PlatformDynamicAttributeValue>;
     /** Optional per-platform listing field overrides */
     field_overrides?: PlatformFieldOverrides;
   };
@@ -135,8 +159,13 @@ export interface PlatformOverrides {
     category_id?: string | number;
     category_path?: string;
     marketplace_id?: string;
+    product_id?: string;
+    product_name?: string;
+    product_image_url?: string;
+    product_category_path?: string;
+    product_parameters?: AllegroProductParameterSnapshot[];
     /** Dynamic parameter values for Allegro payload overrides */
-    attributes?: Record<string, string | number>;
+    attributes?: Record<string, PlatformDynamicAttributeValue>;
     /** Optional per-platform listing field overrides */
     field_overrides?: PlatformFieldOverrides;
   };
@@ -155,6 +184,8 @@ export interface PlatformPublishResult {
   external_id?: string;
   listing_url?: string;
   response?: Record<string, unknown>;
+  marketplace_account_key?: string;
+  marketplace_country?: string;
   created_at?: string;
   updated_at?: string;
   // Legacy fields for backwards compatibility

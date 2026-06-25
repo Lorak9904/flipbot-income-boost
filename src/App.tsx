@@ -33,6 +33,9 @@ import VintedRelistingToolArticle from "./pages/articles/VintedRelistingToolArti
 import CrossListVintedToFacebookMarketplaceArticle from "./pages/articles/CrossListVintedToFacebookMarketplaceArticle";
 import ProductRelisterForVintedArticle from "./pages/articles/ProductRelisterForVintedArticle";
 import SellOnAllegroArticle from "./pages/articles/SellOnAllegroArticle";
+import HowToPriceItemsForEbayArticle from "./pages/articles/HowToPriceItemsForEbayArticle";
+import EbayActiveListingsVsSoldPricesArticle from "./pages/articles/EbayActiveListingsVsSoldPricesArticle";
+import OlxCountryAccountsArticle from "./pages/articles/OlxCountryAccountsArticle";
 // import FacebookCallbackPage from "./pages/FacebookCallbackPage";
 import TermsPage from "./pages/Terms";
 import PrivacyPolicyPage from "./pages/PrivacyPolicy";
@@ -81,6 +84,12 @@ const App = () => {
                   <Route path="/articles/relister-produktow-vinted" element={<ProductRelisterForVintedArticle />} />
                   <Route path="/articles/jak-sprzedawac-na-allegro" element={<SellOnAllegroArticle />} />
                   <Route path="/articles/how-to-sell-on-allegro" element={<SellOnAllegroArticle />} />
+                  <Route path="/articles/how-to-price-items-for-ebay" element={<HowToPriceItemsForEbayArticle />} />
+                  <Route path="/articles/jak-wycenic-przedmiot-na-ebay" element={<HowToPriceItemsForEbayArticle />} />
+                  <Route path="/articles/ebay-active-listings-vs-sold-prices" element={<EbayActiveListingsVsSoldPricesArticle />} />
+                  <Route path="/articles/aktywne-oferty-ebay-a-ceny-sprzedazy" element={<EbayActiveListingsVsSoldPricesArticle />} />
+                  <Route path="/articles/olx-listing-automation-by-country" element={<OlxCountryAccountsArticle />} />
+                  <Route path="/articles/automatyzacja-ogloszen-olx-wedlug-kraju" element={<OlxCountryAccountsArticle />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   <Route path="/reset-password" element={<ResetPasswordPage />} />
