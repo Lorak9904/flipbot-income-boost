@@ -29,6 +29,7 @@ export const settingsTranslations: Translations = {
     marketplacesTitle: 'Marketplaces',
     facebookMarketplace: 'Facebook Marketplace',
     allegro: 'Allegro',
+    etsy: 'Etsy',
     
     // Address section
     addressTitle: 'Default Address',
@@ -109,6 +110,7 @@ export const settingsTranslations: Translations = {
     marketplacesTitle: 'Platformy',
     facebookMarketplace: 'Facebook Marketplace',
     allegro: 'Allegro',
+    etsy: 'Etsy',
     
     // Address section
     addressTitle: 'Domyślny adres',

@@ -31,19 +31,20 @@ interface PlatformFieldOverridesSectionProps {
   platformOverrides: PlatformOverrides;
   baseValues: BaseListingValues;
   disabled?: boolean;
-  onFieldChange: (platform: 'olx' | 'vinted' | 'ebay' | 'allegro', field: keyof PlatformFieldOverrides, value: string) => void;
-  onClearPlatformOverrides: (platform: 'olx' | 'vinted' | 'ebay' | 'allegro') => void;
+  onFieldChange: (platform: 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy', field: keyof PlatformFieldOverrides, value: string) => void;
+  onClearPlatformOverrides: (platform: 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy') => void;
 }
 
-type OverridePlatform = 'olx' | 'vinted' | 'ebay' | 'allegro';
+type OverridePlatform = 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy';
 
-const OVERRIDABLE_PLATFORMS: OverridePlatform[] = ['olx', 'vinted', 'ebay', 'allegro'];
+const OVERRIDABLE_PLATFORMS: OverridePlatform[] = ['olx', 'vinted', 'ebay', 'allegro', 'etsy'];
 
 const PLATFORM_LABELS: Record<OverridePlatform, string> = {
   olx: 'OLX',
   vinted: 'Vinted',
   ebay: 'eBay',
   allegro: 'Allegro',
+  etsy: 'Etsy',
 };
 
 function hasFieldOverrides(overrides: PlatformFieldOverrides | undefined): boolean {
@@ -93,6 +94,7 @@ export default function PlatformFieldOverridesSection({
     vinted: hasFieldOverrides(platformOverrides.vinted?.field_overrides),
     ebay: hasFieldOverrides(platformOverrides.ebay?.field_overrides),
     allegro: hasFieldOverrides(platformOverrides.allegro?.field_overrides),
+    etsy: hasFieldOverrides(platformOverrides.etsy?.field_overrides),
   });
 
   useEffect(() => {
@@ -112,6 +114,7 @@ export default function PlatformFieldOverridesSection({
         vinted: false,
         ebay: false,
         allegro: false,
+        etsy: false,
       };
 
       for (const platform of enabledPlatforms) {
@@ -124,6 +127,7 @@ export default function PlatformFieldOverridesSection({
         next.vinted === previous.vinted &&
         next.ebay === previous.ebay &&
         next.allegro === previous.allegro
+        && next.etsy === previous.etsy
       ) {
         return previous;
       }

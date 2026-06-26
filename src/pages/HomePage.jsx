@@ -21,7 +21,7 @@ const fadeUp = {
   const t = getTranslations(homePageTranslations);
   const language = getCurrentLanguage();
   const olxHubPath = getLocalizedPathForLanguage('/articles/olx-listing-automation-by-country', language);
-  const pageTitle = 'AI Crosslisting for OLX, Vinted, Facebook Marketplace & eBay | myflipit.live';
+  const pageTitle = 'AI Crosslisting for OLX, Vinted, Facebook Marketplace, eBay, Allegro & Etsy | myflipit.live';
   const pageDescription = 'FlipIt helps you create marketplace listings faster: upload photos once, get AI-generated drafts (description, pricing suggestions, categories, attributes), then review and publish with your approval.';
   const keywords = [
     'automated reselling platform',
@@ -33,6 +33,8 @@ const fadeUp = {
     'Vinted listing tool',
     'Facebook Marketplace listing tool',
     'eBay listing tool',
+    'Allegro listing tool',
+    'Etsy listing tool',
     'multi marketplace publishing',
     'reselling software',
   ];

@@ -5,10 +5,12 @@ import { Label } from '@/components/ui/label';
 import { getOlxCategoryPath, type OlxCategoryNode } from '@/lib/api/olx';
 import { getVintedCategories, type VintedCategoryOption } from '@/lib/api/vinted';
 import { searchAllegroCategories, type AllegroCategoryNode } from '@/lib/api/allegro';
+import { getEtsyCategoryPath, type EtsyCategoryNode } from '@/lib/api/etsy';
 import type { Platform, PlatformOverrides } from '@/types/item';
 import OlxCategoryPickerModal from './review-item/OlxCategoryPickerModal';
 import VintedCategoryPickerModal from './review-item/VintedCategoryPickerModal';
 import AllegroCategoryPickerModal from './review-item/AllegroCategoryPickerModal';
+import EtsyCategoryPickerModal from './review-item/EtsyCategoryPickerModal';
 import {
   buildVintedCategoryGraph,
   getVintedPathText,
@@ -25,6 +27,7 @@ interface PlatformCategoryBooksProps {
   disabled?: boolean;
   onSetOlxCategory: (categoryId: string | number, categoryPath?: string) => void;
   onSetAllegroCategory: (categoryId: string, marketplaceId?: string, categoryPath?: string) => void;
+  onSetEtsyCategory: (categoryId: string | number, categoryPath?: string) => void;
   onSetVintedCatalog: (catalogId: string | number) => void;
 }
 
@@ -34,6 +37,7 @@ const PLATFORM_LABELS: Record<Platform, string> = {
   vinted: 'Vinted',
   ebay: 'eBay',
   allegro: 'Allegro',
+  etsy: 'Etsy',
 };
 
 export default function PlatformCategoryBooks({
@@ -44,18 +48,21 @@ export default function PlatformCategoryBooks({
   disabled = false,
   onSetOlxCategory,
   onSetAllegroCategory,
+  onSetEtsyCategory,
   onSetVintedCatalog,
 }: PlatformCategoryBooksProps) {
   const [activePlatform, setActivePlatform] = useState<Platform | null>(selectedPlatforms[0] || null);
   const [olxPickerOpen, setOlxPickerOpen] = useState(false);
   const [vintedPickerOpen, setVintedPickerOpen] = useState(false);
   const [allegroPickerOpen, setAllegroPickerOpen] = useState(false);
+  const [etsyPickerOpen, setEtsyPickerOpen] = useState(false);
   const [vintedCategories, setVintedCategories] = useState<VintedCategoryOption[]>([]);
   const [vintedLoading, setVintedLoading] = useState(false);
   const [vintedError, setVintedError] = useState<string | null>(null);
   const hasOlx = selectedPlatforms.includes('olx');
   const hasVinted = selectedPlatforms.includes('vinted');
   const hasAllegro = selectedPlatforms.includes('allegro');
+  const hasEtsy = selectedPlatforms.includes('etsy');
 
   useEffect(() => {
     if (!selectedPlatforms.length) {
@@ -167,6 +174,27 @@ export default function PlatformCategoryBooks({
     return allegroSelectedHint.path || selectedAllegroStoredPath;
   }, [allegroSelectedHint, selectedAllegroCategoryId, selectedAllegroStoredPath]);
 
+  const selectedEtsyCategoryId = useMemo(() => {
+    const raw = platformOverrides.etsy?.taxonomy_id ?? platformOverrides.etsy?.category_id;
+    if (raw === null || raw === undefined || raw === '') {
+      return null;
+    }
+    return String(raw);
+  }, [platformOverrides.etsy?.taxonomy_id, platformOverrides.etsy?.category_id]);
+
+  const [etsySelectedHint, setEtsySelectedHint] = useState<{ id: string; path: string } | null>(null);
+  const selectedEtsyStoredPath = platformOverrides.etsy?.category_path || '';
+
+  const selectedEtsyPath = useMemo(() => {
+    if (!selectedEtsyCategoryId) {
+      return '';
+    }
+    if (etsySelectedHint?.id !== selectedEtsyCategoryId) {
+      return selectedEtsyStoredPath;
+    }
+    return etsySelectedHint.path || selectedEtsyStoredPath;
+  }, [etsySelectedHint, selectedEtsyCategoryId, selectedEtsyStoredPath]);
+
   useEffect(() => {
     if (!selectedOlxCategoryId) {
       setOlxSelectedHint(null);
@@ -226,6 +254,19 @@ export default function PlatformCategoryBooks({
   }, [selectedAllegroCategoryId, selectedAllegroMarketplaceId]);
 
   useEffect(() => {
+    if (!selectedEtsyCategoryId) {
+      setEtsySelectedHint(null);
+      return;
+    }
+    setEtsySelectedHint((prev) => {
+      if (prev && prev.id === selectedEtsyCategoryId) {
+        return prev;
+      }
+      return null;
+    });
+  }, [selectedEtsyCategoryId]);
+
+  useEffect(() => {
     if (!hasAllegro) {
       return;
     }
@@ -273,6 +314,36 @@ export default function PlatformCategoryBooks({
     selectedAllegroStoredPath,
     allegroSelectedHint,
   ]);
+
+  useEffect(() => {
+    if (!hasEtsy || !selectedEtsyCategoryId || selectedEtsyStoredPath) {
+      return;
+    }
+    if (etsySelectedHint?.id === selectedEtsyCategoryId && etsySelectedHint.path) {
+      return;
+    }
+
+    const controller = new AbortController();
+    (async () => {
+      try {
+        const payload = await getEtsyCategoryPath({
+          taxonomyId: selectedEtsyCategoryId,
+          signal: controller.signal,
+        });
+        if (controller.signal.aborted) {
+          return;
+        }
+        const pathText = (payload.path || []).map((node) => node.name).filter(Boolean).join(' > ');
+        if (pathText) {
+          setEtsySelectedHint({ id: selectedEtsyCategoryId, path: pathText });
+        }
+      } catch {
+        // Best-effort: keep ID-based display if path resolution fails.
+      }
+    })();
+
+    return () => controller.abort();
+  }, [hasEtsy, selectedEtsyCategoryId, selectedEtsyStoredPath, etsySelectedHint]);
 
   const selectedVintedPath = useMemo(() => {
     if (selectedVintedCatalogId === null) {
@@ -391,7 +462,27 @@ export default function PlatformCategoryBooks({
             </div>
           )}
 
-          {activePlatform && activePlatform !== 'olx' && activePlatform !== 'vinted' && activePlatform !== 'allegro' && (
+          {activePlatform === 'etsy' && (
+            <div className="space-y-2">
+              <Label htmlFor="etsy-category-field" className="text-neutral-300">
+                Etsy category
+              </Label>
+              <Input
+                id="etsy-category-field"
+                value={selectedEtsyPath}
+                onClick={() => setEtsyPickerOpen(true)}
+                placeholder="Click to choose from Etsy category tree..."
+                disabled={disabled}
+                readOnly
+                className="cursor-pointer"
+              />
+              <p className="text-xs text-neutral-400">
+                Click the field to open a layered category picker.
+              </p>
+            </div>
+          )}
+
+          {activePlatform && activePlatform !== 'olx' && activePlatform !== 'vinted' && activePlatform !== 'allegro' && activePlatform !== 'etsy' && (
             <div className="min-h-[180px] rounded-md border border-dashed border-neutral-700 bg-neutral-900/40 p-4 text-sm text-neutral-400">
               {PLATFORM_LABELS[activePlatform]} category picker will be added next.
             </div>
@@ -438,6 +529,19 @@ export default function PlatformCategoryBooks({
             />
           )}
 
+          {activePlatform === 'etsy' && hasEtsy && (
+            <EtsyCategoryPickerModal
+              open={etsyPickerOpen}
+              onOpenChange={setEtsyPickerOpen}
+              selectedCategoryId={selectedEtsyCategoryId}
+              selectedCategoryPath={selectedEtsyPath}
+              onSelectCategory={(node: EtsyCategoryNode) => {
+                setEtsySelectedHint({ id: String(node.category_id), path: node.path || '' });
+                onSetEtsyCategory(node.category_id, node.path);
+              }}
+            />
+          )}
+
           {activePlatform === 'olx' && !selectedOlxCategoryId && (
             <div className="min-h-[120px] rounded-md border border-dashed border-neutral-700 bg-neutral-900/40 px-4 py-3 text-sm text-neutral-400">
               No OLX category selected yet.
@@ -453,6 +557,12 @@ export default function PlatformCategoryBooks({
           {activePlatform === 'allegro' && !selectedAllegroCategoryId && (
             <div className="min-h-[120px] rounded-md border border-dashed border-neutral-700 bg-neutral-900/40 px-4 py-3 text-sm text-neutral-400">
               No Allegro category selected yet.
+            </div>
+          )}
+
+          {activePlatform === 'etsy' && !selectedEtsyCategoryId && (
+            <div className="min-h-[120px] rounded-md border border-dashed border-neutral-700 bg-neutral-900/40 px-4 py-3 text-sm text-neutral-400">
+              No Etsy category selected yet.
             </div>
           )}
 
@@ -483,6 +593,17 @@ export default function PlatformCategoryBooks({
               <p className="text-xs uppercase tracking-wide text-cyan-200">Selected category</p>
               {selectedAllegroPath ? (
                 <p className="mt-1 text-sm text-cyan-100">{selectedAllegroPath}</p>
+              ) : (
+                <p className="mt-1 text-sm text-cyan-100/80">Resolving selected category...</p>
+              )}
+            </div>
+          )}
+
+          {activePlatform === 'etsy' && selectedEtsyCategoryId && (
+            <div className="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-4 py-3">
+              <p className="text-xs uppercase tracking-wide text-cyan-200">Selected category</p>
+              {selectedEtsyPath ? (
+                <p className="mt-1 text-sm text-cyan-100">{selectedEtsyPath}</p>
               ) : (
                 <p className="mt-1 text-sm text-cyan-100/80">Resolving selected category...</p>
               )}

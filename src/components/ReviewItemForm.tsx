@@ -59,6 +59,8 @@ import { submitEditDraft } from './review-item/submit-edit';
 import { getVintedCategoryAttributes } from '@/lib/api/vinted';
 import type { AllegroProductSearchResult } from '@/lib/api/allegro';
 import { SUPPORTED_CURRENCIES, resolveCurrency } from '@/lib/currency';
+import { syncPlatformListings, type RegeneratableItemField } from '@/lib/api/items';
+import { AiFieldRegenerationControl } from '@/components/listing-editor/AiFieldRegenerationControl';
 
 interface ReviewItemFormProps {
   initialData: GeneratedItemDataWithVinted;
@@ -77,6 +79,8 @@ const formatAllegroProductCategoryPath = (product: AllegroProductSearchResult): 
   return path || product.category?.id || '';
 };
 
+const MARKETPLACE_UPDATE_PLATFORMS: Platform[] = ['olx', 'ebay', 'allegro', 'etsy'];
+
 const ReviewItemForm = ({
   initialData,
   mode,
@@ -90,7 +94,8 @@ const ReviewItemForm = ({
 }: ReviewItemFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitIntent, setSubmitIntent] = useState<'save' | 'publish' | null>(null);
+  const [submitIntent, setSubmitIntent] = useState<'save' | 'saveAndUpdate' | 'publish' | null>(null);
+  const [regeneratingField, setRegeneratingField] = useState<RegeneratableItemField | null>(null);
   const [insufficientCreditsError, setInsufficientCreditsError] = useState<{
     required: number;
     available: number;
@@ -135,8 +140,21 @@ const ReviewItemForm = ({
     !!credits &&
     credits.publish_remaining !== null &&
     credits.publish_remaining < requiredPublishCredits;
+  const publishedMarketplaceUpdatePlatforms = useMemo(
+    () => MARKETPLACE_UPDATE_PLATFORMS.filter((platform) => publishedPlatforms.includes(platform)),
+    [publishedPlatforms]
+  );
+  const canSaveAndUpdateMarketplaces = !!editItemId && publishedMarketplaceUpdatePlatforms.length > 0;
+  const saveAndUpdateLabel =
+    publishedMarketplaceUpdatePlatforms.length === 1
+      ? t.buttons.saveAndUpdateMarketplace.replace(
+          '{platform}',
+          t.platforms[publishedMarketplaceUpdatePlatforms[0]]
+        )
+      : t.buttons.saveAndUpdateMarketplaces;
   const showPlatformPreparation = platformSelectionOptions.length > 0;
   const isSaving = isSubmitting && submitIntent === 'save';
+  const isSavingAndUpdating = isSubmitting && submitIntent === 'saveAndUpdate';
   const isPublishing = isSubmitting && submitIntent === 'publish';
   
   const [marketplaceAttributes, setMarketplaceAttributes] = useState<MarketplaceAttributes>(
@@ -156,6 +174,7 @@ const ReviewItemForm = ({
       vinted: overrides.vinted ? { ...overrides.vinted } : undefined,
       ebay: overrides.ebay ? { ...overrides.ebay } : undefined,
       allegro: overrides.allegro ? { ...overrides.allegro } : undefined,
+      etsy: overrides.etsy ? { ...overrides.etsy } : undefined,
     };
   });
   const [pendingOlxCountryCode, setPendingOlxCountryCode] = useState<string | null>(null);
@@ -230,6 +249,65 @@ const ReviewItemForm = ({
   const updateField = <K extends keyof GeneratedItemData>(field: K, value: GeneratedItemData[K]) => {
     setData(prev => ({ ...prev, [field]: value, draft_id: prev.draft_id }));
   };
+
+  const fieldIsRegenerating = (field: RegeneratableItemField) => regeneratingField === field;
+
+  const applyRegeneratedField = (field: RegeneratableItemField, value: string) => {
+    if (field === 'title') updateField('title', value);
+    if (field === 'description') updateField('description', value);
+    if (field === 'brand') updateField('brand', value);
+    if (field === 'condition') updateField('condition', value);
+    if (field === 'category') updateField('category', value);
+    if (field === 'size') updateField('size', value);
+  };
+
+  const regenerationContext = useMemo(
+    () => ({
+      title: data.title,
+      description: data.description,
+      brand: data.brand,
+      condition: data.condition,
+      category: data.category,
+      size: data.size,
+      price: data.price,
+      currency: resolveCurrency(data.currency, language),
+      catalog_path: data.catalog_path,
+    }),
+    [
+      data.title,
+      data.description,
+      data.brand,
+      data.condition,
+      data.category,
+      data.size,
+      data.price,
+      data.currency,
+      data.catalog_path,
+      language,
+    ]
+  );
+
+  const renderAiFieldLabel = (
+    field: RegeneratableItemField,
+    htmlFor: string,
+    label: string
+  ) => (
+    <div className="flex items-center justify-between gap-2">
+      <Label htmlFor={htmlFor} className="text-sm font-medium text-neutral-300">
+        {label}
+      </Label>
+      <AiFieldRegenerationControl
+        itemId={editItemId || data.draft_id}
+        field={field}
+        fieldLabel={label}
+        language={language}
+        context={regenerationContext}
+        disabled={isSubmitting || (!!regeneratingField && !fieldIsRegenerating(field))}
+        onLoadingChange={(loading) => setRegeneratingField(loading ? field : null)}
+        onRegenerated={(value) => applyRegeneratedField(field, value)}
+      />
+    </div>
+  );
   
   const handlePlatformToggle = (platform: Platform) => {
     if (isPublishingMode && !connectedPlatforms[platform]) {
@@ -269,7 +347,7 @@ const ReviewItemForm = ({
   };
 
   const updatePlatformOverride = (
-    platform: 'olx' | 'vinted' | 'ebay' | 'allegro',
+    platform: 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy',
     field: string,
     value: string
   ) => {
@@ -283,8 +361,8 @@ const ReviewItemForm = ({
       };
 
       if (
-        platform === 'ebay' &&
-        (field === 'category_id' || field === 'marketplace_id') &&
+        (platform === 'ebay' || platform === 'etsy') &&
+        (field === 'category_id' || field === 'taxonomy_id' || field === 'marketplace_id') &&
         String(existingOverrides[field] || '') !== value
       ) {
         delete nextOverrides.attributes;
@@ -495,8 +573,36 @@ const ReviewItemForm = ({
     });
   };
 
+  const updateEtsyCategoryOverride = (
+    categoryId: string | number,
+    categoryPath?: string
+  ) => {
+    setPlatformOverrides((prev) => {
+      const existing = prev.etsy;
+      const existingOverrides =
+        existing && typeof existing === 'object' ? (existing as Record<string, unknown>) : {};
+      const nextEtsyOverrides: Record<string, unknown> = {
+        ...existingOverrides,
+        taxonomy_id: String(categoryId),
+        category_id: String(categoryId),
+      };
+
+      if (categoryPath && categoryPath.trim()) {
+        nextEtsyOverrides.category_path = categoryPath.trim();
+      } else {
+        delete nextEtsyOverrides.category_path;
+      }
+      delete nextEtsyOverrides.attributes;
+
+      return {
+        ...prev,
+        etsy: nextEtsyOverrides,
+      };
+    });
+  };
+
   const updatePlatformFieldOverride = (
-    platform: 'olx' | 'vinted' | 'ebay' | 'allegro',
+    platform: 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy',
     field: keyof PlatformFieldOverrides,
     value: string
   ) => {
@@ -535,7 +641,7 @@ const ReviewItemForm = ({
     });
   };
 
-  const clearPlatformFieldOverrides = (platform: 'olx' | 'vinted' | 'ebay' | 'allegro') => {
+  const clearPlatformFieldOverrides = (platform: 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy') => {
     setPlatformOverrides((previous) => {
       const existing = previous[platform];
       if (!existing || typeof existing !== 'object') {
@@ -553,7 +659,7 @@ const ReviewItemForm = ({
 
   // Handler for platform-specific attribute changes (Task 2)
   const updatePlatformAttribute = (
-    platform: 'olx' | 'ebay' | 'allegro',
+    platform: 'olx' | 'ebay' | 'allegro' | 'etsy',
     key: string,
     value: PlatformDynamicAttributeValue
   ) => {
@@ -577,7 +683,7 @@ const ReviewItemForm = ({
   const buildPlatformOverridesPayload = () => {
     const overrides: PlatformOverrides = {};
     Object.entries(platformOverrides || {}).forEach(([key, value]) => {
-      if (!['olx', 'vinted', 'ebay', 'allegro'].includes(key)) {
+      if (!['olx', 'vinted', 'ebay', 'allegro', 'etsy'].includes(key)) {
         overrides[key] = value as unknown;
       }
     });
@@ -727,35 +833,139 @@ const ReviewItemForm = ({
       }
     }
 
+    // Etsy overrides: taxonomy_id/category_id + seller taxonomy property values
+    const etsyTaxonomyId = platformOverrides.etsy?.taxonomy_id || platformOverrides.etsy?.category_id;
+    const etsyCategoryPath = platformOverrides.etsy?.category_path;
+    const etsyAttrs = platformOverrides.etsy?.attributes || platformOverrides.etsy?.attribute_values;
+    const etsyFieldOverrides = platformOverrides.etsy?.field_overrides;
+    if (
+      (etsyTaxonomyId !== undefined &&
+        etsyTaxonomyId !== null &&
+        String(etsyTaxonomyId).trim() !== '') ||
+      (etsyCategoryPath && String(etsyCategoryPath).trim()) ||
+      (etsyAttrs && Object.keys(etsyAttrs).length > 0) ||
+      (etsyFieldOverrides && Object.keys(etsyFieldOverrides).length > 0)
+    ) {
+      overrides.etsy = {};
+      if (
+        etsyTaxonomyId !== undefined &&
+        etsyTaxonomyId !== null &&
+        String(etsyTaxonomyId).trim() !== ''
+      ) {
+        overrides.etsy.taxonomy_id = String(etsyTaxonomyId).trim();
+        overrides.etsy.category_id = String(etsyTaxonomyId).trim();
+      }
+      if (etsyCategoryPath && String(etsyCategoryPath).trim()) {
+        overrides.etsy.category_path = String(etsyCategoryPath).trim();
+      }
+      if (etsyAttrs && Object.keys(etsyAttrs).length > 0) {
+        overrides.etsy.attributes = etsyAttrs;
+      }
+      if (etsyFieldOverrides && Object.keys(etsyFieldOverrides).length > 0) {
+        overrides.etsy.field_overrides = etsyFieldOverrides;
+      }
+    }
+
     return Object.keys(overrides).length > 0 ? overrides : undefined;
   };
 
-  const saveLocalChanges = async () => {
+  const buildSavedItemUrl = (itemId: string, dirtyPlatforms: Platform[] = []) => {
+    const params = new URLSearchParams();
+    if (dirtyPlatforms.length > 0) {
+      params.set('updated', '1');
+      params.set('dirty', dirtyPlatforms.join(','));
+    }
+    const query = params.toString();
+    return `/user/items/${itemId}${query ? `?${query}` : ''}`;
+  };
+
+  const saveEditedItem = async () => {
     const platformOverridesPayload = buildPlatformOverridesPayload();
-    const result = await submitEditDraft({
+    return submitEditDraft({
       editItemId,
       draftId: data.draft_id,
       data,
       platformOverridesPayload,
       marketplaceAttributes,
     });
+  };
 
+  const saveLocalChanges = async () => {
+    const result = await saveEditedItem();
     toast({
       title: t.toast.successTitle,
       description: t.toast.updateLocalSuccess,
     });
 
     setTimeout(() => {
-      const params = new URLSearchParams({ updated: '1' });
-      if (result.dirtyPlatforms.length > 0) {
-        params.set('dirty', result.dirtyPlatforms.join(','));
-      }
-      navigate(`/user/items/${result.itemId}?${params.toString()}`);
+      navigate(buildSavedItemUrl(result.itemId, result.dirtyPlatforms));
     }, 1200);
+  };
+
+  const saveAndUpdateMarketplaceChanges = async () => {
+    const result = await saveEditedItem();
+    if (result.dirtyPlatforms.length === 0) {
+      toast({
+        title: t.toast.successTitle,
+        description: t.toast.saveAndUpdateNoMarketplaceChanges,
+      });
+      setTimeout(() => {
+        navigate(buildSavedItemUrl(result.itemId));
+      }, 1200);
+      return;
+    }
+
+    try {
+      const updateResponse = await syncPlatformListings(result.itemId, result.dirtyPlatforms);
+      const failedPlatforms = result.dirtyPlatforms.filter(
+        (platform) => updateResponse.results?.[platform]?.status !== 'success'
+      );
+      const succeededCount = result.dirtyPlatforms.length - failedPlatforms.length;
+      const platformNames = result.dirtyPlatforms
+        .map((platform) => t.platforms[platform])
+        .join(', ');
+
+      if (failedPlatforms.length === 0) {
+        toast({
+          title: t.toast.saveAndUpdateSuccess,
+          description: t.toast.saveAndUpdateSuccessDesc.replace('{platforms}', platformNames),
+        });
+        setTimeout(() => {
+          navigate(buildSavedItemUrl(result.itemId));
+        }, 1200);
+        return;
+      }
+
+      const failedNames = failedPlatforms.map((platform) => t.platforms[platform]).join(', ');
+      toast({
+        title:
+          succeededCount > 0
+            ? t.toast.saveAndUpdatePartial
+            : t.toast.saveAndUpdateMarketplaceError,
+        description: t.toast.saveAndUpdateFailedDesc.replace('{platforms}', failedNames),
+        variant: 'destructive',
+      });
+      setTimeout(() => {
+        navigate(buildSavedItemUrl(result.itemId, failedPlatforms));
+      }, 1600);
+    } catch (error) {
+      toast({
+        title: t.toast.saveAndUpdateMarketplaceError,
+        description: error instanceof Error ? error.message : t.toast.errorDesc,
+        variant: 'destructive',
+      });
+      setTimeout(() => {
+        navigate(buildSavedItemUrl(result.itemId, result.dirtyPlatforms));
+      }, 1600);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (regeneratingField) {
+      return;
+    }
 
     if (isPublishingMode && selectedPlatforms.length === 0) {
       toast({
@@ -902,7 +1112,7 @@ const ReviewItemForm = ({
   };
 
   const handleSaveChanges = async () => {
-    if (mode !== 'republish') {
+    if (regeneratingField) {
       return;
     }
 
@@ -913,6 +1123,30 @@ const ReviewItemForm = ({
       await saveLocalChanges();
     } catch (error) {
       console.error('Error saving item:', error);
+      const errorMessage = error instanceof Error ? error.message : t.toast.errorDesc;
+      toast({
+        title: t.toast.errorTitle,
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+      setSubmitIntent(null);
+    }
+  };
+
+  const handleSaveAndUpdateChanges = async () => {
+    if (!canSaveAndUpdateMarketplaces || regeneratingField) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitIntent('saveAndUpdate');
+
+    try {
+      await saveAndUpdateMarketplaceChanges();
+    } catch (error) {
+      console.error('Error saving and updating item:', error);
       const errorMessage = error instanceof Error ? error.message : t.toast.errorDesc;
       toast({
         title: t.toast.errorTitle,
@@ -1062,6 +1296,9 @@ const ReviewItemForm = ({
             onSetAllegroCategory={(categoryId, marketplaceId, categoryPath) =>
               updateAllegroCategoryOverride(categoryId, marketplaceId, categoryPath)
             }
+            onSetEtsyCategory={(categoryId, categoryPath) =>
+              updateEtsyCategoryOverride(categoryId, categoryPath)
+            }
             onSetVintedCatalog={(catalogId) => {
               void handleSetVintedCatalog(catalogId);
             }}
@@ -1195,6 +1432,25 @@ const ReviewItemForm = ({
                 onAllegroProductClear={() => updateAllegroProductSelection(null)}
               />
             )}
+
+            {selectedPlatforms.includes('etsy') && (
+              <PlatformOverrideCard
+                platform="etsy"
+                platformLabel="Etsy"
+                isConnected={connectedPlatforms.etsy}
+                isDisabled={isSubmitting}
+                categoryId={
+                  platformOverrides.etsy?.taxonomy_id?.toString() ||
+                  platformOverrides.etsy?.category_id?.toString()
+                }
+                attributeValues={platformOverrides.etsy?.attributes}
+                onCategoryChange={() => undefined}
+                onAttributeChange={(key, value) => updatePlatformAttribute('etsy', key, value)}
+                categoryLabel="Etsy category"
+                categoryPlaceholder="Choose an Etsy category above"
+                categoryInputMode="summary"
+              />
+            )}
           </div>
         </div>
 
@@ -1244,71 +1500,71 @@ const ReviewItemForm = ({
         <h3 className="text-base sm:text-lg font-medium text-neutral-300">{t.sections.itemDetails}</h3>
         
         <div className="space-y-2">
-          <Label htmlFor="title" className="text-sm font-medium text-neutral-300">{t.labels.title}</Label>
+          {renderAiFieldLabel('title', 'title', t.labels.title)}
           <Input 
             id="title"
             value={data.title}
             onChange={(e) => updateField('title', e.target.value)}
-            disabled={isSubmitting}
+            disabled={isSubmitting || fieldIsRegenerating('title')}
             required
-            className="h-12 text-base"
+            className={`h-12 text-base ${fieldIsRegenerating('title') ? 'opacity-60' : ''}`}
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="description" className="text-sm font-medium text-neutral-300">{t.labels.description}</Label>
+          {renderAiFieldLabel('description', 'description', t.labels.description)}
           <Textarea 
             id="description" 
             value={data.description}
             onChange={(e) => updateField('description', e.target.value)}
-            className="min-h-[200px] sm:min-h-[150px] text-base resize-y"
-            disabled={isSubmitting}
+            className={`min-h-[200px] sm:min-h-[150px] text-base resize-y ${fieldIsRegenerating('description') ? 'opacity-60' : ''}`}
+            disabled={isSubmitting || fieldIsRegenerating('description')}
             required
           />
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="brand" className="text-sm font-medium text-neutral-300">{t.labels.brand}</Label>
+            {renderAiFieldLabel('brand', 'brand', t.labels.brand)}
             <Input
               id="brand"
               value={data.brand ?? ''}
               onChange={(e) => updateField('brand', e.target.value)}
-              disabled={isSubmitting}
-              className="h-12 text-base"
+              disabled={isSubmitting || fieldIsRegenerating('brand')}
+              className={`h-12 text-base ${fieldIsRegenerating('brand') ? 'opacity-60' : ''}`}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="condition" className="text-sm font-medium text-neutral-300">{t.labels.condition}</Label>
+            {renderAiFieldLabel('condition', 'condition', t.labels.condition)}
             <Input
               id="condition"
               value={data.condition ?? ''}
               onChange={(e) => updateField('condition', e.target.value)}
-              disabled={isSubmitting}
-              className="h-12 text-base"
+              disabled={isSubmitting || fieldIsRegenerating('condition')}
+              className={`h-12 text-base ${fieldIsRegenerating('condition') ? 'opacity-60' : ''}`}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category" className="text-sm font-medium text-neutral-300">{t.labels.category}</Label>
+            {renderAiFieldLabel('category', 'category', t.labels.category)}
             <Input
               id="category"
               value={data.category ?? ''}
               onChange={(e) => updateField('category', e.target.value)}
-              disabled={isSubmitting}
-              className="h-12 text-base"
+              disabled={isSubmitting || fieldIsRegenerating('category')}
+              className={`h-12 text-base ${fieldIsRegenerating('category') ? 'opacity-60' : ''}`}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="size" className="text-sm font-medium text-neutral-300">{t.labels.size}</Label>
+            {renderAiFieldLabel('size', 'size', t.labels.size)}
             <Input
               id="size"
               value={data.size ?? ''}
               onChange={(e) => updateField('size', e.target.value)}
-              disabled={isSubmitting}
-              className="h-12 text-base"
+              disabled={isSubmitting || fieldIsRegenerating('size')}
+              className={`h-12 text-base ${fieldIsRegenerating('size') ? 'opacity-60' : ''}`}
             />
           </div>
 
@@ -1360,18 +1616,18 @@ const ReviewItemForm = ({
           <BackButtonGhost
             type="button" 
             onClick={onBack} 
-            disabled={isSubmitting}
+            disabled={isSubmitting || !!regeneratingField}
             className="h-12 sm:h-10 w-full sm:w-auto text-base sm:text-sm"
           >
             {t.buttons.back}
           </BackButtonGhost>
           
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            {mode === 'republish' && (
+            {(mode === 'republish' || (!isPublishingMode && canSaveAndUpdateMarketplaces)) && (
               <SecondaryAction
                 type="button"
                 onClick={handleSaveChanges}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !!regeneratingField}
                 className="h-12 min-h-0 px-6 py-2 sm:h-10 text-base sm:text-sm font-semibold"
               >
                 {isSaving ? (
@@ -1385,35 +1641,75 @@ const ReviewItemForm = ({
               </SecondaryAction>
             )}
 
-            <AddItemButton
-              type="submit"
-              sizeVariant="md"
-              disabled={
-                isSubmitting ||
-                (isPublishingMode &&
-                  (selectedPlatforms.length === 0 ||
-                    hasInsufficientPublishCredits))
-              }
-              className="h-12 sm:h-10 w-full sm:w-auto text-base sm:text-sm font-semibold"
-            >
-              {isPublishing ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
-                  {t.buttons.publishing}
-                </>
-              ) : isSaving && !isPublishingMode ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
-                  {t.buttons.updating}
-                </>
-              ) : isPublishingMode && hasInsufficientPublishCredits ? (
-                <>
-                  <CreditCard className="mr-2 h-5 w-5 sm:h-4 sm:w-4" /> Insufficient Credits
-                </>
-              ) : (
-                isPublishingMode ? t.buttons.publish : t.buttons.update
-              )}
-            </AddItemButton>
+            {canSaveAndUpdateMarketplaces && isPublishingMode && (
+              <SecondaryAction
+                type="button"
+                onClick={handleSaveAndUpdateChanges}
+                disabled={isSubmitting || !!regeneratingField}
+                className="h-12 min-h-0 px-6 py-2 sm:h-10 text-base sm:text-sm font-semibold"
+              >
+                {isSavingAndUpdating ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
+                    {t.buttons.savingAndUpdating}
+                  </>
+                ) : (
+                  saveAndUpdateLabel
+                )}
+              </SecondaryAction>
+            )}
+
+            {canSaveAndUpdateMarketplaces && !isPublishingMode && (
+              <AddItemButton
+                type="button"
+                sizeVariant="md"
+                onClick={handleSaveAndUpdateChanges}
+                disabled={isSubmitting || !!regeneratingField}
+                className="h-12 sm:h-10 w-full sm:w-auto text-base sm:text-sm font-semibold"
+              >
+                {isSavingAndUpdating ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
+                    {t.buttons.savingAndUpdating}
+                  </>
+                ) : (
+                  saveAndUpdateLabel
+                )}
+              </AddItemButton>
+            )}
+
+            {(isPublishingMode || !canSaveAndUpdateMarketplaces) && (
+              <AddItemButton
+                type="submit"
+                sizeVariant="md"
+                disabled={
+                  isSubmitting ||
+                  !!regeneratingField ||
+                  (isPublishingMode &&
+                    (selectedPlatforms.length === 0 ||
+                      hasInsufficientPublishCredits))
+                }
+                className="h-12 sm:h-10 w-full sm:w-auto text-base sm:text-sm font-semibold"
+              >
+                {isPublishing ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
+                    {t.buttons.publishing}
+                  </>
+                ) : isSaving && !isPublishingMode ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
+                    {t.buttons.updating}
+                  </>
+                ) : isPublishingMode && hasInsufficientPublishCredits ? (
+                  <>
+                    <CreditCard className="mr-2 h-5 w-5 sm:h-4 sm:w-4" /> Insufficient Credits
+                  </>
+                ) : (
+                  isPublishingMode ? t.buttons.publish : t.buttons.update
+                )}
+              </AddItemButton>
+            )}
           </div>
         </div>
       </div>

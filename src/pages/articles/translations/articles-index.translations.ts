@@ -4,12 +4,12 @@ export const articlesIndexTranslations: Translations = {
   en: {
     // SEO
     pageTitle: 'Marketplace Automation and Pricing Tutorials | FlipIt',
-    pageDescription: 'Learn how to price, prepare, and automate marketplace listings with FlipIt. Tutorials for eBay pricing, Allegro selling, Vinted relisting, crosslisting, and multi-platform workflows.',
+    pageDescription: 'Learn how to price, prepare, and automate marketplace listings with FlipIt. Tutorials for eBay pricing, Allegro selling, Etsy listing workflows, Vinted relisting, crosslisting, and multi-platform workflows.',
     
     // Hero
     heroLabel: 'Learning Center',
     heroTitle: 'Marketplace Automation and Pricing Tutorials',
-    heroSubtitle: 'Step-by-step guides to help you price items, prepare listings, and sell across eBay, Allegro, Vinted, OLX, and Facebook Marketplace.',
+    heroSubtitle: 'Step-by-step guides to help you price items, prepare listings, and sell across eBay, Allegro, Etsy, Vinted, OLX, and Facebook Marketplace.',
     
     // Articles
     articlesTitle: 'Featured Tutorials',
@@ -42,10 +42,14 @@ export const articlesIndexTranslations: Translations = {
     article7Title: 'OLX Listing Automation by Country',
     article7Description: 'See which OLX country accounts FlipIt supports and how country-specific categories, attributes, sync, and publishing work.',
     article7Badge: 'OLX countries',
+
+    article8Title: 'Etsy Listing Tool',
+    article8Description: 'Prepare Etsy-ready drafts from product photos, review shop-specific fields, import active listings, and publish only after approval.',
+    article8Badge: 'Etsy',
     
     // CTA
     ctaTitle: 'Ready to Automate Your Reselling?',
-    ctaDescription: 'FlipIt helps you create, manage, and publish listings across multiple marketplaces. Save time. Sell more.',
+    ctaDescription: 'FlipIt turns product photos into reviewed listing drafts for the marketplaces you use, then lets you publish with approval.',
     ctaButtonText: 'Get Started Free',
     
     // Pillar guide link
@@ -56,12 +60,12 @@ export const articlesIndexTranslations: Translations = {
   pl: {
     // SEO
     pageTitle: 'Poradniki automatyzacji i wyceny marketplace | FlipIt',
-    pageDescription: 'Dowiedz się, jak wyceniać, przygotowywać i automatyzować oferty marketplace z FlipIt. Poradniki o eBay, Allegro, Vinted, crosslistingu i sprzedaży wieloplatformowej.',
+    pageDescription: 'Dowiedz się, jak wyceniać, przygotowywać i automatyzować oferty marketplace z FlipIt. Poradniki o eBay, Allegro, Etsy, Vinted, crosslistingu i sprzedaży wieloplatformowej.',
     
     // Hero
     heroLabel: 'Centrum wiedzy',
     heroTitle: 'Poradniki automatyzacji i wyceny marketplace',
-    heroSubtitle: 'Przewodniki krok po kroku, które pomogą Ci wyceniać produkty, przygotowywać oferty i sprzedawać na eBay, Allegro, Vinted, OLX i Facebook Marketplace.',
+    heroSubtitle: 'Przewodniki krok po kroku, które pomogą Ci wyceniać produkty, przygotowywać oferty i sprzedawać na eBay, Allegro, Etsy, Vinted, OLX i Facebook Marketplace.',
     
     // Articles
     articlesTitle: 'Polecane poradniki',
@@ -94,10 +98,14 @@ export const articlesIndexTranslations: Translations = {
     article7Title: 'Automatyzacja ogłoszeń OLX według kraju',
     article7Description: 'Sprawdź, które konta OLX według kraju obsługuje FlipIt i jak działają kategorie, atrybuty, synchronizacja oraz publikacja.',
     article7Badge: 'Kraje OLX',
+
+    article8Title: 'Narzędzie do ofert Etsy',
+    article8Description: 'Przygotuj szkice ofert Etsy ze zdjęć, sprawdź pola sklepu, importuj aktywne oferty i publikuj dopiero po akceptacji.',
+    article8Badge: 'Etsy',
     
     // CTA
     ctaTitle: 'Gotowy na automatyzację sprzedaży?',
-    ctaDescription: 'FlipIt pomaga tworzyć, zarządzać i publikować ogłoszenia na wielu marketplace\'ach. Oszczędzaj czas. Sprzedawaj więcej.',
+    ctaDescription: 'FlipIt zamienia zdjęcia produktów w szkice ofert do sprawdzenia i publikacji na marketplace\'ach, których używasz.',
     ctaButtonText: 'Zacznij za darmo',
     
     // Pillar guide link

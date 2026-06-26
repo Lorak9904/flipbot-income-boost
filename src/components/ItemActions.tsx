@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Edit, Copy, Trash2, MoreVertical, Loader2, RefreshCw } from 'lucide-react';
+import { Edit, Copy, Trash2, MoreVertical, Loader2, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getTranslations } from '@/components/language-utils';
 import { itemDetailTranslations } from '@/utils/translations/item-detail-translations';
@@ -38,9 +38,10 @@ const PLATFORM_CONFIG: Record<Platform, { name: string }> = {
   vinted: { name: 'Vinted' },
   ebay: { name: 'eBay' },
   allegro: { name: 'Allegro' },
+  etsy: { name: 'Etsy' },
 };
 
-const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay', 'allegro'];
+const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay', 'allegro', 'etsy'];
 
 export function ItemActions({ 
   item, 
@@ -78,14 +79,14 @@ export function ItemActions({
     ? t.actions.manageListing
     : t.actions.editListing;
   
-  // Get dirty platforms that need syncing
-  const syncablePlatforms: Platform[] = ['olx', 'ebay', 'allegro'];
+  // Get published marketplaces whose live listing needs saved FlipIt changes published.
+  const syncablePlatforms: Platform[] = ['olx', 'ebay', 'allegro', 'etsy'];
   const syncStatus = item.platform_sync_status || {};
   const dirtyPlatforms = syncablePlatforms.filter(platform => {
     const status = syncStatus[platform];
     return publishedPlatforms.has(platform) && status?.dirty;
   });
-  const hasDirtyPlatforms = dirtyPlatforms.length > 0;
+  const showUpdateAllChanged = dirtyPlatforms.length > 1;
   const removableMarketplacePlatforms = syncablePlatforms.filter(platform => publishedPlatforms.has(platform));
   const unsupportedPublishedPlatforms = SUPPORTED_PLATFORMS.filter(
     platform => publishedPlatforms.has(platform) && !syncablePlatforms.includes(platform)
@@ -106,6 +107,17 @@ export function ItemActions({
     ? t.confirmations.removeUnpublishedConfirm
     : t.confirmations.removeFromFlipItConfirm;
 
+  const getMarketplaceUpdateLabel = (platform: Platform) =>
+    (syncStatus[platform]?.dirty
+      ? t.actions.updateMarketplaceListing
+      : t.actions.resendMarketplaceListing
+    ).replace('{platform}', PLATFORM_CONFIG[platform].name);
+
+  const updateAllChangedLabel = t.actions.updateChangedMarketplaces.replace(
+    '{count}',
+    dirtyPlatforms.length.toString()
+  );
+
   const navigateToListingEditor = () => {
     navigate(
       buildListingEditorUrl({
@@ -115,7 +127,7 @@ export function ItemActions({
     );
   };
   
-  // Handler for syncing a single platform
+  // Push saved FlipIt changes to one live marketplace listing.
   const handleSyncPlatform = async (platform: Platform) => {
     setIsSyncing(true);
     setSyncingPlatform(platform);
@@ -125,21 +137,21 @@ export function ItemActions({
       
       if (result?.status === 'success') {
         toast({
-          title: `✅ Synced to ${PLATFORM_CONFIG[platform].name}`,
-          description: result.message,
+          title: t.toasts.updateMarketplaceSuccess.replace('{platform}', PLATFORM_CONFIG[platform].name),
+          description: t.toasts.updateMarketplaceSuccessDescription,
         });
         onRefresh?.();
       } else {
         const errorMsg = result?.message || result?.error || 'Unknown error';
         toast({
-          title: `❌ Failed to sync to ${PLATFORM_CONFIG[platform].name}`,
+          title: t.toasts.updateMarketplaceError.replace('{platform}', PLATFORM_CONFIG[platform].name),
           description: errorMsg,
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: `❌ Failed to sync to ${PLATFORM_CONFIG[platform].name}`,
+        title: t.toasts.updateMarketplaceError.replace('{platform}', PLATFORM_CONFIG[platform].name),
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: 'destructive',
       });
@@ -149,12 +161,12 @@ export function ItemActions({
     }
   };
   
-  // Handler for syncing all dirty platforms
+  // Push saved FlipIt changes to every dirty marketplace listing for this item.
   const handleSyncAll = async () => {
     if (dirtyPlatforms.length === 0) {
       toast({
-        title: 'All platforms are up to date',
-        description: 'No changes need to be synced.',
+        title: t.toasts.allMarketplacesUpToDate,
+        description: t.toasts.allMarketplacesUpToDateDescription,
       });
       return;
     }
@@ -162,33 +174,37 @@ export function ItemActions({
     setIsSyncing(true);
     setSyncingPlatform('all');
     try {
-      const response = await syncPlatformListings(item.uuid); // No platforms = sync all dirty
+      const response = await syncPlatformListings(item.uuid); // No platforms = publish changes to all dirty marketplaces.
       
       const successCount = Object.values(response.results || {}).filter(r => r.status === 'success').length;
       const errorCount = Object.values(response.results || {}).filter(r => r.status === 'error').length;
       
       if (errorCount === 0) {
         toast({
-          title: `✅ Synced ${successCount} platform${successCount > 1 ? 's' : ''}`,
-          description: 'All changes have been synced.',
+          title: t.toasts.updateMarketplacesSuccess
+            .replace('{count}', successCount.toString())
+            .replace('{plural}', successCount === 1 ? '' : 's'),
+          description: t.toasts.updateMarketplacesSuccessDescription,
         });
       } else if (successCount > 0) {
         toast({
-          title: `⚠️ Partially synced`,
-          description: `${successCount} succeeded, ${errorCount} failed`,
+          title: t.toasts.updateMarketplacesPartial,
+          description: t.toasts.updateMarketplacesPartialDescription
+            .replace('{successCount}', successCount.toString())
+            .replace('{errorCount}', errorCount.toString()),
           variant: 'destructive',
         });
       } else {
         toast({
-          title: `❌ Sync failed`,
-          description: response.detail || 'Failed to sync to all platforms',
+          title: t.toasts.updateMarketplacesError,
+          description: response.detail || t.toasts.updateMarketplacesError,
           variant: 'destructive',
         });
       }
       onRefresh?.();
     } catch (error) {
       toast({
-        title: '❌ Sync failed',
+        title: t.toasts.updateMarketplacesError,
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: 'destructive',
       });
@@ -283,7 +299,7 @@ export function ItemActions({
       <>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <GhostIconButton sizeVariant="lg">
+            <GhostIconButton sizeVariant="lg" aria-label="Listing actions">
               <MoreVertical className="h-4 w-4" />
             </GhostIconButton>
           </DropdownMenuTrigger>
@@ -309,7 +325,7 @@ export function ItemActions({
             {!isDraft && syncablePlatforms.some((platform) => publishedPlatforms.has(platform)) && (
               <>
                 <DropdownMenuSeparator className="bg-neutral-700" />
-                {hasDirtyPlatforms && (
+                {showUpdateAllChanged && (
                   <DropdownMenuItem
                     onClick={handleSyncAll}
                     disabled={isSyncing}
@@ -318,9 +334,9 @@ export function ItemActions({
                     {isSyncing && syncingPlatform === 'all' ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
-                      <RefreshCw className="mr-2 h-4 w-4" />
+                      <Upload className="mr-2 h-4 w-4" />
                     )}
-                    Sync All ({dirtyPlatforms.length})
+                    {updateAllChangedLabel}
                   </DropdownMenuItem>
                 )}
                 {syncablePlatforms.map((platform) => {
@@ -337,9 +353,9 @@ export function ItemActions({
                       {isSyncingThis ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
-                        <RefreshCw className="mr-2 h-4 w-4" />
+                        <Upload className="mr-2 h-4 w-4" />
                       )}
-                      Sync {PLATFORM_CONFIG[platform].name}
+                      {getMarketplaceUpdateLabel(platform)}
                       {isDirty && (
                         <Badge className="ml-2 bg-amber-500/20 text-amber-400 border-amber-500/50 text-xs">
                           Changed
@@ -461,8 +477,8 @@ export function ItemActions({
           {manageActionLabel}
         </AddItemButton>
         
-        {/* Sync All button - only show if there are dirty platforms */}
-        {!isDraft && hasDirtyPlatforms && (
+        {/* Bulk update button - only useful when more than one marketplace changed. */}
+        {!isDraft && showUpdateAllChanged && (
           <SecondaryAction
             size="lg"
             onClick={handleSyncAll}
@@ -472,16 +488,16 @@ export function ItemActions({
             {isSyncing && syncingPlatform === 'all' ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <RefreshCw className="h-4 w-4" />
+              <Upload className="h-4 w-4" />
             )}
-            Sync All ({dirtyPlatforms.length})
+            {updateAllChangedLabel}
           </SecondaryAction>
         )}
         
         {/* Secondary actions in dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <GhostIconButton sizeVariant="lg">
+            <GhostIconButton sizeVariant="lg" aria-label="Listing actions">
               <MoreVertical className="h-4 w-4" />
             </GhostIconButton>
           </DropdownMenuTrigger>
@@ -499,7 +515,7 @@ export function ItemActions({
               {t.actions.duplicate}
             </DropdownMenuItem>
             
-            {/* Sync options for published platforms */}
+            {/* Publish saved FlipIt changes to live marketplace listings. */}
             {!isDraft && syncablePlatforms.some(p => publishedPlatforms.has(p)) && (
               <>
                 <DropdownMenuSeparator className="bg-neutral-700" />
@@ -517,9 +533,9 @@ export function ItemActions({
                       {isSyncingThis ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
-                        <RefreshCw className="mr-2 h-4 w-4" />
+                        <Upload className="mr-2 h-4 w-4" />
                       )}
-                      Sync {PLATFORM_CONFIG[platform].name}
+                      {getMarketplaceUpdateLabel(platform)}
                       {isDirty && (
                         <Badge className="ml-2 bg-amber-500/20 text-amber-400 border-amber-500/50 text-xs">
                           Changed

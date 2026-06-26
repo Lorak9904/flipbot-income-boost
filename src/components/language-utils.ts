@@ -60,6 +60,14 @@ const localizedRouteMap: Record<string, { en: string; pl: string }> = {
     en: '/articles/olx-listing-automation-by-country',
     pl: '/articles/automatyzacja-ogloszen-olx-wedlug-kraju',
   },
+  '/articles/etsy-listing-tool': {
+    en: '/articles/etsy-listing-tool',
+    pl: '/articles/narzedzie-do-ogloszen-etsy',
+  },
+  '/articles/narzedzie-do-ogloszen-etsy': {
+    en: '/articles/etsy-listing-tool',
+    pl: '/articles/narzedzie-do-ogloszen-etsy',
+  },
 };
 
 export const getLocalizedPathForLanguage = (pathname: string, lang: Language): string => {
@@ -142,7 +150,10 @@ export const toggleLanguage = async (): Promise<void> => {
 
 // Translation type definitions
 export interface Translations {
+  // Page translation maps include strings and small formatting functions across the app.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   en: Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pl: Record<string, any>;
 }
 

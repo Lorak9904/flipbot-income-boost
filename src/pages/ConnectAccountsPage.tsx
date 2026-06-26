@@ -12,6 +12,7 @@ import { getTranslations } from '@/components/language-utils';
 import { connectAccountsTranslations } from './connect-accounts-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { PLATFORM_LOGOS } from '@/lib/platform-logos';
+import type { PlatformHealthInfo } from '@/lib/api/platform-health';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -22,6 +23,36 @@ const fadeUp = {
   }),
 };
 
+interface ConnectedPlatformsState {
+  facebook: boolean;
+  olx: boolean;
+  vinted: boolean;
+  ebay: boolean;
+  allegro: boolean;
+  etsy: boolean;
+  vinted_has_session: boolean;
+  vinted_status_code: number | null;
+  vinted_session_status: string | null;
+  vinted_invalid_reason: string | null;
+  olx_session_status: string | null;
+  olx_invalid_reason: string | null;
+  olx_accounts: PlatformHealthInfo['accounts'];
+  olx_countries: PlatformHealthInfo['countries'];
+  ebay_session_status: string | null;
+  ebay_invalid_reason: string | null;
+  allegro_session_status: string | null;
+  allegro_invalid_reason: string | null;
+  etsy_session_status: string | null;
+  etsy_invalid_reason: string | null;
+  etsy_app_configured: boolean | null;
+  etsy_action_key: string | null;
+  etsy_message: string | null;
+  facebook_session_status: string | null;
+}
+
+interface PlatformHealthCheckPayload {
+  platforms?: Record<string, PlatformHealthInfo>;
+}
 
 const ConnectAccountsPage = () => {
   const { isAuthenticated, user } = useAuth();
@@ -31,7 +62,7 @@ const ConnectAccountsPage = () => {
   const queryClient = useQueryClient();
   const t = getTranslations(connectAccountsTranslations);
 
-  const fetchConnectedPlatforms = async (): Promise<Record<string, any>> => {
+  const fetchConnectedPlatforms = async (): Promise<ConnectedPlatformsState> => {
     const token = localStorage.getItem('flipit_token');
     const response = await fetch("/api/platforms/health-check/", {
       method: "GET",
@@ -48,12 +79,13 @@ const ConnectAccountsPage = () => {
       throw new Error("Failed to fetch platform health");
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as PlatformHealthCheckPayload;
     const platforms = data?.platforms || {};
     const vintedInfo = platforms.vinted || {};
     const olxInfo = platforms.olx || {};
     const ebayInfo = platforms.ebay || {};
     const allegroInfo = platforms.allegro || {};
+    const etsyInfo = platforms.etsy || {};
     const facebookInfo = platforms.facebook || {};
 
     return {
@@ -62,6 +94,7 @@ const ConnectAccountsPage = () => {
       vinted: !!vintedInfo.stored,
       ebay: !!ebayInfo.stored,
       allegro: !!allegroInfo.stored,
+      etsy: !!etsyInfo.stored && etsyInfo.action_key !== 'integration_pending',
       vinted_has_session: !!vintedInfo.stored,
       vinted_status_code: typeof vintedInfo.status_code === 'number' ? vintedInfo.status_code : null,
       vinted_session_status: vintedInfo.status || null,
@@ -74,6 +107,12 @@ const ConnectAccountsPage = () => {
       ebay_invalid_reason: ebayInfo.reason || null,
       allegro_session_status: allegroInfo.status || null,
       allegro_invalid_reason: allegroInfo.reason || null,
+      etsy_session_status: etsyInfo.status || null,
+      etsy_invalid_reason: etsyInfo.reason || null,
+      etsy_app_configured:
+        typeof etsyInfo.app_configured === 'boolean' ? etsyInfo.app_configured : null,
+      etsy_action_key: etsyInfo.action_key || null,
+      etsy_message: etsyInfo.message || null,
       facebook_session_status: facebookInfo.status || null,
     };
   };
@@ -109,7 +148,14 @@ const ConnectAccountsPage = () => {
       });
       navigate('/login');
     }
-  }, [isAuthenticated, navigate, toast, user]);
+  }, [
+    isAuthenticated,
+    navigate,
+    toast,
+    user,
+    t.toastAuthRequiredDescription,
+    t.toastAuthRequiredTitle,
+  ]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -132,6 +178,10 @@ const ConnectAccountsPage = () => {
         allegro: {
           title: t.toastAllegroConnectedTitle,
           description: t.toastAllegroConnectedDescription,
+        },
+        etsy: {
+          title: t.toastEtsyConnectedTitle,
+          description: t.toastEtsyConnectedDescription,
         },
       };
       const toastConfig = successToastMap[platform];
@@ -165,6 +215,10 @@ const ConnectAccountsPage = () => {
           title: t.toastAllegroReconnectTitle,
           description: t.toastAllegroReconnectDescription,
         },
+        etsy: {
+          title: t.toastEtsyReconnectTitle,
+          description: t.toastEtsyReconnectDescription,
+        },
       };
       const toastConfig = reconnectToastMap[reconnect];
       if (toastConfig) {
@@ -177,7 +231,27 @@ const ConnectAccountsPage = () => {
       // Clear URL params but keep user on page to reconnect
       window.history.replaceState({}, document.title, location.pathname);
     }
-  }, [location, toast, refetch]);
+  }, [
+    location,
+    toast,
+    refetch,
+    t.toastAllegroConnectedDescription,
+    t.toastAllegroConnectedTitle,
+    t.toastAllegroReconnectDescription,
+    t.toastAllegroReconnectTitle,
+    t.toastEbayConnectedDescription,
+    t.toastEbayConnectedTitle,
+    t.toastEbayReconnectDescription,
+    t.toastEbayReconnectTitle,
+    t.toastEtsyConnectedDescription,
+    t.toastEtsyConnectedTitle,
+    t.toastEtsyReconnectDescription,
+    t.toastEtsyReconnectTitle,
+    t.toastOlxConnectedDescription,
+    t.toastOlxConnectedTitle,
+    t.toastOlxReconnectDescription,
+    t.toastOlxReconnectTitle,
+  ]);
 
   const handleAccountConnected = () => {
     // Ensure page status syncs with backend
@@ -291,6 +365,19 @@ const ConnectAccountsPage = () => {
               invalidReason={connectedPlatforms?.allegro_invalid_reason}
               onConnected={handleAccountConnected}
             />
+            <ConnectAccountCard
+              key="etsy-card"
+              platform="etsy"
+              platformName={t.platformEtsy}
+              logoSrc={PLATFORM_LOGOS.etsy}
+              isConnected={!!connectedPlatforms?.etsy}
+              sessionStatus={connectedPlatforms?.etsy_session_status}
+              invalidReason={connectedPlatforms?.etsy_invalid_reason}
+              appConfigured={connectedPlatforms?.etsy_app_configured}
+              actionKey={connectedPlatforms?.etsy_action_key}
+              pendingMessage={connectedPlatforms?.etsy_message}
+              onConnected={handleAccountConnected}
+            />
           </div>
 
           <motion.div 
@@ -306,7 +393,8 @@ const ConnectAccountsPage = () => {
                 !!connectedPlatforms.olx ||
                 !!connectedPlatforms.vinted ||
                 !!connectedPlatforms.ebay ||
-                !!connectedPlatforms.allegro)
+                !!connectedPlatforms.allegro ||
+                !!connectedPlatforms.etsy)
                 ? t.ctaConnectedMessage
                 : t.ctaNotConnectedMessage}
             </p>

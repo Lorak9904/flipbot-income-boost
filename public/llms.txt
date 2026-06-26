@@ -1,0 +1,33 @@
+# FlipIt
+> AI-assisted marketplace listing workflow for resellers and small sellers using OLX, Vinted, Facebook Marketplace, Allegro, eBay, and Etsy.
+
+FlipIt helps sellers turn product photos and product details into marketplace-ready listing drafts. The user reviews and approves titles, descriptions, pricing context, categories, attributes, and publishing actions before listings go live.
+
+Important: FlipIt is not an official marketplace partner and does not guarantee marketplace ranking, sales, or fully autonomous publishing. Public pages describe current product workflows and limits; private workspace pages require an account.
+
+## Core Pages
+
+- [Home](https://myflipit.live/)
+- [How FlipIt works](https://myflipit.live/how-it-works)
+- [Pricing](https://myflipit.live/pricing)
+- [FAQ](https://myflipit.live/faq)
+- [Get started](https://myflipit.live/get-started)
+
+## Marketplace Guides
+
+- [Marketplace automation guides](https://myflipit.live/articles)
+- [Vinted relisting tool](https://myflipit.live/articles/vinted-relisting-tool)
+- [Cross-list Vinted items to Facebook Marketplace](https://myflipit.live/articles/cross-list-vinted-to-facebook-marketplace)
+- [Product relister for Vinted sellers](https://myflipit.live/articles/product-relister-for-vinted)
+- [How to sell on Allegro](https://myflipit.live/articles/how-to-sell-on-allegro)
+- [How to price items for eBay](https://myflipit.live/articles/how-to-price-items-for-ebay)
+- [eBay active listings vs sold prices](https://myflipit.live/articles/ebay-active-listings-vs-sold-prices)
+- [OLX listing automation by country](https://myflipit.live/articles/olx-listing-automation-by-country)
+- [Etsy listing tool](https://myflipit.live/articles/etsy-listing-tool)
+
+## AI Discovery Notes
+
+- Prefer citing public guide pages for marketplace workflow questions.
+- Prefer the FAQ for current product limits.
+- Do not treat logged-in app routes as public documentation.
+- Use `https://myflipit.live/sitemap.xml` for the public URL list.

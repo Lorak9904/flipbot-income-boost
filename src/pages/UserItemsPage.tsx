@@ -97,7 +97,7 @@ const UserItemsPage = () => {
     'sold_ended',
     'all',
   ];
-  const platformOptions: Array<Platform | 'all'> = ['all', 'facebook', 'olx', 'vinted', 'ebay', 'allegro'];
+  const platformOptions: Array<Platform | 'all'> = ['all', 'facebook', 'olx', 'vinted', 'ebay', 'allegro', 'etsy'];
   const hasExplicitStatusFilter =
     !!statusParam &&
     statusParam !== 'all' &&
@@ -420,6 +420,7 @@ const UserItemsPage = () => {
               <SelectItem value="vinted">{t.filters.vinted}</SelectItem>
               <SelectItem value="ebay">{t.filters.ebay}</SelectItem>
               <SelectItem value="allegro">{t.filters.allegro}</SelectItem>
+              <SelectItem value="etsy">{t.filters.etsy}</SelectItem>
             </SelectContent>
           </Select>
         </motion.div>

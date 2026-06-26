@@ -27,6 +27,8 @@ const keywords = [
   'ecommerce automation',
   'OLX automation',
   'Vinted automation',
+  'Allegro automation',
+  'Etsy automation',
   'Vinted app',
 ];
 

@@ -4,6 +4,8 @@ const path = require('node:path');
 const DIST_DIR = path.resolve(__dirname, '..', 'dist');
 const SITE_URL = 'https://myflipit.live';
 const DEFAULT_IMAGE = `${SITE_URL}/placeholder.svg`;
+const SEO_FALLBACK_HIDDEN_STYLE =
+  'position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;';
 
 const baseOrganization = {
   '@context': 'https://schema.org',
@@ -23,9 +25,9 @@ const baseWebsite = {
 const routes = [
   {
     path: '/',
-    title: 'AI Crosslisting for OLX, Vinted, Facebook Marketplace and eBay | FlipIt',
+    title: 'AI Crosslisting for OLX, Vinted, eBay, Allegro and Etsy | FlipIt',
     description:
-      'FlipIt helps you create marketplace listings faster: upload photos once, get AI-generated drafts for description, pricing, categories, and attributes, then review and publish with approval.',
+      'Create marketplace listing drafts from photos for OLX, Vinted, Facebook Marketplace, Allegro, eBay, and Etsy, then review before publishing.',
     language: 'en',
     structuredData: [
       {
@@ -52,7 +54,7 @@ const routes = [
     path: '/automated-reselling-platform-guide',
     title: 'Automated Reselling Platform Guide for Marketplace Sellers | FlipIt',
     description:
-      'A practical guide to using AI-assisted listing drafts, crosslisting, and marketplace workflows for faster reselling on OLX, Vinted, Facebook Marketplace, Allegro, and eBay.',
+      'A practical guide to AI-assisted listing drafts, crosslisting, and faster reseller workflows across OLX, Vinted, Allegro, eBay, and Facebook Marketplace.',
     language: 'en',
     type: 'article',
   },
@@ -60,7 +62,7 @@ const routes = [
     path: '/articles',
     title: 'Marketplace Automation Guides for Resellers | FlipIt Articles',
     description:
-      'Actionable FlipIt guides for Vinted relisting, OLX listing automation, Facebook Marketplace crosslisting, Allegro selling workflows, eBay pricing, and reseller productivity.',
+      'Guides for Vinted relisting, OLX listing automation, Facebook Marketplace crosslisting, Allegro selling, eBay pricing, Etsy listing workflows, and reseller productivity.',
     language: 'en',
   },
   {
@@ -83,7 +85,7 @@ const routes = [
     path: '/articles/cross-list-vinted-to-facebook-marketplace',
     title: 'Cross-list Vinted Items to Facebook Marketplace | FlipIt',
     description:
-      'A workflow for adapting Vinted product listings to Facebook Marketplace with better titles, descriptions, pricing context, and manual approval before publishing.',
+      'Adapt Vinted product listings for Facebook Marketplace with better titles, descriptions, pricing context, and manual approval before publishing.',
     language: 'en',
     type: 'article',
   },
@@ -99,7 +101,7 @@ const routes = [
     path: '/articles/product-relister-for-vinted',
     title: 'Product Relister for Vinted Sellers | FlipIt',
     description:
-      'How a product relister workflow can help Vinted sellers rebuild listing drafts, improve copy, and prepare marketplace-ready listings with less repetitive work.',
+      'How Vinted sellers can rebuild listing drafts, improve copy, and prepare marketplace-ready listings with less repetitive work.',
     language: 'en',
     type: 'article',
   },
@@ -172,6 +174,22 @@ const routes = [
     title: 'Automatyzacja ogloszen OLX wedlug kraju | FlipIt',
     description:
       'Jak podejsc do automatyzacji ogloszen OLX dla roznych krajow i przygotowac oferty z kontrola przed publikacja.',
+    language: 'pl',
+    type: 'article',
+  },
+  {
+    path: '/articles/etsy-listing-tool',
+    title: 'Etsy Listing Tool for Shop-Ready Drafts | FlipIt',
+    description:
+      'Prepare Etsy listing drafts from photos with category, attributes, price, shipping profile, active-listing import, and seller review before publishing.',
+    language: 'en',
+    type: 'article',
+  },
+  {
+    path: '/articles/narzedzie-do-ogloszen-etsy',
+    title: 'Narzedzie do ofert Etsy ze zdjec produktu | FlipIt',
+    description:
+      'Przygotuj szkice ofert Etsy ze zdjec: opis, kategoria, atrybuty, cena, profil wysylki, import aktywnych ofert i publikacja po akceptacji.',
     language: 'pl',
     type: 'article',
   },
@@ -293,6 +311,96 @@ function absoluteUrl(routePath) {
   return routePath === '/' ? `${SITE_URL}/` : `${SITE_URL}${routePath}`;
 }
 
+function stripSiteSuffix(siteTitle) {
+  return siteTitle
+    .replace(/\s+\|\s+FlipIt(?:\s+Articles)?$/i, '')
+    .replace(/\s+\|\s+FlipIt$/i, '');
+}
+
+function localizedFallbackCopy(language) {
+  if (language === 'pl') {
+    return {
+      navLabel: 'Główna nawigacja',
+      coverageHeading: 'Co obejmuje ta strona',
+      highlights: [
+        'Przygotowanie ofert z pomocą AI na podstawie zdjęć i danych produktu.',
+        'Lepsze tytuły, opisy, kategorie, atrybuty i kontekst ceny przed publikacją.',
+        'Ręczna kontrola sprzedawcy przed wystawieniem oferty na obsługiwanym marketplace.',
+      ],
+      links: [
+        { href: '/', label: 'Start' },
+        { href: '/how-it-works', label: 'Jak działa' },
+        { href: '/articles', label: 'Poradniki' },
+        { href: '/pricing', label: 'Cennik' },
+        { href: '/faq', label: 'FAQ' },
+      ],
+      footer: 'FlipIt pomaga przygotowywać oferty marketplace szybciej, zawsze z kontrolą sprzedawcy.',
+    };
+  }
+
+  return {
+    navLabel: 'Primary navigation',
+    coverageHeading: 'What this page covers',
+    highlights: [
+      'AI-assisted listing drafts from product photos and details.',
+      'Better titles, descriptions, categories, attributes, and pricing context before publishing.',
+      'Seller review and approval before listings go live on supported marketplaces.',
+    ],
+    links: [
+      { href: '/', label: 'Home' },
+      { href: '/how-it-works', label: 'How it works' },
+      { href: '/articles', label: 'Guides' },
+      { href: '/pricing', label: 'Pricing' },
+      { href: '/faq', label: 'FAQ' },
+    ],
+    footer: 'FlipIt helps marketplace sellers prepare listing drafts faster, always with seller approval.',
+  };
+}
+
+function buildSeoFallback(route, siteTitle, canonical) {
+  const copy = localizedFallbackCopy(route.language);
+  const heading = route.heading || stripSiteSuffix(siteTitle);
+  const contentTag = route.type === 'article' ? 'article' : 'section';
+  const navLinks = copy.links
+    .map(
+      (link) =>
+        `          <a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`
+    )
+    .join('\n');
+  const highlights = copy.highlights
+    .map((item) => `            <li>${escapeHtml(item)}</li>`)
+    .join('\n');
+
+  return `    <div id="root">
+      <div data-seo-fallback="true" aria-hidden="true" style="${SEO_FALLBACK_HIDDEN_STYLE}">
+        <header>
+        <nav aria-label="${escapeHtml(copy.navLabel)}">
+${navLinks}
+        </nav>
+        </header>
+        <main>
+        <${contentTag}>
+          <h1>${escapeHtml(heading)}</h1>
+          <p>${escapeHtml(route.description)}</p>
+          <h2>${escapeHtml(copy.coverageHeading)}</h2>
+          <ul>
+${highlights}
+          </ul>
+          <p><a href="${escapeHtml(canonical)}">${escapeHtml(canonical)}</a></p>
+        </${contentTag}>
+        </main>
+        <footer>
+        <p>${escapeHtml(copy.footer)}</p>
+        </footer>
+      </div>
+    </div>`;
+}
+
+function injectSeoFallback(html, route, siteTitle, canonical) {
+  const fallback = buildSeoFallback(route, siteTitle, canonical);
+  return html.replace(/    <div\s+id="root">\s*<\/div>/i, fallback);
+}
+
 function replaceOrInsert(html, pattern, replacement, before = '</head>') {
   if (pattern.test(html)) {
     return html.replace(pattern, replacement);
@@ -337,6 +445,7 @@ function applySeo(html, route) {
     .map((data) => `    <script type="application/ld+json">${JSON.stringify(data)}</script>`)
     .join('\n');
   next = next.replace('</head>', `${structuredTags}\n  </head>`);
+  next = injectSeoFallback(next, route, siteTitle, canonical);
 
   return next;
 }

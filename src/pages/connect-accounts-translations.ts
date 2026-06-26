@@ -4,7 +4,7 @@ export const connectAccountsTranslations: Translations = {
   en: {
     // Page metadata
     pageTitle: 'Connect Accounts | FlipIt',
-    pageDescription: 'Connect OLX country accounts, Vinted, Facebook, eBay, and Allegro to prepare drafts from photos and publish with your approval.',
+    pageDescription: 'Connect OLX country accounts, Vinted, Facebook, eBay, Allegro, and Etsy to prepare drafts from photos and publish with your approval.',
     
     // Loading state
     loadingTitle: 'Loading your connected accounts...',
@@ -24,6 +24,7 @@ export const connectAccountsTranslations: Translations = {
     platformVinted: 'Vinted',
     platformEbay: 'eBay',
     platformAllegro: 'Allegro',
+    platformEtsy: 'Etsy',
     
     // Bottom CTA section
     ctaConnectedMessage: "Great! You've connected at least one account. You're ready to publish listings from FlipIt.",
@@ -48,6 +49,10 @@ export const connectAccountsTranslations: Translations = {
     toastAllegroConnectedDescription: 'Successfully connected to Allegro!',
     toastAllegroReconnectTitle: 'Allegro Reconnection Required',
     toastAllegroReconnectDescription: 'Your Allegro token has expired. Please reconnect your account.',
+    toastEtsyConnectedTitle: 'Etsy Connected!',
+    toastEtsyConnectedDescription: 'Successfully connected to Etsy!',
+    toastEtsyReconnectTitle: 'Etsy Reconnection Required',
+    toastEtsyReconnectDescription: 'Your Etsy token has expired. Please reconnect your account.',
     toastVintedConnectedTitle: 'Vinted Connected',
     toastVintedConnectedDescription: 'Cookies refreshed successfully.',
     toastVintedReconnectTitle: 'Vinted Reconnection Required',
@@ -63,7 +68,7 @@ export const connectAccountsTranslations: Translations = {
   pl: {
     // Page metadata
     pageTitle: 'Połącz konta | FlipIt',
-    pageDescription: 'Połącz konta OLX według kraju, Vinted, Facebook, eBay i Allegro, aby przygotowywać szkice ze zdjęć i publikować po Twojej akceptacji.',
+    pageDescription: 'Połącz konta OLX według kraju, Vinted, Facebook, eBay, Allegro i Etsy, aby przygotowywać szkice ze zdjęć i publikować po Twojej akceptacji.',
     
     // Loading state
     loadingTitle: 'Ładowanie połączonych kont...',
@@ -83,6 +88,7 @@ export const connectAccountsTranslations: Translations = {
     platformVinted: 'Vinted',
     platformEbay: 'eBay',
     platformAllegro: 'Allegro',
+    platformEtsy: 'Etsy',
     
     // Bottom CTA section
     ctaConnectedMessage: 'Świetnie! Połączyłeś co najmniej jedno konto. Możesz publikować ogłoszenia z FlipIt.',
@@ -107,6 +113,10 @@ export const connectAccountsTranslations: Translations = {
     toastAllegroConnectedDescription: 'Połączono z Allegro.',
     toastAllegroReconnectTitle: 'Wymagane ponowne połączenie z Allegro',
     toastAllegroReconnectDescription: 'Twój token Allegro wygasł. Połącz konto ponownie.',
+    toastEtsyConnectedTitle: 'Etsy połączono!',
+    toastEtsyConnectedDescription: 'Połączono z Etsy.',
+    toastEtsyReconnectTitle: 'Wymagane ponowne połączenie z Etsy',
+    toastEtsyReconnectDescription: 'Twój token Etsy wygasł. Połącz konto ponownie.',
     toastVintedConnectedTitle: 'Vinted połączono',
     toastVintedConnectedDescription: 'Ciasteczka zostały odświeżone.',
     toastVintedReconnectTitle: 'Wymagane ponowne połączenie z Vinted',

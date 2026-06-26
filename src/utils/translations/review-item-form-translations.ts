@@ -7,13 +7,30 @@ export const reviewItemFormTranslations = {
       successTitle: "Success!",
       publishedSuccess: "Published to {platform} successfully.",
       publishError: "Error publishing to {platform}",
-      updateLocalSuccess: "Item updated successfully.",
-      updatedSuccess: "Updated on {platform} successfully.",
-      updateError: "Error updating {platform}",
-      updateErrorDesc: "Failed to update listing on platform.",
+      updateLocalSuccess: "Saved in FlipIt.",
+      updatedSuccess: "Published changes to {platform}.",
+      updateError: "Error publishing changes to {platform}",
+      updateErrorDesc: "Failed to publish changes to the live listing.",
+      saveAndUpdateSuccess: "Saved and published changes",
+      saveAndUpdateSuccessDesc: "Changes were sent to {platforms}.",
+      saveAndUpdatePartial: "Saved, but some publishes failed",
+      saveAndUpdateMarketplaceError: "Saved in FlipIt, but publishing changes failed",
+      saveAndUpdateFailedDesc: "Changes still need publishing for {platforms}.",
+      saveAndUpdateNoMarketplaceChanges: "Saved in FlipIt. No marketplace changes needed.",
       generalSuccess: "Your item has been published successfully",
       errorTitle: "Error",
       errorDesc: "Failed to publish item. Please try again.",
+    },
+
+    ai: {
+      regenerateLabel: "Regenerate {field} with AI",
+      regenerateTooltip: "Rewrite this field with AI using the listing details and the current page language.",
+      regeneratedTitle: "AI field updated",
+      regeneratedDescription: "{field} was regenerated. Review it before saving.",
+      regeneratedSavedDescription: "{field} was regenerated and saved.",
+      missingItemTitle: "Save the listing first",
+      missingItemDescription: "AI regeneration is available after the listing draft exists.",
+      errorTitle: "AI regeneration failed",
     },
     
     // Section Headers
@@ -23,7 +40,7 @@ export const reviewItemFormTranslations = {
       productAttributes: "Product Attributes",
       platformOverrides: "Platform Overrides",
       publishPlatforms: "Publish to Platforms",
-      updatePlatforms: "Update on Platforms",
+      updatePlatforms: "Publish changes to Platforms",
     },
     
     // Form Labels
@@ -43,6 +60,7 @@ export const reviewItemFormTranslations = {
       ebayMarketplaceId: "eBay Marketplace ID",
       allegroCategoryId: "Allegro Category ID",
       allegroMarketplaceId: "Allegro Marketplace ID",
+      etsyCategoryId: "Etsy Category ID",
     },
     
     // Helper Text
@@ -55,11 +73,14 @@ export const reviewItemFormTranslations = {
     buttons: {
       back: "Back",
       saving: "Saving...",
-      saveChanges: "Save changes",
+      saveChanges: "Save in FlipIt",
+      savingAndUpdating: "Saving & publishing...",
+      saveAndUpdateMarketplace: "Save & publish changes to {platform}",
+      saveAndUpdateMarketplaces: "Save & publish changes to marketplaces",
       publishing: "Publishing...",
       publish: "Publish Item",
-      updating: "Updating...",
-      update: "Update Item",
+      updating: "Saving...",
+      update: "Save in FlipIt",
     },
     
     // Platform Names (for capitalization)
@@ -69,6 +90,7 @@ export const reviewItemFormTranslations = {
       vinted: "Vinted",
       ebay: "eBay",
       allegro: "Allegro",
+      etsy: "Etsy",
     },
   },
   
@@ -80,13 +102,30 @@ export const reviewItemFormTranslations = {
       successTitle: "Sukces!",
       publishedSuccess: "Opublikowano na {platform}.",
       publishError: "Błąd publikacji na {platform}",
-      updateLocalSuccess: "Przedmiot został zaktualizowany.",
-      updatedSuccess: "Zaktualizowano na {platform}.",
-      updateError: "Błąd aktualizacji na {platform}",
-      updateErrorDesc: "Nie udało się zaktualizować ogłoszenia na platformie.",
+      updateLocalSuccess: "Zapisano w FlipIt.",
+      updatedSuccess: "Opublikowano zmiany na {platform}.",
+      updateError: "Błąd publikacji zmian na {platform}",
+      updateErrorDesc: "Nie udało się opublikować zmian w ogłoszeniu na żywo.",
+      saveAndUpdateSuccess: "Zapisano i opublikowano zmiany",
+      saveAndUpdateSuccessDesc: "Zmiany zostały wysłane do: {platforms}.",
+      saveAndUpdatePartial: "Zapisano, ale część publikacji się nie powiodła",
+      saveAndUpdateMarketplaceError: "Zapisano w FlipIt, ale publikacja zmian się nie powiodła",
+      saveAndUpdateFailedDesc: "Zmiany nadal wymagają publikacji dla: {platforms}.",
+      saveAndUpdateNoMarketplaceChanges: "Zapisano w FlipIt. Brak zmian do publikacji na marketplace'ach.",
       generalSuccess: "Przedmiot został opublikowany.",
       errorTitle: "Błąd",
       errorDesc: "Nie udało się opublikować przedmiotu. Spróbuj ponownie.",
+    },
+
+    ai: {
+      regenerateLabel: "Wygeneruj ponownie pole {field} przez AI",
+      regenerateTooltip: "Przepisuje to pole przez AI na podstawie szczegółów ogłoszenia i aktualnego języka strony.",
+      regeneratedTitle: "Pole zaktualizowane przez AI",
+      regeneratedDescription: "Pole {field} zostało wygenerowane ponownie. Sprawdź je przed zapisaniem.",
+      regeneratedSavedDescription: "Pole {field} zostało wygenerowane ponownie i zapisane.",
+      missingItemTitle: "Najpierw zapisz ogłoszenie",
+      missingItemDescription: "Regeneracja AI jest dostępna po utworzeniu szkicu ogłoszenia.",
+      errorTitle: "Regeneracja AI nie powiodła się",
     },
     
     // Nagłówki sekcji
@@ -96,7 +135,7 @@ export const reviewItemFormTranslations = {
       productAttributes: "Atrybuty produktu",
       platformOverrides: "Nadpisania platform",
       publishPlatforms: "Publikuj na platformach",
-      updatePlatforms: "Aktualizuj na platformach",
+      updatePlatforms: "Publikuj zmiany na platformach",
     },
     
     // Etykiety formularza
@@ -116,6 +155,7 @@ export const reviewItemFormTranslations = {
       ebayMarketplaceId: "ID giełdy eBay",
       allegroCategoryId: "ID kategorii Allegro",
       allegroMarketplaceId: "ID rynku Allegro",
+      etsyCategoryId: "ID kategorii Etsy",
     },
     
     // Tekst pomocniczy
@@ -128,11 +168,14 @@ export const reviewItemFormTranslations = {
     buttons: {
       back: "Wstecz",
       saving: "Zapisywanie...",
-      saveChanges: "Zapisz zmiany",
+      saveChanges: "Zapisz w FlipIt",
+      saveAndUpdateMarketplace: "Zapisz i opublikuj zmiany na {platform}",
+      saveAndUpdateMarketplaces: "Zapisz i opublikuj zmiany na marketplace'ach",
+      savingAndUpdating: "Zapisywanie i publikowanie...",
       publishing: "Publikowanie...",
       publish: "Opublikuj przedmiot",
-      updating: "Aktualizowanie...",
-      update: "Zaktualizuj przedmiot",
+      updating: "Zapisywanie...",
+      update: "Zapisz w FlipIt",
     },
     
     // Nazwy platform
@@ -142,6 +185,7 @@ export const reviewItemFormTranslations = {
       vinted: "Vinted",
       ebay: "eBay",
       allegro: "Allegro",
+      etsy: "Etsy",
     },
   },
 };

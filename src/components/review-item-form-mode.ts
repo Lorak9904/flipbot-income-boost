@@ -2,7 +2,7 @@ import { Platform } from '@/types/item';
 
 export type ReviewItemFormMode = 'add' | 'edit' | 'republish';
 
-export const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay', 'allegro'];
+export const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay', 'allegro', 'etsy'];
 
 interface PlatformSelectionInput {
   mode: ReviewItemFormMode;

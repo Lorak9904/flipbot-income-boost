@@ -60,7 +60,7 @@ const FeaturesPage = () => {
           'automation for marketplaces',
           'ecommerce automation',
           'crosslisting automation',
-          'OLX Vinted Facebook Marketplace eBay',
+          'OLX Vinted Facebook Marketplace eBay Allegro Etsy',
           'reselling software',
         ]}
       />

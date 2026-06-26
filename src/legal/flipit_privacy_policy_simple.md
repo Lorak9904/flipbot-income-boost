@@ -4,7 +4,7 @@ Twoje dane są dla nas ważne – choć FlipIt jest obecnie w wersji testowej i 
 
 ## Jakie dane zbieramy?
 - Adres e-mail i imię – do założenia konta i korzystania z platformy.
-- Tokeny do platform ogłoszeniowych (OLX, Vinted, itp.) – tylko jeśli sam je podasz; są zaszyfrowane.
+- Tokeny do platform ogłoszeniowych (OLX, Vinted, eBay, Allegro, Etsy, itp.) – tylko jeśli sam je podasz; są zaszyfrowane.
 - Zdjęcia ogłoszeń – przesyłane tymczasowo i automatycznie usuwane po publikacji.
 - Dane techniczne (np. adres IP, logi) – wyłącznie do celów technicznych i bezpieczeństwa.
 

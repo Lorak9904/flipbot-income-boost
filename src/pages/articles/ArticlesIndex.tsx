@@ -22,6 +22,8 @@ const keywords = [
   'crosslisting guide',
   'ebay pricing guide',
   'allegro selling guide',
+  'etsy listing tool',
+  'etsy listing automation',
   'marketplace pricing',
   'facebook marketplace automation',
   'olx automation',
@@ -95,6 +97,12 @@ const ArticlesIndex = () => {
       description: t.article7Description,
       href: getLocalized('/articles/olx-listing-automation-by-country'),
       badge: t.article7Badge,
+    },
+    {
+      title: t.article8Title,
+      description: t.article8Description,
+      href: getLocalized('/articles/etsy-listing-tool'),
+      badge: t.article8Badge,
     },
   ];
 

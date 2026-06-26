@@ -29,6 +29,7 @@ export const userItemsTranslations = {
       vinted: "Vinted",
       ebay: "eBay",
       allegro: "Allegro",
+      etsy: "Etsy",
     },
     statusTabs: {
       live: "Live",
@@ -104,6 +105,7 @@ export const userItemsTranslations = {
       vinted: "Vinted",
       ebay: "eBay",
       allegro: "Allegro",
+      etsy: "Etsy",
     },
     statusTabs: {
       live: "Aktywne",

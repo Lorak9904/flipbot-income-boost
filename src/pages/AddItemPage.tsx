@@ -36,6 +36,7 @@ const AddItemPage = () => {
     vinted: false,
     ebay: false,
     allegro: false,
+    etsy: false,
   });
   const [platformHealth, setPlatformHealth] = useState<PlatformHealthResponse['platforms'] | null>(null);
   const [isCheckingPlatformConnections, setIsCheckingPlatformConnections] = useState(true);
@@ -43,7 +44,7 @@ const AddItemPage = () => {
   const editId = searchParams.get('edit');
   const editorModeParam = searchParams.get('mode');
   const publishParam = searchParams.get('publish');
-  const publishPlatform = (['facebook', 'olx', 'vinted', 'ebay', 'allegro'] as Platform[]).includes(publishParam as Platform)
+  const publishPlatform = (['facebook', 'olx', 'vinted', 'ebay', 'allegro', 'etsy'] as Platform[]).includes(publishParam as Platform)
     ? (publishParam as Platform)
     : null;
   const reviewMode: ReviewItemFormMode = editId
@@ -172,7 +173,7 @@ const AddItemPage = () => {
       <div className="relative min-h-screen text-white overflow-hidden">
         <SEOHead
           title="Add Item | FlipIt"
-          description="Add an item for marketplace automation — FlipIt generates descriptions, pricing, and categories, then crosslists to OLX, Vinted, Facebook Marketplace, eBay, and Allegro."
+          description="Add an item for marketplace automation - FlipIt generates descriptions, pricing, and categories, then crosslists to OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy."
           canonicalUrl="https://myflipit.live/add-item"
           robots="noindex, nofollow"
         />

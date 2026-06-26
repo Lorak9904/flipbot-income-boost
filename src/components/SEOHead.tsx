@@ -26,7 +26,7 @@ export function SEOHead({
   const siteTitle = title.includes('FlipIt') ? title : `${title} | FlipIt`;
   const keywordContent = Array.isArray(keywords)
     ? keywords.join(', ')
-    : keywords ?? 'flipit, crosslisting, marketplace listing tool, AI listing generator, marketplace automation, OLX listing tool, Vinted listing tool, Facebook Marketplace listing tool, eBay listing tool, reseller tools, ecommerce automation';
+    : keywords ?? 'flipit, crosslisting, marketplace listing tool, AI listing generator, marketplace automation, OLX listing tool, Vinted listing tool, Facebook Marketplace listing tool, eBay listing tool, Allegro listing tool, Etsy listing tool, reseller tools, ecommerce automation';
 
   const websiteStructuredData = {
     '@context': 'https://schema.org',

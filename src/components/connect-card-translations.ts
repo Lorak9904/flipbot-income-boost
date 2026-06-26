@@ -16,6 +16,9 @@ export const connectCardTranslations: Translations = {
     // Compact card buttons
     connectButton: 'Connect',
     reconnectButton: 'Reconnect',
+    integrationPendingButton: 'In progress',
+    integrationPendingTooltip: 'Etsy account connection is in progress. It will be available once setup is complete.',
+    integrationPendingToast: 'Etsy integration is in progress. Account connection will be available once setup is complete.',
     
     // Connected state
     connectedTitle: 'Successfully Connected!',
@@ -68,6 +71,7 @@ export const connectCardTranslations: Translations = {
     // Toast messages
     toastConnectedSuccess: 'Successfully connected to {platform}',
     toastConnectedError: 'Failed to connect to {platform}. Please try again.',
+    toastEtsyConnectError: 'Etsy connection is not available yet. Please try again later.',
     toastDisconnectedSuccess: '{platform} disconnected.',
     toastDisconnectedError: 'Failed to disconnect. Please try again.',
     toastManualConnectedSuccess: 'Manually connected to {platform}',
@@ -97,6 +101,9 @@ export const connectCardTranslations: Translations = {
     // Compact card buttons
     connectButton: 'Połącz',
     reconnectButton: 'Połącz ponownie',
+    integrationPendingButton: 'W trakcie',
+    integrationPendingTooltip: 'Połączenie konta Etsy jest w przygotowaniu. Będzie dostępne po zakończeniu konfiguracji.',
+    integrationPendingToast: 'Integracja Etsy jest w przygotowaniu. Połączenie konta będzie dostępne po zakończeniu konfiguracji.',
     
     // Connected state
     connectedTitle: 'Pomyślnie połączono!',
@@ -149,6 +156,7 @@ export const connectCardTranslations: Translations = {
     // Toast messages
     toastConnectedSuccess: 'Pomyślnie połączono z {platform}',
     toastConnectedError: 'Nie udało się połączyć z {platform}. Spróbuj ponownie.',
+    toastEtsyConnectError: 'Połączenie Etsy nie jest jeszcze dostępne. Spróbuj ponownie później.',
     toastDisconnectedSuccess: '{platform} rozłączono.',
     toastDisconnectedError: 'Nie udało się rozłączyć. Spróbuj ponownie.',
     toastManualConnectedSuccess: 'Ręcznie połączono z {platform}',

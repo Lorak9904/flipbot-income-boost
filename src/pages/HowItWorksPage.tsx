@@ -19,8 +19,8 @@ const iconMap = [Plug, Upload, Repeat]; // keep icons aligned with steps order
 
   const HowItWorksPage = () => {
   const t = getTranslations(howItWorksTranslations);
-  const pageTitle = 'How AI Crosslisting Works (OLX, Vinted, Facebook Marketplace, eBay)';
-  const pageDescription = 'See how FlipIt turns one photo into marketplace-ready listing drafts for OLX, Vinted, Facebook Marketplace, and eBay — then publishes with your approval and tracks results per platform.';
+  const pageTitle = 'How AI Crosslisting Works (OLX, Vinted, Facebook Marketplace, eBay, Allegro, Etsy)';
+  const pageDescription = 'See how FlipIt turns one photo into marketplace-ready listing drafts for OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy — then publishes with your approval and tracks results per platform.';
   const keywords = [
     'automated reselling platform',
     'marketplace automation',
@@ -29,6 +29,8 @@ const iconMap = [Plug, Upload, Repeat]; // keep icons aligned with steps order
     'OLX automation',
     'Vinted automation',
     'eBay automation',
+    'Allegro automation',
+    'Etsy automation',
     'Vinted app',
     'marketplace automation software',
     'AI crosslisting',

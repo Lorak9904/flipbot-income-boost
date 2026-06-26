@@ -4,7 +4,7 @@ export const loginTranslations: Translations = {
   en: {
     pageAccess: 'FlipIt Access',
     heroTitle: 'Sign in to your crosslisting automation hub',
-    heroDescription: 'Manage listings and publish faster to OLX, Vinted, Facebook Marketplace, and eBay — with AI drafts and your approval.',
+    heroDescription: 'Manage listings and publish faster to OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy — with AI drafts and your approval.',
     createAccount: 'Create Account',
     welcomeBack: 'Welcome Back',
     nameLabel: 'Name',
@@ -34,7 +34,7 @@ export const loginTranslations: Translations = {
   pl: {
     pageAccess: 'Dostęp do FlipIt',
     heroTitle: 'Zaloguj się do centrum automatyzacji crosslistingu',
-    heroDescription: 'Zarządzaj ogłoszeniami i publikuj szybciej na OLX, Vinted, Facebook Marketplace i eBay — dzięki szkicom AI i Twojej akceptacji.',
+    heroDescription: 'Zarządzaj ogłoszeniami i publikuj szybciej na OLX, Vinted, Facebook Marketplace, eBay, Allegro i Etsy — dzięki szkicom AI i Twojej akceptacji.',
     createAccount: 'Utwórz konto',
     welcomeBack: 'Witaj ponownie',
     nameLabel: 'Imię',

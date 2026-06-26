@@ -36,6 +36,7 @@ import SellOnAllegroArticle from "./pages/articles/SellOnAllegroArticle";
 import HowToPriceItemsForEbayArticle from "./pages/articles/HowToPriceItemsForEbayArticle";
 import EbayActiveListingsVsSoldPricesArticle from "./pages/articles/EbayActiveListingsVsSoldPricesArticle";
 import OlxCountryAccountsArticle from "./pages/articles/OlxCountryAccountsArticle";
+import EtsyListingToolArticle from "./pages/articles/EtsyListingToolArticle";
 // import FacebookCallbackPage from "./pages/FacebookCallbackPage";
 import TermsPage from "./pages/Terms";
 import PrivacyPolicyPage from "./pages/PrivacyPolicy";
@@ -90,6 +91,8 @@ const App = () => {
                   <Route path="/articles/aktywne-oferty-ebay-a-ceny-sprzedazy" element={<EbayActiveListingsVsSoldPricesArticle />} />
                   <Route path="/articles/olx-listing-automation-by-country" element={<OlxCountryAccountsArticle />} />
                   <Route path="/articles/automatyzacja-ogloszen-olx-wedlug-kraju" element={<OlxCountryAccountsArticle />} />
+                  <Route path="/articles/etsy-listing-tool" element={<EtsyListingToolArticle />} />
+                  <Route path="/articles/narzedzie-do-ogloszen-etsy" element={<EtsyListingToolArticle />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   <Route path="/reset-password" element={<ResetPasswordPage />} />

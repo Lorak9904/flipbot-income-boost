@@ -50,7 +50,7 @@ export interface GeneratedItemData {
   images: ItemImage[];
 }
 
-export type Platform = 'facebook' | 'olx' | 'vinted' | 'ebay' | 'allegro';
+export type Platform = 'facebook' | 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy';
 
 export interface PlatformFieldOverrides {
   title?: string;
@@ -69,6 +69,7 @@ export type PlatformDynamicAttributeValue =
   | Array<string | number>
   | {
       valuesIds?: Array<string | number>;
+      value_ids?: Array<string | number>;
       values?: Array<string | number>;
       valueId?: string | number;
       value?: string | number;
@@ -168,6 +169,23 @@ export interface PlatformOverrides {
     attributes?: Record<string, PlatformDynamicAttributeValue>;
     /** Optional per-platform listing field overrides */
     field_overrides?: PlatformFieldOverrides;
+  };
+  etsy?: {
+    taxonomy_id?: string | number;
+    category_id?: string | number;
+    category_path?: string;
+    /** Dynamic property values for Etsy listing properties */
+    attributes?: Record<string, PlatformDynamicAttributeValue>;
+    attribute_values?: Record<string, PlatformDynamicAttributeValue>;
+    /** Optional per-platform listing field overrides */
+    field_overrides?: PlatformFieldOverrides;
+    shipping_profile_id?: string;
+    return_policy_id?: string;
+    readiness_state_id?: string;
+    who_made?: string;
+    when_made?: string;
+    is_supply?: boolean;
+    should_auto_renew?: boolean;
   };
   [key: string]: unknown;
 }

@@ -11,6 +11,32 @@ import {
 
 const API_BASE = '/api';
 
+type RawUserItem = Partial<UserItem> & {
+  id?: string;
+  uuid?: string;
+};
+
+interface RawUserItemsResponse {
+  items?: unknown[];
+  total?: number;
+  count?: number;
+  page?: number;
+  page_size?: number;
+  total_pages?: number;
+}
+
+interface ApiErrorPayload {
+  detail?: string;
+}
+
+const isRawUserItem = (value: unknown): value is RawUserItem =>
+  typeof value === 'object' && value !== null;
+
+const withUuid = (item: RawUserItem): UserItem => ({
+  ...item,
+  uuid: item.id || item.uuid || '',
+}) as UserItem;
+
 export interface FetchItemsParams {
   page?: number;
   page_size?: number;
@@ -52,14 +78,11 @@ export async function fetchUserItems(params: FetchItemsParams = {}): Promise<Use
     throw new Error(`Failed to fetch items: ${response.statusText}`);
   }
 
-  const data: any = await response.json();
-  const rawItems: any[] = Array.isArray(data.items) ? data.items : [];
+  const data = (await response.json()) as RawUserItemsResponse;
+  const rawItems = Array.isArray(data.items) ? data.items.filter(isRawUserItem) : [];
 
-  const items = rawItems.map((item: any) => {
-    const transformed = {
-      ...item,
-      uuid: item.id || item.uuid,
-    };
+  const items = rawItems.map((item) => {
+    const transformed = withUuid(item);
     if (!transformed.uuid) {
       console.warn('Item missing UUID:', item);
     }
@@ -119,13 +142,10 @@ export async function fetchItemDetail(uuid: string): Promise<UserItem> {
     throw new Error(`Failed to fetch item: ${response.statusText}`);
   }
 
-  const item: any = await response.json();
+  const item = (await response.json()) as RawUserItem;
   
   // Transform backend response to frontend format (map 'id' to 'uuid')
-  const transformed = {
-    ...item,
-    uuid: item.id || item.uuid,
-  };
+  const transformed = withUuid(item);
   
   console.log('Fetched item detail:', transformed.uuid, transformed.title);
   
@@ -186,11 +206,8 @@ export async function duplicateItem(uuid: string): Promise<UserItem> {
     throw new Error(`Failed to duplicate item: ${response.statusText}`);
   }
 
-  const item: any = await response.json();
-  return {
-    ...item,
-    uuid: item.id || item.uuid,
-  };
+  const item = (await response.json()) as RawUserItem;
+  return withUuid(item);
 }
 
 /**
@@ -241,6 +258,26 @@ export interface UpdateItemPayload {
   marketplace_attributes?: MarketplaceAttributes;
 }
 
+export type RegeneratableItemField =
+  | 'title'
+  | 'description'
+  | 'brand'
+  | 'condition'
+  | 'category'
+  | 'size';
+
+export interface RegenerateItemFieldPayload {
+  field: RegeneratableItemField;
+  language?: string;
+  context?: Record<string, unknown>;
+}
+
+export interface RegenerateItemFieldResponse {
+  field: RegeneratableItemField;
+  value: string;
+  language: string;
+}
+
 /**
  * Update an existing item (draft/published fields only).
  */
@@ -266,15 +303,47 @@ export async function updateItem(uuid: string, data: UpdateItemPayload): Promise
     if (response.status === 404) {
       throw new Error('Item not found');
     }
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = (await response.json().catch(() => ({}))) as ApiErrorPayload;
     throw new Error(errorData.detail || `Failed to update item: ${response.statusText}`);
   }
 
-  const item: any = await response.json();
-  return {
-    ...item,
-    uuid: item.id || item.uuid,
-  };
+  const item = (await response.json()) as RawUserItem;
+  return withUuid(item);
+}
+
+/**
+ * Regenerate one editable listing field with AI.
+ */
+export async function regenerateItemField(
+  uuid: string,
+  payload: RegenerateItemFieldPayload
+): Promise<RegenerateItemFieldResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE}/items/${uuid}/regenerate-field/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    if (response.status === 404) {
+      throw new Error('Item not found');
+    }
+    const errorData = (await response.json().catch(() => ({}))) as ApiErrorPayload;
+    throw new Error(errorData.detail || `Failed to regenerate field: ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 /**
@@ -318,7 +387,7 @@ export async function enhanceItemImages(
 /**
  * Update listing on specific platforms (eBay/OLX/Allegro).
  */
-export async function updatePlatformListings(uuid: string, platforms: Platform[]): Promise<any> {
+export async function updatePlatformListings(uuid: string, platforms: Platform[]): Promise<unknown> {
   const token = localStorage.getItem('flipit_token');
   if (!token) {
     throw new Error('No authentication token found');
@@ -364,8 +433,8 @@ export interface SyncPlatformsResponse {
 }
 
 /**
- * Sync item changes to specific platforms (OLX/eBay/Allegro) without re-publishing.
- * If platforms is omitted or empty, syncs only dirty platforms.
+ * Push saved item changes to specific marketplace listings without re-publishing.
+ * If platforms is omitted or empty, updates only dirty marketplace listings.
  */
 export async function syncPlatformListings(uuid: string, platforms?: Platform[]): Promise<SyncPlatformsResponse> {
   const token = localStorage.getItem('flipit_token');
@@ -399,7 +468,7 @@ export async function syncPlatformListings(uuid: string, platforms?: Platform[])
       return response.json();
     }
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `Failed to sync platform listings: ${response.statusText}`);
+    throw new Error(errorData.detail || `Failed to update marketplace listings: ${response.statusText}`);
   }
 
   return response.json();
@@ -442,7 +511,7 @@ export async function removeListingFromMarketplaces(
     if (response.status === 404) {
       throw new Error('Item not found');
     }
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = (await response.json().catch(() => ({}))) as ApiErrorPayload;
     throw new Error(errorData.detail || `Failed to remove marketplace listing: ${response.statusText}`);
   }
 
@@ -501,7 +570,7 @@ export async function publishItemToPlatform(
     if (response.status === 404) {
       throw new Error('Item not found');
     }
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = (await response.json().catch(() => ({}))) as ApiErrorPayload;
     throw new Error(errorData.detail || `Failed to publish: ${response.statusText}`);
   }
 

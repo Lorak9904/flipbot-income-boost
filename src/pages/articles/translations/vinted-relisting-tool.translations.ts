@@ -32,7 +32,7 @@ export const vintedRelistingToolTranslations: Translations = {
     
     section3Title: 'Manual Relisting vs Automation',
     section3Para1: 'Manual relisting on Vinted requires you to edit each listing, change something (even a minor detail), and save it — or delete and recreate the entire listing. This process takes 5-10 minutes per item and becomes exhausting with larger inventories.',
-    section3Para2: 'With a tool like FlipIt, you can prep refreshed listings faster: reuse photos, generate updated titles and descriptions, and (when it makes sense) crosslist to OLX, Facebook Marketplace, and eBay. You approve every action before publishing.',
+    section3Para2: 'With a tool like FlipIt, you can prep refreshed listings faster: reuse photos, generate updated titles and descriptions, and (when it makes sense) crosslist to OLX, Facebook Marketplace, eBay, Allegro, and Etsy. You approve every action before publishing.',
     
     section4Title: 'How FlipIt Helps You Relist on Vinted',
     section4Para1: 'FlipIt is a marketplace automation platform that connects to your marketplace accounts. Upload your items once, and FlipIt helps with the repetitive prep — generating optimized descriptions, suggesting categories/attributes, and helping you prepare refreshed listings when visibility drops.',
@@ -54,7 +54,7 @@ export const vintedRelistingToolTranslations: Translations = {
     faq2Question: 'How often should I relist items on Vinted?',
     faq2Answer: 'Most sellers relist items every 7-14 days, or whenever visibility drops significantly. FlipIt can help you track performance and suggest optimal relist timing.',
     faq3Question: 'Can FlipIt relist to multiple platforms at once?',
-    faq3Answer: 'Yes! FlipIt supports crosslisting to Vinted, OLX, Facebook Marketplace, and eBay. Prepare one draft and publish to multiple platforms with a single review.',
+    faq3Answer: 'Yes! FlipIt supports crosslisting to Vinted, OLX, Facebook Marketplace, eBay, Allegro, and Etsy. Prepare one draft and publish to multiple platforms with a single review.',
     faq4Question: 'Is FlipIt safe to use with my Vinted account?',
     faq4Answer: 'FlipIt is designed as a listing management assistant, not an automation bot. You control every action, keeping your account safe and compliant.',
     
@@ -96,7 +96,7 @@ export const vintedRelistingToolTranslations: Translations = {
     
     section3Title: 'Ręczne odświeżanie vs automatyzacja',
     section3Para1: 'Ręczne odświeżanie na Vinted wymaga edycji każdego ogłoszenia, zmiany czegoś (nawet drobnego detalu) i zapisania — albo usunięcia i ponownego utworzenia całego ogłoszenia. Ten proces zajmuje 5–10 minut na produkt i staje się męczący przy większym asortymencie.',
-    section3Para2: 'Z narzędziem takim jak FlipIt szybciej przygotujesz odświeżone ogłoszenia: wykorzystasz te same zdjęcia, wygenerujesz nowe tytuły i opisy, a w razie potrzeby crosslistujesz na OLX, Facebook Marketplace i eBay. Każdą publikację zatwierdzasz samodzielnie.',
+    section3Para2: 'Z narzędziem takim jak FlipIt szybciej przygotujesz odświeżone ogłoszenia: wykorzystasz te same zdjęcia, wygenerujesz nowe tytuły i opisy, a w razie potrzeby crosslistujesz na OLX, Facebook Marketplace, eBay, Allegro i Etsy. Każdą publikację zatwierdzasz samodzielnie.',
     
     section4Title: 'Jak FlipIt pomaga w odświeżaniu na Vinted',
     section4Para1: 'FlipIt to platforma automatyzacji marketplace\'ów, która łączy się z Twoimi kontami na marketplace\'ach. Dodaj produkty raz, a FlipIt pomaga w powtarzalnej pracy — generuje zoptymalizowane opisy, sugeruje kategorie/atrybuty i pomaga przygotować odświeżone wersje ogłoszeń, gdy widoczność spada.',
@@ -118,7 +118,7 @@ export const vintedRelistingToolTranslations: Translations = {
     faq2Question: 'Jak często powinno się odświeżać produkty na Vinted?',
     faq2Answer: 'Większość sprzedawców odświeża produkty co 7-14 dni lub gdy widoczność znacząco spada. FlipIt może pomóc śledzić wyniki i sugerować optymalny czas odświeżania.',
     faq3Question: 'Czy FlipIt może odświeżać na wielu platformach naraz?',
-    faq3Answer: 'Tak! FlipIt wspiera crosslisting na Vinted, OLX, Facebook Marketplace i eBay. Przygotuj jeden szkic i opublikuj na kilku platformach po jednej akceptacji.',
+    faq3Answer: 'Tak! FlipIt wspiera crosslisting na Vinted, OLX, Facebook Marketplace, eBay, Allegro i Etsy. Przygotuj jeden szkic i opublikuj na kilku platformach po jednej akceptacji.',
     faq4Question: 'Czy FlipIt jest bezpieczny dla mojego konta Vinted?',
     faq4Answer: 'FlipIt został zaprojektowany jako asystent zarządzania ogłoszeniami, nie bot automatyzujący. Kontrolujesz każdą akcję, chroniąc swoje konto i pozostając w zgodzie z regulaminem.',
     

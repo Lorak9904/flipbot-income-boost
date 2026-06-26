@@ -35,7 +35,7 @@ interface SelectedAllegroProduct {
 }
 
 interface PlatformOverrideCardProps {
-  platform: 'olx' | 'ebay' | 'allegro';
+  platform: 'olx' | 'ebay' | 'allegro' | 'etsy';
   platformLabel: string;
   isConnected: boolean;
   isDisabled?: boolean;
@@ -189,11 +189,17 @@ const PlatformOverrideCard = ({
     attr: PlatformAttributeField,
     value: string | number | Array<string | number>
   ): PlatformDynamicAttributeValue => {
-    if (platform !== 'allegro') {
+    if (platform !== 'allegro' && platform !== 'etsy') {
       return value;
     }
 
     const values = Array.isArray(value) ? value : [value];
+    if (platform === 'etsy') {
+      if (attr.type === 'select' || attr.type === 'multi_select') {
+        return { value_ids: values };
+      }
+      return { values };
+    }
     if (attr.type === 'select' || attr.type === 'multi_select') {
       return { valuesIds: values };
     }

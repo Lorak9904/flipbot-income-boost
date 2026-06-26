@@ -57,7 +57,7 @@ export async function submitEditDraft({
       .filter((result) => result.status === 'success' || result.success)
       .map((result) => result.platform)
   );
-  const dirtyPlatforms = (['olx', 'ebay', 'allegro'] as Platform[]).filter((platform) => {
+  const dirtyPlatforms = (['olx', 'ebay', 'allegro', 'etsy'] as Platform[]).filter((platform) => {
     const syncStatus = updatedItem.platform_sync_status?.[platform];
     return publishedPlatforms.has(platform) && !!syncStatus?.dirty;
   });

@@ -18,7 +18,7 @@ const fadeUp = {
 };
 
 const pageTitle = 'FlipIt FAQ | AI Marketplace Automation & Crosslisting';
-const pageDescription = 'Answers about automation for marketplaces: OLX automation, Vinted automation (Vinted app), AI crosslisting, and ecommerce automation features.';
+const pageDescription = 'Answers about automation for marketplaces: OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy crosslisting, AI listing drafts, and ecommerce automation features.';
 const keywords = [
   'AI crosslisting FAQ',
   'marketplace automation',
@@ -29,6 +29,9 @@ const keywords = [
   'Vinted automation',
   'Vinted app',
   'Vinted crossposting automation',
+  'eBay automation',
+  'Allegro automation',
+  'Etsy automation',
   'seller automation support',
   'listing automation FAQ',
 ];
@@ -43,7 +46,7 @@ const faqSections = [
       {
         question: 'How does one-photo crosslisting work in FlipIt?',
         answer:
-          'Upload your product images and details once. FlipIt uses AI to draft optimized titles, descriptions, and hashtags tailored for OLX, Vinted, Facebook Marketplace, and eBay. You review, edit, and approve before publishing.',
+          'Upload your product images and details once. FlipIt uses AI to draft optimized titles, descriptions, and hashtags tailored for OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy. You review, edit, and approve before publishing.',
       },
       {
         question: 'Which OLX countries does FlipIt support?',
@@ -282,7 +285,7 @@ const FAQPage = () => {
          >
           <MarketingCtaBanner
             title="Ready to automate your crosslisting?"
-            description="Create an account and turn a single photo into listing drafts for OLX, Vinted, Facebook Marketplace, and eBay — then publish with your approval."
+            description="Create an account and turn a single photo into listing drafts for OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy — then publish with your approval."
             primaryAction={{ text: 'Create your account', href: '/login?register=1' }}
           />
          </motion.div>

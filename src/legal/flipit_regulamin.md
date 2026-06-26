@@ -4,7 +4,7 @@
 1.1. Niniejszy Regulamin określa zasady korzystania z platformy **FlipIt** – narzędzia automatyzującego wystawianie ogłoszeń sprzedażowych na zewnętrznych serwisach ogłoszeniowych i e‑commerce.  
 1.2. Właścicielem platformy jest osoba fizyczna rozwijająca projekt w wersji beta; dane mogą ulec zmianie wraz z rejestracją działalności gospodarczej.  
 1.3. **Użytkownik** – każda osoba fizyczna lub prawna korzystająca z funkcjonalności FlipIt.  
-1.4. FlipIt nie jest powiązany, współzarządzany ani sponsorowany przez żaden zewnętrzny serwis ogłoszeniowy (np. OLX, Facebook Marketplace, Vinted).  
+1.4. FlipIt nie jest powiązany, współzarządzany ani sponsorowany przez żaden zewnętrzny serwis ogłoszeniowy (np. OLX, Vinted, Facebook Marketplace, eBay, Allegro, Etsy).
 1.5. Rozpoczęcie korzystania z platformy oznacza akceptację niniejszego Regulaminu.
 
 ## 2. Zasady korzystania z platformy

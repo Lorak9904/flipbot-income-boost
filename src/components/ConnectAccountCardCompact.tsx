@@ -42,21 +42,26 @@ import { useNavigate } from 'react-router-dom';
 import ConnectPlatformModal from './ConnectPlatformModal';
 import { getEbayConnectUrl } from '@/lib/api/ebay';
 import { getAllegroConnectUrl } from '@/lib/api/allegro';
+import { getEtsyConnectUrl } from '@/lib/api/etsy';
 import type { OlxCountry, OlxMarketplaceAccount } from '@/lib/api/olx';
 
 interface ConnectAccountCardProps {
-  platform: 'facebook' | 'olx' | 'vinted' | 'ebay' | 'allegro';
+  platform: 'facebook' | 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy';
   platformName: string;
   logoSrc: string;
   onConnected?: () => void;
   isConnected: boolean;
   sessionStatus?: 'valid' | 'expired' | 'invalid' | null;
   invalidReason?: string | null;
+  appConfigured?: boolean | null;
+  actionKey?: string | null;
+  pendingMessage?: string | null;
   olxCountries?: OlxCountry[];
   olxAccounts?: OlxMarketplaceAccount[];
 }
 
-type ConnectionStatus = 'connected' | 'not-connected' | 'expired' | 'invalid';
+type ConnectionStatus = 'connected' | 'not-connected' | 'expired' | 'invalid' | 'pending';
+const OAUTH_PLATFORMS = ['ebay', 'olx', 'allegro', 'etsy'];
 
 const getConnectionStatus = (
   isConnected: boolean,
@@ -101,6 +106,12 @@ const statusConfig: Record<
     bgClass: 'bg-red-500/20',
     borderClass: 'border-red-500/30',
   },
+  pending: {
+    icon: Clock,
+    colorClass: 'text-amber-300',
+    bgClass: 'bg-amber-500/15',
+    borderClass: 'border-amber-500/30',
+  },
 };
 
 const formatOlxCountryLabel = (country: { country_code?: string; country_name?: string }): string => {
@@ -120,6 +131,9 @@ const ConnectAccountCard = ({
   onConnected,
   sessionStatus,
   invalidReason,
+  appConfigured,
+  actionKey,
+  pendingMessage,
   olxCountries = [],
   olxAccounts = [],
 }: ConnectAccountCardProps) => {
@@ -147,7 +161,11 @@ const ConnectAccountCard = ({
     return text;
   };
 
-  const connectionStatus = getConnectionStatus(isConnected, sessionStatus);
+  const integrationPending =
+    platform === 'etsy' && (appConfigured === false || actionKey === 'integration_pending');
+  const connectionStatus = integrationPending
+    ? 'pending'
+    : getConnectionStatus(isConnected, sessionStatus);
   const config = statusConfig[connectionStatus];
   const StatusIcon = config.icon;
   const showVintedRefresh =
@@ -221,6 +239,30 @@ const ConnectAccountCard = ({
     }
   };
 
+  // Handle Etsy OAuth connection
+  const handleEtsyConnect = async () => {
+    const token = localStorage.getItem('flipit_token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    if (integrationPending) {
+      toast.info(pendingMessage || t.integrationPendingToast);
+      return;
+    }
+
+    setIsConnectingOauth(true);
+    try {
+      const data = await getEtsyConnectUrl();
+      window.location.href = data.auth_url;
+    } catch (error) {
+      console.error('Failed to get Etsy connect URL:', error);
+      toast.error(error instanceof Error && error.message ? error.message : t.toastEtsyConnectError);
+      setIsConnectingOauth(false);
+    }
+  };
+
   // Handle platform-specific connection
   const handleConnect = () => {
     if (platform === 'ebay') {
@@ -229,6 +271,8 @@ const ConnectAccountCard = ({
       setShowOlxCountryDialog(true);
     } else if (platform === 'allegro') {
       handleAllegroConnect();
+    } else if (platform === 'etsy') {
+      handleEtsyConnect();
     } else {
       setShowConnectModal(true);
     }
@@ -313,6 +357,8 @@ const ConnectAccountCard = ({
         return t.statusTooltipExpired;
       case 'invalid':
         return invalidReason || t.statusTooltipInvalid;
+      case 'pending':
+        return pendingMessage || t.integrationPendingTooltip;
       default:
         return '';
     }
@@ -417,16 +463,18 @@ const ConnectAccountCard = ({
                   size="sm"
                   className="px-3 py-2 text-xs text-teal-200"
                   onClick={handleConnect}
-                  disabled={isConnectingOauth && ['ebay', 'olx', 'allegro'].includes(platform)}
+                  disabled={isConnectingOauth && OAUTH_PLATFORMS.includes(platform)}
                 >
-                  {isConnectingOauth && ['ebay', 'olx', 'allegro'].includes(platform) ? (
+                  {isConnectingOauth && OAUTH_PLATFORMS.includes(platform) ? (
                     <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                   ) : (
                     <LinkIcon className="w-3.5 h-3.5 mr-1.5" />
                   )}
-                  {isConnectingOauth && ['ebay', 'olx', 'allegro'].includes(platform)
+                  {isConnectingOauth && OAUTH_PLATFORMS.includes(platform)
                     ? 'Connecting...'
-                    : (t.connectButton || 'Connect')}
+                    : integrationPending
+                      ? t.integrationPendingButton
+                      : (t.connectButton || 'Connect')}
                 </SecondaryAction>
               )}
 
@@ -453,7 +501,7 @@ const ConnectAccountCard = ({
                       <DropdownMenuItem
                         className="text-slate-200 hover:text-white hover:bg-slate-700 cursor-pointer"
                         onClick={handleConnect}
-                        disabled={isConnectingOauth && ['ebay', 'olx', 'allegro'].includes(platform)}
+                        disabled={isConnectingOauth && OAUTH_PLATFORMS.includes(platform)}
                       >
                         <LinkIcon className="w-4 h-4 mr-2" />
                         {platform === 'olx' ? 'Connect OLX country' : (t.reconnectButton || 'Reconnect')}
@@ -500,10 +548,10 @@ const ConnectAccountCard = ({
                     <DropdownMenuItem
                       className="text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 cursor-pointer"
                       onClick={handleConnect}
-                      disabled={isConnectingOauth && ['ebay', 'olx', 'allegro'].includes(platform)}
+                      disabled={isConnectingOauth && OAUTH_PLATFORMS.includes(platform)}
                     >
                       <LinkIcon className="w-4 h-4 mr-2" />
-                      {t.connectButton || 'Connect'}
+                      {integrationPending ? t.integrationPendingButton : (t.connectButton || 'Connect')}
                     </DropdownMenuItem>
                   )}
                 </DropdownMenuContent>

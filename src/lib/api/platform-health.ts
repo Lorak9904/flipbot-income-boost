@@ -13,6 +13,8 @@ export interface PlatformHealthInfo {
   action_key?: string;
   app_configured?: boolean;
   marketplace_id?: string | null;
+  shop_id?: string | null;
+  shop_name?: string | null;
   accounts?: Array<{
     id?: number | null;
     country_code?: string;
@@ -77,13 +79,14 @@ export async function fetchPlatformHealth(): Promise<PlatformHealthResponse> {
 export function toPlatformConnectedMap(
   platforms: Record<string, PlatformHealthInfo> | undefined
 ): Record<Platform, boolean> {
-  const platformList: Platform[] = ['facebook', 'olx', 'vinted', 'ebay', 'allegro'];
+  const platformList: Platform[] = ['facebook', 'olx', 'vinted', 'ebay', 'allegro', 'etsy'];
   const result: Record<Platform, boolean> = {
     facebook: false,
     olx: false,
     vinted: false,
     ebay: false,
     allegro: false,
+    etsy: false,
   };
 
   for (const platform of platformList) {

@@ -17,7 +17,7 @@ import { getTranslations } from '@/components/language-utils';
 import { connectCardTranslations } from './connect-card-translations';
 
 interface ConnectPlatformModalProps {
-  platform: 'facebook' | 'vinted';  // Only cookie-based platforms (OLX and eBay use OAuth)
+  platform: 'facebook' | 'vinted';  // Only cookie-based platforms use this modal.
   platformName: string;
   isOpen: boolean;
   onClose: () => void;
@@ -75,7 +75,7 @@ export const ConnectPlatformModal = ({
 
   const config = platformConfig[platform];
 
-  // Safety check: OLX and eBay use OAuth, not manual cookie connection
+  // Safety check: OAuth-backed platforms use account cards, not this manual cookie modal.
   if (!config) {
     console.error(`Platform '${platform}' should use OAuth, not manual connection modal`);
     onClose();
@@ -105,7 +105,9 @@ export const ConnectPlatformModal = ({
         try {
           const errorData = await response.json();
           if (errorData.detail) errorMsg = errorData.detail;
-        } catch {}
+        } catch {
+          // Keep the default message when the response body is not JSON.
+        }
         throw new Error(errorMsg);
       }
       toast.success(tr('toastManualConnectedSuccess', { platform: platformName }));
@@ -113,8 +115,8 @@ export const ConnectPlatformModal = ({
       setManualDtsg('');
       onSuccess();
       onClose();
-    } catch (error: any) {
-      toast.error(error.message || t.toastManualConnectedError);
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : t.toastManualConnectedError);
     } finally {
       setStatus('idle');
     }

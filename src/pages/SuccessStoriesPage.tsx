@@ -17,7 +17,7 @@ const fadeUp = {
 };
 
 const pageTitle = 'Success Stories | FlipIt - Real AI Crosslisting Results';
-const pageDescription = 'See how FlipIt users profit with marketplace automation — AI crosslisting that drafts descriptions, pricing suggestions, and category mapping for OLX, Vinted, Facebook Marketplace, and eBay.';
+const pageDescription = 'See how FlipIt users profit with marketplace automation — AI crosslisting that drafts descriptions, pricing suggestions, and category mapping for OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy.';
 const keywords = [
   'FlipIt success stories',
   'AI crosslisting profits',
@@ -28,6 +28,8 @@ const keywords = [
   'OLX automation',
   'Vinted automation',
   'eBay automation',
+  'Allegro automation',
+  'Etsy automation',
   'Vinted app',
   'real user testimonials',
   'crosslisting income proof',

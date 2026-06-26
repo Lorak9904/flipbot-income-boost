@@ -38,6 +38,13 @@ import {
   type AllegroResourceOption,
   type AllegroSellerSettings,
 } from '@/lib/api/allegro';
+import {
+  getEtsySellerSettings,
+  getEtsyShippingProfiles,
+  updateEtsySellerSettings,
+  type EtsySellerSettings,
+  type EtsyShippingProfile,
+} from '@/lib/api/etsy';
 import { EBAY_MARKETPLACE_OPTIONS } from '@/lib/ebay-marketplaces';
 
 const fadeUp = {
@@ -102,15 +109,55 @@ interface AllegroResources {
   warranties: AllegroResourceOption[];
 }
 
+interface EtsyResources {
+  shippingProfiles: EtsyShippingProfile[];
+}
+
+type EtsySellerSettingsField =
+  | 'shipping_profile_id'
+  | 'return_policy_id'
+  | 'readiness_state_id'
+  | 'who_made'
+  | 'when_made'
+  | 'is_supply'
+  | 'should_auto_renew';
+
 const PLATFORM_NAMES: Record<string, string> = {
   facebook: 'Facebook Marketplace',
   olx: 'OLX',
   vinted: 'Vinted',
   ebay: 'eBay',
   allegro: 'Allegro',
+  etsy: 'Etsy',
 };
 
 const ALLEGRO_NONE_VALUE = '__none__';
+
+const ETSY_WHO_MADE_OPTIONS = [
+  { value: 'i_did', label: 'I made it' },
+  { value: 'someone_else', label: 'Someone else made it' },
+  { value: 'collective', label: 'A member of my shop made it' },
+];
+
+const ETSY_WHEN_MADE_OPTIONS = [
+  { value: 'made_to_order', label: 'Made to order' },
+  { value: '2020_2026', label: '2020-2026' },
+  { value: '2010_2019', label: '2010-2019' },
+  { value: '2000_2009', label: '2000-2009' },
+  { value: '1990s', label: '1990s' },
+  { value: '1980s', label: '1980s' },
+  { value: '1970s', label: '1970s' },
+  { value: '1960s', label: '1960s' },
+  { value: '1950s', label: '1950s' },
+  { value: '1940s', label: '1940s' },
+  { value: '1930s', label: '1930s' },
+  { value: '1920s', label: '1920s' },
+  { value: '1910s', label: '1910s' },
+  { value: '1900s', label: '1900s' },
+  { value: '1800s', label: '1800s' },
+  { value: '1700s', label: '1700s' },
+  { value: 'before_1700', label: 'Before 1700' },
+];
 
 const emptyAllegroSellerSettings: AllegroSellerSettings = {
   marketplace_id: 'allegro-pl',
@@ -123,8 +170,30 @@ const emptyAllegroSellerSettings: AllegroSellerSettings = {
   location_override: null,
 };
 
+const emptyEtsySellerSettings: EtsySellerSettings = {
+  shop_id: '',
+  shipping_profile_id: '',
+  return_policy_id: '',
+  readiness_state_id: '',
+  who_made: 'i_did',
+  when_made: '2020_2026',
+  is_supply: false,
+  should_auto_renew: false,
+};
+
 function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
+}
+
+function getEtsyShippingProfileId(profile: EtsyShippingProfile): string {
+  const raw = profile.shipping_profile_id ?? profile.id;
+  return raw === undefined || raw === null ? '' : String(raw);
+}
+
+function getEtsyShippingProfileLabel(profile: EtsyShippingProfile): string {
+  const id = getEtsyShippingProfileId(profile);
+  const name = profile.title || profile.name;
+  return name ? String(name) : id;
 }
 
 const PlatformSettingsPage = () => {
@@ -143,6 +212,7 @@ const PlatformSettingsPage = () => {
   const [ebayPolicyOptingIn, setEbayPolicyOptingIn] = useState(false);
   const [ebayReconnecting, setEbayReconnecting] = useState(false);
   const [allegroResourcesLoading, setAllegroResourcesLoading] = useState(false);
+  const [etsyResourcesLoading, setEtsyResourcesLoading] = useState(false);
   
   const [settings, setSettings] = useState<PlatformSettings>({
     platform: platform || '',
@@ -187,6 +257,12 @@ const PlatformSettingsPage = () => {
     returnPolicies: [],
     impliedWarranties: [],
     warranties: [],
+  });
+  const [etsySellerSettings, setEtsySellerSettings] = useState<EtsySellerSettings>(
+    emptyEtsySellerSettings
+  );
+  const [etsyResources, setEtsyResources] = useState<EtsyResources>({
+    shippingProfiles: [],
   });
 
   const loadAllegroSellerSetup = useCallback(async (includeSettings = true) => {
@@ -235,6 +311,48 @@ const PlatformSettingsPage = () => {
       warranties,
     });
     setAllegroResourcesLoading(false);
+  }, []);
+
+  const loadEtsySellerSetup = useCallback(async (includeSettings = true) => {
+    setEtsyResourcesLoading(true);
+
+    const safeShippingProfiles = async () => {
+      try {
+        return await getEtsyShippingProfiles();
+      } catch (error) {
+        console.warn('Failed to load Etsy shipping profiles:', error);
+        return { shop_id: '', selected_shipping_profile_id: '', profiles: [] };
+      }
+    };
+
+    const [sellerSettings, shippingProfiles] = await Promise.all([
+      includeSettings ? getEtsySellerSettings() : Promise.resolve(null),
+      safeShippingProfiles(),
+    ]);
+
+    if (sellerSettings) {
+      setEtsySellerSettings({
+        ...emptyEtsySellerSettings,
+        ...sellerSettings,
+        shipping_profile_id: sellerSettings.shipping_profile_id || shippingProfiles.selected_shipping_profile_id || '',
+        return_policy_id: sellerSettings.return_policy_id || '',
+        readiness_state_id: sellerSettings.readiness_state_id || '',
+        who_made: sellerSettings.who_made || emptyEtsySellerSettings.who_made,
+        when_made: sellerSettings.when_made || emptyEtsySellerSettings.when_made,
+        is_supply: Boolean(sellerSettings.is_supply),
+        should_auto_renew: Boolean(sellerSettings.should_auto_renew),
+      });
+    } else if (shippingProfiles.selected_shipping_profile_id) {
+      setEtsySellerSettings((prev) => ({
+        ...prev,
+        shipping_profile_id: shippingProfiles.selected_shipping_profile_id,
+      }));
+    }
+
+    setEtsyResources({
+      shippingProfiles: shippingProfiles.profiles || [],
+    });
+    setEtsyResourcesLoading(false);
   }, []);
 
   const loadEbaySetup = useCallback(async (marketplaceId = 'EBAY_PL', includePolicies = true) => {
@@ -311,7 +429,7 @@ const PlatformSettingsPage = () => {
   }, []);
 
   // Validate platform param
-  const validPlatforms = ['facebook', 'olx', 'vinted', 'ebay', 'allegro'];
+  const validPlatforms = ['facebook', 'olx', 'vinted', 'ebay', 'allegro', 'etsy'];
   const isValidPlatform = platform && validPlatforms.includes(platform);
   const platformName = platform ? PLATFORM_NAMES[platform] || platform : '';
 
@@ -356,6 +474,10 @@ const PlatformSettingsPage = () => {
         if (platform === 'allegro') {
           await loadAllegroSellerSetup(true);
         }
+
+        if (platform === 'etsy') {
+          await loadEtsySellerSetup(true);
+        }
       } catch (e) {
         console.error('Failed to load platform settings:', e);
         toast({
@@ -367,12 +489,13 @@ const PlatformSettingsPage = () => {
         setPoliciesLoading(false);
         setEbayResourcesLoading(false);
         setAllegroResourcesLoading(false);
+        setEtsyResourcesLoading(false);
         setLoading(false);
       }
     };
 
     loadSettings();
-  }, [platform, isValidPlatform, loadAllegroSellerSetup, loadEbaySetup, t.toastErrorTitle, t.toastLoadError, toast]);
+  }, [platform, isValidPlatform, loadAllegroSellerSetup, loadEbaySetup, loadEtsySellerSetup, t.toastErrorTitle, t.toastLoadError, toast]);
 
   // Redirect if invalid platform
   if (!isValidPlatform) {
@@ -454,6 +577,29 @@ const PlatformSettingsPage = () => {
         });
       }
 
+      if (platform === 'etsy') {
+        const saved = await updateEtsySellerSettings({
+          shipping_profile_id: etsySellerSettings.shipping_profile_id || '',
+          return_policy_id: etsySellerSettings.return_policy_id || '',
+          readiness_state_id: etsySellerSettings.readiness_state_id || '',
+          who_made: etsySellerSettings.who_made || emptyEtsySellerSettings.who_made,
+          when_made: etsySellerSettings.when_made || emptyEtsySellerSettings.when_made,
+          is_supply: etsySellerSettings.is_supply,
+          should_auto_renew: etsySellerSettings.should_auto_renew,
+        });
+        setEtsySellerSettings({
+          ...emptyEtsySellerSettings,
+          ...saved,
+          shipping_profile_id: saved.shipping_profile_id || '',
+          return_policy_id: saved.return_policy_id || '',
+          readiness_state_id: saved.readiness_state_id || '',
+          who_made: saved.who_made || emptyEtsySellerSettings.who_made,
+          when_made: saved.when_made || emptyEtsySellerSettings.when_made,
+          is_supply: Boolean(saved.is_supply),
+          should_auto_renew: Boolean(saved.should_auto_renew),
+        });
+      }
+
       toast({
         title: t.toastSettingsSavedTitle,
         description: t.toastSettingsSavedDescription.replace('{platform}', platformName),
@@ -511,6 +657,23 @@ const PlatformSettingsPage = () => {
       });
     } finally {
       setSyncing(false);
+    }
+  };
+
+  const handleRefreshEtsyResources = async () => {
+    try {
+      await loadEtsySellerSetup(false);
+      toast({
+        title: t.etsyResourcesRefreshedTitle,
+        description: t.etsyResourcesRefreshedDescription,
+      });
+    } catch (error) {
+      setEtsyResourcesLoading(false);
+      toast({
+        title: t.toastErrorTitle,
+        description: getErrorMessage(error, t.toastLoadError),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -864,6 +1027,10 @@ const PlatformSettingsPage = () => {
     setAllegroSellerSettings((prev) => ({ ...prev, [field]: value }));
   };
 
+  const updateEtsyField = (field: EtsySellerSettingsField, value: string | boolean) => {
+    setEtsySellerSettings((prev) => ({ ...prev, [field]: value }));
+  };
+
   const renderAllegroResourceField = (
     field: keyof AllegroSellerSettings,
     label: string,
@@ -1171,6 +1338,201 @@ const PlatformSettingsPage = () => {
                     className="bg-neutral-800"
                   />
                   <p className="text-xs text-neutral-400">{t.allegroHandlingTimeHelper}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {platform === 'etsy' && (
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              className="mb-12 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20"
+            >
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
+                    <ShieldCheck className="h-5 w-5 text-cyan-400" />
+                    {t.etsyPublishingTitle}
+                  </h2>
+                  <p className="mt-2 text-neutral-300 text-sm">{t.etsyPublishingDescription}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void handleRefreshEtsyResources()}
+                  disabled={etsyResourcesLoading}
+                  className="inline-flex items-center gap-2 rounded-full border border-cyan-400/40 px-3 py-1.5 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-400/10 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${etsyResourcesLoading ? 'animate-spin' : ''}`} />
+                  {etsyResourcesLoading ? t.etsyResourcesLoading : t.etsyRefreshResourcesButton}
+                </button>
+              </div>
+
+              <div className="mb-6 rounded-xl border border-cyan-400/20 bg-cyan-400/10 p-4 text-sm text-neutral-200">
+                {t.etsyResourceSetupHint}
+              </div>
+
+              <div className="space-y-6 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="etsy-shipping-profile">
+                    {t.etsyShippingProfileLabel}
+                    <span className="ml-1 text-red-300">*</span>
+                  </Label>
+                  {etsyResources.shippingProfiles.length > 0 ? (
+                    <Select
+                      value={etsySellerSettings.shipping_profile_id || undefined}
+                      onValueChange={(selected) => updateEtsyField('shipping_profile_id', selected)}
+                    >
+                      <SelectTrigger
+                        id="etsy-shipping-profile"
+                        className="bg-neutral-800 border-neutral-700 text-white"
+                      >
+                        <SelectValue placeholder={t.etsyShippingProfilePlaceholder} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
+                        {etsySellerSettings.shipping_profile_id
+                          && !etsyResources.shippingProfiles.some(
+                            (profile) =>
+                              getEtsyShippingProfileId(profile) === etsySellerSettings.shipping_profile_id
+                          ) && (
+                            <SelectItem value={etsySellerSettings.shipping_profile_id}>
+                              {t.etsySavedResourceNotLoaded.replace('{id}', etsySellerSettings.shipping_profile_id)}
+                            </SelectItem>
+                          )}
+                        {etsyResources.shippingProfiles.map((profile) => {
+                          const id = getEtsyShippingProfileId(profile);
+                          if (!id) return null;
+                          return (
+                            <SelectItem key={id} value={id}>
+                              {getEtsyShippingProfileLabel(profile)}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div
+                      id="etsy-shipping-profile"
+                      className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-100"
+                    >
+                      {etsySellerSettings.shipping_profile_id
+                        ? t.etsySavedResourceNotLoaded.replace('{id}', etsySellerSettings.shipping_profile_id)
+                        : t.etsyNoShippingProfilesFound}
+                    </div>
+                  )}
+                  <p className="text-xs text-neutral-400">{t.etsyShippingProfileHelper}</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="etsy-who-made">{t.etsyWhoMadeLabel}</Label>
+                  <Select
+                    value={etsySellerSettings.who_made || emptyEtsySellerSettings.who_made}
+                    onValueChange={(selected) => updateEtsyField('who_made', selected)}
+                  >
+                    <SelectTrigger
+                      id="etsy-who-made"
+                      className="bg-neutral-800 border-neutral-700 text-white"
+                    >
+                      <SelectValue placeholder={t.etsyWhoMadePlaceholder} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
+                      {ETSY_WHO_MADE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-neutral-400">{t.etsyWhoMadeHelper}</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="etsy-when-made">{t.etsyWhenMadeLabel}</Label>
+                  <Select
+                    value={etsySellerSettings.when_made || emptyEtsySellerSettings.when_made}
+                    onValueChange={(selected) => updateEtsyField('when_made', selected)}
+                  >
+                    <SelectTrigger
+                      id="etsy-when-made"
+                      className="bg-neutral-800 border-neutral-700 text-white"
+                    >
+                      <SelectValue placeholder={t.etsyWhenMadePlaceholder} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
+                      {ETSY_WHEN_MADE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-neutral-400">{t.etsyWhenMadeHelper}</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="etsy-is-supply">{t.etsyIsSupplyLabel}</Label>
+                  <Select
+                    value={etsySellerSettings.is_supply ? 'true' : 'false'}
+                    onValueChange={(selected) => updateEtsyField('is_supply', selected === 'true')}
+                  >
+                    <SelectTrigger
+                      id="etsy-is-supply"
+                      className="bg-neutral-800 border-neutral-700 text-white"
+                    >
+                      <SelectValue placeholder={t.etsyIsSupplyPlaceholder} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
+                      <SelectItem value="false">{t.etsyIsSupplyNo}</SelectItem>
+                      <SelectItem value="true">{t.etsyIsSupplyYes}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-neutral-400">{t.etsyIsSupplyHelper}</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="etsy-auto-renew">{t.etsyAutoRenewLabel}</Label>
+                  <Select
+                    value={etsySellerSettings.should_auto_renew ? 'true' : 'false'}
+                    onValueChange={(selected) => updateEtsyField('should_auto_renew', selected === 'true')}
+                  >
+                    <SelectTrigger
+                      id="etsy-auto-renew"
+                      className="bg-neutral-800 border-neutral-700 text-white"
+                    >
+                      <SelectValue placeholder={t.etsyAutoRenewPlaceholder} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
+                      <SelectItem value="false">{t.etsyAutoRenewNo}</SelectItem>
+                      <SelectItem value="true">{t.etsyAutoRenewYes}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-neutral-400">{t.etsyAutoRenewHelper}</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="etsy-return-policy">{t.etsyReturnPolicyLabel}</Label>
+                  <Input
+                    id="etsy-return-policy"
+                    value={etsySellerSettings.return_policy_id}
+                    onChange={(event) => updateEtsyField('return_policy_id', event.target.value)}
+                    placeholder={t.etsyReturnPolicyPlaceholder}
+                    className="bg-neutral-800"
+                  />
+                  <p className="text-xs text-neutral-400">{t.etsyReturnPolicyHelper}</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="etsy-readiness-state">{t.etsyReadinessStateLabel}</Label>
+                  <Input
+                    id="etsy-readiness-state"
+                    value={etsySellerSettings.readiness_state_id}
+                    onChange={(event) => updateEtsyField('readiness_state_id', event.target.value)}
+                    placeholder={t.etsyReadinessStatePlaceholder}
+                    className="bg-neutral-800"
+                  />
+                  <p className="text-xs text-neutral-400">{t.etsyReadinessStateHelper}</p>
                 </div>
               </div>
             </motion.div>

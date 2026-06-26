@@ -1,8 +1,14 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { deletePlatformListings, fetchItemDetail } from '@/lib/api/items';
+import {
+  deletePlatformListings,
+  fetchItemDetail,
+  updateItem,
+  type RegeneratableItemField,
+  type UpdateItemPayload,
+} from '@/lib/api/items';
 import { Platform, UserItem } from '@/types/item';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BackButtonGradient, BackButtonGhost } from '@/components/ui/button-presets';
@@ -24,6 +30,8 @@ import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackgro
 import { getTranslations } from '@/components/language-utils';
 import { itemDetailTranslations } from '@/utils/translations/item-detail-translations';
 import { fetchPlatformHealth, toPlatformConnectedMap } from '@/lib/api/platform-health';
+import { AiFieldRegenerationControl } from '@/components/listing-editor/AiFieldRegenerationControl';
+import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -34,6 +42,18 @@ const fadeUp = {
   }),
 };
 
+const buildRegeneratedFieldUpdate = (
+  field: RegeneratableItemField,
+  value: string
+): UpdateItemPayload => {
+  if (field === 'title') return { title: value };
+  if (field === 'description') return { description: value };
+  if (field === 'brand') return { brand: value };
+  if (field === 'condition') return { condition: value };
+  if (field === 'category') return { category: value };
+  return { size: value };
+};
+
 const ItemDetailPage = () => {
   const { uuid } = useParams<{ uuid: string }>();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -42,11 +62,13 @@ const ItemDetailPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const t = getTranslations(itemDetailTranslations);
+  const reviewT = getTranslations(reviewItemFormTranslations);
   const editToastShownRef = useRef(false);
 
   const [item, setItem] = useState<UserItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [regeneratingField, setRegeneratingField] = useState<RegeneratableItemField | null>(null);
 
   // Image preview state
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -69,6 +91,7 @@ const ItemDetailPage = () => {
           vinted: false,
           ebay: false,
           allegro: false,
+          etsy: false,
         };
       }
     },
@@ -138,13 +161,13 @@ const ItemDetailPage = () => {
     }
   };
 
-  const formatPlatformLabel = (platform: Platform) => {
+  const formatPlatformLabel = useCallback((platform: Platform) => {
     if (platform === 'ebay') return 'eBay';
     if (platform === 'olx') return 'OLX';
     if (platform === 'allegro') return 'Allegro';
     if (platform === 'facebook') return 'Facebook';
     return platform.charAt(0).toUpperCase() + platform.slice(1);
-  };
+  }, []);
 
   const getStatusBadgeClass = (statusValue: string) => {
     if (statusValue === 'active') return 'bg-green-500/20 text-green-400 border-green-500/50';
@@ -153,6 +176,71 @@ const ItemDetailPage = () => {
     if (statusValue === 'blocked') return 'bg-red-500/20 text-red-400 border-red-500/50';
     return 'bg-amber-500/20 text-amber-400 border-amber-500/50';
   };
+
+  const aiFieldLabels: Record<RegeneratableItemField, string> = {
+    title: reviewT.labels.title,
+    description: reviewT.labels.description,
+    brand: reviewT.labels.brand,
+    condition: reviewT.labels.condition,
+    category: reviewT.labels.category,
+    size: reviewT.labels.size,
+  };
+
+  const fieldIsRegenerating = (field: RegeneratableItemField) => regeneratingField === field;
+
+  const regenerationContext = useMemo<Record<string, unknown>>(
+    () =>
+      item
+        ? {
+            title: item.title,
+            description: item.description,
+            brand: item.brand,
+            condition: item.condition,
+            category: item.category,
+            size: item.size,
+            price: item.price,
+            currency: item.currency,
+            catalog_path: item.catalog_path,
+          }
+        : {},
+    [item]
+  );
+
+  const handleRegeneratedField = async (field: RegeneratableItemField, value: string) => {
+    if (!uuid) return;
+
+    const updatedItem = await updateItem(uuid, buildRegeneratedFieldUpdate(field, value));
+    setItem(updatedItem);
+  };
+
+  const renderAiRegenerationControl = (field: RegeneratableItemField) => (
+    <AiFieldRegenerationControl
+      itemId={uuid}
+      field={field}
+      fieldLabel={aiFieldLabels[field]}
+      context={regenerationContext}
+      disabled={isDeletingPlatform || (!!regeneratingField && !fieldIsRegenerating(field))}
+      successMode="saved"
+      onLoadingChange={(loading) => setRegeneratingField(loading ? field : null)}
+      onRegenerated={(value) => handleRegeneratedField(field, value)}
+    />
+  );
+
+  const renderEditableOverviewCard = (
+    field: RegeneratableItemField,
+    label: string,
+    value?: string
+  ) => (
+    <div className="rounded-lg bg-neutral-800/50 p-4">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-xs uppercase tracking-wide text-neutral-400">{label}</p>
+        {renderAiRegenerationControl(field)}
+      </div>
+      <p className={`mt-2 text-sm text-neutral-200 ${fieldIsRegenerating(field) ? 'opacity-60' : ''}`}>
+        {value || 'Not set'}
+      </p>
+    </div>
+  );
 
   const publishedPlatformSet = useMemo(
     () =>
@@ -166,12 +254,22 @@ const ItemDetailPage = () => {
 
   const dirtySyncPlatforms = useMemo(
     () =>
-      (['olx', 'ebay', 'allegro'] as Platform[]).filter((platform) => {
+      (['olx', 'ebay', 'allegro', 'etsy'] as Platform[]).filter((platform) => {
         const syncStatus = item?.platform_sync_status?.[platform];
         return publishedPlatformSet.has(platform) && !!syncStatus?.dirty;
       }),
     [item, publishedPlatformSet]
   );
+  const getMarketplaceUpdateActionLabel = useCallback((platforms: Platform[]) =>
+    platforms.length === 1
+      ? `Publish changes to ${formatPlatformLabel(platforms[0])}`
+      : 'Publish changes to all marketplaces',
+    [formatPlatformLabel]
+  );
+  const pendingMarketplaceLabels = dirtySyncPlatforms
+    .map((platform) => formatPlatformLabel(platform))
+    .join(', ');
+  const pendingMarketplaceActionLabel = getMarketplaceUpdateActionLabel(dirtySyncPlatforms);
 
   useEffect(() => {
     if (!item || editToastShownRef.current) return;
@@ -181,20 +279,22 @@ const ItemDetailPage = () => {
     const dirtyFromQuery = (dirtyQuery ? dirtyQuery.split(',') : [])
       .map((value) => value.trim().toLowerCase())
       .filter((value): value is Platform =>
-        ['facebook', 'olx', 'vinted', 'ebay', 'allegro'].includes(value)
+        ['facebook', 'olx', 'vinted', 'ebay', 'allegro', 'etsy'].includes(value)
       );
     const dirty = dirtyFromQuery.length > 0 ? dirtyFromQuery : dirtySyncPlatforms;
 
     if (dirty.length > 0) {
       const labels = dirty.map((platform) => formatPlatformLabel(platform)).join(', ');
+      const actionLabel = getMarketplaceUpdateActionLabel(dirty);
+      const subject = dirty.length === 1 ? `${labels} listing is` : `${labels} listings are`;
       toast({
-        title: 'Saved locally',
-        description: `Sync to ${labels} to update live listings.`,
+        title: 'Saved in FlipIt',
+        description: `${subject} waiting for publishing. Use "${actionLabel}" to send these changes live.`,
       });
     } else {
       toast({
-        title: 'Listing updated',
-        description: 'Your changes were saved successfully.',
+        title: 'Saved in FlipIt',
+        description: 'No marketplace changes need publishing.',
       });
     }
 
@@ -203,7 +303,7 @@ const ItemDetailPage = () => {
     nextParams.delete('updated');
     nextParams.delete('dirty');
     setSearchParams(nextParams, { replace: true });
-  }, [item, searchParams, setSearchParams, toast, dirtySyncPlatforms]);
+  }, [item, searchParams, setSearchParams, toast, dirtySyncPlatforms, formatPlatformLabel, getMarketplaceUpdateActionLabel]);
 
   if (authLoading || loading) {
     return (
@@ -266,7 +366,14 @@ const ItemDetailPage = () => {
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <CardTitle className="text-xl sm:text-2xl text-white break-words">{item.title}</CardTitle>
+                  <div className="flex items-start gap-2">
+                    <CardTitle
+                      className={`flex-1 text-xl sm:text-2xl text-white break-words ${fieldIsRegenerating('title') ? 'opacity-60' : ''}`}
+                    >
+                      {item.title}
+                    </CardTitle>
+                    {renderAiRegenerationControl('title')}
+                  </div>
                   {item.stage && (
                     <Badge
                       className={`mt-2 ${item.stage === 'published' 
@@ -278,7 +385,7 @@ const ItemDetailPage = () => {
                   )}
                   {dirtySyncPlatforms.length > 0 && (
                     <Badge className="ml-2 mt-2 bg-amber-500/20 text-amber-300 border-amber-500/50 text-sm px-2 py-0.5">
-                      {dirtySyncPlatforms.length} sync pending
+                      {dirtySyncPlatforms.length} marketplace publish pending
                     </Badge>
                   )}
                 </div>
@@ -295,9 +402,14 @@ const ItemDetailPage = () => {
                   />
                 </div>
               </div>
-              <CardDescription className="text-sm sm:text-base text-neutral-400 mt-4">
-                {item.description}
-              </CardDescription>
+              <div className="mt-4 flex items-start gap-2">
+                <CardDescription
+                  className={`flex-1 text-sm sm:text-base text-neutral-400 ${fieldIsRegenerating('description') ? 'opacity-60' : ''}`}
+                >
+                  {item.description}
+                </CardDescription>
+                {renderAiRegenerationControl('description')}
+              </div>
             </CardHeader>
             <CardContent>
               {/* Images */}
@@ -337,13 +449,13 @@ const ItemDetailPage = () => {
                 <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-amber-300">Sync required</p>
+                      <p className="text-sm font-semibold text-amber-300">Marketplace publish pending</p>
                       <p className="text-sm text-amber-100/90">
-                        Saved locally. Sync changes to {dirtySyncPlatforms.map((platform) => formatPlatformLabel(platform)).join(', ')} using the action menu.
+                        Saved in FlipIt. Use "{pendingMarketplaceActionLabel}" from the action menu to publish changes to {pendingMarketplaceLabels}.
                       </p>
                     </div>
                     <Badge className="w-fit bg-amber-500/20 text-amber-300 border-amber-500/50">
-                      {dirtySyncPlatforms.length} pending
+                      {dirtySyncPlatforms.length} pending publish action{dirtySyncPlatforms.length === 1 ? '' : 's'}
                     </Badge>
                   </div>
                 </div>
@@ -362,22 +474,10 @@ const ItemDetailPage = () => {
                       {formatMoney(item.price, item.currency)}
                     </p>
                   </div>
-                  <div className="rounded-lg bg-neutral-800/50 p-4">
-                    <p className="text-xs uppercase tracking-wide text-neutral-400">Category</p>
-                    <p className="mt-2 text-sm text-neutral-200">{item.category || 'Not set'}</p>
-                  </div>
-                  <div className="rounded-lg bg-neutral-800/50 p-4">
-                    <p className="text-xs uppercase tracking-wide text-neutral-400">Condition</p>
-                    <p className="mt-2 text-sm text-neutral-200">{item.condition || 'Not set'}</p>
-                  </div>
-                  <div className="rounded-lg bg-neutral-800/50 p-4">
-                    <p className="text-xs uppercase tracking-wide text-neutral-400">Brand</p>
-                    <p className="mt-2 text-sm text-neutral-200">{item.brand || 'Not set'}</p>
-                  </div>
-                  <div className="rounded-lg bg-neutral-800/50 p-4">
-                    <p className="text-xs uppercase tracking-wide text-neutral-400">Size</p>
-                    <p className="mt-2 text-sm text-neutral-200">{item.size || 'Not set'}</p>
-                  </div>
+                  {renderEditableOverviewCard('category', 'Category', item.category)}
+                  {renderEditableOverviewCard('condition', 'Condition', item.condition)}
+                  {renderEditableOverviewCard('brand', 'Brand', item.brand)}
+                  {renderEditableOverviewCard('size', 'Size', item.size)}
                 </div>
               </div>
 
@@ -406,7 +506,7 @@ const ItemDetailPage = () => {
                   )}
                   {item.platform_lifecycle_status && Object.keys(item.platform_lifecycle_status).length > 0 && (
                     <div className="space-y-2 pt-2 border-t border-neutral-700">
-                      <p className="text-sm font-medium text-neutral-300">Platform sync timeline</p>
+                      <p className="text-sm font-medium text-neutral-300">Marketplace activity timeline</p>
                       {Object.entries(item.platform_lifecycle_status).map(([platform, lifecycle]) => (
                         <div key={platform} className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
                           <span className="text-neutral-400">{formatPlatformLabel(platform as Platform)}</span>
@@ -529,7 +629,8 @@ const ItemDetailPage = () => {
                           isSuccess &&
                           (result.platform === 'olx' ||
                             result.platform === 'ebay' ||
-                            result.platform === 'allegro');
+                            result.platform === 'allegro' ||
+                            result.platform === 'etsy');
                         
                         return (
                           <Card 

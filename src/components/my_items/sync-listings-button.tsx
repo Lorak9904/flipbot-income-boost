@@ -1,18 +1,18 @@
 /**
- * Sync Listings Button Component
+ * Import Listings Button Component
  * 
- * A button with platform selector dropdown that allows users to sync their
- * marketplace listings from external platforms (OLX, Vinted, etc.) into FlipIt.
+ * A button with platform selector dropdown that allows users to import their
+ * marketplace listings from external platforms (OLX, Vinted, eBay, Etsy, etc.) into FlipIt.
  * 
  * Features:
  * - Platform dropdown selector
- * - Loading state during sync
+ * - Loading state during import
  * - Toast notifications for success/error
- * - Tooltips explaining the sync functionality
+ * - Tooltips explaining the import functionality
  */
 
 import { useState } from 'react';
-import { RefreshCw, ChevronDown, Info } from 'lucide-react';
+import { Download, ChevronDown, Info, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -32,6 +32,7 @@ import { useToast } from '@/hooks/use-toast';
 import { syncOlxListings, type OlxSyncResponse } from '@/lib/api/olx';
 import { syncVintedListings, type VintedSyncResponse } from '@/lib/api/vinted';
 import { syncEbayListings, type EbaySyncResponse } from '@/lib/api/ebay';
+import { syncEtsyListings, type EtsySyncResponse } from '@/lib/api/etsy';
 import {
   fetchPlatformHealth,
   type PlatformHealthInfo,
@@ -40,7 +41,7 @@ import {
 import { getTranslations } from '@/components/language-utils';
 
 // Supported platforms for sync
-type SyncPlatform = 'olx' | 'vinted' | 'ebay';
+type SyncPlatform = 'olx' | 'vinted' | 'ebay' | 'etsy';
 interface SyncTarget {
   platform: SyncPlatform;
   countryCode?: string;
@@ -57,61 +58,62 @@ const PLATFORMS: PlatformConfig[] = [
   { id: 'olx', name: 'OLX', enabled: true },
   { id: 'vinted', name: 'Vinted', enabled: true },
   { id: 'ebay', name: 'eBay', enabled: true },
+  { id: 'etsy', name: 'Etsy', enabled: true },
 ];
 
 // Translations for the component
 const translations = {
   en: {
-    syncListings: 'Sync Listings',
-    syncing: 'Syncing...',
-    syncAllConnected: 'All connected accounts',
+    syncListings: 'Import listings',
+    syncing: 'Importing...',
+    syncAllConnected: 'Import from all connected accounts',
     olxCountries: 'OLX country accounts',
     selectPlatform: 'Select platform',
     comingSoon: 'Coming Soon',
     unavailable: 'Unavailable',
     tooltipTitle: 'Import listings',
     tooltipDescription: 'Imports your current listings from the selected account or platform and adds any missing ones to FlipIt.',
-    syncSuccess: 'Sync completed!',
+    syncSuccess: 'Import completed',
     syncSuccessDescription: (inserted: number, updated: number) => 
       `Imported ${inserted} new listings, updated ${updated} existing ones.`,
-    syncSuccessNoNew: 'All your listings are already synced.',
-    syncPartial: 'Sync partially completed',
-    syncAllSuccess: 'All connected accounts synced',
+    syncSuccessNoNew: 'All imported listings are already in FlipIt.',
+    syncPartial: 'Import partially completed',
+    syncAllSuccess: 'All connected accounts imported',
     syncAllSummary: (succeeded: number, failed: number, skipped: number) =>
       `${succeeded} succeeded, ${failed} failed, ${skipped} skipped.`,
-    syncError: 'Sync failed',
+    syncError: 'Import failed',
     connectFirst: 'Please connect your account first',
     platformNotConnected: (platform: string) => 
       `Please connect your ${platform} account in Settings first.`,
     platformExpired: (platform: string) =>
-      `${platform} connection is expired or invalid. Reconnect it before syncing.`,
-    noConnectedPlatforms: 'No connected accounts available for sync.',
+      `${platform} connection is expired or invalid. Reconnect it before importing.`,
+    noConnectedPlatforms: 'No connected accounts available for import.',
   },
   pl: {
-    syncListings: 'Synchronizuj ogłoszenia',
-    syncing: 'Synchronizuję...',
-    syncAllConnected: 'Wszystkie połączone konta',
+    syncListings: 'Importuj ogłoszenia',
+    syncing: 'Importuję...',
+    syncAllConnected: 'Importuj ze wszystkich połączonych kont',
     olxCountries: 'Konta OLX według kraju',
     selectPlatform: 'Wybierz platformę',
     comingSoon: 'Wkrótce',
     unavailable: 'Niedostępne',
     tooltipTitle: 'Importuj ogłoszenia',
     tooltipDescription: 'Importuje Twoje aktualne ogłoszenia z wybranego konta lub platformy i dodaje brakujące do FlipIt.',
-    syncSuccess: 'Synchronizacja zakończona!',
+    syncSuccess: 'Import zakończony',
     syncSuccessDescription: (inserted: number, updated: number) => 
       `Zaimportowano ${inserted} nowych ogłoszeń, zaktualizowano ${updated} istniejących.`,
-    syncSuccessNoNew: 'Wszystkie ogłoszenia są już zsynchronizowane.',
-    syncPartial: 'Synchronizacja częściowo zakończona',
-    syncAllSuccess: 'Wszystkie połączone konta zsynchronizowane',
+    syncSuccessNoNew: 'Wszystkie zaimportowane ogłoszenia są już w FlipIt.',
+    syncPartial: 'Import częściowo zakończony',
+    syncAllSuccess: 'Zaimportowano ze wszystkich połączonych kont',
     syncAllSummary: (succeeded: number, failed: number, skipped: number) =>
       `${succeeded} zakończone, ${failed} nieudane, ${skipped} pominięte.`,
-    syncError: 'Błąd synchronizacji',
+    syncError: 'Błąd importu',
     connectFirst: 'Najpierw połącz swoje konto',
     platformNotConnected: (platform: string) => 
       `Najpierw połącz swoje konto ${platform} w ustawieniach.`,
     platformExpired: (platform: string) =>
-      `Połączenie ${platform} wygasło lub jest nieprawidłowe. Połącz je ponownie przed synchronizacją.`,
-    noConnectedPlatforms: 'Brak połączonych kont dostępnych do synchronizacji.',
+      `Połączenie ${platform} wygasło lub jest nieprawidłowe. Połącz je ponownie przed importem.`,
+    noConnectedPlatforms: 'Brak połączonych kont dostępnych do importu.',
   },
 };
 
@@ -179,7 +181,7 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
   const syncPlatform = async (
     platform: SyncPlatform,
     countryCode?: string
-  ): Promise<OlxSyncResponse | VintedSyncResponse | EbaySyncResponse> => {
+  ): Promise<OlxSyncResponse | VintedSyncResponse | EbaySyncResponse | EtsySyncResponse> => {
     switch (platform) {
       case 'olx':
         return syncOlxListings(countryCode);
@@ -187,6 +189,8 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
         return syncVintedListings();
       case 'ebay':
         return syncEbayListings();
+      case 'etsy':
+        return syncEtsyListings();
       default:
         throw new Error(`Unknown platform: ${platform}`);
     }
@@ -339,7 +343,11 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
                     disabled={isSyncing}
                     className="bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50 text-neutral-200 hover:text-white"
                   >
-                    <RefreshCw className={`h-4 w-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+                    {isSyncing ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Download className="h-4 w-4 mr-2" />
+                    )}
                     {isSyncing ? t.syncing : t.syncListings}
                     <ChevronDown className="h-4 w-4 ml-2" />
                   </Button>

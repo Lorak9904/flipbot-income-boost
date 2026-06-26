@@ -62,7 +62,7 @@ export const sellOnAllegroTranslations: Translations = {
     faq2Question: 'Does FlipIt auto-publish on Allegro?',
     faq2Answer: 'No. You always review and approve before anything goes live.',
     faq3Question: 'Which marketplaces does FlipIt support?',
-    faq3Answer: 'OLX and Allegro are supported in production. Vinted, Facebook Marketplace, and eBay are in beta and may require manual verification steps.',
+    faq3Answer: 'FlipIt supports OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy listing workflows. Availability and verification steps can vary by account and platform.',
     faq4Question: 'Will FlipIt handle orders or inventory?',
     faq4Answer: 'Not yet. FlipIt focuses on listing creation, enrichment, and publishing.',
 
@@ -134,7 +134,7 @@ export const sellOnAllegroTranslations: Translations = {
     faq2Question: 'Czy FlipIt automatycznie publikuje na Allegro?',
     faq2Answer: 'Nie. Zawsze zatwierdzasz publikację przed wysłaniem na marketplace.',
     faq3Question: 'Jakie marketplace\'y obsługuje FlipIt?',
-    faq3Answer: 'OLX i Allegro są wspierane produkcyjnie. Vinted, Facebook Marketplace i eBay są w becie i mogą wymagać ręcznych kroków weryfikacji.',
+    faq3Answer: 'FlipIt obsługuje workflow ofert dla OLX, Vinted, Facebook Marketplace, eBay, Allegro i Etsy. Dostępność oraz kroki weryfikacji mogą zależeć od konta i platformy.',
     faq4Question: 'Czy FlipIt obsłuży zamówienia lub magazyn?',
     faq4Answer: 'Na ten moment nie. FlipIt skupia się na tworzeniu, wzbogacaniu i publikowaniu ofert.',
 

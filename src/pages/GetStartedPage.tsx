@@ -23,6 +23,8 @@ const keywords = [
   'Vinted listing tool',
   'Facebook Marketplace listing tool',
   'eBay listing tool',
+  'Allegro listing tool',
+  'Etsy listing tool',
   'reseller tools',
   'ecommerce automation',
   'reselling side hustle',

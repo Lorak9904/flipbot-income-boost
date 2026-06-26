@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "name": "FlipIt",
+  "url": "https://myflipit.live/",
+  "description": "AI-assisted marketplace listing workflow for resellers and small sellers using OLX, Vinted, Facebook Marketplace, Allegro, eBay, and Etsy.",
+  "publisher": {
+    "name": "FlipIt",
+    "url": "https://myflipit.live/"
+  },
+  "capabilities": [
+    "public_product_information",
+    "marketplace_workflow_guides",
+    "pricing_information",
+    "account_registration"
+  ],
+  "entry_points": [
+    {
+      "name": "Home",
+      "url": "https://myflipit.live/"
+    },
+    {
+      "name": "How it works",
+      "url": "https://myflipit.live/how-it-works"
+    },
+    {
+      "name": "Marketplace guides",
+      "url": "https://myflipit.live/articles"
+    },
+    {
+      "name": "FAQ",
+      "url": "https://myflipit.live/faq"
+    },
+    {
+      "name": "Pricing",
+      "url": "https://myflipit.live/pricing"
+    }
+  ],
+  "sitemap": "https://myflipit.live/sitemap.xml",
+  "llms_txt": "https://myflipit.live/llms.txt",
+  "robots": "https://myflipit.live/robots.txt",
+  "contact": "https://myflipit.live/get-started"
+}

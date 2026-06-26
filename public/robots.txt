@@ -1,6 +1,13 @@
-﻿# Robots.txt for myflipit.live
+# Robots.txt for myflipit.live
 
-# Główne wyszukiwarki
+# Content use preferences for AI systems that support Content Signals.
+# Keep public pages usable for search and AI answer grounding, while reserving
+# model-training rights unless explicitly agreed elsewhere.
+User-agent: *
+Content-Signal: search=yes,ai-input=yes,ai-train=no
+Allow: /
+
+# Main search and preview crawlers.
 User-agent: Googlebot
 Allow: /
 
@@ -13,7 +20,27 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-# Zezwalamy także na AI crawlers (GPT, Claude, Perplexity itd.)
+# AI search, answer-grounding, and user-request crawlers.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# AI training or extended-product crawlers. These are allowed in the app-level
+# robots file, but Cloudflare AI Crawl Control may still override them live.
 User-agent: GPTBot
 Allow: /
 
@@ -23,18 +50,14 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-User-agent: PerplexityBot
-Allow: /
-
 User-agent: meta-externalagent
 Allow: /
 
 User-agent: Applebot-Extended
 Allow: /
 
-# Domyślne ustawienie dla innych
+# Default for other crawlers.
 User-agent: *
 Allow: /
 
-# Mapa strony
 Sitemap: https://myflipit.live/sitemap.xml

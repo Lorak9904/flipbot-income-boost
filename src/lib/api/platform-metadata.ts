@@ -1,7 +1,7 @@
 /**
  * Platform Metadata API
  * 
- * Fetches category-specific required attributes for OLX, eBay, and Allegro platforms.
+ * Fetches category-specific required attributes for OLX, eBay, Allegro, and Etsy platforms.
  * Used by the Per-Platform Override Editor to show dynamic fields.
  */
 
@@ -138,10 +138,44 @@ export async function getAllegroCategoryAttributes(
 }
 
 /**
+ * Get required properties/attributes for an Etsy seller taxonomy category
+ */
+export async function getEtsyCategoryAttributes(
+  categoryId: string | number
+): Promise<PlatformAttributesResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const params = new URLSearchParams({
+    category_id: String(categoryId),
+  });
+
+  const response = await fetch(
+    `${API_BASE}/platforms/etsy/attributes/?${params}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Failed to fetch Etsy attributes: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
  * Get required attributes for any supported platform
  */
 export async function getPlatformCategoryAttributes(
-  platform: 'olx' | 'ebay' | 'allegro',
+  platform: 'olx' | 'ebay' | 'allegro' | 'etsy',
   categoryId: string | number,
   options?: { marketplaceId?: string; countryCode?: string }
 ): Promise<PlatformAttributesResponse> {
@@ -151,6 +185,8 @@ export async function getPlatformCategoryAttributes(
     return getEbayCategoryAttributes(String(categoryId), options?.marketplaceId);
   } else if (platform === 'allegro') {
     return getAllegroCategoryAttributes(categoryId, options?.marketplaceId);
+  } else if (platform === 'etsy') {
+    return getEtsyCategoryAttributes(categoryId);
   }
   
   throw new Error(`Unsupported platform: ${platform}`);
