@@ -50,7 +50,7 @@ const SettingsPage = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [newsletter, setNewsletter] = useState(true);
+  const [newsletter, setNewsletter] = useState(false);
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
@@ -85,6 +85,7 @@ const SettingsPage = () => {
           setAddressPostalCode(data.address_postal_code || '');
           setAddressCountry(data.address_country || '');
           setAddressStreet(data.address_street || '');
+          setNewsletter(Boolean(data.newsletter_opt_in));
         }
       } catch (e) {
         console.error('Failed to load profile:', e);
@@ -117,6 +118,7 @@ const SettingsPage = () => {
           address_postal_code: addressPostalCode,
           address_country: addressCountry,
           address_street: addressStreet,
+          newsletter_opt_in: newsletter,
         }),
       });
 
@@ -431,9 +433,14 @@ const SettingsPage = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-16 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20">
             <h2 className="mb-6 text-xl font-semibold">{t.notificationsTitle}</h2>
             <div className="flex items-center justify-between">
-              <span className="text-neutral-200">{t.productUpdates}</span>
+              <Label htmlFor="newsletterOptIn" className="text-neutral-200">
+                {t.productUpdates}
+              </Label>
               <Switch
+                id="newsletterOptIn"
                 aria-label={t.productUpdates}
+                checked={newsletter}
+                disabled={loadingProfile || saving}
                 onCheckedChange={setNewsletter}
               />
             </div>

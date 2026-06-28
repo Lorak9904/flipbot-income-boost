@@ -5,7 +5,9 @@ import {
   Platform,
   ItemStatus,
   ItemStatusGroup,
+  ListingStatisticsResponse,
   MarketplaceAttributes,
+  PlatformStatisticsResponse,
   PlatformOverrides,
 } from '@/types/item';
 
@@ -174,6 +176,74 @@ export async function fetchItemStats(): Promise<ItemStats> {
       throw new Error('Authentication required');
     }
     throw new Error(`Failed to fetch stats: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch stored marketplace statistics for one listing.
+ */
+export async function fetchListingStatistics(
+  uuid: string,
+  platforms?: Platform[]
+): Promise<ListingStatisticsResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const searchParams = new URLSearchParams();
+  if (platforms && platforms.length > 0) {
+    searchParams.set('platforms', platforms.join(','));
+  }
+  const query = searchParams.toString();
+  const response = await fetch(`${API_BASE}/items/${uuid}/statistics/${query ? `?${query}` : ''}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    if (response.status === 404) {
+      throw new Error('Item not found');
+    }
+    throw new Error(`Failed to fetch listing statistics: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch stored marketplace statistics for all listings on a platform.
+ */
+export async function fetchPlatformStatistics(platform: Platform): Promise<PlatformStatisticsResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE}/statistics/platforms/${platform}/`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    if (response.status === 404) {
+      throw new Error('Platform statistics not found');
+    }
+    throw new Error(`Failed to fetch platform statistics: ${response.statusText}`);
   }
 
   return response.json();

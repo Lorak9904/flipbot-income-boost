@@ -42,9 +42,11 @@ import PlatformCategoryBooks from './PlatformCategoryBooks';
 import PlatformFieldOverridesSection from './PlatformFieldOverridesSection';
 import { Loader2, CreditCard, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { usePostHog } from '@posthog/react';
 import { getTranslations } from '@/components/language-utils';
 import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
 import { useCredits } from '@/hooks/useCredits';
+import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { InsufficientCreditsAlert } from '@/components/credits';
 import { parseInsufficientCreditsError, parseErrorResponse } from '@/lib/api/error-handler';
@@ -61,6 +63,10 @@ import type { AllegroProductSearchResult } from '@/lib/api/allegro';
 import { SUPPORTED_CURRENCIES, resolveCurrency } from '@/lib/currency';
 import { syncPlatformListings, type RegeneratableItemField } from '@/lib/api/items';
 import { AiFieldRegenerationControl } from '@/components/listing-editor/AiFieldRegenerationControl';
+import {
+  captureActivationEvent,
+  captureFirstLiveListingCreated,
+} from '@/lib/analytics/activation';
 
 interface ReviewItemFormProps {
   initialData: GeneratedItemDataWithVinted;
@@ -108,6 +114,8 @@ const ReviewItemForm = ({
     currency: defaultCurrency,
   }));
   const navigate = useNavigate();
+  const posthog = usePostHog();
+  const { user } = useAuth();
   const { data: credits } = useCredits();
   const queryClient = useQueryClient();
   const t = getTranslations(reviewItemFormTranslations);
@@ -978,6 +986,7 @@ const ReviewItemForm = ({
 
     setIsSubmitting(true);
     setSubmitIntent(isPublishingMode ? 'publish' : 'save');
+    let publishFailureTracked = false;
 
     try {
       if (!isPublishingMode) {
@@ -1031,6 +1040,13 @@ const ReviewItemForm = ({
         payload.marketplace_attributes = marketplaceAttributes;
       }
 
+      captureActivationEvent(posthog, 'publish_attempted', {
+        draft_id: payload.draft_id,
+        platforms: selectedPlatforms,
+        platform_count: selectedPlatforms.length,
+        mode,
+      });
+
       const response = await fetch('/api/items/publish', {
         method: 'POST',
         headers: {
@@ -1045,6 +1061,14 @@ const ReviewItemForm = ({
         const creditsError = parseInsufficientCreditsError(error);
 
         if (creditsError) {
+          captureActivationEvent(posthog, 'publish_failed', {
+            draft_id: payload.draft_id,
+            platforms: selectedPlatforms,
+            platform_count: selectedPlatforms.length,
+            status_code: response.status,
+            error: 'insufficient_credits',
+          });
+          publishFailureTracked = true;
           setInsufficientCreditsError({
             required: creditsError.required,
             available: creditsError.available,
@@ -1056,19 +1080,56 @@ const ReviewItemForm = ({
           error?.data?.detail ||
           error?.data?.error ||
           'Failed to publish item';
+        captureActivationEvent(posthog, 'publish_failed', {
+          draft_id: payload.draft_id,
+          platforms: selectedPlatforms,
+          platform_count: selectedPlatforms.length,
+          status_code: response.status,
+          error: errorMessage,
+        });
+        publishFailureTracked = true;
         throw new Error(errorMessage);
       }
 
-      const result = await response.json();
+      const result = (await response.json()) as {
+        uuid?: string;
+        platforms?: Record<string, string>;
+        platform_details?: Record<
+          string,
+          {
+            status?: string;
+            status_code?: number;
+            message?: string;
+            external_id?: string;
+            listing_url?: string;
+          }
+        >;
+      };
+      const successfulPlatforms: Platform[] = [];
 
       if (result.platforms) {
         Object.entries(result.platforms).forEach(([platform, status]) => {
           if (status === "success") {
+            const typedPlatform = platform as Platform;
+            successfulPlatforms.push(typedPlatform);
+            captureActivationEvent(posthog, 'publish_succeeded', {
+              draft_id: result.uuid || payload.draft_id,
+              platform: typedPlatform,
+              listing_url: result.platform_details?.[platform]?.listing_url,
+              external_id: result.platform_details?.[platform]?.external_id,
+            });
             toast({
               title: t.toast.successTitle,
               description: t.toast.publishedSuccess.replace('{platform}', platform),
             });
           } else {
+            captureActivationEvent(posthog, 'publish_failed', {
+              draft_id: result.uuid || payload.draft_id,
+              platform,
+              status,
+              status_code: result.platform_details?.[platform]?.status_code,
+              error: result.platform_details?.[platform]?.message || String(status),
+            });
             toast({
               title: t.toast.publishError.replace('{platform}', platform),
               description: String(status),
@@ -1080,6 +1141,13 @@ const ReviewItemForm = ({
         toast({
           title: t.toast.successTitle,
           description: t.toast.generalSuccess,
+        });
+      }
+      if (successfulPlatforms.length > 0) {
+        captureFirstLiveListingCreated(posthog, user?.id, {
+          draft_id: result.uuid || payload.draft_id,
+          platforms: successfulPlatforms,
+          platform_count: successfulPlatforms.length,
         });
       }
 
@@ -1096,6 +1164,14 @@ const ReviewItemForm = ({
       }
     } catch (error) {
       console.error('Error publishing item:', error);
+      if (isPublishingMode && !publishFailureTracked) {
+        captureActivationEvent(posthog, 'publish_failed', {
+          draft_id: data.draft_id || editItemId,
+          platforms: selectedPlatforms,
+          platform_count: selectedPlatforms.length,
+          error: error instanceof Error ? error.message : 'Failed to publish item',
+        });
+      }
       const errorMessage =
         error instanceof Error && error.message && error.message !== 'Failed to publish item'
           ? error.message

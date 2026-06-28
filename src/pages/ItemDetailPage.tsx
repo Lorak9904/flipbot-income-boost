@@ -32,6 +32,8 @@ import { itemDetailTranslations } from '@/utils/translations/item-detail-transla
 import { fetchPlatformHealth, toPlatformConnectedMap } from '@/lib/api/platform-health';
 import { AiFieldRegenerationControl } from '@/components/listing-editor/AiFieldRegenerationControl';
 import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
+import { MarketplaceStatisticsSection } from '@/components/statistics/MarketplaceStatisticsSection';
+import { ALL_PLATFORMS } from '@/lib/platforms';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -270,6 +272,16 @@ const ItemDetailPage = () => {
     .map((platform) => formatPlatformLabel(platform))
     .join(', ');
   const pendingMarketplaceActionLabel = getMarketplaceUpdateActionLabel(dirtySyncPlatforms);
+  const statisticsPlatforms = useMemo<Platform[]>(() => {
+    const selected = Array.isArray(item?.platforms) ? item.platforms : [];
+    const published = (item?.publish_results || [])
+      .filter((result) => result.status === 'success' || result.success)
+      .map((result) => result.platform);
+    const allowed = new Set(ALL_PLATFORMS);
+    return Array.from(new Set([...selected, ...published])).filter((platform): platform is Platform =>
+      allowed.has(platform as Platform)
+    );
+  }, [item]);
 
   useEffect(() => {
     if (!item || editToastShownRef.current) return;
@@ -520,6 +532,10 @@ const ItemDetailPage = () => {
                   )}
                 </div>
               </div>
+
+              <Separator className="my-6 bg-neutral-800" />
+
+              <MarketplaceStatisticsSection itemId={item.uuid} platforms={statisticsPlatforms} />
 
               <Collapsible className="mb-6 rounded-lg border border-neutral-800 bg-neutral-900/40 p-4">
                 <CollapsibleTrigger asChild>

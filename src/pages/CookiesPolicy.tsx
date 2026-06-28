@@ -1,49 +1,46 @@
-import termsMd from '@/legal/cookies_policy.md?raw';
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { SEOHead } from '@/components/SEOHead';
-import { getCurrentLanguage } from '@/components/language-utils';
-
-const pageTitle = 'Cookies Policy | FlipIt — AI Marketplace Automation';
-const pageDescription = 'Learn how FlipIt uses cookies to support marketplace automation and AI crosslisting features that eliminate manual descriptions, pricing, and category selection.';
-const keywords = [
-  'FlipIt cookies policy',
-  'crosslisting platform cookies',
-  'AI automation cookies',
-  'website cookies policy',
-  'privacy cookies',
-  'cookie consent',
-];
+import { LegalDocumentPage } from '@/components/legal/LegalDocumentPage';
+import cookiesEn from '@/legal/cookies_en.md?raw';
+import cookiesPl from '@/legal/cookies_pl.md?raw';
 
 export default function CookiesPolicyPage() {
   return (
-    <>
-      <SEOHead
-        title={pageTitle}
-        description={pageDescription}
-        canonicalUrl="https://myflipit.live/cookies"
-        keywords={keywords}
-        language={getCurrentLanguage()}
-      />
-      <section className="mx-auto max-w-screen-md px-4 py-8">
-      <div className="prose prose-sm text-xs" style={{ lineHeight: 2 }}>
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={{
-            h1: ({node, ...props}) => <h1 style={{fontSize: '1rem', lineHeight: 2.2}} {...props} />,
-            h2: ({node, ...props}) => <h2 style={{fontSize: '0.95rem', lineHeight: 2.1}} {...props} />,
-            h3: ({node, ...props}) => <h3 style={{fontSize: '0.9rem', lineHeight: 2}} {...props} />,
-            h4: ({node, ...props}) => <h4 style={{fontSize: '0.85rem', lineHeight: 1.9}} {...props} />,
-            h5: ({node, ...props}) => <h5 style={{fontSize: '0.8rem', lineHeight: 1.8}} {...props} />,
-            h6: ({node, ...props}) => <h6 style={{fontSize: '0.75rem', lineHeight: 1.7}} {...props} />,
-            p: ({node, ...props}) => <p style={{lineHeight: 1.5}} {...props} />,
-            li: ({node, ...props}) => <li style={{lineHeight: 1.5}} {...props} />,
-          }}
-        >
-          {termsMd}
-        </ReactMarkdown>
-      </div>
-    </section>
-    </>
+    <LegalDocumentPage
+      documents={{
+        en: {
+          title: 'Cookie Policy',
+          eyebrow: 'Cookies',
+          description:
+            'How FlipIt uses cookies, local storage, analytics, live chat tools, login providers, payment providers, and marketplace services.',
+          lastUpdatedLabel: 'Last updated: 28 June 2026',
+          canonicalPath: '/cookies',
+          alternatePath: '/pl/polityka-cookies',
+          alternateLabel: 'Czytaj po polsku',
+          keywords: [
+            'FlipIt cookie policy',
+            'marketplace automation cookies',
+            'PostHog cookies',
+            'cookie consent',
+          ],
+          content: cookiesEn,
+        },
+        pl: {
+          title: 'Polityka cookies',
+          eyebrow: 'Cookies',
+          description:
+            'Jak FlipIt używa cookies, local storage, analityki, czatu, logowania, płatności i usług marketplace.',
+          lastUpdatedLabel: 'Ostatnia aktualizacja: 28 czerwca 2026',
+          canonicalPath: '/pl/polityka-cookies',
+          alternatePath: '/cookies',
+          alternateLabel: 'Read in English',
+          keywords: [
+            'polityka cookies FlipIt',
+            'cookies automatyzacja marketplace',
+            'PostHog cookies',
+            'zgoda cookies',
+          ],
+          content: cookiesPl,
+        },
+      }}
+    />
   );
 }

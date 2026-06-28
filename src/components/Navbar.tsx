@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NavbarLogin, NavbarSignup, AddItemButton } from '@/components/ui/button-presets';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Menu, X, CreditCard, Lightbulb, DollarSign, Trophy, Package, Link2, BookOpen, Video, HelpCircle, MoreHorizontal } from 'lucide-react';
+import { Menu, X, CreditCard, Lightbulb, DollarSign, Trophy, Package, Link2, BookOpen, Video, HelpCircle, MoreHorizontal, BarChart3 } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCredits } from '@/hooks/useCredits';
@@ -43,6 +43,7 @@ const Navbar = () => {
   const accountNavItems = isAuthenticated
     ? [
         { name: t.myItems, path: '/user/items', icon: Package },
+        { name: t.stats, path: '/user/statistics', icon: BarChart3 },
         { name: t.connectAccounts, path: '/connect-accounts', icon: Link2 },
       ]
     : [];

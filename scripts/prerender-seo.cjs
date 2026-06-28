@@ -278,24 +278,51 @@ const routes = [
   },
   {
     path: '/terms',
-    title: 'FlipIt Terms for Marketplace Automation',
+    title: 'Terms of Service | FlipIt',
     description:
-      'Read FlipIt terms for the marketplace automation platform, including AI-assisted listing drafts, account use, and publishing workflows.',
+      'The rules for using FlipIt, including accounts, marketplace connections, AI-assisted drafts, publishing responsibility, billing, and support.',
     language: 'en',
+    alternatePaths: { en: '/terms', pl: '/pl/regulamin' },
+  },
+  {
+    path: '/pl/regulamin',
+    title: 'Regulamin | FlipIt',
+    description:
+      'Zasady korzystania z FlipIt: konto, połączenia z marketplace, szkice AI, odpowiedzialność za publikację, rozliczenia i wsparcie.',
+    language: 'pl',
+    alternatePaths: { en: '/terms', pl: '/pl/regulamin' },
   },
   {
     path: '/privacy',
-    title: 'FlipIt Privacy Policy',
+    title: 'Privacy Policy | FlipIt',
     description:
-      'Learn how FlipIt protects privacy while providing AI-assisted marketplace listing drafts, account connections, and publishing workflows.',
+      'How FlipIt handles account data, marketplace connections, listing content, AI-assisted processing, payments, analytics, cookies, and user rights.',
     language: 'en',
+    alternatePaths: { en: '/privacy', pl: '/pl/polityka-prywatnosci' },
+  },
+  {
+    path: '/pl/polityka-prywatnosci',
+    title: 'Polityka prywatności | FlipIt',
+    description:
+      'Jak FlipIt przetwarza dane konta, połączenia z marketplace, treści ogłoszeń, AI, płatności, analitykę, cookies i prawa użytkownika.',
+    language: 'pl',
+    alternatePaths: { en: '/privacy', pl: '/pl/polityka-prywatnosci' },
   },
   {
     path: '/cookies',
-    title: 'FlipIt Cookie Policy',
+    title: 'Cookie Policy | FlipIt',
     description:
-      'Read how FlipIt uses cookies and similar technologies for the marketplace automation web app.',
+      'How FlipIt uses cookies, local storage, analytics, live chat tools, login providers, payment providers, and marketplace services.',
     language: 'en',
+    alternatePaths: { en: '/cookies', pl: '/pl/polityka-cookies' },
+  },
+  {
+    path: '/pl/polityka-cookies',
+    title: 'Polityka cookies | FlipIt',
+    description:
+      'Jak FlipIt używa cookies, local storage, analityki, czatu, logowania, płatności i usług marketplace.',
+    language: 'pl',
+    alternatePaths: { en: '/cookies', pl: '/pl/polityka-cookies' },
   },
 ];
 
@@ -412,6 +439,23 @@ function removeTag(html, pattern) {
   return html.replace(pattern, '');
 }
 
+function alternateLinkTags(route) {
+  if (!route.alternatePaths) {
+    return '';
+  }
+
+  return [
+    { hrefLang: 'en', path: route.alternatePaths.en },
+    { hrefLang: 'pl', path: route.alternatePaths.pl },
+    { hrefLang: 'x-default', path: route.alternatePaths.en },
+  ]
+    .map(
+      (alternate) =>
+        `  <link data-rh="true" rel="alternate" hreflang="${alternate.hrefLang}" href="${absoluteUrl(alternate.path)}" />`
+    )
+    .join('\n');
+}
+
 function applySeo(html, route) {
   const canonical = absoluteUrl(route.path);
   const siteTitle = route.title.includes('FlipIt') ? route.title : `${route.title} | FlipIt`;
@@ -421,23 +465,28 @@ function applySeo(html, route) {
 
   let next = html.replace(/<html\s+lang="[^"]*"/i, `<html lang="${route.language || 'en'}"`);
 
-  next = replaceOrInsert(next, /<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(siteTitle)}</title>`);
-  next = replaceOrInsert(next, /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${escapeHtml(route.description)}" />`);
-  next = replaceOrInsert(next, /<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:title" content="${escapeHtml(siteTitle)}" />`);
-  next = replaceOrInsert(next, /<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:description" content="${escapeHtml(route.description)}" />`);
-  next = replaceOrInsert(next, /<meta\s+property="og:type"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:type" content="${ogType}" />`);
-  next = replaceOrInsert(next, /<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:url" content="${canonical}" />`);
-  next = replaceOrInsert(next, /<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:image" content="${DEFAULT_IMAGE}" />`);
-  next = replaceOrInsert(next, /<meta\s+property="og:locale"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:locale" content="${locale}" />`);
-  next = replaceOrInsert(next, /<meta\s+name="twitter:card"\s+content="[^"]*"\s*\/?>/i, '<meta name="twitter:card" content="summary_large_image" />');
-  next = replaceOrInsert(next, /<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:title" content="${escapeHtml(siteTitle)}" />`);
-  next = replaceOrInsert(next, /<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:description" content="${escapeHtml(route.description)}" />`);
-  next = replaceOrInsert(next, /<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:image" content="${DEFAULT_IMAGE}" />`);
-  next = replaceOrInsert(next, /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i, `<link rel="canonical" href="${canonical}" />`);
+  next = replaceOrInsert(next, /<title(?:\s+[^>]*)?>[\s\S]*?<\/title>/i, `<title data-rh="true">${escapeHtml(siteTitle)}</title>`);
+  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bname="description")[^>]*>/i, `<meta data-rh="true" name="description" content="${escapeHtml(route.description)}" />`);
+  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bproperty="og:title")[^>]*>/i, `<meta data-rh="true" property="og:title" content="${escapeHtml(siteTitle)}" />`);
+  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bproperty="og:description")[^>]*>/i, `<meta data-rh="true" property="og:description" content="${escapeHtml(route.description)}" />`);
+  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bproperty="og:type")[^>]*>/i, `<meta data-rh="true" property="og:type" content="${ogType}" />`);
+  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bproperty="og:url")[^>]*>/i, `<meta data-rh="true" property="og:url" content="${canonical}" />`);
+  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bproperty="og:image")[^>]*>/i, `<meta data-rh="true" property="og:image" content="${DEFAULT_IMAGE}" />`);
+  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bproperty="og:locale")[^>]*>/i, `<meta data-rh="true" property="og:locale" content="${locale}" />`);
+  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bname="twitter:card")[^>]*>/i, '<meta data-rh="true" name="twitter:card" content="summary_large_image" />');
+  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bname="twitter:title")[^>]*>/i, `<meta data-rh="true" name="twitter:title" content="${escapeHtml(siteTitle)}" />`);
+  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bname="twitter:description")[^>]*>/i, `<meta data-rh="true" name="twitter:description" content="${escapeHtml(route.description)}" />`);
+  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bname="twitter:image")[^>]*>/i, `<meta data-rh="true" name="twitter:image" content="${DEFAULT_IMAGE}" />`);
+  next = replaceOrInsert(next, /<link\b(?=[^>]*\brel="canonical")[^>]*>/i, `<link data-rh="true" rel="canonical" href="${canonical}" />`);
+  next = removeTag(next, /\s*<link\b(?=[^>]*\brel="alternate")(?=[^>]*\bhreflang="[^"]+")[^>]*>/gi);
+  const alternates = alternateLinkTags(route);
+  if (alternates) {
+    next = next.replace(/(<link\b(?=[^>]*\brel="canonical")[^>]*>)/i, `$1\n${alternates}`);
+  }
 
-  next = removeTag(next, /\s*<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/gi);
+  next = removeTag(next, /\s*<meta\b(?=[^>]*\bname="robots")[^>]*>/gi);
   if (route.robots) {
-    next = next.replace('</head>', `    <meta name="robots" content="${route.robots}" />\n  </head>`);
+    next = next.replace('</head>', `    <meta data-rh="true" name="robots" content="${route.robots}" />\n  </head>`);
   }
 
   next = removeTag(next, /\s*<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/gi);

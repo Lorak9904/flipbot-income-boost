@@ -6,6 +6,7 @@ import { ArrowRight, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { usePostHog } from '@posthog/react';
 import { SEOHead } from '@/components/SEOHead';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getTranslations } from '@/components/language-utils';
@@ -13,6 +14,7 @@ import { connectAccountsTranslations } from './connect-accounts-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { PLATFORM_LOGOS } from '@/lib/platform-logos';
 import type { PlatformHealthInfo } from '@/lib/api/platform-health';
+import { captureActivationEvent } from '@/lib/analytics/activation';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -60,6 +62,7 @@ const ConnectAccountsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
+  const posthog = usePostHog();
   const t = getTranslations(connectAccountsTranslations);
 
   const fetchConnectedPlatforms = async (): Promise<ConnectedPlatformsState> => {
@@ -166,6 +169,10 @@ const ConnectAccountsPage = () => {
     const country = params.get("country");
     
     if (status === "connected" && platform) {
+      captureActivationEvent(posthog, 'account_connected', {
+        platform,
+        country: country || null,
+      });
       const successToastMap: Record<string, { title: string; description: string }> = {
         olx: {
           title: t.toastOlxConnectedTitle,
@@ -251,6 +258,7 @@ const ConnectAccountsPage = () => {
     t.toastOlxConnectedTitle,
     t.toastOlxReconnectDescription,
     t.toastOlxReconnectTitle,
+    posthog,
   ]);
 
   const handleAccountConnected = () => {

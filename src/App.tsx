@@ -26,6 +26,7 @@ import AddItemPage from "./pages/AddItemPage";
 import EditItemPage from "./pages/EditItemPage";
 import UserItemsPage from "./pages/UserItemsPage";
 import ItemDetailPage from "./pages/ItemDetailPage";
+import UserStatisticsPage from "./pages/UserStatisticsPage";
 import NotFound from "./pages/NotFound";
 import AutomatedResellingPlatformGuide from "./pages/AutomatedResellingPlatformGuide";
 import ArticlesIndex from "./pages/articles/ArticlesIndex";
@@ -42,6 +43,7 @@ import TermsPage from "./pages/Terms";
 import PrivacyPolicyPage from "./pages/PrivacyPolicy";
 import CookiesPolicyPage from "./pages/CookiesPolicy"
 import CookieBanner from "./components/CookieBanner";
+import TawkChat from "./components/TawkChat";
 import ScrollToTop from "./components/ScrollToTop";
 import SettingsPage from "./pages/SettingsPage";
 import PlatformSettingsPage from "./pages/PlatformSettingsPage";
@@ -103,14 +105,18 @@ const App = () => {
                   <Route path="/faq" element={<FAQPage />} />
                   <Route path="/get-started" element={<GetStartedPage />} />
                   <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/pl/regulamin" element={<TermsPage />} />
                   <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                  <Route path="/pl/polityka-prywatnosci" element={<PrivacyPolicyPage />} />
                   <Route path="/cookies" element={<CookiesPolicyPage />} />
+                  <Route path="/pl/polityka-cookies" element={<CookiesPolicyPage />} />
                   <Route element={<RequireAuth />}>
                     <Route path="/connect-accounts" element={<ConnectAccountsPage />} />
                     <Route path="/add-item" element={<AddItemPage />} />
                     <Route path="/user/items" element={<UserItemsPage />} />
                     <Route path="/user/items/:uuid" element={<ItemDetailPage />} />
                     <Route path="/user/items/:uuid/edit" element={<EditItemPage />} />
+                    <Route path="/user/statistics" element={<UserStatisticsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/platform-settings/:platform" element={<PlatformSettingsPage />} />
                   </Route>
@@ -124,6 +130,7 @@ const App = () => {
               </main>
               <Footer />
               <CookieBanner />
+              <TawkChat />
               {/* <WaitlistBadge /> */}
             </div>
           </BrowserRouter>

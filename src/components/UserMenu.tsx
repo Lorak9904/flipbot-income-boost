@@ -141,6 +141,12 @@ const UserMenu = () => {
               <span>Connected Accounts</span>
             </Link>
           </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/user/statistics">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              <span>Stats</span>
+            </Link>
+          </DropdownMenuItem>
           {/* <DropdownMenuItem>
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>

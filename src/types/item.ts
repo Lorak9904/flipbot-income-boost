@@ -294,6 +294,68 @@ export interface ItemStats {
   total_errors: number;
 }
 
+export type ListingStatisticStatus = 'success' | 'unsupported' | 'error' | 'no_data' | 'not_published';
+export type ListingStatisticMetricKind = 'count' | 'rate';
+
+export interface ListingStatisticMetric {
+  key: string;
+  label: string;
+  value: number | null;
+  kind: ListingStatisticMetricKind;
+  unit?: string;
+  previous_value?: number | null;
+  delta_value?: number | null;
+  delta_percent?: number | null;
+}
+
+export interface ListingStatisticsTimeseriesPoint {
+  captured_at: string;
+  metrics: Record<string, number | null>;
+}
+
+export interface ListingPlatformStatisticsPayload {
+  platform: Platform;
+  status: ListingStatisticStatus;
+  external_id?: string | null;
+  source?: string;
+  captured_at?: string | null;
+  metrics: {
+    summary: ListingStatisticMetric[];
+    timeseries: ListingStatisticsTimeseriesPoint[];
+    native?: Record<string, unknown>;
+  };
+  snapshot_id?: number;
+  error_code?: string;
+  message?: string;
+  latest?: ListingPlatformStatisticsPayload;
+  latest_success?: ListingPlatformStatisticsPayload;
+}
+
+export interface ListingStatisticsResponse {
+  item_id: string;
+  refreshed: boolean;
+  platforms: Partial<Record<Platform, ListingPlatformStatisticsPayload>>;
+}
+
+export interface PlatformStatisticsItem {
+  item_id: string;
+  title: string;
+  platform: Platform;
+  status: ListingStatisticStatus;
+  message?: string;
+  external_id?: string | null;
+  listing_url?: string | null;
+  captured_at?: string | null;
+  metrics: ListingStatisticMetric[];
+}
+
+export interface PlatformStatisticsResponse {
+  platform: Platform;
+  supported: boolean;
+  summary: ListingStatisticMetric[];
+  items: PlatformStatisticsItem[];
+}
+
 // Extended GeneratedItemData with dynamic Vinted fields
 export interface GeneratedItemDataWithVinted extends GeneratedItemData {
   marketplace_attributes?: MarketplaceAttributes;

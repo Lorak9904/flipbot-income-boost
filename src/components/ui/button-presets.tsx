@@ -60,11 +60,30 @@ HeroCTA.displayName = 'HeroCTA';
  * Example: "Add Your First Item →", "Get Early Access →"
  */
 export const HeroCTAWithArrow = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className = '', children, ...props }, ref) => (
-    <HeroCTA ref={ref} className={className} {...props}>
-      {children} <ArrowRight className="ml-2 h-5 w-5" />
-    </HeroCTA>
-  )
+  ({ className = '', children, asChild, ...props }, ref) => {
+    const arrow = <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />;
+
+    if (asChild && React.isValidElement<{ children?: React.ReactNode }>(children)) {
+      return (
+        <HeroCTA ref={ref} className={className} asChild {...props}>
+          {React.cloneElement(children, {
+            children: (
+              <>
+                {children.props.children}
+                {arrow}
+              </>
+            ),
+          })}
+        </HeroCTA>
+      );
+    }
+
+    return (
+      <HeroCTA ref={ref} className={className} {...props}>
+        {children} {arrow}
+      </HeroCTA>
+    );
+  }
 );
 HeroCTAWithArrow.displayName = 'HeroCTAWithArrow';
 

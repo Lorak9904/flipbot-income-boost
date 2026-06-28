@@ -4,6 +4,30 @@ import { updateUserLanguage } from '@/lib/api/user';
 export type Language = 'en' | 'pl';
 
 const localizedRouteMap: Record<string, { en: string; pl: string }> = {
+  '/terms': {
+    en: '/terms',
+    pl: '/pl/regulamin',
+  },
+  '/pl/regulamin': {
+    en: '/terms',
+    pl: '/pl/regulamin',
+  },
+  '/privacy': {
+    en: '/privacy',
+    pl: '/pl/polityka-prywatnosci',
+  },
+  '/pl/polityka-prywatnosci': {
+    en: '/privacy',
+    pl: '/pl/polityka-prywatnosci',
+  },
+  '/cookies': {
+    en: '/cookies',
+    pl: '/pl/polityka-cookies',
+  },
+  '/pl/polityka-cookies': {
+    en: '/cookies',
+    pl: '/pl/polityka-cookies',
+  },
   '/articles/jak-sprzedawac-na-allegro': {
     en: '/articles/how-to-sell-on-allegro',
     pl: '/articles/jak-sprzedawac-na-allegro',

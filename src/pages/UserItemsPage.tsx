@@ -26,6 +26,7 @@ import { StatCard, StatCardSkeleton } from '@/components/my_items/stat-card';
 import { SyncListingsButton } from '@/components/my_items/sync-listings-button';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { buildListingEditorUrl } from '@/lib/listing-editor/navigation';
+import { FirstPublishGuide } from '@/components/onboarding/FirstPublishGuide';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -309,6 +310,12 @@ const UserItemsPage = () => {
               {t.pageDescription}
             </p>
           </motion.div>
+
+        <FirstPublishGuide
+          stats={stats}
+          statsLoading={statsLoading}
+          items={items}
+        />
 
         {/* Statistics Cards */}
         {statsLoading ? (

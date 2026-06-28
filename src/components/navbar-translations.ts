@@ -11,6 +11,7 @@ export const navbarTranslations: Translations = {
     faq: 'FAQ',
     addItem: 'Add Item',
     myItems: 'My Items',
+    stats: 'Stats',
     connectAccounts: 'Connect Accounts',
     login: 'Log in',
     signup: 'Sign up',
@@ -26,10 +27,10 @@ export const navbarTranslations: Translations = {
     faq: 'FAQ',
     addItem: 'Dodaj przedmiot',
     myItems: 'Moje przedmioty',
+    stats: 'Statystyki',
     connectAccounts: 'Połącz konta',
     login: 'Zaloguj się',
     signup: 'Załóż konto',
     languageToggle: 'EN' // Shows what language to switch TO
   }
 };
-

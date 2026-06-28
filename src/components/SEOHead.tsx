@@ -4,6 +4,7 @@ interface SEOProps {
   title?: string;
   description?: string;
   canonicalUrl?: string;
+  alternateUrls?: Array<{ hrefLang: string; href: string }>;
   ogImage?: string;
   type?: 'website' | 'article';
   keywords?: string | string[];
@@ -16,6 +17,7 @@ export function SEOHead({
   title = 'FlipIt - AI-Assisted Crosslisting for Faster Listings',
   description = 'FlipIt turns your product photos into marketplace-ready listings with AI. Review, edit, and publish faster — always with your approval.',
   canonicalUrl = 'https://myflipit.live',
+  alternateUrls = [],
   ogImage = '/placeholder.svg',
   type = 'website',
   keywords,
@@ -82,6 +84,14 @@ export function SEOHead({
 
       {/* Additional SEO tags */}
       <link rel="canonical" href={canonicalUrl} />
+      {alternateUrls.map((alternate) => (
+        <link
+          key={`${alternate.hrefLang}:${alternate.href}`}
+          rel="alternate"
+          hrefLang={alternate.hrefLang}
+          href={alternate.href}
+        />
+      ))}
       <meta name="keywords" content={keywordContent} />
       {robots && <meta name="robots" content={robots} />}
 

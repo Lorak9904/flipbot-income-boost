@@ -23,8 +23,11 @@ const Footer = () => {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Logo & tagline */}
           <div>
-            <Link to="/" className="mb-4 flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 font-bold">
+            <Link to="/" className="mb-4 flex items-center gap-2" aria-label="FlipIt">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 font-bold"
+                aria-hidden="true"
+              >
                 FI
               </div>
               <span className="font-heading text-xl font-semibold">FlipIt</span>
@@ -106,17 +109,17 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <Link to="/privacy" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <Link to={getLocalized('/privacy')} className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.privacyPolicy}
                 </Link>
               </li>
               <li>
-                <Link to="/terms" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <Link to={getLocalized('/terms')} className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.terms}
                 </Link>
               </li>
               <li>
-                <Link to="/cookies" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <Link to={getLocalized('/cookies')} className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.cookiesPolicy}
                 </Link>
               </li>

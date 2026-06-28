@@ -21,9 +21,11 @@ import { getTranslations, getCurrentLanguage } from '@/components/language-utils
 import { addItemFormTranslations } from '@/utils/translations/add-item-form-translations';
 import { useCredits } from '@/hooks/useCredits';
 import { useQueryClient } from '@tanstack/react-query';
+import { usePostHog } from '@posthog/react';
 import { InsufficientCreditsAlert } from '@/components/credits';
 import { parseInsufficientCreditsError, parseErrorResponse } from '@/lib/api/error-handler';
 import { SUPPORTED_CURRENCIES, resolveCurrency } from '@/lib/currency';
+import { captureActivationEvent } from '@/lib/analytics/activation';
 
 interface AddItemFormProps {
   onComplete: (generatedData: GeneratedItemDataWithVinted) => void;
@@ -83,6 +85,7 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
   const { user } = useAuth();
   const { data: credits } = useCredits();
   const queryClient = useQueryClient();
+  const posthog = usePostHog();
   const t = getTranslations(addItemFormTranslations);
   const defaultCurrency = resolveCurrency(initialData?.currency, user?.language || language || getCurrentLanguage());
 
@@ -135,7 +138,7 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
        * Build the JSON payload - simplified to only images + optional title + optional expected_price
        * AI generates all other fields (brand, description, condition, category, size, gender)
        */
-      const payload: Record<string, any> = {
+      const payload: Record<string, unknown> = {
         images: images.map((img) => img.url),
         generate_enhanced_image: generateEnhancedImage,
       };
@@ -177,6 +180,15 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
 
       const generatedData = await response.json();
       queryClient.invalidateQueries({ queryKey: ['credits'] });
+      captureActivationEvent(posthog, 'draft_created', {
+        draft_id: generatedData.draft_id,
+        image_count: images.length,
+        enhanced_image_count: Array.isArray(generatedData.enhanced_images)
+          ? generatedData.enhanced_images.length
+          : 0,
+        ai_image_enhancement_requested: generateEnhancedImage,
+        currency: resolveCurrency(generatedData.currency || data.currency, user?.language || language || getCurrentLanguage()),
+      });
 
       console.log('📦 /propose API Response:', generatedData);
 
