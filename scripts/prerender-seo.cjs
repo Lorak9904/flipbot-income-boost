@@ -72,6 +72,24 @@ const routes = [
       'Learn how Vinted sellers can refresh stale listings, improve listing quality, and reduce manual relisting work with FlipIt-assisted marketplace workflows.',
     language: 'en',
     type: 'article',
+    dateModified: '2026-06-29',
+    fallbackHighlights: [
+      'Prepare refreshed Vinted-ready drafts from existing product photos.',
+      'Review updated titles, descriptions, categories, and price context before publishing.',
+      'Avoid duplicate active listings and keep seller approval in the workflow.',
+    ],
+    faq: [
+      {
+        question: 'Is relisting on Vinted allowed?',
+        answer:
+          'Yes, refreshing your own listings is a normal seller practice. Avoid creating duplicate active listings or spamming, which can violate Vinted\'s terms.',
+      },
+      {
+        question: 'Can FlipIt relist to multiple platforms at once?',
+        answer:
+          'Yes! FlipIt supports crosslisting to Vinted, OLX, Facebook Marketplace, eBay, Allegro, and Etsy. Prepare one draft and publish to multiple platforms with a single review.',
+      },
+    ],
   },
   {
     path: '/articles/odswiezanie-ogloszen-vinted',
@@ -88,6 +106,24 @@ const routes = [
       'Adapt Vinted product listings for Facebook Marketplace with better titles, descriptions, pricing context, and manual approval before publishing.',
     language: 'en',
     type: 'article',
+    dateModified: '2026-06-29',
+    fallbackHighlights: [
+      'Turn one Vinted product draft into a Facebook Marketplace-ready version.',
+      'Adjust title, description, category, price context, and publishing details per marketplace.',
+      'Keep inventory status and sold-item cleanup under seller control.',
+    ],
+    faq: [
+      {
+        question: 'Does FlipIt post to Facebook Marketplace automatically?',
+        answer:
+          'FlipIt prepares your listings and you approve before publishing. This keeps you in control while still saving significant time.',
+      },
+      {
+        question: 'What if I want different prices on Vinted vs Facebook?',
+        answer:
+          'FlipIt supports platform-specific price adjustments. You can set rules like "Facebook price = Vinted price + 10%" to account for different buyer expectations.',
+      },
+    ],
   },
   {
     path: '/articles/crosslisting-z-vinted-na-facebook-marketplace',
@@ -99,19 +135,55 @@ const routes = [
   },
   {
     path: '/articles/product-relister-for-vinted',
-    title: 'Product Relister for Vinted Sellers | FlipIt',
+    title: 'Product Relister for Vinted: Relist and Refresh Listings | FlipIt',
     description:
-      'How Vinted sellers can rebuild listing drafts, improve copy, and prepare marketplace-ready listings with less repetitive work.',
+      'Use FlipIt to rebuild Vinted listing drafts from photos, improve titles and descriptions, then review before relisting or cross-listing.',
     language: 'en',
     type: 'article',
+    dateModified: '2026-06-29',
+    fallbackHighlights: [
+      'Prepare a fresh Vinted listing draft from existing product photos and details.',
+      'Improve stale titles, descriptions, categories, and price context before relisting.',
+      'Adapt the same item for Facebook Marketplace, OLX, eBay, Allegro, or Etsy after seller review.',
+    ],
+    faq: [
+      {
+        question: 'What\'s the difference between relisting and refreshing?',
+        answer:
+          'Refreshing usually means updating an existing listing. Relisting often means preparing a new version of the listing. FlipIt helps with the draft work, but you still review before publishing.',
+      },
+      {
+        question: 'Does FlipIt automatically relist my items?',
+        answer:
+          'No. FlipIt helps prepare the content and publishing workflow, but you approve actions before listings go live.',
+      },
+    ],
   },
   {
     path: '/articles/relister-produktow-vinted',
-    title: 'Relister produktow dla sprzedawcow Vinted | FlipIt',
+    title: 'Relister produktów dla Vinted: wznawiaj i odświeżaj ogłoszenia | FlipIt',
     description:
-      'Jak przygotowywac nowe wersje ofert Vinted szybciej, bez tracenia kontroli nad opisem, cena i publikacja ogloszenia.',
+      'Użyj FlipIt, aby przygotować nowy szkic ogłoszenia Vinted ze zdjęć, poprawić tytuł i opis, a potem zatwierdzić publikację.',
     language: 'pl',
     type: 'article',
+    dateModified: '2026-06-29',
+    fallbackHighlights: [
+      'Przygotuj świeży szkic ogłoszenia Vinted na podstawie zdjęć i danych produktu.',
+      'Popraw stary tytuł, opis, kategorię i kontekst ceny przed ponownym wystawieniem.',
+      'Dopasuj ten sam produkt do Facebook Marketplace, OLX, eBay, Allegro albo Etsy po sprawdzeniu przez sprzedawcę.',
+    ],
+    faq: [
+      {
+        question: 'Jaka jest różnica między wznawianiem a odświeżaniem?',
+        answer:
+          'Odświeżanie zwykle oznacza aktualizację istniejącego ogłoszenia. Wznawianie częściej polega na przygotowaniu nowej wersji oferty. FlipIt pomaga w pracy nad szkicem, ale publikację nadal zatwierdzasz samodzielnie.',
+      },
+      {
+        question: 'Czy FlipIt automatycznie wznawia moje produkty?',
+        answer:
+          'Nie. FlipIt pomaga przygotować treść i proces publikacji, ale działania zatwierdzasz przed wystawieniem oferty.',
+      },
+    ],
   },
   {
     path: '/articles/how-to-sell-on-allegro',
@@ -184,6 +256,24 @@ const routes = [
       'Prepare Etsy listing drafts from photos with category, attributes, price, shipping profile, active-listing import, and seller review before publishing.',
     language: 'en',
     type: 'article',
+    dateModified: '2026-06-26',
+    fallbackHighlights: [
+      'Prepare Etsy listing drafts from product photos and seller-provided details.',
+      'Review category, attributes, price, shipping profile, and shop-specific fields.',
+      'Use active-listing import and seller approval before publishing changes.',
+    ],
+    faq: [
+      {
+        question: 'Can FlipIt import my current Etsy listings?',
+        answer:
+          'Yes. After you connect an Etsy shop, FlipIt can import active Etsy listings into your workspace. If the connection expires, you reconnect before importing again.',
+      },
+      {
+        question: 'Does FlipIt publish to Etsy automatically?',
+        answer:
+          'No. FlipIt prepares the draft and required details, but you review and approve the listing before it is published.',
+      },
+    ],
   },
   {
     path: '/articles/narzedzie-do-ogloszen-etsy',
@@ -388,13 +478,21 @@ function buildSeoFallback(route, siteTitle, canonical) {
   const copy = localizedFallbackCopy(route.language);
   const heading = route.heading || stripSiteSuffix(siteTitle);
   const contentTag = route.type === 'article' ? 'article' : 'section';
+  const fallbackLinks = route.fallbackLinks || copy.links;
+  const fallbackHighlights = route.fallbackHighlights || copy.highlights;
   const navLinks = copy.links
     .map(
       (link) =>
         `          <a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`
     )
     .join('\n');
-  const highlights = copy.highlights
+  const contextualLinks = fallbackLinks
+    .map(
+      (link) =>
+        `            <li><a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a></li>`
+    )
+    .join('\n');
+  const highlights = fallbackHighlights
     .map((item) => `            <li>${escapeHtml(item)}</li>`)
     .join('\n');
 
@@ -412,6 +510,10 @@ ${navLinks}
           <h2>${escapeHtml(copy.coverageHeading)}</h2>
           <ul>
 ${highlights}
+          </ul>
+          <h2>${route.language === 'pl' ? 'Powiązane strony' : 'Related pages'}</h2>
+          <ul>
+${contextualLinks}
           </ul>
           <p><a href="${escapeHtml(canonical)}">${escapeHtml(canonical)}</a></p>
         </${contentTag}>
@@ -456,12 +558,116 @@ function alternateLinkTags(route) {
     .join('\n');
 }
 
+function buildBreadcrumbStructuredData(route, canonical, siteTitle) {
+  const items = [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: `${SITE_URL}/`,
+    },
+  ];
+
+  if (route.path.startsWith('/articles') && route.path !== '/articles') {
+    items.push({
+      '@type': 'ListItem',
+      position: items.length + 1,
+      name: route.language === 'pl' ? 'Poradniki' : 'Articles',
+      item: `${SITE_URL}/articles`,
+    });
+  }
+
+  items.push({
+    '@type': 'ListItem',
+    position: items.length + 1,
+    name: stripSiteSuffix(siteTitle),
+    item: canonical,
+  });
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items,
+  };
+}
+
+function buildArticleStructuredData(route, canonical, siteTitle) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: stripSiteSuffix(siteTitle),
+    description: route.description,
+    author: {
+      '@type': 'Organization',
+      name: 'FlipIt',
+      url: SITE_URL,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'FlipIt',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/favicon.ico`,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonical,
+    },
+    datePublished: route.datePublished || '2026-01-06',
+    dateModified: route.dateModified || route.datePublished || '2026-06-29',
+  };
+}
+
+function buildFaqStructuredData(route) {
+  if (!route.faq?.length) {
+    return null;
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: route.faq.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
+}
+
+function routeStructuredData(route, canonical, siteTitle) {
+  const generated = [];
+
+  if (route.type === 'article') {
+    generated.push(buildArticleStructuredData(route, canonical, siteTitle));
+  }
+
+  if (route.path === '/articles' || route.path.startsWith('/articles/')) {
+    generated.push(buildBreadcrumbStructuredData(route, canonical, siteTitle));
+  }
+
+  const faqStructuredData = buildFaqStructuredData(route);
+  if (faqStructuredData) {
+    generated.push(faqStructuredData);
+  }
+
+  return generated;
+}
+
 function applySeo(html, route) {
   const canonical = absoluteUrl(route.path);
   const siteTitle = route.title.includes('FlipIt') ? route.title : `${route.title} | FlipIt`;
   const ogType = route.type || 'website';
   const locale = route.language === 'pl' ? 'pl_PL' : 'en_US';
-  const structuredData = [baseWebsite, baseOrganization, ...(route.structuredData || [])];
+  const structuredData = [
+    baseWebsite,
+    baseOrganization,
+    ...routeStructuredData(route, canonical, siteTitle),
+    ...(route.structuredData || []),
+  ];
 
   let next = html.replace(/<html\s+lang="[^"]*"/i, `<html lang="${route.language || 'en'}"`);
 

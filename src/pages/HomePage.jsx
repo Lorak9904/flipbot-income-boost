@@ -1,8 +1,9 @@
+import { useEffect, useState } from 'react';
 import { HeroCTA, SecondaryActionWithArrow } from '@/components/ui/button-presets';
 import { SEOHead } from '@/components/SEOHead';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Users, Zap, BadgeCheck, UploadCloud } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Users, Zap, BadgeCheck, UploadCloud, Store, Send } from 'lucide-react';
 import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '../components/language-utils';
 import { homePageTranslations } from './homepage-translations';
 import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
@@ -17,7 +18,157 @@ const fadeUp = {
   }),
 };
 
-  const HomePage = () => {
+const platformTone = {
+  ready: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
+  published: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
+};
+
+const PREVIEW_ROTATION_MS = 4500;
+
+function HeroListingPreview({ t }) {
+  const listings = t.previewListings ?? [];
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeListing = listings[activeIndex % listings.length];
+
+  useEffect(() => {
+    if (listings.length <= 1 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setActiveIndex((currentIndex) => (currentIndex + 1) % listings.length);
+    }, PREVIEW_ROTATION_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, [activeIndex, listings.length]);
+
+  if (!activeListing) {
+    return null;
+  }
+
+  return (
+    <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-neutral-900/60 p-4 text-left shadow-xl shadow-fuchsia-500/10 backdrop-blur">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">
+            <Store className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold text-white">{t.previewTitle}</p>
+            <p className="text-xs text-neutral-400">{t.previewSubtitle}</p>
+          </div>
+        </div>
+        <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-300">
+          {activeListing.status}
+        </span>
+      </div>
+
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={activeListing.id}
+          initial={{ opacity: 0, x: 18 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -18 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+          className="grid gap-3 sm:grid-cols-[0.95fr_1.05fr]"
+        >
+          <div className="rounded-2xl border border-white/10 bg-neutral-950/70 p-2.5">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-neutral-950">
+              <img
+                src={activeListing.imageSrc}
+                alt={activeListing.imageAlt}
+                width="1200"
+                height="900"
+                loading="eager"
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute bottom-2 left-2 rounded-full bg-neutral-950/85 px-2.5 py-1 text-[11px] font-medium text-neutral-200 ring-1 ring-white/10">
+                {t.previewPhotoLabel}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2.5">
+            <div className="rounded-2xl border border-white/10 bg-neutral-950/60 p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-neutral-500">{t.previewDraftLabel}</p>
+                  <p className="mt-1 text-sm font-semibold leading-tight text-white">{activeListing.title}</p>
+                </div>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                <div className="rounded-lg bg-white/5 p-2.5">
+                  <p className="text-xs text-neutral-500">{t.previewPriceLabel}</p>
+                  <p className="mt-1 font-semibold text-cyan-300">{activeListing.price}</p>
+                </div>
+                <div className="rounded-lg bg-white/5 p-2.5">
+                  <p className="text-xs text-neutral-500">{t.previewCategoryLabel}</p>
+                  <p className="mt-1 font-semibold text-neutral-100">{activeListing.category}</p>
+                </div>
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {activeListing.metrics.map((metric) => (
+                  <div key={metric.label} className="rounded-lg border border-white/10 bg-white/[0.03] p-2">
+                    <p className="text-[11px] text-neutral-500">{metric.label}</p>
+                    <p className="mt-0.5 text-sm font-semibold text-neutral-100">{metric.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {activeListing.platforms.map((row) => (
+              <div
+                key={row.name}
+                className="flex items-center justify-between rounded-xl border border-white/10 bg-neutral-950/50 px-3 py-2"
+              >
+                <span className="flex items-center gap-2 text-sm font-medium text-neutral-100">
+                  <Store className="h-4 w-4 text-neutral-500" aria-hidden="true" />
+                  {row.name}
+                </span>
+                <span className={`rounded-full border px-2 py-0.5 text-xs ${platformTone[row.tone]}`}>
+                  {row.status}
+                </span>
+              </div>
+            ))}
+
+            <div className="flex items-center justify-between rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-3 py-2.5 text-cyan-100">
+              <span className="text-sm font-semibold">{activeListing.actionLabel}</span>
+              <Send className="h-4 w-4 text-cyan-300" aria-hidden="true" />
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      {listings.length > 1 && (
+        <div className="mt-3 flex justify-center gap-2">
+          {listings.map((listing, index) => (
+            <button
+              key={listing.id}
+              type="button"
+              aria-label={`${t.previewCarouselLabel} ${index + 1}`}
+              aria-current={index === activeIndex}
+              onClick={() => setActiveIndex(index)}
+              className={`h-2.5 rounded-full border transition-all ${
+                index === activeIndex
+                  ? 'w-8 border-cyan-200 bg-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.42)]'
+                  : 'w-2.5 border-white bg-white hover:border-cyan-100 hover:bg-cyan-100'
+              }`}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="hidden" aria-hidden="true">
+        {listings.slice(1).map((listing) => (
+          <img key={listing.id} src={listing.imageSrc} alt="" width="1200" height="900" loading="lazy" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const HomePage = () => {
   const t = getTranslations(homePageTranslations);
   const language = getCurrentLanguage();
   const olxHubPath = getLocalizedPathForLanguage('/articles/olx-listing-automation-by-country', language);
@@ -49,11 +200,6 @@ const fadeUp = {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'PLN',
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      ratingCount: '128',
     },
     featureList: [
       'AI-generated listing drafts from photos',
@@ -168,40 +314,52 @@ const fadeUp = {
         }
       `}</style>
 
-      {/* Hero Section - Improved layout with title as main eye-catcher */}
+      {/* Hero Section - Original visual treatment with product preview */}
       <section className="relative isolate overflow-hidden min-h-[70vh] flex items-center justify-center py-24">
         <div className="container mx-auto px-4 sm:px-6 md:px-8">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            className="text-center mb-16"
-          >
-            <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-neutral-950/55 px-4 py-2 text-sm font-semibold text-neutral-100 shadow-[0_0_30px_rgba(6,182,212,0.12)] backdrop-blur-md mb-8">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-400/15 text-cyan-300 ring-1 ring-cyan-300/30">
-                <UploadCloud className="h-3.5 w-3.5" aria-hidden="true" />
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              className="text-center lg:text-left"
+            >
+              <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-neutral-950/55 px-4 py-2 text-sm font-semibold text-neutral-100 shadow-[0_0_30px_rgba(6,182,212,0.12)] backdrop-blur-md mb-8">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-400/15 text-cyan-300 ring-1 ring-cyan-300/30">
+                  <UploadCloud className="h-3.5 w-3.5" aria-hidden="true" />
+                </span>
+                {t.heroBadge}
               </span>
-              {t.heroBadge}
-            </span>
-            <h1 className="my-custom-font hero-title font-extrabold tracking-tight leading-tight mb-8 max-w-5xl mx-auto">
-              {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight1}</span> {t.heroTitleEnd}&nbsp;
-              <span className="bg-gradient-to-r from-fuchsia-400 to-cyan-400 inline-block text-transparent bg-clip-text">{t.heroTitleHighlight2}</span>.
-            </h1>
-            <p className="max-w-2xl text-lg/relaxed text-neutral-300 mx-auto mb-8">
-              {t.heroDescription}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <HeroCTA asChild>
-                <Link to="/get-started">{t.startFlipping}</Link>
-              </HeroCTA>
-              <Link to="/how-it-works">
-                <SecondaryActionWithArrow>
-                  {t.seeHowItWorks}
-                </SecondaryActionWithArrow>
-              </Link>
-            </div>
-          </motion.div>
+              <h1 className="my-custom-font hero-title font-extrabold tracking-tight leading-tight mb-8 max-w-5xl mx-auto lg:mx-0">
+                {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight1}</span> {t.heroTitleEnd}&nbsp;
+                <span className="bg-gradient-to-r from-fuchsia-400 to-cyan-400 inline-block text-transparent bg-clip-text">{t.heroTitleHighlight2}</span>.
+              </h1>
+              <p className="max-w-2xl text-lg/relaxed text-neutral-300 mx-auto lg:mx-0 mb-8">
+                {t.heroDescription}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <HeroCTA asChild>
+                  <Link to="/get-started">{t.startFlipping}</Link>
+                </HeroCTA>
+                <Link to="/how-it-works">
+                  <SecondaryActionWithArrow>
+                    {t.seeHowItWorks}
+                  </SecondaryActionWithArrow>
+                </Link>
+              </div>
+            </motion.div>
+
+            <motion.div
+              custom={2}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeUp}
+            >
+              <HeroListingPreview t={t} />
+            </motion.div>
+          </div>
         </div>
 
         {/* Enhanced gradient ring decoration */}
@@ -352,14 +510,3 @@ const fadeUp = {
 };
 
 export default HomePage;
-
-
-
-
-
-
-
-
-
-
-

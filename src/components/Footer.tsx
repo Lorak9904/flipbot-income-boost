@@ -91,6 +91,16 @@ const Footer = () => {
                   {t.productRelister}
                 </Link>
               </li>
+              <li>
+                <Link to={getLocalized('/articles/olx-listing-automation-by-country')} className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  {t.olxAutomation}
+                </Link>
+              </li>
+              <li>
+                <Link to={getLocalized('/articles/etsy-listing-tool')} className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  {t.etsyListingTool}
+                </Link>
+              </li>
             </ul>
           </nav>
 

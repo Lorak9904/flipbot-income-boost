@@ -10,19 +10,15 @@ import {
   type UpdateItemPayload,
 } from '@/lib/api/items';
 import { Platform, UserItem } from '@/types/item';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { BackButtonGradient, BackButtonGhost } from '@/components/ui/button-presets';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Loader2, CheckCircle2, XCircle, Clock, Trash2, ChevronDown } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/SEOHead';
-import { format } from 'date-fns';
-import { cdnThumb, resolveItemImageUrl } from '@/lib/images';
-import { formatMoney } from '@/lib/currency';
+import { resolveItemImageUrl } from '@/lib/images';
 import { ImagePreview } from '@/components/ImagePreview';
 import { ItemActions } from '@/components/ItemActions';
 import { useQuery } from '@tanstack/react-query';
@@ -33,7 +29,17 @@ import { fetchPlatformHealth, toPlatformConnectedMap } from '@/lib/api/platform-
 import { AiFieldRegenerationControl } from '@/components/listing-editor/AiFieldRegenerationControl';
 import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
 import { MarketplaceStatisticsSection } from '@/components/statistics/MarketplaceStatisticsSection';
-import { ALL_PLATFORMS } from '@/lib/platforms';
+import { ALL_PLATFORMS, formatPlatformLabel } from '@/lib/platforms';
+import {
+  ListingActionPanel,
+  ListingActivityPanel,
+  ListingAdvancedDetails,
+  ListingIdentityBar,
+  ListingMediaPanel,
+  ListingOverviewGrid,
+  PendingPublishBanner,
+  PublishingStatusPanel,
+} from '@/components/listing-detail/ListingDetailSections';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -163,14 +169,6 @@ const ItemDetailPage = () => {
     }
   };
 
-  const formatPlatformLabel = useCallback((platform: Platform) => {
-    if (platform === 'ebay') return 'eBay';
-    if (platform === 'olx') return 'OLX';
-    if (platform === 'allegro') return 'Allegro';
-    if (platform === 'facebook') return 'Facebook';
-    return platform.charAt(0).toUpperCase() + platform.slice(1);
-  }, []);
-
   const getStatusBadgeClass = (statusValue: string) => {
     if (statusValue === 'active') return 'bg-green-500/20 text-green-400 border-green-500/50';
     if (statusValue === 'sold') return 'bg-blue-500/20 text-blue-400 border-blue-500/50';
@@ -228,22 +226,6 @@ const ItemDetailPage = () => {
     />
   );
 
-  const renderEditableOverviewCard = (
-    field: RegeneratableItemField,
-    label: string,
-    value?: string
-  ) => (
-    <div className="rounded-lg bg-neutral-800/50 p-4">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-xs uppercase tracking-wide text-neutral-400">{label}</p>
-        {renderAiRegenerationControl(field)}
-      </div>
-      <p className={`mt-2 text-sm text-neutral-200 ${fieldIsRegenerating(field) ? 'opacity-60' : ''}`}>
-        {value || 'Not set'}
-      </p>
-    </div>
-  );
-
   const publishedPlatformSet = useMemo(
     () =>
       new Set(
@@ -266,7 +248,7 @@ const ItemDetailPage = () => {
     platforms.length === 1
       ? `Publish changes to ${formatPlatformLabel(platforms[0])}`
       : 'Publish changes to all marketplaces',
-    [formatPlatformLabel]
+    []
   );
   const pendingMarketplaceLabels = dirtySyncPlatforms
     .map((platform) => formatPlatformLabel(platform))
@@ -282,6 +264,13 @@ const ItemDetailPage = () => {
       allowed.has(platform as Platform)
     );
   }, [item]);
+  const imageUrls = useMemo(
+    () =>
+      (item?.images || [])
+        .map((image) => resolveItemImageUrl(image))
+        .filter((url): url is string => Boolean(url)),
+    [item?.images]
+  );
 
   useEffect(() => {
     if (!item || editToastShownRef.current) return;
@@ -315,7 +304,7 @@ const ItemDetailPage = () => {
     nextParams.delete('updated');
     nextParams.delete('dirty');
     setSearchParams(nextParams, { replace: true });
-  }, [item, searchParams, setSearchParams, toast, dirtySyncPlatforms, formatPlatformLabel, getMarketplaceUpdateActionLabel]);
+  }, [item, searchParams, setSearchParams, toast, dirtySyncPlatforms, getMarketplaceUpdateActionLabel]);
 
   if (authLoading || loading) {
     return (
@@ -350,10 +339,10 @@ const ItemDetailPage = () => {
         title={`${item.title} - My Listings - FlipIt`}
         description={item.description}
       />
-      <div className="relative min-h-screen text-white overflow-hidden">
+      <div className="relative min-h-screen overflow-hidden bg-neutral-950 text-white">
         <AnimatedGradientBackground />
 
-        <div className="relative container mx-auto px-4 py-8 max-w-5xl">
+        <div className="relative container mx-auto max-w-7xl px-4 py-8">
           <motion.div
             initial="hidden"
             animate="visible"
@@ -364,46 +353,66 @@ const ItemDetailPage = () => {
               onClick={() => navigate('/user/items')}
               className="mb-4"
             >
-                Back to Listings
+              Back to Listings
             </BackButtonGhost>
           </motion.div>
 
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          custom={1}
-        >
-          <Card className="bg-neutral-900/50 border-neutral-800 backdrop-blur-sm">
-            <CardHeader className="pb-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start gap-2">
-                    <CardTitle
-                      className={`flex-1 text-xl sm:text-2xl text-white break-words ${fieldIsRegenerating('title') ? 'opacity-60' : ''}`}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            custom={1}
+            className="space-y-6"
+          >
+            <section className="rounded-2xl border border-neutral-800 bg-neutral-950/50 p-5 shadow-2xl shadow-cyan-950/10 backdrop-blur md:p-6">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    {item.stage && (
+                      <Badge
+                        className={
+                          item.stage === 'published'
+                            ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50'
+                            : 'bg-neutral-700/50 text-neutral-300 border-neutral-600'
+                        }
+                      >
+                        {item.stage}
+                      </Badge>
+                    )}
+                    <Badge className={getStatusBadgeClass(item.status)}>{item.status}</Badge>
+                    {dirtySyncPlatforms.length > 0 && (
+                      <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/50">
+                        {dirtySyncPlatforms.length} marketplace publish pending
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <h1
+                      className={`min-w-0 flex-1 break-words text-3xl font-extrabold leading-tight text-white md:text-4xl ${fieldIsRegenerating('title') ? 'opacity-60' : ''}`}
                     >
                       {item.title}
-                    </CardTitle>
+                    </h1>
                     {renderAiRegenerationControl('title')}
                   </div>
-                  {item.stage && (
-                    <Badge
-                      className={`mt-2 ${item.stage === 'published' 
-                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50' 
-                        : 'bg-neutral-700/50 text-neutral-300 border-neutral-600'} text-sm px-2 py-0.5`}
+
+                  <div className="mt-4 flex items-start gap-3">
+                    <p
+                      className={`max-w-3xl flex-1 whitespace-pre-wrap text-sm leading-6 text-neutral-300 md:text-base ${fieldIsRegenerating('description') ? 'opacity-60' : ''}`}
                     >
-                      {item.stage}
-                    </Badge>
-                  )}
-                  {dirtySyncPlatforms.length > 0 && (
-                    <Badge className="ml-2 mt-2 bg-amber-500/20 text-amber-300 border-amber-500/50 text-sm px-2 py-0.5">
-                      {dirtySyncPlatforms.length} marketplace publish pending
-                    </Badge>
-                  )}
+                      {item.description}
+                    </p>
+                    {renderAiRegenerationControl('description')}
+                  </div>
+
+                  <div className="mt-4">
+                    <ListingIdentityBar item={item} />
+                  </div>
                 </div>
-                <div className="flex-shrink-0">
-                  <ItemActions 
-                    item={item} 
+
+                <div className="hidden lg:block">
+                  <ItemActions
+                    item={item}
                     connectedPlatforms={connectedPlatforms || {}}
                     onRefresh={() => {
                       if (uuid) {
@@ -414,368 +423,68 @@ const ItemDetailPage = () => {
                   />
                 </div>
               </div>
-              <div className="mt-4 flex items-start gap-2">
-                <CardDescription
-                  className={`flex-1 text-sm sm:text-base text-neutral-400 ${fieldIsRegenerating('description') ? 'opacity-60' : ''}`}
-                >
-                  {item.description}
-                </CardDescription>
-                {renderAiRegenerationControl('description')}
-              </div>
-            </CardHeader>
-            <CardContent>
-              {/* Images */}
-              {item.images && item.images.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Images</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                    {item.images.map((image, index) => {
-                      const imageUrl = resolveItemImageUrl(image);
-                      if (!imageUrl) return null;
-                      return (
-                        <button
-                          key={`${imageUrl}-${index}`}
-                          type="button"
-                          onClick={() => {
-                            setPreviewIndex(index);
-                            setPreviewOpen(true);
-                          }}
-                          className="relative aspect-square w-full rounded-lg overflow-hidden border border-neutral-800 hover:border-cyan-400/50 transition-all focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                        >
-                          <img
-                            src={cdnThumb(imageUrl)}
-                            alt={`${item.title} - ${index + 1}`}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+            </section>
 
-              <Separator className="my-6 bg-neutral-800" />
+            <PendingPublishBanner
+              count={dirtySyncPlatforms.length}
+              marketplaceLabels={pendingMarketplaceLabels}
+              actionLabel={pendingMarketplaceActionLabel}
+            />
 
-              {dirtySyncPlatforms.length > 0 && (
-                <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-amber-300">Marketplace publish pending</p>
-                      <p className="text-sm text-amber-100/90">
-                        Saved in FlipIt. Use "{pendingMarketplaceActionLabel}" from the action menu to publish changes to {pendingMarketplaceLabels}.
-                      </p>
-                    </div>
-                    <Badge className="w-fit bg-amber-500/20 text-amber-300 border-amber-500/50">
-                      {dirtySyncPlatforms.length} pending publish action{dirtySyncPlatforms.length === 1 ? '' : 's'}
-                    </Badge>
-                  </div>
-                </div>
-              )}
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
+              <main className="space-y-6">
+                <ListingOverviewGrid
+                  item={item}
+                  statusBadgeClass={getStatusBadgeClass}
+                  renderAiRegenerationControl={renderAiRegenerationControl}
+                  fieldIsRegenerating={fieldIsRegenerating}
+                  formatPlatformLabel={formatPlatformLabel}
+                />
 
-              <div className="mb-6">
-                <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Listing Overview</h3>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  <div className="rounded-lg bg-neutral-800/50 p-4">
-                    <p className="text-xs uppercase tracking-wide text-neutral-400">Status</p>
-                    <Badge className={`mt-2 ${getStatusBadgeClass(item.status)}`}>{item.status}</Badge>
-                  </div>
-                  <div className="rounded-lg bg-neutral-800/50 p-4">
-                    <p className="text-xs uppercase tracking-wide text-neutral-400">Price</p>
-                    <p className="mt-2 text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
-                      {formatMoney(item.price, item.currency)}
-                    </p>
-                  </div>
-                  {renderEditableOverviewCard('category', 'Category', item.category)}
-                  {renderEditableOverviewCard('condition', 'Condition', item.condition)}
-                  {renderEditableOverviewCard('brand', 'Brand', item.brand)}
-                  {renderEditableOverviewCard('size', 'Size', item.size)}
-                </div>
-              </div>
+                <PublishingStatusPanel
+                  item={item}
+                  t={t}
+                  onRemovePlatform={setDeletePlatform}
+                  formatPlatformLabel={formatPlatformLabel}
+                />
 
-              <Separator className="my-6 bg-neutral-800" />
+                <MarketplaceStatisticsSection itemId={item.uuid} platforms={statisticsPlatforms} />
 
-              <div className="mb-6">
-                <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Activity</h3>
-                <div className="rounded-lg bg-neutral-800/50 p-4 space-y-3">
-                  {item.created_at && (
-                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                      <dt className="text-sm text-neutral-400">Created</dt>
-                      <dd className="text-neutral-200">{format(new Date(item.created_at), 'PPp')}</dd>
-                    </div>
-                  )}
-                  {item.updated_at && (
-                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                      <dt className="text-sm text-neutral-400">Last updated</dt>
-                      <dd className="text-neutral-200">{format(new Date(item.updated_at), 'PPp')}</dd>
-                    </div>
-                  )}
-                  {item.published_at && (
-                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                      <dt className="text-sm text-neutral-400">First published</dt>
-                      <dd className="text-neutral-200">{format(new Date(item.published_at), 'PPp')}</dd>
-                    </div>
-                  )}
-                  {item.platform_lifecycle_status && Object.keys(item.platform_lifecycle_status).length > 0 && (
-                    <div className="space-y-2 pt-2 border-t border-neutral-700">
-                      <p className="text-sm font-medium text-neutral-300">Marketplace activity timeline</p>
-                      {Object.entries(item.platform_lifecycle_status).map(([platform, lifecycle]) => (
-                        <div key={platform} className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
-                          <span className="text-neutral-400">{formatPlatformLabel(platform as Platform)}</span>
-                          <span className="text-neutral-200">
-                            {lifecycle?.last_operation_type || 'No operations yet'}
-                            {lifecycle?.last_result ? ` · ${lifecycle.last_result}` : ''}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+                <ListingActivityPanel item={item} formatPlatformLabel={formatPlatformLabel} />
 
-              <Separator className="my-6 bg-neutral-800" />
+                <ListingAdvancedDetails item={item} formatPlatformLabel={formatPlatformLabel} />
+              </main>
 
-              <MarketplaceStatisticsSection itemId={item.uuid} platforms={statisticsPlatforms} />
+              <aside className="order-first space-y-4 lg:sticky lg:top-24 lg:order-last">
+                <ListingMediaPanel
+                  item={item}
+                  imageUrls={imageUrls}
+                  onPreview={(index) => {
+                    setPreviewIndex(index);
+                    setPreviewOpen(true);
+                  }}
+                />
 
-              <Collapsible className="mb-6 rounded-lg border border-neutral-800 bg-neutral-900/40 p-4">
-                <CollapsibleTrigger asChild>
-                  <Button type="button" variant="ghost" className="w-full justify-between text-neutral-200 hover:bg-neutral-800/60">
-                    Advanced details
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-4 space-y-4">
-                  <div className="rounded-lg bg-neutral-800/50 p-4">
-                    <p className="text-xs uppercase tracking-wide text-neutral-400">UUID</p>
-                    <p className="mt-2 font-mono text-xs break-all text-neutral-200">{item.uuid}</p>
-                  </div>
-
-                  {item.description_full && (
-                    <div className="rounded-lg bg-neutral-800/50 p-4">
-                      <p className="text-xs uppercase tracking-wide text-neutral-400">Full description</p>
-                      <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-200">{item.description_full}</p>
-                    </div>
-                  )}
-
-                  {(item.catalog_path || item.weight_kg || item.dimensions_cm || item.shipping_advice) && (
-                    <div className="rounded-lg bg-neutral-800/50 p-4 space-y-3">
-                      {item.catalog_path && (
-                        <div>
-                          <p className="text-xs uppercase tracking-wide text-neutral-400">Catalog path</p>
-                          <p className="mt-1 text-sm text-neutral-200">{item.catalog_path}</p>
-                        </div>
-                      )}
-                      {item.weight_kg && (
-                        <div>
-                          <p className="text-xs uppercase tracking-wide text-neutral-400">Weight</p>
-                          <p className="mt-1 text-sm text-neutral-200">{item.weight_kg} kg</p>
-                        </div>
-                      )}
-                      {item.dimensions_cm && (
-                        <div>
-                          <p className="text-xs uppercase tracking-wide text-neutral-400">Dimensions</p>
-                          <pre className="mt-1 text-xs bg-neutral-900/60 p-2 rounded border border-neutral-700 overflow-auto text-neutral-200">
-                            {JSON.stringify(item.dimensions_cm, null, 2)}
-                          </pre>
-                        </div>
-                      )}
-                      {item.shipping_advice && (
-                        <div>
-                          <p className="text-xs uppercase tracking-wide text-neutral-400">Shipping advice</p>
-                          <pre className="mt-1 text-xs bg-neutral-900/60 p-2 rounded border border-neutral-700 overflow-auto text-neutral-200">
-                            {JSON.stringify(item.shipping_advice, null, 2)}
-                          </pre>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {item.analysis && (
-                    <div className="rounded-lg bg-neutral-800/50 p-4">
-                      <p className="text-xs uppercase tracking-wide text-neutral-400">AI analysis payload</p>
-                      <pre className="mt-2 text-xs bg-neutral-900/60 p-2 rounded border border-neutral-700 overflow-auto max-h-96 text-neutral-200">
-                        {JSON.stringify(item.analysis, null, 2)}
-                      </pre>
-                    </div>
-                  )}
-
-                  {item.recent_lifecycle_events && item.recent_lifecycle_events.length > 0 && (
-                    <div className="rounded-lg bg-neutral-800/50 p-4">
-                      <p className="text-xs uppercase tracking-wide text-neutral-400">Recent lifecycle events</p>
-                      <div className="mt-2 space-y-1 text-xs text-neutral-300">
-                        {item.recent_lifecycle_events.slice(0, 8).map((event, index) => (
-                          <div key={`${event.platform}-${event.operation_type}-${event.attempted_at || index}`}>
-                            {formatPlatformLabel(event.platform)} · {event.operation_type} · {event.status}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CollapsibleContent>
-              </Collapsible>
-
-              {/* Platforms */}
-              <div className="mb-6">
-                <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Target Platforms</h3>
-                <div className="flex gap-2">
-                  {(Array.isArray(item.platforms) ? item.platforms : []).map((platform) => (
-                    <Badge 
-                      key={platform} 
-                      className="text-base px-3 py-1 bg-neutral-800/50 text-neutral-300 border-neutral-700"
-                    >
-                      {platform}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Publish Results */}
-              {item.publish_results && item.publish_results.length > 0 && (
-                <>
-                  <Separator className="my-6 bg-neutral-800" />
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Publishing Status</h3>
-                    <div className="space-y-3">
-                      {item.publish_results.map((result) => {
-                        const isRemoved = result.status === 'removed';
-                        const isSuccess = !isRemoved && (result.status === 'success' || result.success);
-                        const isPending = result.status === 'pending';
-                        const isError = result.status === 'error' || result.error_message;
-                        const canRemove =
-                          isSuccess &&
-                          (result.platform === 'olx' ||
-                            result.platform === 'ebay' ||
-                            result.platform === 'allegro' ||
-                            result.platform === 'etsy');
-                        
-                        return (
-                          <Card 
-                            key={result.platform}
-                            className="bg-neutral-800/30 border-neutral-700"
-                          >
-                            <CardContent className="pt-4">
-                              <div className="flex flex-col sm:flex-row items-start gap-3">
-                                <div className="flex items-start gap-3 flex-1 min-w-0">
-                                  {isSuccess ? (
-                                    <CheckCircle2 className="h-5 w-5 text-emerald-400 mt-0.5" />
-                                  ) : isRemoved ? (
-                                    <CheckCircle2 className="h-5 w-5 text-neutral-400 mt-0.5" />
-                                  ) : isError ? (
-                                    <XCircle className="h-5 w-5 text-red-400 mt-0.5" />
-                                  ) : (
-                                    <Clock className="h-5 w-5 text-neutral-400 mt-0.5" />
-                                  )}
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <span className="font-semibold capitalize text-white">
-                                        {result.platform}
-                                      </span>
-                                      {isSuccess && (
-                                        <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/50">
-                                          Published
-                                        </Badge>
-                                      )}
-                                      {isPending && (
-                                        <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/50">
-                                          Pending
-                                        </Badge>
-                                      )}
-                                      {isRemoved && (
-                                        <Badge className="bg-neutral-500/20 text-neutral-300 border-neutral-500/50">
-                                          Removed
-                                        </Badge>
-                                      )}
-                                      {isError && (
-                                        <Badge className="bg-red-500/20 text-red-400 border-red-500/50">
-                                          Error
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    
-                                    {/* Listing URL */}
-                                    {result.listing_url && (
-                                      <div className="mt-2">
-                                        <a 
-                                          href={result.listing_url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="text-sm text-cyan-400 hover:text-cyan-300 hover:underline"
-                                        >
-                                          View listing on {result.platform} →
-                                        </a>
-                                      </div>
-                                    )}
-                                    
-                                    {/* External ID */}
-                                    {result.external_id && (
-                                      <p className="text-sm text-neutral-400 mt-1">
-                                        ID: {result.external_id}
-                                      </p>
-                                    )}
-                                    
-                                    {/* Legacy post_id */}
-                                    {!result.external_id && result.post_id && (
-                                      <p className="text-sm text-neutral-400 mt-1">
-                                        Post ID: {result.post_id}
-                                      </p>
-                                    )}
-                                    
-                                    {/* Status message */}
-                                    {result.message && (
-                                      <p className={`text-sm mt-1 ${isError ? 'text-red-400' : 'text-neutral-400'}`}>
-                                        {result.message}
-                                      </p>
-                                    )}
-                                    
-                                    {/* Legacy error_message */}
-                                    {!result.message && result.error_message && (
-                                      <p className="text-sm text-red-400 mt-1">
-                                        Error: {result.error_message}
-                                      </p>
-                                    )}
-                                    
-                                    {/* Timestamp */}
-                                    {(result.updated_at || result.published_at) && (() => {
-                                      try {
-                                        const dateStr = result.updated_at || result.published_at;
-                                        const date = new Date(dateStr!);
-                                        if (!isNaN(date.getTime())) {
-                                          return (
-                                            <p className="text-xs text-neutral-500 mt-1">
-                                              {format(date, 'PPp')}
-                                            </p>
-                                          );
-                                        }
-                                      } catch (e) {
-                                        console.warn('Invalid date:', result);
-                                      }
-                                      return null;
-                                    })()}
-                                  </div>
-                                </div>
-                                {canRemove && (
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    className="w-full sm:w-auto shrink-0"
-                                    onClick={() => setDeletePlatform(result.platform as Platform)}
-                                  >
-                                    <Trash2 className="h-4 w-4 sm:mr-2" />
-                                    <span className="sm:inline">{t.actions.deleteFromPlatform}</span>
-                                  </Button>
-                                )}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+                <ListingActionPanel
+                  item={item}
+                  statusBadgeClass={getStatusBadgeClass}
+                  dirtySyncCount={dirtySyncPlatforms.length}
+                  formatPlatformLabel={formatPlatformLabel}
+                  actions={
+                    <ItemActions
+                      item={item}
+                      connectedPlatforms={connectedPlatforms || {}}
+                      onRefresh={() => {
+                        if (uuid) {
+                          fetchItemDetail(uuid).then(setItem).catch(console.error);
+                        }
+                      }}
+                    />
+                  }
+                />
+              </aside>
+            </div>
+          </motion.div>
         </div>
       </div>
 

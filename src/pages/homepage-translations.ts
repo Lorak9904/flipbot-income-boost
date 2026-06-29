@@ -1,4 +1,4 @@
-﻿import { Translations } from '../components/language-utils';
+import { Translations } from '../components/language-utils';
 
 export const homePageTranslations: Translations = {
   en: {
@@ -10,6 +10,53 @@ export const homePageTranslations: Translations = {
     heroDescription: "FlipIt's AI crosslisting and marketplace automation platform transforms one photo into optimized listings on OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy — no copy-paste required.",
     startFlipping: 'Start flipping today',
     seeHowItWorks: 'See how it works',
+    previewTitle: 'Listing preview',
+    previewSubtitle: 'Example marketplace listings',
+    previewPhotoLabel: 'Product photo',
+    previewDraftLabel: 'Title',
+    previewPriceLabel: 'Price',
+    previewCategoryLabel: 'Category',
+    previewCarouselLabel: 'Show example listing',
+    previewListings: [
+      {
+        id: 'brown-leather-bag',
+        imageSrc: '/homepage/womens-brown-leather-bag.webp',
+        imageAlt: "Brown leather women's handbag with gold chain",
+        status: 'Ready to publish',
+        title: 'Brown leather chain bag',
+        price: '$89',
+        category: 'Bags',
+        metrics: [
+          { label: 'Views', value: '128' },
+          { label: 'Added to favorites', value: '14' },
+        ],
+        platforms: [
+          { name: 'OLX', status: 'Published', tone: 'published' },
+          { name: 'Allegro', status: 'Ready', tone: 'ready' },
+          { name: 'Etsy', status: 'Ready', tone: 'ready' },
+        ],
+        actionLabel: 'Publish',
+      },
+      {
+        id: 'cream-leather-sneakers',
+        imageSrc: '/homepage/cream-leather-sneakers.webp',
+        imageAlt: 'Cream leather sneakers with gold details',
+        status: 'Published',
+        title: 'Cream leather sneakers',
+        price: '$74',
+        category: 'Sneakers',
+        metrics: [
+          { label: 'Views', value: '214' },
+          { label: 'Added to favorites', value: '27' },
+        ],
+        platforms: [
+          { name: 'OLX', status: 'Published', tone: 'published' },
+          { name: 'Vinted', status: 'Published', tone: 'published' },
+          { name: 'eBay', status: 'Ready', tone: 'ready' },
+        ],
+        actionLabel: 'View listing',
+      },
+    ],
     seoRibbon: 'AI crosslisting in minutes',
     seoBlurbTitle: 'One photo, everywhere you sell',
     seoBlurbSubtitle: 'Upload once — FlipIt drafts descriptions, pricing suggestions, categories, and required attributes for OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy. Review, edit, and publish with your approval.',
@@ -47,6 +94,53 @@ export const homePageTranslations: Translations = {
     heroDescription: 'Platforma automatyzacji marketplace\'ów i crosslistingu FlipIt z AI zamienia jedno zdjęcie w zoptymalizowane ogłoszenia na OLX, Vinted, Facebook Marketplace, eBay, Allegro i Etsy — bez ręcznego przepisywania.',
     startFlipping: 'Zacznij sprzedawać już dziś',
     seeHowItWorks: 'Zobacz, jak to działa',
+    previewTitle: 'Podgląd oferty',
+    previewSubtitle: 'Przykładowe oferty marketplace',
+    previewPhotoLabel: 'Zdjęcie produktu',
+    previewDraftLabel: 'Tytuł',
+    previewPriceLabel: 'Cena',
+    previewCategoryLabel: 'Kategoria',
+    previewCarouselLabel: 'Pokaż przykładową ofertę',
+    previewListings: [
+      {
+        id: 'brown-leather-bag',
+        imageSrc: '/homepage/womens-brown-leather-bag.webp',
+        imageAlt: 'Brązowa skórzana torebka damska ze złotym łańcuszkiem',
+        status: 'Gotowe do publikacji',
+        title: 'Brązowa skórzana torebka',
+        price: '349 zł',
+        category: 'Torebki',
+        metrics: [
+          { label: 'Wyświetlenia', value: '128' },
+          { label: 'Dodano do ulubionych', value: '14' },
+        ],
+        platforms: [
+          { name: 'OLX', status: 'Opublikowane', tone: 'published' },
+          { name: 'Allegro', status: 'Gotowe', tone: 'ready' },
+          { name: 'Etsy', status: 'Gotowe', tone: 'ready' },
+        ],
+        actionLabel: 'Publikuj',
+      },
+      {
+        id: 'cream-leather-sneakers',
+        imageSrc: '/homepage/cream-leather-sneakers.webp',
+        imageAlt: 'Beżowe skórzane sneakersy ze złotymi detalami',
+        status: 'Opublikowane',
+        title: 'Beżowe skórzane sneakersy',
+        price: '299 zł',
+        category: 'Sneakersy',
+        metrics: [
+          { label: 'Wyświetlenia', value: '214' },
+          { label: 'Dodano do ulubionych', value: '27' },
+        ],
+        platforms: [
+          { name: 'OLX', status: 'Opublikowane', tone: 'published' },
+          { name: 'Vinted', status: 'Opublikowane', tone: 'published' },
+          { name: 'eBay', status: 'Gotowe', tone: 'ready' },
+        ],
+        actionLabel: 'Zobacz ofertę',
+      },
+    ],
     seoRibbon: 'Crosslisting z AI w kilka minut',
     seoBlurbTitle: 'Jedno zdjęcie. Każdy marketplace.',
     seoBlurbSubtitle: 'Wgraj produkt raz — FlipIt przygotuje opisy, sugestie cenowe, kategorie i wymagane atrybuty dla OLX, Vinted, Facebook Marketplace, eBay, Allegro i Etsy. Ty edytujesz i zatwierdzasz publikację.',
