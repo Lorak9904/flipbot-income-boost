@@ -50,7 +50,7 @@ export const howToPriceItemsForEbayTranslations: Translations = {
     relatedLink1: 'eBay active listings vs sold prices',
     relatedLink2: 'How to sell on Allegro',
     relatedLink3: 'Product relister for Vinted',
-    relatedLink4: 'Automated reselling platform guide',
+    relatedLink4: 'How much is my used item worth?',
 
     faq1Question: 'Should I use average or median to price an eBay item?',
     faq1Answer: 'Use median as the main anchor when you only have a small set of comparable listings. Average is useful, but one bad match or outlier can distort it.',
@@ -61,9 +61,9 @@ export const howToPriceItemsForEbayTranslations: Translations = {
     faq4Question: 'Can FlipIt guarantee the best eBay price?',
     faq4Answer: 'No. FlipIt helps with pricing signals and listing preparation. You still review the price and decide what fits your item, margin, and selling speed.',
 
-    ctaTitle: 'Prepare your next listing with a price you can defend',
-    ctaDescription: 'Use FlipIt to turn item photos and pricing notes into a marketplace-ready draft you can review before publishing.',
-    ctaButtonText: 'Create a listing draft',
+    ctaTitle: 'Check active eBay prices before you list',
+    ctaDescription: 'Compare relevant active listings, remove weak matches and use the median asking price as a practical starting point.',
+    ctaButtonText: 'Open the free price checker',
     ctaFooterText: 'Want the methodology first?',
     ctaFooterLinkText: 'Read active vs sold prices',
   },
@@ -116,7 +116,7 @@ export const howToPriceItemsForEbayTranslations: Translations = {
     relatedLink1: 'Aktywne oferty eBay a ceny sprzedaży',
     relatedLink2: 'Jak sprzedawać na Allegro',
     relatedLink3: 'Relister produktów dla Vinted',
-    relatedLink4: 'Przewodnik po automatycznej platformie sprzedaży',
+    relatedLink4: 'Ile wart jest używany przedmiot?',
 
     faq1Question: 'Czy do wyceny na eBay lepsza jest średnia czy mediana?',
     faq1Answer: 'Przy małej liczbie podobnych ofert lepiej traktować medianę jako główny punkt odniesienia. Średnia jest przydatna, ale jedna nietrafiona oferta może ją mocno zniekształcić.',
@@ -127,9 +127,9 @@ export const howToPriceItemsForEbayTranslations: Translations = {
     faq4Question: 'Czy FlipIt gwarantuje najlepszą cenę na eBay?',
     faq4Answer: 'Nie. FlipIt pomaga zebrać sygnały cenowe i przygotować ofertę. Ostatecznie to Ty sprawdzasz cenę i decydujesz, co pasuje do produktu, marży i tempa sprzedaży.',
 
-    ctaTitle: 'Przygotuj ofertę z ceną, którą potrafisz uzasadnić',
-    ctaDescription: 'W FlipIt zamienisz zdjęcia i notatki o produkcie w szkic oferty, który sprawdzisz przed publikacją.',
-    ctaButtonText: 'Utwórz szkic oferty',
+    ctaTitle: 'Sprawdź aktywne ceny eBay przed wystawieniem',
+    ctaDescription: 'Porównaj trafne aktywne oferty, usuń słabe dopasowania i potraktuj medianę cen jako rozsądny punkt wyjścia.',
+    ctaButtonText: 'Otwórz darmową wycenę',
     ctaFooterText: 'Chcesz najpierw zrozumieć metodę?',
     ctaFooterLinkText: 'Przeczytaj o aktywnych i sprzedanych ofertach',
   },

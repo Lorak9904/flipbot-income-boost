@@ -36,7 +36,7 @@ import {
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { getTranslations } from '@/components/language-utils';
+import { getCurrentLanguage, getLocalizedPathForCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { connectCardTranslations } from './connect-card-translations';
 import { useNavigate } from 'react-router-dom';
 import ConnectPlatformModal from './ConnectPlatformModal';
@@ -44,6 +44,7 @@ import { getEbayConnectUrl } from '@/lib/api/ebay';
 import { getAllegroConnectUrl } from '@/lib/api/allegro';
 import { getEtsyConnectUrl } from '@/lib/api/etsy';
 import type { OlxCountry, OlxMarketplaceAccount } from '@/lib/api/olx';
+import { formatCountryLabel } from '@/lib/country-label';
 
 interface ConnectAccountCardProps {
   platform: 'facebook' | 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy';
@@ -114,15 +115,6 @@ const statusConfig: Record<
   },
 };
 
-const formatOlxCountryLabel = (country: { country_code?: string; country_name?: string }): string => {
-  const code = country.country_code?.trim().toUpperCase();
-  const name = country.country_name?.trim();
-  if (name && code) {
-    return `${name} (${code})`;
-  }
-  return name || code || 'OLX country';
-};
-
 const ConnectAccountCard = ({
   platform,
   platformName,
@@ -143,6 +135,7 @@ const ConnectAccountCard = ({
   const [isRefreshingVinted, setIsRefreshingVinted] = useState(false);
   const [showOlxCountryDialog, setShowOlxCountryDialog] = useState(false);
   const t = getTranslations(connectCardTranslations);
+  const language = getCurrentLanguage();
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -177,7 +170,7 @@ const ConnectAccountCard = ({
     ? olxCountries
     : [{ country_code: 'PL', country_name: 'Poland', base_url: 'https://www.olx.pl', currency: 'PLN' }];
   const olxAccountSummary = connectedOlxAccounts
-    .map(formatOlxCountryLabel)
+    .map((account) => formatCountryLabel(account, language, 'OLX'))
     .filter(Boolean)
     .join(', ');
 
@@ -185,7 +178,7 @@ const ConnectAccountCard = ({
   const handleEbayConnect = async () => {
     const token = localStorage.getItem('flipit_token');
     if (!token) {
-      window.location.href = '/login';
+      window.location.href = getLocalizedPathForCurrentLanguage('/login');
       return;
     }
     
@@ -195,7 +188,7 @@ const ConnectAccountCard = ({
       window.location.href = data.auth_url;
     } catch (error) {
       console.error('Failed to get eBay connect URL:', error);
-      toast.error('Failed to connect to eBay. Please try again.');
+      toast.error(tr('toastConnectedError', { platform: 'eBay' }));
       setIsConnectingOauth(false);
     }
   };
@@ -204,7 +197,7 @@ const ConnectAccountCard = ({
   const handleOlxConnect = async (countryCode = 'PL') => {
     const token = localStorage.getItem('flipit_token');
     if (!token) {
-      window.location.href = '/login';
+      window.location.href = getLocalizedPathForCurrentLanguage('/login');
       return;
     }
     
@@ -215,7 +208,7 @@ const ConnectAccountCard = ({
       window.location.href = data.auth_url;
     } catch (error) {
       console.error('Failed to get OLX connect URL:', error);
-      toast.error('Failed to connect to OLX. Please try again.');
+      toast.error(tr('toastConnectedError', { platform: 'OLX' }));
       setIsConnectingOauth(false);
     }
   };
@@ -224,7 +217,7 @@ const ConnectAccountCard = ({
   const handleAllegroConnect = async () => {
     const token = localStorage.getItem('flipit_token');
     if (!token) {
-      window.location.href = '/login';
+      window.location.href = getLocalizedPathForCurrentLanguage('/login');
       return;
     }
 
@@ -234,7 +227,7 @@ const ConnectAccountCard = ({
       window.location.href = data.auth_url;
     } catch (error) {
       console.error('Failed to get Allegro connect URL:', error);
-      toast.error('Failed to connect to Allegro. Please try again.');
+      toast.error(tr('toastConnectedError', { platform: 'Allegro' }));
       setIsConnectingOauth(false);
     }
   };
@@ -243,7 +236,7 @@ const ConnectAccountCard = ({
   const handleEtsyConnect = async () => {
     const token = localStorage.getItem('flipit_token');
     if (!token) {
-      window.location.href = '/login';
+      window.location.href = getLocalizedPathForCurrentLanguage('/login');
       return;
     }
 
@@ -288,13 +281,13 @@ const ConnectAccountCard = ({
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) throw new Error('Failed to disconnect');
+      if (!response.ok) throw new Error(t.toastDisconnectedError);
       if (platform !== 'olx' || !countryCode || connectedOlxAccounts.length <= 1) {
         setIsConnected(false);
       }
       toast.success(
         countryCode
-          ? `OLX ${countryCode.toUpperCase()} disconnected.`
+          ? t.toastDisconnectedSuccess.replace('{platform}', `OLX ${countryCode.toUpperCase()}`)
           : tr('toastDisconnectedSuccess', { platform: platformName })
       );
       if (onConnected) onConnected();
@@ -311,7 +304,7 @@ const ConnectAccountCard = ({
   const handleVintedRefresh = async () => {
     const token = localStorage.getItem('flipit_token');
     if (!token) {
-      window.location.href = '/login';
+      window.location.href = getLocalizedPathForCurrentLanguage('/login');
       return;
     }
 
@@ -326,21 +319,21 @@ const ConnectAccountCard = ({
       });
 
       if (response.ok) {
-        toast.success(t.vintedRefreshSuccess || 'Vinted cookies refreshed.');
+        toast.success(t.vintedRefreshSuccess);
         if (onConnected) onConnected();
         return;
       }
 
       if (response.status === 401 || response.status === 403) {
-        toast.error(t.vintedRefreshInvalid || 'Vinted session invalid. Please re-add cookies.');
+        toast.error(t.vintedRefreshInvalid);
         setShowConnectModal(true);
         return;
       }
 
-      toast.error(t.vintedRefreshFailed || 'Vinted refresh failed. Please try again.');
+      toast.error(t.vintedRefreshFailed);
     } catch (error) {
       console.error('Failed to refresh Vinted cookies:', error);
-      toast.error(t.vintedRefreshFailed || 'Vinted refresh failed. Please try again.');
+      toast.error(t.vintedRefreshFailed);
     } finally {
       setIsRefreshingVinted(false);
     }
@@ -446,13 +439,13 @@ const ConnectAccountCard = ({
                     ) : (
                       <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
                     )}
-                    {t.vintedRefreshButton || 'Refresh Cookies'}
+                    {t.vintedRefreshButton}
                   </SecondaryAction>
                 ) : (
                   <SecondaryAction
                     size="sm"
                     className="px-3 py-2 text-xs"
-                    onClick={() => navigate(`/platform-settings/${platform}`)}
+                    onClick={() => navigate(getLocalizedPathForCurrentLanguage(`/platform-settings/${platform}`))}
                   >
                     <Settings className="w-3.5 h-3.5 mr-1.5" />
                     {t.settingsButton}
@@ -471,17 +464,21 @@ const ConnectAccountCard = ({
                     <LinkIcon className="w-3.5 h-3.5 mr-1.5" />
                   )}
                   {isConnectingOauth && OAUTH_PLATFORMS.includes(platform)
-                    ? 'Connecting...'
+                    ? t.connectingButton
                     : integrationPending
                       ? t.integrationPendingButton
-                      : (t.connectButton || 'Connect')}
+                      : t.connectButton}
                 </SecondaryAction>
               )}
 
               {/* Dropdown Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <GhostIconButton sizeVariant="lg" className="p-0">
+                  <GhostIconButton
+                    sizeVariant="lg"
+                    className="p-0"
+                    aria-label={t.actionsMenu(platformName)}
+                  >
                     <MoreVertical className="w-4 h-4" />
                   </GhostIconButton>
                 </DropdownMenuTrigger>
@@ -493,7 +490,7 @@ const ConnectAccountCard = ({
                     <>
                       <DropdownMenuItem
                         className="text-slate-200 hover:text-white hover:bg-slate-700 cursor-pointer"
-                        onClick={() => navigate(`/platform-settings/${platform}`)}
+                        onClick={() => navigate(getLocalizedPathForCurrentLanguage(`/platform-settings/${platform}`))}
                       >
                         <Settings className="w-4 h-4 mr-2" />
                         {t.settingsButton}
@@ -504,7 +501,7 @@ const ConnectAccountCard = ({
                         disabled={isConnectingOauth && OAUTH_PLATFORMS.includes(platform)}
                       >
                         <LinkIcon className="w-4 h-4 mr-2" />
-                        {platform === 'olx' ? 'Connect OLX country' : (t.reconnectButton || 'Reconnect')}
+                        {platform === 'olx' ? t.connectOlxCountry : t.reconnectButton}
                       </DropdownMenuItem>
                       {platform !== 'olx' && (
                         <DropdownMenuItem
@@ -521,7 +518,7 @@ const ConnectAccountCard = ({
                           onClick={() => handleDisconnect()}
                         >
                           <LogOut className="w-4 h-4 mr-2" />
-                          Disconnect all OLX countries
+                          {t.disconnectAllOlxCountries}
                         </DropdownMenuItem>
                       )}
                       {platform === 'olx' && connectedOlxAccounts.length === 0 && (
@@ -530,7 +527,7 @@ const ConnectAccountCard = ({
                           onClick={() => handleDisconnect()}
                         >
                           <LogOut className="w-4 h-4 mr-2" />
-                          Disconnect OLX access
+                          {t.disconnectOlxAccess}
                         </DropdownMenuItem>
                       )}
                       {platform === 'olx' && connectedOlxAccounts.map((account) => (
@@ -540,7 +537,7 @@ const ConnectAccountCard = ({
                           onClick={() => handleDisconnect(account.country_code)}
                         >
                           <LogOut className="w-4 h-4 mr-2" />
-                          Disconnect {formatOlxCountryLabel(account)}
+                          {t.disconnectOlxCountry(formatCountryLabel(account, language, 'OLX'))}
                         </DropdownMenuItem>
                       ))}
                     </>
@@ -551,7 +548,7 @@ const ConnectAccountCard = ({
                       disabled={isConnectingOauth && OAUTH_PLATFORMS.includes(platform)}
                     >
                       <LinkIcon className="w-4 h-4 mr-2" />
-                      {integrationPending ? t.integrationPendingButton : (t.connectButton || 'Connect')}
+                      {integrationPending ? t.integrationPendingButton : t.connectButton}
                     </DropdownMenuItem>
                   )}
                 </DropdownMenuContent>
@@ -576,9 +573,9 @@ const ConnectAccountCard = ({
         <Dialog open={showOlxCountryDialog} onOpenChange={setShowOlxCountryDialog}>
           <DialogContent className="bg-slate-900 border-slate-700 text-white">
             <DialogHeader>
-              <DialogTitle>Choose OLX country</DialogTitle>
+              <DialogTitle>{t.olxCountryDialogTitle}</DialogTitle>
               <DialogDescription className="text-slate-400">
-                Connect each OLX country where you sell. Each country has its own account, category tree, and sync.
+                {t.olxCountryDialogDescription}
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -586,7 +583,7 @@ const ConnectAccountCard = ({
                 const connected = connectedOlxAccounts.some(
                   (account) => account.country_code === country.country_code
                 );
-                const countryLabel = formatOlxCountryLabel(country);
+                const countryLabel = formatCountryLabel(country, language, 'OLX');
                 return (
                   <SecondaryAction
                     key={country.country_code}
@@ -595,9 +592,13 @@ const ConnectAccountCard = ({
                     onClick={() => handleOlxConnect(country.country_code)}
                     disabled={isConnectingOauth}
                   >
-                    <span>{connected ? `Reconnect ${countryLabel}` : `Connect ${countryLabel}`}</span>
+                    <span>
+                      {connected
+                        ? `${t.reconnectButton}: ${countryLabel}`
+                        : `${t.connectButton}: ${countryLabel}`}
+                    </span>
                     <span className="text-xs text-slate-400">
-                      {connected ? 'Connected' : country.currency || country.country_code}
+                      {connected ? t.olxCountryConnected : country.currency || country.country_code}
                     </span>
                   </SecondaryAction>
                 );

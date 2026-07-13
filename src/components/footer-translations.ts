@@ -3,9 +3,10 @@ import { Translations } from './language-utils';
 export const footerTranslations: Translations = {
   en: {
     tagline: 'AI listing automation that helps you publish faster across marketplaces.',
-    comingSoon: '🚀 Coming Soon',
+    comingSoon: 'Coming soon',
     productTitle: 'Product',
     automatedResellingGuide: 'Marketplace Automation Guide',
+    priceChecker: 'Used Item Price Checker',
     howItWorks: 'How It Works',
     successStories: 'Success Stories',
     tutorialsTitle: 'Tutorials',
@@ -25,9 +26,10 @@ export const footerTranslations: Translations = {
   },
   pl: {
     tagline: 'Automatyzacja ogłoszeń z AI, która pomaga publikować szybciej na wielu portalach.',
-    comingSoon: '🚀 Wkrótce',
+    comingSoon: 'Wkrótce',
     productTitle: 'Produkt',
-    automatedResellingGuide: 'Przewodnik automatyzacji marketplace',
+    automatedResellingGuide: 'Przewodnik po automatyzacji ogłoszeń',
+    priceChecker: 'Wycena używanego przedmiotu',
     howItWorks: 'Jak to działa',
     successStories: 'Historie sukcesu',
     tutorialsTitle: 'Poradniki',

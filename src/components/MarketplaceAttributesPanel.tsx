@@ -11,11 +11,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
 
 interface MarketplaceAttributesPanelProps {
   platform: Platform;
   platformLabel: string;
   state?: MarketplaceAttributeState;
+  language?: string;
   disabled?: boolean;
   onValueChange: (
     platform: Platform,
@@ -58,13 +60,30 @@ function baseValue(field: MarketplaceAttributeField): MarketplaceAttributeValue 
   };
 }
 
+function localizedFieldLabel(
+  field: MarketplaceAttributeField,
+  labels: typeof reviewItemFormTranslations.en.marketplaceRequirements.fieldLabels
+): string {
+  const labelsByCode: Record<string, string> = {
+    brand: labels.brand,
+    brand_id: labels.brand,
+    package_size_id: labels.packageSize,
+    status_id: labels.condition,
+    size_id: labels.size,
+    color_id: labels.color,
+  };
+  return labelsByCode[field.native_code] || field.label;
+}
+
 export default function MarketplaceAttributesPanel({
   platform,
   platformLabel,
   state,
+  language = 'en',
   disabled = false,
   onValueChange,
 }: MarketplaceAttributesPanelProps) {
+  const copy = reviewItemFormTranslations[language === 'pl' ? 'pl' : 'en'].marketplaceRequirements;
   const fields = state?.fields || [];
   const values = state?.values || {};
 
@@ -72,14 +91,12 @@ export default function MarketplaceAttributesPanel({
     return null;
   }
 
-  const requiredFields = fields.filter((field) => field.required);
-  const optionalFields = fields.filter((field) => !field.required);
-
   const renderField = (field: MarketplaceAttributeField) => {
     const currentValue = values[field.key];
     const inputType = field.input_type || field.type || 'text';
     const selected = selectedScalar(currentValue);
     const fieldId = `${platform}-attr-${field.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+    const fieldLabel = localizedFieldLabel(field, copy.fieldLabels);
 
     if (inputType === 'select' && field.options?.length) {
       return (
@@ -93,8 +110,8 @@ export default function MarketplaceAttributesPanel({
           }
           disabled={disabled}
         >
-          <SelectTrigger id={fieldId} className="text-black">
-            <SelectValue placeholder={`Select ${field.label.toLowerCase()}`} />
+          <SelectTrigger id={fieldId} className="text-black" aria-required={field.required}>
+            <SelectValue placeholder={copy.selectValue(fieldLabel)} />
           </SelectTrigger>
           <SelectContent>
             {field.options.map((option) => (
@@ -116,11 +133,11 @@ export default function MarketplaceAttributesPanel({
         <div className="rounded-md border border-neutral-700 bg-neutral-900/60">
           <div className="flex items-center justify-between border-b border-neutral-800 px-3 py-2">
             <span className="text-xs text-neutral-400">
-              {selectedValues.length} selected{limit ? ` / ${limit}` : ''}
+              {copy.selectedCount(selectedValues.length, limit)}
             </span>
             {limit && selectedValues.length >= limit && (
               <Badge variant="secondary" className="text-[10px]">
-                Limit reached
+                {copy.selectionLimitReached}
               </Badge>
             )}
           </div>
@@ -177,7 +194,9 @@ export default function MarketplaceAttributesPanel({
             value: event.target.value,
           })
         }
-        placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+        placeholder={field.placeholder || copy.enterValue(fieldLabel)}
+        required={field.required}
+        aria-required={field.required}
         disabled={disabled}
       />
     );
@@ -188,50 +207,70 @@ export default function MarketplaceAttributesPanel({
       {groupFields.map((field) => (
         <div key={field.key} className="space-y-1">
           <div className="flex items-center justify-between gap-3">
-            <Label className="text-xs text-neutral-300">
-              {field.label}
+            <Label htmlFor={`${platform}-attr-${field.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`} className="text-xs text-neutral-300">
+              {localizedFieldLabel(field, copy.fieldLabels)}
               {field.required && <span className="ml-1 text-red-400">*</span>}
+              {field.required && <span className="sr-only"> {copy.required}</span>}
             </Label>
-            {field.source && (
-              <span className="text-[10px] text-neutral-600">{field.source}</span>
-            )}
           </div>
           {field.description && (
             <p className="text-xs text-neutral-500">{field.description}</p>
           )}
+          {platform === 'vinted' &&
+            field.required &&
+            (field.native_code === 'brand' || field.native_code === 'brand_id') && (
+              <p className="text-xs text-neutral-400">{copy.vintedBrandSelectionHint}</p>
+            )}
           {renderField(field)}
         </div>
       ))}
     </div>
   );
 
+  const requiredFields = fields.filter((field) => field.required);
+  const recommendedFields = fields.filter(
+    (field) => !field.required && field.metadata?.aspect_usage === 'RECOMMENDED'
+  );
+  const optionalFields = fields.filter(
+    (field) => !field.required && field.metadata?.aspect_usage !== 'RECOMMENDED'
+  );
+
   return (
     <Card className="border-neutral-700 bg-neutral-800/60">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-neutral-300">
-          {platformLabel} attributes
+          {copy.requiredBy.replace('{platform}', platformLabel)}
           <Badge variant="outline" className="border-neutral-600 text-[10px] text-neutral-400">
             {fields.length}
           </Badge>
         </CardTitle>
         <CardDescription className="text-xs text-neutral-500">
-          Category-specific values used only for this marketplace.
+          {copy.categorySpecificDetails.replace('{platform}', platformLabel)}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 pt-0">
         {requiredFields.length > 0 && (
           <div className="space-y-3">
             <p className="text-xs font-medium text-neutral-400">
-              Required attributes ({requiredFields.length})
+              {copy.requiredFields(requiredFields.length)}
             </p>
             {renderGroup(requiredFields)}
           </div>
         )}
 
+        {recommendedFields.length > 0 && (
+          <details className="space-y-3">
+            <summary className="cursor-pointer text-xs font-medium text-neutral-500 hover:text-neutral-400">
+              {copy.recommendedFields(recommendedFields.length)}
+            </summary>
+            <div className="pt-3">{renderGroup(recommendedFields)}</div>
+          </details>
+        )}
+
         {optionalFields.length > 0 && (
           <details className="space-y-3">
             <summary className="cursor-pointer text-xs font-medium text-neutral-500 hover:text-neutral-400">
-              Optional attributes ({optionalFields.length})
+              {copy.optionalFields(optionalFields.length)}
             </summary>
             <div className="pt-3">{renderGroup(optionalFields)}</div>
           </details>

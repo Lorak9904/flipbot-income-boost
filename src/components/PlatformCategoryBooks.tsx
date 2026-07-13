@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type KeyboardEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +7,8 @@ import { getVintedCategories, type VintedCategoryOption } from '@/lib/api/vinted
 import { searchAllegroCategories, type AllegroCategoryNode } from '@/lib/api/allegro';
 import { getEtsyCategoryPath, type EtsyCategoryNode } from '@/lib/api/etsy';
 import type { Platform, PlatformOverrides } from '@/types/item';
+import type { MarketplaceRequirementReadiness } from './review-item/marketplace-requirements';
+import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
 import OlxCategoryPickerModal from './review-item/OlxCategoryPickerModal';
 import VintedCategoryPickerModal from './review-item/VintedCategoryPickerModal';
 import AllegroCategoryPickerModal from './review-item/AllegroCategoryPickerModal';
@@ -29,6 +31,10 @@ interface PlatformCategoryBooksProps {
   onSetAllegroCategory: (categoryId: string, marketplaceId?: string, categoryPath?: string) => void;
   onSetEtsyCategory: (categoryId: string | number, categoryPath?: string) => void;
   onSetVintedCatalog: (catalogId: string | number) => void;
+  language?: string;
+  readiness?: Partial<Record<Platform, MarketplaceRequirementReadiness>>;
+  activePlatform?: Platform | null;
+  onActivePlatformChange?: (platform: Platform | null) => void;
 }
 
 const PLATFORM_LABELS: Record<Platform, string> = {
@@ -50,7 +56,12 @@ export default function PlatformCategoryBooks({
   onSetAllegroCategory,
   onSetEtsyCategory,
   onSetVintedCatalog,
+  language = 'en',
+  readiness,
+  activePlatform: requestedActivePlatform,
+  onActivePlatformChange,
 }: PlatformCategoryBooksProps) {
+  const copy = reviewItemFormTranslations[language === 'pl' ? 'pl' : 'en'].marketplaceRequirements;
   const [activePlatform, setActivePlatform] = useState<Platform | null>(selectedPlatforms[0] || null);
   const [olxPickerOpen, setOlxPickerOpen] = useState(false);
   const [vintedPickerOpen, setVintedPickerOpen] = useState(false);
@@ -73,6 +84,63 @@ export default function PlatformCategoryBooks({
       setActivePlatform(selectedPlatforms[0]);
     }
   }, [selectedPlatforms, activePlatform]);
+
+  useEffect(() => {
+    if (
+      requestedActivePlatform &&
+      selectedPlatforms.includes(requestedActivePlatform) &&
+      requestedActivePlatform !== activePlatform
+    ) {
+      setActivePlatform(requestedActivePlatform);
+    }
+  }, [activePlatform, requestedActivePlatform, selectedPlatforms]);
+
+  useEffect(() => {
+    onActivePlatformChange?.(activePlatform);
+  }, [activePlatform, onActivePlatformChange]);
+
+  const readinessLabel = (platform: Platform): string => {
+    const state = readiness?.[platform];
+    if (!state) {
+      return copy.status.checking;
+    }
+    switch (state.state) {
+      case 'ready':
+        return copy.status.ready;
+      case 'needs_category':
+        return copy.status.needsCategory;
+      case 'needs_attributes':
+        return copy.status.needsAttributes(state.missingCount || 0);
+      case 'unavailable':
+        return copy.status.unavailable;
+      case 'not_required':
+        return copy.status.noExtraDetails;
+      default:
+        return copy.status.checking;
+    }
+  };
+
+  const readinessClass = (platform: Platform): string => {
+    switch (readiness?.[platform]?.state) {
+      case 'ready':
+      case 'not_required':
+        return 'border-emerald-500/40 bg-emerald-500/10 text-emerald-100';
+      case 'needs_category':
+      case 'needs_attributes':
+        return 'border-amber-500/40 bg-amber-500/10 text-amber-100';
+      case 'unavailable':
+        return 'border-red-500/40 bg-red-500/10 text-red-100';
+      default:
+        return 'border-neutral-700 bg-neutral-800/60 text-neutral-300';
+    }
+  };
+
+  const openPickerOnKeyDown = (event: KeyboardEvent<HTMLInputElement>, open: () => void) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      open();
+    }
+  };
 
   useEffect(() => {
     if (!hasVinted) {
@@ -354,27 +422,25 @@ export default function PlatformCategoryBooks({
   }, [selectedVintedCatalogId, vintedGraph]);
   const vintedCategoryPlaceholder =
     selectedVintedCatalogId !== null && !selectedVintedPath
-      ? 'Resolving selected category...'
-      : 'Click to choose from Vinted category tree...';
+      ? copy.resolvingCategory
+      : copy.chooseCategory;
 
   return (
-    <div className="space-y-4 border-t border-neutral-700 pt-6">
-      <h3 className="text-base sm:text-lg font-medium text-neutral-200">Category</h3>
-
+    <div className="space-y-4">
       <Card className="bg-neutral-900/60 border-neutral-700">
         <CardHeader>
-          <CardTitle className="text-neutral-200">Category</CardTitle>
+          <CardTitle className="text-neutral-200">{copy.category}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {!selectedPlatforms.length && (
             <div className="rounded-md border border-neutral-700 bg-neutral-900/50 px-4 py-3 text-sm text-neutral-400">
-              Select at least one platform to choose categories.
+              {copy.selectMarketplaceFirst}
             </div>
           )}
 
           {selectedPlatforms.length > 0 && (
             <div className="space-y-3">
-              <Label className="text-neutral-300">Platform</Label>
+              <Label className="text-neutral-300">{copy.marketplace}</Label>
               <div className="flex flex-wrap gap-2">
                 {selectedPlatforms.map((platform) => {
                   const isActive = activePlatform === platform;
@@ -383,13 +449,15 @@ export default function PlatformCategoryBooks({
                       key={platform}
                       type="button"
                       onClick={() => setActivePlatform(platform)}
-                      className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
+                      aria-pressed={isActive}
+                      className={`rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
                         isActive
-                          ? 'border-neutral-700 bg-neutral-700 text-white shadow-sm'
-                          : 'border-neutral-700 bg-neutral-800/60 text-neutral-300 hover:bg-neutral-800 hover:text-neutral-200'
+                          ? `${readinessClass(platform)} ring-1 ring-white/20 shadow-sm`
+                          : `${readinessClass(platform)} hover:brightness-110`
                       }`}
                     >
-                      {PLATFORM_LABELS[platform]}
+                      <span className="block font-medium">{PLATFORM_LABELS[platform]}</span>
+                      <span className="mt-0.5 block text-xs opacity-75">{readinessLabel(platform)}</span>
                     </button>
                   );
                 })}
@@ -400,19 +468,21 @@ export default function PlatformCategoryBooks({
           {activePlatform === 'olx' && (
             <div className="space-y-2">
               <Label htmlFor="olx-category-field" className="text-neutral-300">
-                OLX category
+                OLX {copy.category.toLowerCase()}
               </Label>
               <Input
                 id="olx-category-field"
                 value={selectedOlxPath}
                 onClick={() => setOlxPickerOpen(true)}
-                placeholder="Click to choose from OLX category tree..."
+                onKeyDown={(event) => openPickerOnKeyDown(event, () => setOlxPickerOpen(true))}
+                placeholder={copy.chooseCategory}
                 disabled={disabled}
                 readOnly
+                aria-haspopup="dialog"
                 className="cursor-pointer"
               />
               <p className="text-xs text-neutral-400">
-                Click the field to open a layered category picker.
+                {copy.categoryPickerHint}
               </p>
             </div>
           )}
@@ -420,23 +490,25 @@ export default function PlatformCategoryBooks({
           {activePlatform === 'vinted' && (
             <div className="space-y-2">
               <Label htmlFor="vinted-category-field" className="text-neutral-300">
-                Vinted category
+                Vinted {copy.category.toLowerCase()}
               </Label>
               <Input
                 id="vinted-category-field"
                 value={selectedVintedPath}
                 onClick={() => setVintedPickerOpen(true)}
+                onKeyDown={(event) => openPickerOnKeyDown(event, () => setVintedPickerOpen(true))}
                 placeholder={vintedCategoryPlaceholder}
                 disabled={disabled}
                 readOnly
+                aria-haspopup="dialog"
                 className="cursor-pointer"
               />
               <p className="text-xs text-neutral-400">
-                Click the field to open a layered category picker.
+                {copy.categoryPickerHint}
               </p>
               {vintedError && (
                 <p className="text-xs text-red-300">
-                  Vinted categories failed to load: {vintedError}
+                  {copy.loadFailed.replace('{platform}', 'Vinted')}
                 </p>
               )}
             </div>
@@ -445,19 +517,21 @@ export default function PlatformCategoryBooks({
           {activePlatform === 'allegro' && (
             <div className="space-y-2">
               <Label htmlFor="allegro-category-field" className="text-neutral-300">
-                Allegro category
+                Allegro {copy.category.toLowerCase()}
               </Label>
               <Input
                 id="allegro-category-field"
                 value={selectedAllegroPath}
                 onClick={() => setAllegroPickerOpen(true)}
-                placeholder="Click to choose from Allegro category tree..."
+                onKeyDown={(event) => openPickerOnKeyDown(event, () => setAllegroPickerOpen(true))}
+                placeholder={copy.chooseCategory}
                 disabled={disabled}
                 readOnly
+                aria-haspopup="dialog"
                 className="cursor-pointer"
               />
               <p className="text-xs text-neutral-400">
-                Click the field to open a layered category picker.
+                {copy.categoryPickerHint}
               </p>
             </div>
           )}
@@ -465,26 +539,34 @@ export default function PlatformCategoryBooks({
           {activePlatform === 'etsy' && (
             <div className="space-y-2">
               <Label htmlFor="etsy-category-field" className="text-neutral-300">
-                Etsy category
+                Etsy {copy.category.toLowerCase()}
               </Label>
               <Input
                 id="etsy-category-field"
                 value={selectedEtsyPath}
                 onClick={() => setEtsyPickerOpen(true)}
-                placeholder="Click to choose from Etsy category tree..."
+                onKeyDown={(event) => openPickerOnKeyDown(event, () => setEtsyPickerOpen(true))}
+                placeholder={copy.chooseCategory}
                 disabled={disabled}
                 readOnly
+                aria-haspopup="dialog"
                 className="cursor-pointer"
               />
               <p className="text-xs text-neutral-400">
-                Click the field to open a layered category picker.
+                {copy.categoryPickerHint}
               </p>
             </div>
           )}
 
-          {activePlatform && activePlatform !== 'olx' && activePlatform !== 'vinted' && activePlatform !== 'allegro' && activePlatform !== 'etsy' && (
+          {activePlatform === 'facebook' && (
             <div className="min-h-[180px] rounded-md border border-dashed border-neutral-700 bg-neutral-900/40 p-4 text-sm text-neutral-400">
-              {PLATFORM_LABELS[activePlatform]} category picker will be added next.
+              {copy.facebookNoExtraDetails}
+            </div>
+          )}
+
+          {activePlatform === 'ebay' && (
+            <div className="min-h-[120px] rounded-md border border-dashed border-neutral-700 bg-neutral-900/40 p-4 text-sm text-neutral-400">
+              {copy.ebayCategoryHint}
             </div>
           )}
 
@@ -495,6 +577,7 @@ export default function PlatformCategoryBooks({
               selectedCategoryId={selectedOlxCategoryId}
               selectedCategoryPath={selectedOlxPath}
               countryCode={olxCountryCode}
+              language={language}
               onSelectCategory={(node: OlxCategoryNode) => {
                 setOlxSelectedHint({ id: String(node.category_id), path: node.path || '' });
                 onSetOlxCategory(node.category_id, node.path);
@@ -508,8 +591,9 @@ export default function PlatformCategoryBooks({
               onOpenChange={setVintedPickerOpen}
               categories={vintedCategories}
               loading={vintedLoading}
-              error={vintedError}
+              error={vintedError ? copy.loadFailed.replace('{platform}', 'Vinted') : null}
               selectedCatalogId={selectedVintedCatalogId}
+              language={language}
               onSelectCatalog={(catalogId) => onSetVintedCatalog(catalogId)}
             />
           )}
@@ -519,7 +603,7 @@ export default function PlatformCategoryBooks({
               open={allegroPickerOpen}
               onOpenChange={setAllegroPickerOpen}
               marketplaceId={selectedAllegroMarketplaceId}
-              language="pl-PL"
+              language={language === 'pl' ? 'pl-PL' : 'en-US'}
               selectedCategoryId={selectedAllegroCategoryId}
               selectedCategoryPath={selectedAllegroPath}
               onSelectCategory={(node: AllegroCategoryNode, marketplaceId?: string) => {
@@ -535,6 +619,7 @@ export default function PlatformCategoryBooks({
               onOpenChange={setEtsyPickerOpen}
               selectedCategoryId={selectedEtsyCategoryId}
               selectedCategoryPath={selectedEtsyPath}
+              language={language}
               onSelectCategory={(node: EtsyCategoryNode) => {
                 setEtsySelectedHint({ id: String(node.category_id), path: node.path || '' });
                 onSetEtsyCategory(node.category_id, node.path);
@@ -544,68 +629,68 @@ export default function PlatformCategoryBooks({
 
           {activePlatform === 'olx' && !selectedOlxCategoryId && (
             <div className="min-h-[120px] rounded-md border border-dashed border-neutral-700 bg-neutral-900/40 px-4 py-3 text-sm text-neutral-400">
-              No OLX category selected yet.
+              {copy.noCategorySelected.replace('{platform}', 'OLX')}
             </div>
           )}
 
           {activePlatform === 'vinted' && selectedVintedCatalogId === null && (
             <div className="min-h-[120px] rounded-md border border-dashed border-neutral-700 bg-neutral-900/40 px-4 py-3 text-sm text-neutral-400">
-              No Vinted category selected yet.
+              {copy.noCategorySelected.replace('{platform}', 'Vinted')}
             </div>
           )}
 
           {activePlatform === 'allegro' && !selectedAllegroCategoryId && (
             <div className="min-h-[120px] rounded-md border border-dashed border-neutral-700 bg-neutral-900/40 px-4 py-3 text-sm text-neutral-400">
-              No Allegro category selected yet.
+              {copy.noCategorySelected.replace('{platform}', 'Allegro')}
             </div>
           )}
 
           {activePlatform === 'etsy' && !selectedEtsyCategoryId && (
             <div className="min-h-[120px] rounded-md border border-dashed border-neutral-700 bg-neutral-900/40 px-4 py-3 text-sm text-neutral-400">
-              No Etsy category selected yet.
+              {copy.noCategorySelected.replace('{platform}', 'Etsy')}
             </div>
           )}
 
           {activePlatform === 'vinted' && selectedVintedCatalogId !== null && (
             <div className="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-4 py-3">
-              <p className="text-xs uppercase tracking-wide text-cyan-200">Selected category</p>
+              <p className="text-xs uppercase tracking-wide text-cyan-200">{copy.selectedCategory}</p>
               {selectedVintedPath ? (
                 <p className="mt-1 text-sm text-cyan-100">{selectedVintedPath}</p>
               ) : (
-                <p className="mt-1 text-sm text-cyan-100/80">Resolving selected category...</p>
+                <p className="mt-1 text-sm text-cyan-100/80">{copy.resolvingCategory}</p>
               )}
             </div>
           )}
 
           {activePlatform === 'olx' && selectedOlxCategoryId && (
             <div className="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-4 py-3">
-              <p className="text-xs uppercase tracking-wide text-cyan-200">Selected category</p>
+              <p className="text-xs uppercase tracking-wide text-cyan-200">{copy.selectedCategory}</p>
               {selectedOlxPath ? (
                 <p className="mt-1 text-sm text-cyan-100">{selectedOlxPath}</p>
               ) : (
-                <p className="mt-1 text-sm text-cyan-100/80">Resolving selected category...</p>
+                <p className="mt-1 text-sm text-cyan-100/80">{copy.resolvingCategory}</p>
               )}
             </div>
           )}
 
           {activePlatform === 'allegro' && selectedAllegroCategoryId && (
             <div className="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-4 py-3">
-              <p className="text-xs uppercase tracking-wide text-cyan-200">Selected category</p>
+              <p className="text-xs uppercase tracking-wide text-cyan-200">{copy.selectedCategory}</p>
               {selectedAllegroPath ? (
                 <p className="mt-1 text-sm text-cyan-100">{selectedAllegroPath}</p>
               ) : (
-                <p className="mt-1 text-sm text-cyan-100/80">Resolving selected category...</p>
+                <p className="mt-1 text-sm text-cyan-100/80">{copy.resolvingCategory}</p>
               )}
             </div>
           )}
 
           {activePlatform === 'etsy' && selectedEtsyCategoryId && (
             <div className="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-4 py-3">
-              <p className="text-xs uppercase tracking-wide text-cyan-200">Selected category</p>
+              <p className="text-xs uppercase tracking-wide text-cyan-200">{copy.selectedCategory}</p>
               {selectedEtsyPath ? (
                 <p className="mt-1 text-sm text-cyan-100">{selectedEtsyPath}</p>
               ) : (
-                <p className="mt-1 text-sm text-cyan-100/80">Resolving selected category...</p>
+                <p className="mt-1 text-sm text-cyan-100/80">{copy.resolvingCategory}</p>
               )}
             </div>
           )}

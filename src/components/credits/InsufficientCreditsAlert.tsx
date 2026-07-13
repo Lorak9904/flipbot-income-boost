@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { HeroCTA, SecondaryAction } from '@/components/ui/button-presets';
 import { CreditCard, Calendar, ArrowRight } from 'lucide-react';
-import { getTranslations } from '@/components/language-utils';
+import { getLocalizedPathForCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { creditsTranslations } from './credits-translations';
 import { useNavigate } from 'react-router-dom';
 
@@ -46,13 +46,13 @@ export function InsufficientCreditsAlert({
     if (onUpgrade) {
       onUpgrade();
     } else {
-      navigate('/pricing');
+    navigate(getLocalizedPathForCurrentLanguage('/pricing'));
     }
   };
   
   const handleGoToSettings = () => {
     onOpenChange(false);
-    navigate('/settings');
+    navigate(getLocalizedPathForCurrentLanguage('/settings'));
   };
   
   return (
@@ -96,7 +96,7 @@ export function InsufficientCreditsAlert({
             {/* Call to action */}
             <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
               <p className="text-sm text-neutral-300">
-                💡 <strong>Need more credits?</strong> Upgrade your plan, or if you are on Unlimited buy add-on image credits from Settings.
+                {t.needMoreCredits}
               </p>
             </div>
           </AlertDialogDescription>
@@ -132,11 +132,27 @@ export function InsufficientCreditsAlert({
 /**
  * Hook to extract insufficient credits error from API response
  */
-export function useInsufficientCreditsError(error: any): {
+interface InsufficientCreditsApiError {
+  response?: {
+    status?: number;
+    data?: {
+      error?: string;
+      required?: number;
+      available?: number;
+    };
+  };
+}
+
+export function useInsufficientCreditsError(error: InsufficientCreditsApiError | null | undefined): {
   required: number;
   available: number;
 } | null {
-  if (error?.response?.status === 402 && error?.response?.data?.error === 'insufficient_credits') {
+  if (
+    error?.response?.status === 402 &&
+    error.response.data?.error === 'insufficient_credits' &&
+    typeof error.response.data.required === 'number' &&
+    typeof error.response.data.available === 'number'
+  ) {
     return {
       required: error.response.data.required,
       available: error.response.data.available,

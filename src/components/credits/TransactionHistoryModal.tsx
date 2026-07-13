@@ -13,12 +13,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowDownCircle, ArrowUpCircle, Calendar, ChevronDown } from 'lucide-react';
-import { getTranslations } from '@/components/language-utils';
+import { ArrowDownCircle, ArrowUpCircle, Calendar, ChevronDown, History } from 'lucide-react';
+import { getCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { creditsTranslations } from './credits-translations';
 import { useTransactions } from '@/hooks/useTransactions';
-import { formatActionType } from '@/lib/api/credits';
 import { format } from 'date-fns';
+import { enUS, pl } from 'date-fns/locale';
 
 interface TransactionHistoryModalProps {
   open: boolean;
@@ -27,6 +27,7 @@ interface TransactionHistoryModalProps {
 
 export function TransactionHistoryModal({ open, onOpenChange }: TransactionHistoryModalProps) {
   const t = getTranslations(creditsTranslations);
+  const language = getCurrentLanguage();
   const [filter, setFilter] = useState<'all' | 'publish' | 'enhance' | 'bonus'>('all');
   const [limit, setLimit] = useState(50);
   
@@ -39,13 +40,23 @@ export function TransactionHistoryModal({ open, onOpenChange }: TransactionHisto
     if (filter === 'bonus') return tx.amount > 0;
     return true;
   });
+
+  const actionLabels: Record<string, string> = {
+    publish_listing: t.actionPublish,
+    enhance_image: t.actionEnhance,
+    refill: t.actionRefill,
+    refund: t.actionRefund,
+    plan_upgrade: t.actionUpgrade,
+    subscription_renewal: t.actionRenewal,
+  };
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden bg-neutral-900 border-neutral-800">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
-            📜 {t.transactionHistory}
+            <History className="h-5 w-5 text-cyan-400" />
+            {t.transactionHistory}
           </DialogTitle>
           <DialogDescription className="text-neutral-400">
             {filteredTransactions && t.showing.replace('{count}', String(filteredTransactions.length)).replace('{total}', String(data?.count || 0))}
@@ -106,11 +117,15 @@ export function TransactionHistoryModal({ open, onOpenChange }: TransactionHisto
                   {/* Action type */}
                   <div>
                     <p className="font-medium text-white">
-                      {formatActionType(tx.action_type)}
+                      {actionLabels[tx.action_type] || tx.action_type.replaceAll('_', ' ')}
                     </p>
                     <p className="text-xs text-neutral-400 flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {format(new Date(tx.created_at), 'MMM d, yyyy • h:mm a')}
+                      {format(
+                        new Date(tx.created_at),
+                        language === 'pl' ? 'd MMM yyyy, HH:mm' : 'MMM d, yyyy, h:mm a',
+                        { locale: language === 'pl' ? pl : enUS }
+                      )}
                     </p>
                   </div>
                 </div>
@@ -129,25 +144,25 @@ export function TransactionHistoryModal({ open, onOpenChange }: TransactionHisto
                 <div className="mt-3 pt-3 border-t border-neutral-700/50 space-y-1">
                   {tx.metadata.platform && (
                     <p className="text-xs text-neutral-400">
-                      <span className="text-neutral-500">Platform:</span>{' '}
+                      <span className="text-neutral-500">{t.metadataPlatform}:</span>{' '}
                       <span className="text-cyan-400">{tx.metadata.platform}</span>
                     </p>
                   )}
                   {tx.metadata.draft_id && (
                     <p className="text-xs text-neutral-400">
-                      <span className="text-neutral-500">Draft ID:</span>{' '}
+                      <span className="text-neutral-500">{t.metadataDraft}:</span>{' '}
                       <span className="font-mono">{tx.metadata.draft_id}</span>
                     </p>
                   )}
                   {tx.metadata.prompt && (
                     <p className="text-xs text-neutral-400">
-                      <span className="text-neutral-500">Prompt:</span>{' '}
+                      <span className="text-neutral-500">{t.metadataPrompt}:</span>{' '}
                       <span className="italic">{tx.metadata.prompt}</span>
                     </p>
                   )}
                   {tx.metadata.source && (
                     <p className="text-xs text-neutral-400">
-                      <span className="text-neutral-500">Source:</span>{' '}
+                      <span className="text-neutral-500">{t.metadataSource}:</span>{' '}
                       <Badge variant="outline" className="text-xs">
                         {tx.metadata.source}
                       </Badge>
@@ -158,7 +173,7 @@ export function TransactionHistoryModal({ open, onOpenChange }: TransactionHisto
               
               {/* Balance change */}
               <div className="mt-3 pt-3 border-t border-neutral-700/50 text-xs text-neutral-400">
-                Balance: {tx.balance_before} → <span className="font-semibold">{tx.balance_after}</span>
+                {t.balanceLabel}: {tx.balance_before} → <span className="font-semibold">{tx.balance_after}</span>
               </div>
             </div>
           ))}

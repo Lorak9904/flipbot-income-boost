@@ -1,9 +1,15 @@
 import { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { HeroCTA } from '@/components/ui/button-presets';
+import { getCurrentLanguage, getLocalizedPathForLanguage } from '@/components/language-utils';
+import { SEOHead } from '@/components/SEOHead';
 
 const NotFound = () => {
   const location = useLocation();
+  const language = getCurrentLanguage();
+  const copy = language === 'pl'
+    ? { title: 'Nie znaleziono strony', description: 'Ta strona nie istnieje albo została przeniesiona.', home: 'Wróć na stronę główną' }
+    : { title: 'Page not found', description: 'This page does not exist or has been moved.', home: 'Return home' };
 
   useEffect(() => {
     console.error('404 Error: attempted route →', location.pathname);
@@ -11,6 +17,7 @@ const NotFound = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-950 text-white">
+      <SEOHead title={`${copy.title} | FlipIt`} description={copy.description} language={language} robots="noindex, follow" />
       {/* -------------------------------------------------- */}
       {/* GLOBAL RADIAL BLOBS (same palette as HomePage)    */}
       {/* -------------------------------------------------- */}
@@ -20,12 +27,12 @@ const NotFound = () => {
       </div>
 
       <h1 className="mb-4 text-6xl font-extrabold tracking-tight text-cyan-400">404</h1>
-      <p className="mb-4 text-2xl font-semibold">Oops! Page not found.</p>
+      <p className="mb-4 text-2xl font-semibold">{copy.title}</p>
       <p className="mb-8 max-w-md text-center text-neutral-300">
-        The page you’re looking for doesn’t exist or has been moved.
+        {copy.description}
       </p>
       <HeroCTA asChild>
-        <Link to="/">Return to Home</Link>
+        <Link to={getLocalizedPathForLanguage('/', language)}>{copy.home}</Link>
       </HeroCTA>
     </div>
   );

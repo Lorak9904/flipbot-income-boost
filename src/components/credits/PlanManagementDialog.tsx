@@ -27,6 +27,7 @@ import { PlanBadge } from './PlanBadge';
 import { HeroCTA, SecondaryAction } from '@/components/ui/button-presets';
 import { getCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { creditsTranslations } from './credits-translations';
+import { pricingTranslations } from '@/pages/pricing-translations';
 import { useCredits } from '@/hooks/useCredits';
 import { useToast } from '@/hooks/use-toast';
 import { createBillingPortalSession, createCheckoutSession, createImageAddonCheckoutSession } from '@/lib/api/billing';
@@ -49,14 +50,12 @@ interface PlanDetails {
   name: string;
   monthlyPrice: string;
   annualPrice?: string;
-  credits: string;
-  platforms: string;
-  support: string;
   features: string[];
 }
 
 export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialogProps) {
   const t = getTranslations(creditsTranslations);
+  const pricingT = getTranslations(pricingTranslations);
   const { data: credits } = useCredits();
   const { toast } = useToast();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
@@ -90,7 +89,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
     if (error instanceof Error && error.message) {
       return error.message;
     }
-    return 'Please try again later.';
+    return t.tryAgain;
   };
 
   const handleCurrencyChange = (currency: BillingCurrency) => {
@@ -103,15 +102,12 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
       id: 'start',
       name: t.planStarter,
       monthlyPrice: t.free,
-      credits: '5 listings + 1 image/month',
-      platforms: 'All supported marketplaces',
-      support: 'Community',
       features: [
-        '5 listings per month',
-        '1 AI image enhancement per month',
-        'All supported marketplaces',
-        'Manual review before publish',
-        'Community support',
+        pricingT.starterFeature1,
+        pricingT.starterFeature2,
+        pricingT.starterFeature3,
+        pricingT.starterFeature4,
+        pricingT.starterFeature5,
       ],
     },
     {
@@ -119,15 +115,16 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
       name: t.planPro,
       monthlyPrice: formatPlanPrice('plus', billingCurrency, 'monthly'),
       annualPrice: formatPlanPrice('plus', billingCurrency, 'annual'),
-      credits: '30 listings + 20 images/month',
-      platforms: 'All supported marketplaces',
-      support: 'Email',
       features: [
-        '30 listings per month',
-        '20 AI image enhancements per month',
-        'All supported marketplaces',
-        'Manual review before publish',
-        'Email support',
+        pricingT.proFeature1,
+        pricingT.proFeature2,
+        pricingT.proFeature3,
+        pricingT.proFeature4,
+        pricingT.proFeature5,
+        pricingT.proFeature6,
+        pricingT.proFeature7,
+        pricingT.proFeature8,
+        pricingT.proFeature9,
       ],
     },
     {
@@ -135,15 +132,16 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
       name: t.planBusiness,
       monthlyPrice: formatPlanPrice('scale', billingCurrency, 'monthly'),
       annualPrice: formatPlanPrice('scale', billingCurrency, 'annual'),
-      credits: '100 listings + 100 images/month',
-      platforms: 'All supported marketplaces',
-      support: 'Priority email',
       features: [
-        '100 listings per month',
-        '100 AI image enhancements per month',
-        'All supported marketplaces',
-        'Manual review before publish',
-        'Priority email support',
+        pricingT.businessFeature1,
+        pricingT.businessFeature2,
+        pricingT.businessFeature3,
+        pricingT.businessFeature4,
+        pricingT.businessFeature5,
+        pricingT.businessFeature6,
+        pricingT.businessFeature7,
+        pricingT.businessFeature8,
+        pricingT.businessFeature9,
       ],
     },
     {
@@ -151,16 +149,16 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
       name: t.planUnlimited,
       monthlyPrice: formatPlanPrice('unlimited', billingCurrency, 'monthly'),
       annualPrice: formatPlanPrice('unlimited', billingCurrency, 'annual'),
-      credits: 'Unlimited listings + 150 included images/month',
-      platforms: 'All supported marketplaces',
-      support: 'Priority email',
       features: [
-        'Unlimited listings per month',
-        '150 included AI image enhancements per month',
-        'Image add-on packs available (+50 / +100)',
-        'All supported marketplaces',
-        'Manual review before publish',
-        'Priority email support',
+        pricingT.unlimitedFeature1,
+        pricingT.unlimitedFeature2,
+        pricingT.unlimitedFeature3,
+        pricingT.unlimitedFeature4,
+        pricingT.unlimitedFeature5,
+        pricingT.unlimitedFeature6,
+        pricingT.unlimitedFeature7,
+        pricingT.unlimitedFeature8,
+        pricingT.unlimitedFeature9,
       ],
     },
   ];
@@ -392,7 +390,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
                   {showMostPopular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                       <Badge className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white">
-                        Most Popular
+                        {t.mostPopular}
                       </Badge>
                     </div>
                   )}
@@ -419,24 +417,8 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
                     )}
                   </div>
                   
-                  {/* Key stats */}
-                  <div className="space-y-3 mb-6 pb-6 border-b border-neutral-700">
-                    <div>
-                      <p className="text-xs text-neutral-400 mb-1">{t.planCredits}</p>
-                      <p className="text-lg font-semibold text-white">{plan.credits}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-neutral-400 mb-1">{t.planPlatforms}</p>
-                      <p className="text-sm text-white">{plan.platforms}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-neutral-400 mb-1">{t.planSupport}</p>
-                      <p className="text-sm text-white">{plan.support}</p>
-                    </div>
-                  </div>
-                  
                   {/* Features list */}
-                  <ul className="space-y-3 mb-6">
+                  <ul className="space-y-3 mb-6 border-t border-neutral-700 pt-6">
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm">
                         <Check className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
@@ -507,10 +489,10 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
           {/* Additional info */}
           <div className="mt-6 p-4 bg-cyan-500/5 border border-cyan-500/20 rounded-lg">
             <p className="text-sm text-neutral-300">
-              💳 <strong>Secure payments powered by Stripe</strong> - Your payment information is never stored on our servers.
+              <strong>{t.securePaymentsTitle}</strong> — {t.securePaymentsDescription}
             </p>
             <p className="text-xs text-neutral-400 mt-2">
-              Need help choosing? Contact us at myflipit@arrpo.com
+              {t.needHelp}
             </p>
           </div>
         </DialogContent>

@@ -1,103 +1,22 @@
 // Language utility functions for FlipIt application
 import { updateUserLanguage } from '@/lib/api/user';
+import { LISTING_EDITOR_DRAFT_SAVE_EVENT } from '@/lib/listing-editor-draft';
+import {
+  getLocalizedPath,
+  getPathLanguage,
+  type AppLanguage,
+} from '@/lib/localized-routes';
 
-export type Language = 'en' | 'pl';
-
-const localizedRouteMap: Record<string, { en: string; pl: string }> = {
-  '/terms': {
-    en: '/terms',
-    pl: '/pl/regulamin',
-  },
-  '/pl/regulamin': {
-    en: '/terms',
-    pl: '/pl/regulamin',
-  },
-  '/privacy': {
-    en: '/privacy',
-    pl: '/pl/polityka-prywatnosci',
-  },
-  '/pl/polityka-prywatnosci': {
-    en: '/privacy',
-    pl: '/pl/polityka-prywatnosci',
-  },
-  '/cookies': {
-    en: '/cookies',
-    pl: '/pl/polityka-cookies',
-  },
-  '/pl/polityka-cookies': {
-    en: '/cookies',
-    pl: '/pl/polityka-cookies',
-  },
-  '/articles/jak-sprzedawac-na-allegro': {
-    en: '/articles/how-to-sell-on-allegro',
-    pl: '/articles/jak-sprzedawac-na-allegro',
-  },
-  '/articles/how-to-sell-on-allegro': {
-    en: '/articles/how-to-sell-on-allegro',
-    pl: '/articles/jak-sprzedawac-na-allegro',
-  },
-  '/articles/vinted-relisting-tool': {
-    en: '/articles/vinted-relisting-tool',
-    pl: '/articles/odswiezanie-ogloszen-vinted',
-  },
-  '/articles/odswiezanie-ogloszen-vinted': {
-    en: '/articles/vinted-relisting-tool',
-    pl: '/articles/odswiezanie-ogloszen-vinted',
-  },
-  '/articles/cross-list-vinted-to-facebook-marketplace': {
-    en: '/articles/cross-list-vinted-to-facebook-marketplace',
-    pl: '/articles/crosslisting-z-vinted-na-facebook-marketplace',
-  },
-  '/articles/crosslisting-z-vinted-na-facebook-marketplace': {
-    en: '/articles/cross-list-vinted-to-facebook-marketplace',
-    pl: '/articles/crosslisting-z-vinted-na-facebook-marketplace',
-  },
-  '/articles/product-relister-for-vinted': {
-    en: '/articles/product-relister-for-vinted',
-    pl: '/articles/relister-produktow-vinted',
-  },
-  '/articles/relister-produktow-vinted': {
-    en: '/articles/product-relister-for-vinted',
-    pl: '/articles/relister-produktow-vinted',
-  },
-  '/articles/how-to-price-items-for-ebay': {
-    en: '/articles/how-to-price-items-for-ebay',
-    pl: '/articles/jak-wycenic-przedmiot-na-ebay',
-  },
-  '/articles/jak-wycenic-przedmiot-na-ebay': {
-    en: '/articles/how-to-price-items-for-ebay',
-    pl: '/articles/jak-wycenic-przedmiot-na-ebay',
-  },
-  '/articles/ebay-active-listings-vs-sold-prices': {
-    en: '/articles/ebay-active-listings-vs-sold-prices',
-    pl: '/articles/aktywne-oferty-ebay-a-ceny-sprzedazy',
-  },
-  '/articles/aktywne-oferty-ebay-a-ceny-sprzedazy': {
-    en: '/articles/ebay-active-listings-vs-sold-prices',
-    pl: '/articles/aktywne-oferty-ebay-a-ceny-sprzedazy',
-  },
-  '/articles/olx-listing-automation-by-country': {
-    en: '/articles/olx-listing-automation-by-country',
-    pl: '/articles/automatyzacja-ogloszen-olx-wedlug-kraju',
-  },
-  '/articles/automatyzacja-ogloszen-olx-wedlug-kraju': {
-    en: '/articles/olx-listing-automation-by-country',
-    pl: '/articles/automatyzacja-ogloszen-olx-wedlug-kraju',
-  },
-  '/articles/etsy-listing-tool': {
-    en: '/articles/etsy-listing-tool',
-    pl: '/articles/narzedzie-do-ogloszen-etsy',
-  },
-  '/articles/narzedzie-do-ogloszen-etsy': {
-    en: '/articles/etsy-listing-tool',
-    pl: '/articles/narzedzie-do-ogloszen-etsy',
-  },
-};
+export type Language = AppLanguage;
 
 export const getLocalizedPathForLanguage = (pathname: string, lang: Language): string => {
-  const normalized = pathname !== '/' && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-  const mapping = localizedRouteMap[normalized];
-  return mapping ? mapping[lang] : pathname;
+  const hashIndex = pathname.indexOf('#');
+  const hash = hashIndex >= 0 ? pathname.slice(hashIndex) : '';
+  const withoutHash = hashIndex >= 0 ? pathname.slice(0, hashIndex) : pathname;
+  const queryIndex = withoutHash.indexOf('?');
+  const query = queryIndex >= 0 ? withoutHash.slice(queryIndex) : '';
+  const path = queryIndex >= 0 ? withoutHash.slice(0, queryIndex) : withoutHash;
+  return `${getLocalizedPath(path || '/', lang)}${query}${hash}`;
 };
 
 export const getLocalizedPathForCurrentLanguage = (pathname: string): string => {
@@ -108,22 +27,13 @@ export const getLocalizedPathForCurrentLanguage = (pathname: string): string => 
 // Get current language from cookie
 export const getCurrentLanguage = (): Language => {
   if (typeof window !== 'undefined') {
-    const pathname =
-      window.location.pathname !== '/' && window.location.pathname.endsWith('/')
-        ? window.location.pathname.slice(0, -1)
-        : window.location.pathname;
-    const mapping = localizedRouteMap[pathname];
-
-    if (mapping?.pl === pathname) {
-      return 'pl';
-    }
-
-    if (mapping?.en === pathname) {
-      return 'en';
-    }
+    const routeLanguage = getPathLanguage(window.location.pathname);
+    if (routeLanguage) return routeLanguage;
   }
 
-  const match = document.cookie.match(/(?:^|; )lang=(pl|en)/);
+  const match = typeof document !== 'undefined'
+    ? document.cookie.match(/(?:^|; )lang=(pl|en)/)
+    : null;
   return (match?.[1] as Language) || 'en';
 };
 
@@ -135,8 +45,6 @@ const setLanguageCookie = (lang: Language): void => {
 // Set language - handles both cookie and backend persistence for authenticated users
 export const setLanguage = async (lang: Language): Promise<void> => {
   const token = localStorage.getItem('flipit_token');
-  console.log("setting language to", lang);
-  console.log("token is", token);
   
   // If user is authenticated, persist to backend first
 
@@ -152,6 +60,7 @@ export const setLanguage = async (lang: Language): Promise<void> => {
   
   // Always set cookie (backend also sets it, but we ensure it locally too)
   setLanguageCookie(lang);
+  window.dispatchEvent(new Event(LISTING_EDITOR_DRAFT_SAVE_EVENT));
 
   const targetPath = getLocalizedPathForLanguage(window.location.pathname, lang);
   if (targetPath !== window.location.pathname) {

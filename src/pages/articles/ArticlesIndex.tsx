@@ -5,6 +5,9 @@ import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { articlesIndexTranslations } from './translations/articles-index.translations';
 import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
+import { FirstListingGuideCard } from '@/components/onboarding/FirstListingGuideCard';
+import { getRoutePath } from '@/lib/localized-routes';
+import { getSeoMetadata } from '@/lib/seo-metadata';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -33,7 +36,8 @@ const keywords = [
 const ArticlesIndex = () => {
   const t = getTranslations(articlesIndexTranslations);
   const language = getCurrentLanguage();
-  const canonicalUrl = 'https://myflipit.live/articles';
+  const canonicalUrl = `https://myflipit.live${getRoutePath('articles', language)}`;
+  const seo = getSeoMetadata('articles', language);
   const getLocalized = (path: string) => getLocalizedPathForLanguage(path, language);
 
   const breadcrumbStructuredData = {
@@ -104,13 +108,19 @@ const ArticlesIndex = () => {
       href: getLocalized('/articles/etsy-listing-tool'),
       badge: t.article8Badge,
     },
+    {
+      title: t.article9Title,
+      description: t.article9Description,
+      href: getLocalized('/articles/how-much-is-my-used-item-worth'),
+      badge: t.article9Badge,
+    },
   ];
 
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
       <SEOHead
-        title={t.pageTitle}
-        description={t.pageDescription}
+        title={seo?.title ?? t.pageTitle}
+        description={seo?.description ?? t.pageDescription}
         canonicalUrl={canonicalUrl}
         type="website"
         keywords={keywords}
@@ -146,6 +156,16 @@ const ArticlesIndex = () => {
       </section>
 
       <div className="relative mx-auto max-w-4xl px-8 pb-24 md:px-8 lg:px-0">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeUp}
+          className="mb-16"
+        >
+          <FirstListingGuideCard source="tutorial" />
+        </motion.div>
+
         {/* Articles Grid */}
         <motion.section
           initial="hidden"
@@ -195,7 +215,7 @@ const ArticlesIndex = () => {
           <h2 className="text-xl font-bold text-white mb-3">{t.pillarGuideTitle}</h2>
           <p className="text-neutral-300 mb-4">{t.pillarGuideDescription}</p>
           <Link 
-            to="/automated-reselling-platform-guide" 
+            to={getLocalized('/automated-reselling-platform-guide')}
             className="text-cyan-300 hover:text-cyan-200 font-medium transition-colors"
           >
             {t.pillarGuideLinkText}
@@ -213,7 +233,7 @@ const ArticlesIndex = () => {
           <MarketingCtaBanner
             title={t.ctaTitle}
             description={t.ctaDescription}
-            primaryAction={{ text: t.ctaButtonText, href: '/get-started' }}
+            primaryAction={{ text: t.ctaButtonText, href: getLocalized('/get-started') }}
           />
         </motion.section>
       </div>

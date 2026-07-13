@@ -16,6 +16,12 @@ import { LogIn, User, Settings, LogOut, Home, Package, BarChart3, MessageCircle,
 import { useToast } from '@/hooks/use-toast';
 import { useCredits } from '@/hooks/useCredits';
 import { getCreditsHealthStatus } from '@/lib/api/credits';
+import {
+  getCurrentLanguage,
+  getLocalizedPathForLanguage,
+  getTranslations,
+} from './language-utils';
+import { userMenuTranslations } from './user-menu-translations';
 
 const UserMenu = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -23,23 +29,26 @@ const UserMenu = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { data: credits } = useCredits();
+  const t = getTranslations(userMenuTranslations);
+  const language = getCurrentLanguage();
+  const localized = (path: string) => getLocalizedPathForLanguage(path, language);
 
   const handleLogout = () => {
     logout();
     setOpen(false);
     toast({
-      title: "Logged out successfully",
-      description: "You have been logged out of your account",
+      title: t.loggedOutTitle,
+      description: t.loggedOutDescription,
     });
-    navigate('/');
+    navigate(localized('/'));
   };
 
   if (!isAuthenticated) {
     return (
       <NavbarLogin asChild>
-        <Link to="/login">
+        <Link to={localized('/login')}>
           <LogIn className="mr-2 h-4 w-4" />
-          Log in
+          {t.login}
         </Link>
       </NavbarLogin>
     );
@@ -93,7 +102,7 @@ const UserMenu = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CreditCard className="h-4 w-4 text-cyan-400" />
-                  <span className="text-sm font-medium">Publish</span>
+                  <span className="text-sm font-medium">{t.publishing}</span>
                 </div>
                 <span className={`text-sm font-bold ${
                   credits.publish_limit === null 
@@ -112,12 +121,12 @@ const UserMenu = () => {
               </div>
               {credits.image_limit !== null && (
                 <div className="flex items-center justify-between mt-1">
-                  <span className="text-xs text-muted-foreground">Images</span>
+                  <span className="text-xs text-muted-foreground">{t.images}</span>
                   <span className="text-xs font-medium text-fuchsia-400">
                     {credits.image_total_remaining === null || credits.image_remaining === null
                       ? '∞'
                       : (credits.image_addon_remaining || 0) > 0
-                        ? `${credits.image_total_remaining ?? credits.image_remaining} total`
+                        ? `${credits.image_total_remaining ?? credits.image_remaining} ${t.total}`
                         : `${credits.image_total_remaining ?? credits.image_remaining}/${credits.image_included_limit ?? credits.image_limit}`
                     }
                   </span>
@@ -130,21 +139,21 @@ const UserMenu = () => {
         
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link to="/">
+            <Link to={localized('/')}>
               <Home className="mr-2 h-4 w-4" />
-              <span>Dashboard</span>
+              <span>{t.dashboard}</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link to="/connect-accounts">
+            <Link to={localized('/connect-accounts')}>
               <Package className="mr-2 h-4 w-4" />
-              <span>Connected Accounts</span>
+              <span>{t.connectedAccounts}</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link to="/user/statistics">
+            <Link to={localized('/user/statistics')}>
               <BarChart3 className="mr-2 h-4 w-4" />
-              <span>Stats</span>
+              <span>{t.statistics}</span>
             </Link>
           </DropdownMenuItem>
           {/* <DropdownMenuItem>
@@ -152,9 +161,9 @@ const UserMenu = () => {
             <span>Profile</span>
           </DropdownMenuItem> */}
           <DropdownMenuItem asChild>
-            <Link to="/settings">
+            <Link to={localized('/settings')}>
               <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
+              <span>{t.settings}</span>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -164,7 +173,7 @@ const UserMenu = () => {
           className="text-red-500 focus:text-red-500"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
+          <span>{t.logout}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

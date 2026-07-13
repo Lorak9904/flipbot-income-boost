@@ -1,0 +1,102 @@
+{
+  "home": {
+    "en": { "title": "AI Crosslisting for Marketplace Sellers | FlipIt", "description": "Create marketplace-ready listing drafts from product photos, review every detail, and publish faster to supported selling platforms with FlipIt." },
+    "pl": { "title": "Crosslisting i ogłoszenia z AI dla sprzedawców | FlipIt", "description": "Twórz ze zdjęć gotowe szkice ogłoszeń, sprawdzaj wszystkie dane i szybciej publikuj oferty na obsługiwanych platformach z FlipIt." }
+  },
+  "guide": {
+    "en": { "title": "Marketplace Automation Guide for Resellers | FlipIt", "description": "A practical guide to AI-assisted listing drafts, crosslisting, category mapping, pricing, and seller-approved marketplace workflows." },
+    "pl": { "title": "Przewodnik po automatyzacji sprzedaży online | FlipIt", "description": "Praktyczny przewodnik po szkicach z AI, crosslistingu, dopasowaniu kategorii, cenach i publikacji zatwierdzanej przez sprzedawcę." }
+  },
+  "articles": {
+    "en": { "title": "Marketplace Selling Guides | FlipIt", "description": "Practical guides for Vinted, OLX, Allegro, eBay, Etsy, crosslisting, pricing, and more efficient marketplace workflows." },
+    "pl": { "title": "Poradniki sprzedaży na marketplace | FlipIt", "description": "Praktyczne poradniki o Vinted, OLX, Allegro, eBay, Etsy, crosslistingu, wycenie i sprawniejszej pracy z ogłoszeniami." }
+  },
+  "priceChecker": {
+    "type": "tool",
+    "lastModified": "2026-07-13",
+    "en": { "title": "Free Used Item Price Checker | FlipIt", "description": "Estimate a used item price from comparable active eBay listings. Search by details or photo, remove weak matches, and review the median asking price." },
+    "pl": { "title": "Darmowa wycena używanych przedmiotów | FlipIt", "description": "Sprawdź cenę używanego przedmiotu na podstawie podobnych aktywnych ofert eBay. Wyszukaj po opisie lub zdjęciu i zobacz medianę cen." }
+  },
+  "vintedRelisting": {
+    "type": "article",
+    "lastModified": "2026-07-13",
+    "en": { "title": "Vinted Relisting Tool: Prepare a Better Draft | FlipIt", "description": "Review an older Vinted listing, prepare a clearer draft, and check photos, category, condition, price, and duplicates before publishing." },
+    "pl": { "title": "Odświeżanie ogłoszeń Vinted: przygotuj lepszy szkic | FlipIt", "description": "Sprawdź starsze ogłoszenie Vinted, przygotuj czytelniejszy szkic i skontroluj zdjęcia, kategorię, stan, cenę oraz duplikaty." }
+  },
+  "crosslistVintedFacebook": {
+    "type": "article",
+    "en": { "title": "Cross-list Vinted Items to Facebook Marketplace | FlipIt", "description": "Adapt a Vinted listing for Facebook Marketplace with marketplace-specific copy, pricing, categories, and seller review before publication." },
+    "pl": { "title": "Crosslisting z Vinted na Facebook Marketplace | FlipIt", "description": "Dostosuj ofertę z Vinted do Facebook Marketplace: opis, cenę, kategorię i pozostałe dane sprawdzisz przed publikacją." }
+  },
+  "productRelisterVinted": {
+    "type": "article",
+    "lastModified": "2026-07-13",
+    "en": { "title": "Product Relister for Vinted: Move and Refresh Listings | FlipIt", "description": "Prepare a Vinted draft from eBay, OLX, Facebook Marketplace, or existing photos. Check required fields and duplicates before publishing." },
+    "pl": { "title": "Jak przenieść lub odświeżyć ogłoszenie na Vinted | FlipIt", "description": "Przygotuj szkic Vinted na podstawie oferty z OLX, eBay, Facebook Marketplace albo własnych zdjęć. Sprawdź wymagane dane przed publikacją." }
+  },
+  "sellOnAllegro": {
+    "type": "article",
+    "en": { "title": "How to Sell on Allegro: Listing Workflow Guide | FlipIt", "description": "Prepare clearer Allegro offers with the right category, required product details, pricing context, and seller approval before publication." },
+    "pl": { "title": "Jak sprzedawać na Allegro: praktyczny poradnik | FlipIt", "description": "Przygotuj czytelne oferty Allegro z właściwą kategorią, wymaganymi danymi produktu, ceną i kontrolą przed publikacją." }
+  },
+  "priceForEbay": {
+    "type": "article",
+    "lastModified": "2026-07-13",
+    "en": { "title": "How to Price Items for eBay | FlipIt", "description": "Compare relevant active eBay listings, remove weak matches, and use median asking price as a practical starting point before listing." },
+    "pl": { "title": "Jak wycenić przedmiot na eBay | FlipIt", "description": "Porównaj trafne aktywne oferty eBay, odrzuć słabe dopasowania i użyj mediany cen ofertowych jako punktu wyjścia." }
+  },
+  "ebayActiveVsSold": {
+    "type": "article",
+    "lastModified": "2026-07-13",
+    "en": { "title": "eBay Active Listings vs Sold Prices | FlipIt", "description": "Understand what active and sold eBay listings tell you, where each signal can mislead, and how to use both when pricing an item." },
+    "pl": { "title": "Aktywne oferty eBay a ceny sprzedaży | FlipIt", "description": "Sprawdź, co pokazują aktywne i zakończone oferty eBay, kiedy mogą mylić i jak wykorzystać oba źródła przy wycenie." }
+  },
+  "usedItemValueGuide": {
+    "type": "article",
+    "lastModified": "2026-07-13",
+    "en": { "title": "How Much Is My Used Item Worth? | FlipIt", "description": "Learn how to price a used phone, laptop, chair, jewellery or another second-hand item with relevant active listings and condition context." },
+    "pl": { "title": "Ile wart jest używany przedmiot? | FlipIt", "description": "Sprawdź, jak wycenić używany telefon, laptop, krzesło, biżuterię lub inną rzecz na podstawie trafnych aktywnych ofert i stanu." }
+  },
+  "olxCountryAutomation": {
+    "type": "article",
+    "en": { "title": "OLX Listing Automation by Country | FlipIt", "description": "See how OLX account and listing workflows differ by country and how to prepare offers without losing seller control." },
+    "pl": { "title": "Automatyzacja ogłoszeń OLX w różnych krajach | FlipIt", "description": "Zobacz, czym różnią się konta i procesy OLX w poszczególnych krajach oraz jak przygotowywać oferty z kontrolą sprzedawcy." }
+  },
+  "etsyListingTool": {
+    "type": "article",
+    "en": { "title": "Etsy Listing Tool for Shop-Ready Drafts | FlipIt", "description": "Prepare Etsy listing drafts with product photos, categories, attributes, price, shipping details, and review before publication." },
+    "pl": { "title": "Narzędzie do przygotowania ofert Etsy | FlipIt", "description": "Przygotuj szkice ofert Etsy ze zdjęciami, kategorią, atrybutami, ceną i wysyłką, a następnie sprawdź je przed publikacją." }
+  },
+  "howItWorks": {
+    "en": { "title": "How FlipIt Crosslisting Works", "description": "See how FlipIt turns product photos into marketplace-specific drafts that you review and approve before publishing." },
+    "pl": { "title": "Jak działa crosslisting w FlipIt", "description": "Zobacz, jak FlipIt zmienia zdjęcia produktu w szkice dopasowane do platform, które sprawdzasz i zatwierdzasz przed publikacją." }
+  },
+  "successStories": {
+    "en": { "title": "Seller Workflows and Success Stories | FlipIt", "description": "Explore practical ways marketplace sellers reduce repetitive listing work and keep control of cross-platform publishing." },
+    "pl": { "title": "Historie i sposoby pracy sprzedawców | FlipIt", "description": "Poznaj praktyczne sposoby ograniczania powtarzalnej pracy przy ogłoszeniach i zachowania kontroli nad publikacją na wielu platformach." }
+  },
+  "pricing": {
+    "en": { "title": "FlipIt Pricing for Marketplace Sellers", "description": "Compare FlipIt plans, publishing limits, AI image credits, and billing options. Start free and upgrade when your listing volume grows." },
+    "pl": { "title": "Cennik FlipIt dla sprzedawców online", "description": "Porównaj plany FlipIt, limity publikacji, kredyty na zdjęcia AI i rozliczenia. Zacznij bezpłatnie i zmień plan, gdy wzrośnie sprzedaż." }
+  },
+  "faq": {
+    "en": { "title": "FlipIt FAQ: Crosslisting and Marketplace Workflows", "description": "Answers about supported marketplaces, AI-generated drafts, seller approval, account connections, payments, privacy, and current product limits." },
+    "pl": { "title": "FAQ FlipIt: crosslisting i obsługa marketplace", "description": "Odpowiedzi o obsługiwanych platformach, szkicach z AI, akceptacji sprzedawcy, połączeniach kont, płatnościach i ograniczeniach." }
+  },
+  "getStarted": {
+    "en": { "title": "Get Started with FlipIt", "description": "Create your FlipIt account, connect a supported marketplace, prepare your first listing draft, and review it before publication." },
+    "pl": { "title": "Zacznij korzystać z FlipIt", "description": "Załóż konto FlipIt, połącz obsługiwaną platformę, przygotuj pierwszy szkic ogłoszenia i sprawdź go przed publikacją." }
+  },
+  "terms": {
+    "en": { "title": "Terms of Service | FlipIt", "description": "Terms for FlipIt accounts, marketplace connections, AI-assisted drafts, seller responsibility, billing, and support." },
+    "pl": { "title": "Regulamin | FlipIt", "description": "Zasady korzystania z FlipIt: konto, połączenia z platformami, szkice z AI, odpowiedzialność sprzedawcy, płatności i wsparcie." }
+  },
+  "privacy": {
+    "en": { "title": "Privacy Policy | FlipIt", "description": "How FlipIt handles account data, marketplace credentials, listing content, AI processing, payments, analytics, cookies, and user rights." },
+    "pl": { "title": "Polityka prywatności | FlipIt", "description": "Jak FlipIt przetwarza dane konta, dostęp do platform, treści ogłoszeń, AI, płatności, analitykę, cookies i prawa użytkownika." }
+  },
+  "cookies": {
+    "en": { "title": "Cookie Policy | FlipIt", "description": "How FlipIt uses essential storage, optional analytics, session replay, live chat, authentication, and third-party services." },
+    "pl": { "title": "Polityka cookies | FlipIt", "description": "Jak FlipIt używa niezbędnych danych przeglądarki, opcjonalnej analityki, nagrań sesji, czatu, logowania i usług zewnętrznych." }
+  }
+}

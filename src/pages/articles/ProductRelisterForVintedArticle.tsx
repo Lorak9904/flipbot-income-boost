@@ -1,6 +1,8 @@
 import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '@/components/language-utils';
 import { SeoArticleLayout } from '@/components/seo/SeoArticleLayout';
+import { getRoutePath } from '@/lib/localized-routes';
 import { productRelisterTranslations } from './translations/product-relister-for-vinted.translations';
+import questionContent from './content/product-relister-vinted.questions.json';
 
 const keywords = [
   'product relister for vinted',
@@ -11,15 +13,16 @@ const keywords = [
   'vinted bulk listing',
   'vinted automation tool',
   'vinted seller software',
+  'move listings to vinted',
+  'cross list ebay to vinted',
+  'olx to vinted',
+  'facebook marketplace to vinted',
 ];
 
 const ProductRelisterForVintedArticle = () => {
   const t = getTranslations(productRelisterTranslations);
   const language = getCurrentLanguage();
-  const canonicalUrl =
-    language === 'pl'
-      ? 'https://myflipit.live/articles/relister-produktow-vinted'
-      : 'https://myflipit.live/articles/product-relister-for-vinted';
+  const canonicalUrl = `https://myflipit.live${getRoutePath('productRelisterVinted', language)}`;
   
   const articleStructuredData = {
     '@context': 'https://schema.org',
@@ -44,54 +47,33 @@ const ProductRelisterForVintedArticle = () => {
       '@id': canonicalUrl,
     },
     datePublished: '2026-01-06',
-    dateModified: '2026-06-29',
+    dateModified: '2026-07-13',
     keywords,
   };
 
-  const sections = [
-    {
-      heading: t.section1Title,
-      bodyParagraphs: [t.section1Para1, t.section1Para2],
-    },
-    {
-      heading: t.section2Title,
-      bodyParagraphs: [t.section2Para1, t.section2Para2],
-    },
-    {
-      heading: t.section3Title,
-      bodyParagraphs: [t.section3Para1, t.section3Para2],
-    },
-    {
-      heading: t.section4Title,
-      bodyParagraphs: [t.section4Para1, t.section4Para2],
-    },
-    {
-      heading: t.section5Title,
-      bodyParagraphs: [t.section5Para1, t.section5Para2],
-    },
-  ];
+  const answerContent = questionContent[language];
+  const sections = answerContent.sections;
 
   const faq = [
     { q: t.faq1Question, a: t.faq1Answer },
-    { q: t.faq2Question, a: t.faq2Answer },
     { q: t.faq3Question, a: t.faq3Answer },
-    { q: t.faq4Question, a: t.faq4Answer },
+    ...answerContent.faq,
   ];
 
   const relatedLinks = [
     { text: t.relatedLink1, href: getLocalizedPathForLanguage('/articles/vinted-relisting-tool', language) },
     { text: t.relatedLink2, href: getLocalizedPathForLanguage('/articles/cross-list-vinted-to-facebook-marketplace', language) },
-    { text: t.relatedLink3, href: '/automated-reselling-platform-guide' },
+    { text: t.relatedLink3, href: getLocalizedPathForLanguage('/automated-reselling-platform-guide', language) },
   ];
 
   const cta = {
     title: t.ctaTitle,
     description: t.ctaDescription,
     buttonText: t.ctaButtonText,
-    buttonLink: '/get-started',
+    buttonLink: getLocalizedPathForLanguage('/get-started', language),
     footerText: t.ctaFooterText,
     footerLinkText: t.ctaFooterLinkText,
-    footerLinkHref: '/user/items',
+    footerLinkHref: getLocalizedPathForLanguage('/user/items', language),
   };
 
   const highlights = [t.highlight1, t.highlight2, t.highlight3];
@@ -115,6 +97,8 @@ const ProductRelisterForVintedArticle = () => {
       cta={cta}
       relatedLinks={relatedLinks}
       relatedLinksTitle={t.relatedLinksTitle}
+      sourceLinks={answerContent.sources}
+      sourceLinksTitle={answerContent.sourcesTitle}
     />
   );
 };

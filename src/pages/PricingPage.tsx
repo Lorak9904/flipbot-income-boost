@@ -1,19 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
-import { getTranslations, getCurrentLanguage } from '../components/language-utils';
+import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '../components/language-utils';
 import { pricingTranslations } from './pricing-translations';
 import { PricingToggle } from '@/components/pricing/PricingToggle';
 import { PricingCard } from '@/components/pricing/PricingCard';
 import { PricingFAQ } from '@/components/pricing/PricingFAQ';
-import { TrustSection } from '@/components/pricing/TrustSection';
 import { CurrencySelector } from '@/components/pricing/CurrencySelector';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { createCheckoutSession } from '@/lib/api/billing';
 import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
+import { getSeoMetadata } from '@/lib/seo-metadata';
 import {
   CHECKOUT_CURRENCY_STORAGE_KEY,
   type BillingCurrency,
@@ -54,6 +54,8 @@ const PricingPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const language = getCurrentLanguage();
+  const localized = (path: string) => getLocalizedPathForLanguage(path, language);
 
   const clearCheckoutIntent = () => {
     sessionStorage.removeItem('flipit_checkout_plan');
@@ -61,8 +63,9 @@ const PricingPage = () => {
     sessionStorage.removeItem(CHECKOUT_CURRENCY_STORAGE_KEY);
   };
 
-  const pageTitle = 'FlipIt Pricing - Choose Your Reselling Plan | myflipit.live';
-  const pageDescription = 'Transparent pricing for FlipIt\'s marketplace automation. Start is free and paid plans are available in PLN and EUR. All plans include supported marketplaces.';
+  const seo = getSeoMetadata('pricing', language);
+  const pageTitle = seo?.title ?? t.heroTitle;
+  const pageDescription = seo?.description ?? t.heroDescription;
   const keywords = [
     'FlipIt pricing',
     'reselling platform cost',
@@ -76,7 +79,7 @@ const PricingPage = () => {
     persistBillingCurrency(currency);
   };
 
-  const startCheckout = async (
+  const startCheckout = useCallback(async (
     plan: PaidPlan,
     cycle: 'monthly' | 'annual',
     currency: BillingCurrency,
@@ -84,21 +87,21 @@ const PricingPage = () => {
     try {
       const checkoutUrl = await createCheckoutSession(plan, cycle, currency);
       window.location.href = checkoutUrl;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: t.checkoutErrorTitle,
-        description: error.message || t.checkoutErrorMessage,
+        description: error instanceof Error ? error.message : t.checkoutErrorMessage,
         variant: 'destructive',
       });
     }
-  };
+  }, [t.checkoutErrorMessage, t.checkoutErrorTitle, toast]);
 
   const handleCheckout = async (plan: 'plus' | 'scale' | 'unlimited') => {
     if (!isAuthenticated) {
       sessionStorage.setItem('flipit_checkout_plan', plan);
       sessionStorage.setItem('flipit_checkout_billing', billingCycle);
       sessionStorage.setItem(CHECKOUT_CURRENCY_STORAGE_KEY, billingCurrency);
-      navigate('/login?register=1');
+      navigate(localized('/login?register=1'));
       return;
     }
 
@@ -107,7 +110,7 @@ const PricingPage = () => {
 
   const handleStartSignup = () => {
     clearCheckoutIntent();
-    navigate('/login?register=1');
+    navigate(localized('/login?register=1'));
   };
 
   useEffect(() => {
@@ -167,7 +170,7 @@ const PricingPage = () => {
       handleCurrencyChange(currency);
     }
     void startCheckout(plan, normalizedCycle, currency);
-  }, [billingCycle, billingCurrency, checkoutAttempted, isAuthenticated, location.search]);
+  }, [billingCycle, billingCurrency, checkoutAttempted, isAuthenticated, location.search, startCheckout]);
 
   const pricingPlans = [
     {
@@ -204,7 +207,7 @@ const PricingPage = () => {
       badge: t.proBadge,
       ctaText: t.proCta,
       ctaOnClick: () => handleCheckout('plus'),
-      ctaLink: '/login?register=1&plan=plus',
+      ctaLink: localized('/login?register=1&plan=plus'),
       featured: true,
     },
     {
@@ -225,7 +228,7 @@ const PricingPage = () => {
       ],
       ctaText: t.businessCta,
       ctaOnClick: () => handleCheckout('scale'),
-      ctaLink: '/login?register=1&plan=scale',
+      ctaLink: localized('/login?register=1&plan=scale'),
       featured: false,
     },
     {
@@ -247,7 +250,7 @@ const PricingPage = () => {
       badge: t.unlimitedBadge,
       ctaText: t.unlimitedCta,
       ctaOnClick: () => handleCheckout('unlimited'),
-      ctaLink: '/login?register=1&plan=unlimited',
+      ctaLink: localized('/login?register=1&plan=unlimited'),
       featured: false,
     },
   ];
@@ -261,24 +264,6 @@ const PricingPage = () => {
     { question: t.faq6Question, answer: t.faq6Answer },
   ];
 
-  const testimonials = [
-    {
-      quote: t.testimonial1,
-      author: t.testimonial1Author,
-      location: t.testimonial1Location,
-    },
-    {
-      quote: t.testimonial2,
-      author: t.testimonial2Author,
-      location: t.testimonial2Location,
-    },
-    {
-      quote: t.testimonial3,
-      author: t.testimonial3Author,
-      location: t.testimonial3Location,
-    },
-  ];
-
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
       <SEOHead
@@ -286,7 +271,7 @@ const PricingPage = () => {
         description={pageDescription}
         canonicalUrl="https://myflipit.live/pricing"
         keywords={keywords}
-        language={getCurrentLanguage()}
+        language={language}
       />
       
       <AnimatedGradientBackground />
@@ -349,8 +334,18 @@ const PricingPage = () => {
       {/* FAQ Section */}
       <PricingFAQ title={t.faqTitle} faqs={faqs} />
 
-      {/* Trust Section */}
-      <TrustSection title={t.trustTitle} testimonials={testimonials} />
+      <section className="relative py-16">
+        <div className="container mx-auto max-w-5xl px-8">
+          <h2 className="text-center text-2xl font-bold md:text-3xl">{t.trustTitle}</h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {[t.trustPoint1, t.trustPoint2, t.trustPoint3].map((point) => (
+              <div key={point} className="rounded-xl border border-white/10 bg-neutral-900/60 p-5 text-sm leading-6 text-neutral-200 backdrop-blur">
+                {point}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Final CTA Section */}
       <section className="relative py-16">
@@ -367,7 +362,7 @@ const PricingPage = () => {
               description={t.ctaDescription}
               primaryAction={{
                 text: t.ctaButton,
-                href: '/login?register=1',
+                href: localized('/login?register=1'),
                 onClick: clearCheckoutIntent,
               }}
               footer={t.ctaSubtext}

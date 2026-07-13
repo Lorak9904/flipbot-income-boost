@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { format } from 'date-fns';
+import { enUS, pl } from 'date-fns/locale';
 import {
   AlertTriangle,
   CalendarClock,
@@ -22,19 +23,22 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Separator } from '@/components/ui/separator';
 import { cdnThumb } from '@/lib/images';
 import { formatMoney } from '@/lib/currency';
-import type { RegeneratableItemField } from '@/lib/api/items';
 import type { ItemDetailTranslations } from '@/utils/translations/item-detail-translations';
 import type { Platform, PlatformPublishResult, UserItem } from '@/types/item';
+import type { Language } from '@/components/language-utils';
 
 interface ListingDetailSectionProps {
   item: UserItem;
   formatPlatformLabel: (platform: Platform | string) => string;
+  t: ItemDetailTranslations;
+  language: Language;
 }
 
 interface ListingMediaPanelProps {
   item: UserItem;
   imageUrls: string[];
   onPreview: (index: number) => void;
+  t: ItemDetailTranslations;
 }
 
 interface ListingActionPanelProps extends ListingDetailSectionProps {
@@ -47,12 +51,11 @@ interface PendingPublishBannerProps {
   count: number;
   marketplaceLabels: string;
   actionLabel: string;
+  t: ItemDetailTranslations;
 }
 
 interface ListingOverviewGridProps extends ListingDetailSectionProps {
   statusBadgeClass: (statusValue: string) => string;
-  renderAiRegenerationControl: (field: RegeneratableItemField) => ReactNode;
-  fieldIsRegenerating: (field: RegeneratableItemField) => boolean;
 }
 
 interface PublishingStatusPanelProps extends ListingDetailSectionProps {
@@ -60,18 +63,23 @@ interface PublishingStatusPanelProps extends ListingDetailSectionProps {
   onRemovePlatform: (platform: Platform) => void;
 }
 
-const formatDateTime = (value?: string | null) => {
+const formatDateTime = (value: string | null | undefined, language: Language) => {
   if (!value) return null;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return null;
-  return format(date, 'PPp');
+  return format(date, 'PPp', { locale: language === 'pl' ? pl : enUS });
 };
 
-const publishStatusTone = (result: PlatformPublishResult) => {
+const statusLabel = (status: string | null | undefined, t: ItemDetailTranslations) => {
+  if (!status) return t.status.unknown;
+  return (t.status as Record<string, string>)[status] || status.replaceAll('_', ' ');
+};
+
+const publishStatusTone = (result: PlatformPublishResult, t: ItemDetailTranslations) => {
   if (result.status === 'removed') {
     return {
       icon: <CheckCircle2 className="h-5 w-5 text-neutral-400" />,
-      label: 'Removed',
+      label: t.sections.publishRemoved,
       badgeClass: 'bg-neutral-500/20 text-neutral-300 border-neutral-500/50',
       borderClass: 'border-neutral-700',
     };
@@ -80,7 +88,7 @@ const publishStatusTone = (result: PlatformPublishResult) => {
   if (result.status === 'success' || result.success) {
     return {
       icon: <CheckCircle2 className="h-5 w-5 text-emerald-400" />,
-      label: 'Published',
+      label: t.sections.publishSuccess,
       badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50',
       borderClass: 'border-emerald-500/30',
     };
@@ -89,7 +97,7 @@ const publishStatusTone = (result: PlatformPublishResult) => {
   if (result.status === 'error' || result.error_message) {
     return {
       icon: <XCircle className="h-5 w-5 text-red-400" />,
-      label: 'Error',
+      label: t.sections.publishError,
       badgeClass: 'bg-red-500/20 text-red-400 border-red-500/50',
       borderClass: 'border-red-500/30',
     };
@@ -98,7 +106,7 @@ const publishStatusTone = (result: PlatformPublishResult) => {
   if (result.status === 'pending') {
     return {
       icon: <Clock className="h-5 w-5 text-amber-300" />,
-      label: 'Pending',
+      label: t.sections.publishPendingStatus,
       badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/50',
       borderClass: 'border-amber-500/30',
     };
@@ -106,16 +114,13 @@ const publishStatusTone = (result: PlatformPublishResult) => {
 
   return {
     icon: <Clock className="h-5 w-5 text-neutral-400" />,
-    label: result.status || 'Unknown',
+    label: result.status ? statusLabel(result.status, t) : t.sections.publishUnknown,
     badgeClass: 'bg-neutral-700/70 text-neutral-300 border-neutral-600',
     borderClass: 'border-neutral-700',
   };
 };
 
-const fieldValueClass = (isRegenerating: boolean) =>
-  `mt-2 text-sm text-neutral-200 ${isRegenerating ? 'opacity-60' : ''}`;
-
-export function ListingMediaPanel({ item, imageUrls, onPreview }: ListingMediaPanelProps) {
+export function ListingMediaPanel({ item, imageUrls, onPreview, t }: ListingMediaPanelProps) {
   const primaryImage = imageUrls[0];
 
   return (
@@ -125,10 +130,10 @@ export function ListingMediaPanel({ item, imageUrls, onPreview }: ListingMediaPa
           <div>
             <CardTitle className="flex items-center gap-2 text-base text-white">
               <ImageIcon className="h-4 w-4 text-cyan-300" />
-              Listing photos
+              {t.sections.photosTitle}
             </CardTitle>
             <CardDescription className="text-neutral-400">
-              {imageUrls.length > 0 ? `${imageUrls.length} uploaded photo${imageUrls.length === 1 ? '' : 's'}` : 'No photos uploaded'}
+              {imageUrls.length > 0 ? t.sections.photoCount(imageUrls.length) : t.sections.noPhotos}
             </CardDescription>
           </div>
           {imageUrls.length > 0 && (
@@ -147,18 +152,18 @@ export function ListingMediaPanel({ item, imageUrls, onPreview }: ListingMediaPa
           >
             <img
               src={cdnThumb(primaryImage)}
-              alt={`${item.title} - main photo`}
+              alt={t.sections.mainPhotoAlt(item.title || t.inlineEdit.untitled)}
               className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.01]"
               loading="lazy"
             />
             <span className="absolute bottom-3 left-3 rounded-full border border-white/10 bg-neutral-950/80 px-3 py-1 text-xs text-neutral-200 backdrop-blur">
-              Open preview
+              {t.sections.openPreview}
             </span>
           </button>
         ) : (
           <div className="flex aspect-[4/3] w-full flex-col items-center justify-center rounded-lg border border-dashed border-neutral-700 bg-neutral-950/70 text-neutral-500">
             <Package className="mb-2 h-10 w-10" />
-            <span className="text-sm">No image available</span>
+            <span className="text-sm">{t.sections.noImage}</span>
           </div>
         )}
 
@@ -173,7 +178,7 @@ export function ListingMediaPanel({ item, imageUrls, onPreview }: ListingMediaPa
               >
                 <img
                   src={cdnThumb(imageUrl)}
-                  alt={`${item.title} - ${index + 1}`}
+                  alt={t.sections.photoAlt(item.title || t.inlineEdit.untitled, index + 1)}
                   className="h-full w-full object-cover"
                   loading="lazy"
                 />
@@ -192,41 +197,41 @@ export function ListingActionPanel({
   statusBadgeClass,
   dirtySyncCount,
   formatPlatformLabel,
+  t,
 }: ListingActionPanelProps) {
   const platforms = Array.isArray(item.platforms) ? item.platforms : [];
 
   return (
     <Card className="border-neutral-800 bg-neutral-900/55 backdrop-blur-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base text-white">Listing controls</CardTitle>
+        <CardTitle className="text-base text-white">{t.sections.controlsTitle}</CardTitle>
         <CardDescription className="text-neutral-400">
-          Review state, price, marketplaces, and publishing actions.
+          {t.sections.controlsDescription}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/10 p-4">
-          <p className="text-xs uppercase tracking-wide text-cyan-200/80">Current price</p>
-          <p className="mt-2 break-words text-3xl font-bold bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
+          <p className="text-xs uppercase tracking-wide text-cyan-200/80">{t.sections.currentPrice}</p>
+          <p className="mt-2 break-words text-3xl font-bold text-white">
             {formatMoney(item.price, item.currency)}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-lg bg-neutral-800/50 p-3">
+          <p className="text-xs uppercase tracking-wide text-neutral-400">{t.sections.status}</p>
+          <Badge className={`mt-2 ${statusBadgeClass(item.status)}`}>{statusLabel(item.status, t)}</Badge>
+        </div>
+
+        <div className="grid grid-cols-1 gap-2">
           <div className="rounded-lg bg-neutral-800/50 p-3">
-            <p className="text-xs uppercase tracking-wide text-neutral-400">Status</p>
-            <Badge className={`mt-2 ${statusBadgeClass(item.status)}`}>{item.status}</Badge>
-          </div>
-          <div className="rounded-lg bg-neutral-800/50 p-3">
-            <p className="text-xs uppercase tracking-wide text-neutral-400">Stage</p>
-            <Badge
-              className={
-                item.stage === 'published'
-                  ? 'mt-2 bg-cyan-500/20 text-cyan-300 border-cyan-500/50'
-                  : 'mt-2 bg-neutral-700/50 text-neutral-300 border-neutral-600'
-              }
-            >
-              {item.stage || 'unknown'}
-            </Badge>
+            <p className="text-xs uppercase tracking-wide text-neutral-400">{t.sections.lifecycle}</p>
+            <p className="mt-2 text-sm text-neutral-300">
+              {item.status === 'draft'
+                ? t.sections.lifecycleDraft
+                : item.status === 'active'
+                  ? t.sections.lifecycleActive
+                  : t.sections.lifecycleOther}
+            </p>
           </div>
         </div>
 
@@ -234,16 +239,16 @@ export function ListingActionPanel({
           <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-100">
             <div className="flex items-center gap-2 font-semibold text-amber-300">
               <AlertTriangle className="h-4 w-4" />
-              Publish pending
+              {t.sections.publishPending}
             </div>
             <p className="mt-1 text-amber-100/90">
-              {dirtySyncCount} marketplace listing{dirtySyncCount === 1 ? '' : 's'} need saved FlipIt changes sent live.
+              {t.sections.pendingChanges(dirtySyncCount)}
             </p>
           </div>
         )}
 
         <div className="space-y-2">
-          <p className="text-xs uppercase tracking-wide text-neutral-400">Target marketplaces</p>
+          <p className="text-xs uppercase tracking-wide text-neutral-400">{t.sections.targetMarketplaces}</p>
           {platforms.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {platforms.map((platform) => (
@@ -253,7 +258,7 @@ export function ListingActionPanel({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-neutral-500">No target marketplaces selected.</p>
+            <p className="text-sm text-neutral-500">{t.sections.noTargetMarketplaces}</p>
           )}
         </div>
 
@@ -265,7 +270,7 @@ export function ListingActionPanel({
   );
 }
 
-export function PendingPublishBanner({ count, marketplaceLabels, actionLabel }: PendingPublishBannerProps) {
+export function PendingPublishBanner({ count, marketplaceLabels, actionLabel, t }: PendingPublishBannerProps) {
   if (count === 0) return null;
 
   return (
@@ -276,14 +281,14 @@ export function PendingPublishBanner({ count, marketplaceLabels, actionLabel }: 
             <AlertTriangle className="h-4 w-4" />
           </div>
           <div>
-            <p className="font-semibold text-amber-200">Marketplace publish pending</p>
+            <p className="font-semibold text-amber-200">{t.sections.pendingBannerTitle}</p>
             <p className="mt-1 text-sm text-amber-100/90">
-              Saved in FlipIt. Use "{actionLabel}" to publish changes to {marketplaceLabels}.
+              {t.sections.pendingBannerDescription(actionLabel, marketplaceLabels)}
             </p>
           </div>
         </div>
         <Badge className="w-fit bg-amber-500/20 text-amber-300 border-amber-500/50">
-          {count} pending publish action{count === 1 ? '' : 's'}
+          {t.sections.pendingActions(count)}
         </Badge>
       </div>
     </div>
@@ -293,18 +298,21 @@ export function PendingPublishBanner({ count, marketplaceLabels, actionLabel }: 
 export function ListingOverviewGrid({
   item,
   statusBadgeClass,
-  renderAiRegenerationControl,
-  fieldIsRegenerating,
+  t,
 }: ListingOverviewGridProps) {
   const editableFields: Array<{
-    field: RegeneratableItemField;
+    key: string;
     label: string;
     value?: string;
   }> = [
-    { field: 'category', label: 'Category', value: item.category },
-    { field: 'condition', label: 'Condition', value: item.condition },
-    { field: 'brand', label: 'Brand', value: item.brand },
-    { field: 'size', label: 'Size', value: item.size },
+    { key: 'category', label: t.sections.category, value: item.category },
+    {
+      key: 'condition',
+      label: t.sections.condition,
+      value: item.condition ? t.sections.conditionValue(item.condition) : item.condition,
+    },
+    { key: 'brand', label: t.sections.brand, value: item.brand },
+    { key: 'size', label: t.sections.size, value: item.size },
   ];
 
   return (
@@ -313,9 +321,9 @@ export function ListingOverviewGrid({
         <div className="flex items-center gap-2">
           <Layers3 className="h-5 w-5 text-cyan-300" />
           <div>
-            <CardTitle className="text-lg text-white">Listing overview</CardTitle>
+            <CardTitle className="text-lg text-white">{t.sections.overviewTitle}</CardTitle>
             <CardDescription className="text-neutral-400">
-              Core fields used to prepare marketplace-specific listings.
+              {t.sections.overviewDescription}
             </CardDescription>
           </div>
         </div>
@@ -323,22 +331,19 @@ export function ListingOverviewGrid({
       <CardContent>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-lg bg-neutral-800/50 p-4">
-            <p className="text-xs uppercase tracking-wide text-neutral-400">Status</p>
-            <Badge className={`mt-2 ${statusBadgeClass(item.status)}`}>{item.status}</Badge>
+            <p className="text-xs uppercase tracking-wide text-neutral-400">{t.sections.status}</p>
+            <Badge className={`mt-2 ${statusBadgeClass(item.status)}`}>{statusLabel(item.status, t)}</Badge>
           </div>
           <div className="rounded-lg bg-neutral-800/50 p-4">
-            <p className="text-xs uppercase tracking-wide text-neutral-400">Price</p>
-            <p className="mt-2 text-2xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
+            <p className="text-xs uppercase tracking-wide text-neutral-400">{t.sections.price}</p>
+            <p className="mt-2 text-2xl font-bold text-white">
               {formatMoney(item.price, item.currency)}
             </p>
           </div>
-          {editableFields.map(({ field, label, value }) => (
-            <div key={field} className="rounded-lg bg-neutral-800/50 p-4">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-xs uppercase tracking-wide text-neutral-400">{label}</p>
-                {renderAiRegenerationControl(field)}
-              </div>
-              <p className={fieldValueClass(fieldIsRegenerating(field))}>{value || 'Not set'}</p>
+          {editableFields.map(({ key, label, value }) => (
+            <div key={key} className="rounded-lg bg-neutral-800/50 p-4">
+              <p className="text-xs uppercase tracking-wide text-neutral-400">{label}</p>
+              <p className="mt-2 text-sm text-neutral-200">{value || t.sections.notSet}</p>
             </div>
           ))}
         </div>
@@ -347,7 +352,7 @@ export function ListingOverviewGrid({
   );
 }
 
-export function ListingActivityPanel({ item, formatPlatformLabel }: ListingDetailSectionProps) {
+export function ListingActivityPanel({ item, formatPlatformLabel, t, language }: ListingDetailSectionProps) {
   const lifecycleEntries = item.platform_lifecycle_status
     ? Object.entries(item.platform_lifecycle_status)
     : [];
@@ -358,9 +363,9 @@ export function ListingActivityPanel({ item, formatPlatformLabel }: ListingDetai
         <div className="flex items-center gap-2">
           <CalendarClock className="h-5 w-5 text-cyan-300" />
           <div>
-            <CardTitle className="text-lg text-white">Activity</CardTitle>
+            <CardTitle className="text-lg text-white">{t.sections.activityTitle}</CardTitle>
             <CardDescription className="text-neutral-400">
-              Saved, updated, and marketplace operation timing.
+              {t.sections.activityDescription}
             </CardDescription>
           </div>
         </div>
@@ -368,32 +373,32 @@ export function ListingActivityPanel({ item, formatPlatformLabel }: ListingDetai
       <CardContent className="space-y-3">
         {item.created_at && (
           <div className="flex flex-col gap-1 rounded-lg bg-neutral-800/50 p-3 sm:flex-row sm:justify-between">
-            <dt className="text-sm text-neutral-400">Created</dt>
-            <dd className="text-neutral-200">{formatDateTime(item.created_at)}</dd>
+            <dt className="text-sm text-neutral-400">{t.sections.created}</dt>
+            <dd className="text-neutral-200">{formatDateTime(item.created_at, language)}</dd>
           </div>
         )}
         {item.updated_at && (
           <div className="flex flex-col gap-1 rounded-lg bg-neutral-800/50 p-3 sm:flex-row sm:justify-between">
-            <dt className="text-sm text-neutral-400">Last updated</dt>
-            <dd className="text-neutral-200">{formatDateTime(item.updated_at)}</dd>
+            <dt className="text-sm text-neutral-400">{t.sections.lastUpdated}</dt>
+            <dd className="text-neutral-200">{formatDateTime(item.updated_at, language)}</dd>
           </div>
         )}
         {item.published_at && (
           <div className="flex flex-col gap-1 rounded-lg bg-neutral-800/50 p-3 sm:flex-row sm:justify-between">
-            <dt className="text-sm text-neutral-400">First published</dt>
-            <dd className="text-neutral-200">{formatDateTime(item.published_at)}</dd>
+            <dt className="text-sm text-neutral-400">{t.sections.firstPublished}</dt>
+            <dd className="text-neutral-200">{formatDateTime(item.published_at, language)}</dd>
           </div>
         )}
 
         {lifecycleEntries.length > 0 && (
           <div className="space-y-2 rounded-lg border border-neutral-800 bg-neutral-900/40 p-3">
-            <p className="text-sm font-medium text-neutral-300">Marketplace activity timeline</p>
+            <p className="text-sm font-medium text-neutral-300">{t.sections.timeline}</p>
             {lifecycleEntries.map(([platform, lifecycle]) => (
               <div key={platform} className="flex flex-col gap-1 text-sm sm:flex-row sm:justify-between">
                 <span className="text-neutral-400">{formatPlatformLabel(platform)}</span>
                 <span className="text-neutral-200">
-                  {lifecycle?.last_operation_type || 'No operations yet'}
-                  {lifecycle?.last_result ? ` · ${lifecycle.last_result}` : ''}
+                  {lifecycle?.last_operation_type?.replaceAll('_', ' ') || t.sections.noOperations}
+                  {lifecycle?.last_result ? ` · ${statusLabel(lifecycle.last_result, t)}` : ''}
                 </span>
               </div>
             ))}
@@ -409,6 +414,7 @@ export function PublishingStatusPanel({
   t,
   onRemovePlatform,
   formatPlatformLabel,
+  language,
 }: PublishingStatusPanelProps) {
   const results = item.publish_results || [];
 
@@ -416,9 +422,9 @@ export function PublishingStatusPanel({
     return (
       <Card className="border-neutral-800 bg-neutral-900/55 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="text-lg text-white">Publishing status</CardTitle>
+          <CardTitle className="text-lg text-white">{t.sections.publishingTitle}</CardTitle>
           <CardDescription className="text-neutral-400">
-            This listing has not been published to a marketplace yet.
+            {t.sections.notPublished}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -428,14 +434,14 @@ export function PublishingStatusPanel({
   return (
     <Card className="border-neutral-800 bg-neutral-900/55 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle className="text-lg text-white">Publishing status</CardTitle>
+        <CardTitle className="text-lg text-white">{t.sections.publishingTitle}</CardTitle>
         <CardDescription className="text-neutral-400">
-          Marketplace outcomes, links, and removal controls.
+          {t.sections.publishingDescription}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {results.map((result) => {
-          const tone = publishStatusTone(result);
+          const tone = publishStatusTone(result, t);
           const isSuccess = result.status === 'success' || result.success;
           const canRemove =
             isSuccess &&
@@ -443,7 +449,7 @@ export function PublishingStatusPanel({
               result.platform === 'ebay' ||
               result.platform === 'allegro' ||
               result.platform === 'etsy');
-          const timestamp = formatDateTime(result.updated_at || result.published_at);
+          const timestamp = formatDateTime(result.updated_at || result.published_at, language);
 
           return (
             <div
@@ -466,7 +472,7 @@ export function PublishingStatusPanel({
                         rel="noopener noreferrer"
                         className="mt-2 inline-flex items-center gap-1 text-sm text-cyan-300 hover:text-cyan-200 hover:underline"
                       >
-                        View live listing
+                        {t.sections.viewLive}
                         <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     )}
@@ -479,7 +485,7 @@ export function PublishingStatusPanel({
 
                     {(result.message || result.error_message) && (
                       <p className={`mt-1 text-sm ${result.error_message ? 'text-red-300' : 'text-neutral-400'}`}>
-                        {result.error_message ? `Error: ${result.error_message}` : result.message}
+                        {result.error_message ? `${t.sections.providerError}: ${result.error_message}` : result.message}
                       </p>
                     )}
 
@@ -507,12 +513,12 @@ export function PublishingStatusPanel({
   );
 }
 
-export function ListingAdvancedDetails({ item, formatPlatformLabel }: ListingDetailSectionProps) {
+export function ListingAdvancedDetails({ item, formatPlatformLabel, t }: ListingDetailSectionProps) {
   return (
     <Collapsible className="rounded-xl border border-neutral-800 bg-neutral-900/55 p-4 backdrop-blur-sm">
       <CollapsibleTrigger asChild>
         <Button type="button" variant="ghost" className="w-full justify-between text-neutral-200 hover:bg-neutral-800/60">
-          Advanced details
+          {t.sections.advancedTitle}
           <ChevronDown className="h-4 w-4" />
         </Button>
       </CollapsibleTrigger>
@@ -524,7 +530,7 @@ export function ListingAdvancedDetails({ item, formatPlatformLabel }: ListingDet
 
         {item.description_full && (
           <div className="rounded-lg bg-neutral-800/50 p-4">
-            <p className="text-xs uppercase tracking-wide text-neutral-400">Full description</p>
+            <p className="text-xs uppercase tracking-wide text-neutral-400">{t.sections.fullDescription}</p>
             <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-200">{item.description_full}</p>
           </div>
         )}
@@ -533,19 +539,19 @@ export function ListingAdvancedDetails({ item, formatPlatformLabel }: ListingDet
           <div className="space-y-3 rounded-lg bg-neutral-800/50 p-4">
             {item.catalog_path && (
               <div>
-                <p className="text-xs uppercase tracking-wide text-neutral-400">Catalog path</p>
+                <p className="text-xs uppercase tracking-wide text-neutral-400">{t.sections.catalogPath}</p>
                 <p className="mt-1 text-sm text-neutral-200">{item.catalog_path}</p>
               </div>
             )}
             {item.weight_kg && (
               <div>
-                <p className="text-xs uppercase tracking-wide text-neutral-400">Weight</p>
+                <p className="text-xs uppercase tracking-wide text-neutral-400">{t.sections.weight}</p>
                 <p className="mt-1 text-sm text-neutral-200">{item.weight_kg} kg</p>
               </div>
             )}
             {item.dimensions_cm && (
               <div>
-                <p className="text-xs uppercase tracking-wide text-neutral-400">Dimensions</p>
+                <p className="text-xs uppercase tracking-wide text-neutral-400">{t.sections.dimensions}</p>
                 <pre className="mt-1 overflow-auto rounded border border-neutral-700 bg-neutral-900/60 p-2 text-xs text-neutral-200">
                   {JSON.stringify(item.dimensions_cm, null, 2)}
                 </pre>
@@ -553,7 +559,7 @@ export function ListingAdvancedDetails({ item, formatPlatformLabel }: ListingDet
             )}
             {item.shipping_advice && (
               <div>
-                <p className="text-xs uppercase tracking-wide text-neutral-400">Shipping advice</p>
+                <p className="text-xs uppercase tracking-wide text-neutral-400">{t.sections.shippingAdvice}</p>
                 <pre className="mt-1 overflow-auto rounded border border-neutral-700 bg-neutral-900/60 p-2 text-xs text-neutral-200">
                   {JSON.stringify(item.shipping_advice, null, 2)}
                 </pre>
@@ -564,7 +570,7 @@ export function ListingAdvancedDetails({ item, formatPlatformLabel }: ListingDet
 
         {item.analysis && (
           <div className="rounded-lg bg-neutral-800/50 p-4">
-            <p className="text-xs uppercase tracking-wide text-neutral-400">AI analysis payload</p>
+            <p className="text-xs uppercase tracking-wide text-neutral-400">{t.sections.analysisPayload}</p>
             <pre className="mt-2 max-h-96 overflow-auto rounded border border-neutral-700 bg-neutral-900/60 p-2 text-xs text-neutral-200">
               {JSON.stringify(item.analysis, null, 2)}
             </pre>
@@ -573,7 +579,7 @@ export function ListingAdvancedDetails({ item, formatPlatformLabel }: ListingDet
 
         {item.recent_lifecycle_events && item.recent_lifecycle_events.length > 0 && (
           <div className="rounded-lg bg-neutral-800/50 p-4">
-            <p className="text-xs uppercase tracking-wide text-neutral-400">Recent lifecycle events</p>
+            <p className="text-xs uppercase tracking-wide text-neutral-400">{t.sections.recentEvents}</p>
             <div className="mt-2 space-y-1 text-xs text-neutral-300">
               {item.recent_lifecycle_events.slice(0, 8).map((event, index) => (
                 <div key={`${event.platform}-${event.operation_type}-${event.attempted_at || index}`}>
@@ -588,22 +594,22 @@ export function ListingAdvancedDetails({ item, formatPlatformLabel }: ListingDet
   );
 }
 
-export function ListingIdentityBar({ item }: { item: UserItem }) {
-  const updatedAt = formatDateTime(item.updated_at);
-  const publishedAt = formatDateTime(item.published_at);
+export function ListingIdentityBar({ item, t, language }: { item: UserItem; t: ItemDetailTranslations; language: Language }) {
+  const updatedAt = formatDateTime(item.updated_at, language);
+  const publishedAt = formatDateTime(item.published_at, language);
 
   return (
     <div className="flex flex-wrap gap-2 text-xs text-neutral-400">
       {updatedAt && (
         <span className="inline-flex items-center gap-1 rounded-full border border-neutral-800 bg-neutral-900/60 px-3 py-1">
           <Clock className="h-3.5 w-3.5 text-cyan-300" />
-          Updated {updatedAt}
+          {t.sections.identityUpdated} {updatedAt}
         </span>
       )}
       {publishedAt && (
         <span className="inline-flex items-center gap-1 rounded-full border border-neutral-800 bg-neutral-900/60 px-3 py-1">
           <Link2 className="h-3.5 w-3.5 text-emerald-300" />
-          First published {publishedAt}
+          {t.sections.identityPublished} {publishedAt}
         </span>
       )}
     </div>

@@ -4,7 +4,9 @@ import { StrictMode } from 'react'
 import './index.css'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { PostHogProvider } from '@posthog/react'
+import posthog from 'posthog-js'
 import { COOKIE_CONSENT_EVENT, hasOptionalCookieConsent } from './lib/cookie-consent.ts'
+import type { PostHogConfig } from 'posthog-js'
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const POSTHOG_KEY = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
@@ -17,23 +19,31 @@ const app = (
 );
 
 const root = createRoot(document.getElementById('root')!);
+document.getElementById('seo-prerender')?.remove();
+
+const buildPostHogOptions = (): Partial<PostHogConfig> => {
+  const hasOptionalConsent = hasOptionalCookieConsent();
+
+  return {
+    api_host: POSTHOG_HOST,
+    defaults: '2026-01-30',
+    capture_pageview: 'history_change',
+    capture_pageleave: true,
+    autocapture: true,
+    capture_exceptions: true,
+    persistence: hasOptionalConsent ? 'localStorage+cookie' : 'memory',
+    disable_session_recording: !hasOptionalConsent,
+    session_recording: {
+      maskAllInputs: true,
+    },
+  };
+};
 
 const renderApp = () => {
-  if (POSTHOG_KEY && hasOptionalCookieConsent()) {
-    const posthogOptions = {
-      api_host: POSTHOG_HOST,
-      defaults: '2026-01-30' as const,
-      capture_pageview: 'history_change' as const,
-      capture_pageleave: true,
-      autocapture: true,
-      session_recording: {
-        maskAllInputs: true,
-      },
-    };
-
+  if (POSTHOG_KEY) {
     root.render(
       <StrictMode>
-        <PostHogProvider apiKey={POSTHOG_KEY} options={posthogOptions}>
+        <PostHogProvider apiKey={POSTHOG_KEY} options={buildPostHogOptions()}>
           {app}
         </PostHogProvider>
       </StrictMode>
@@ -44,8 +54,6 @@ const renderApp = () => {
   if (import.meta.env.DEV) {
     if (!POSTHOG_KEY) {
       console.warn('PostHog disabled: set VITE_PUBLIC_POSTHOG_KEY to enable analytics.');
-    } else {
-      console.info('PostHog waiting for optional cookie consent.');
     }
   }
 
@@ -57,4 +65,14 @@ const renderApp = () => {
 };
 
 renderApp();
-window.addEventListener(COOKIE_CONSENT_EVENT, renderApp);
+
+const handleOptionalCookieConsentAccepted = () => {
+  renderApp();
+  if (POSTHOG_KEY) {
+    window.requestAnimationFrame(() => {
+      posthog.startSessionRecording();
+    });
+  }
+};
+
+window.addEventListener(COOKIE_CONSENT_EVENT, handleOptionalCookieConsentAccepted);

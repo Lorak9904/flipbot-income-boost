@@ -1,5 +1,6 @@
 import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from '@/components/language-utils';
 import { SeoArticleLayout } from '@/components/seo/SeoArticleLayout';
+import { getRoutePath } from '@/lib/localized-routes';
 import { ebayActiveListingsVsSoldPricesTranslations } from './translations/ebay-active-listings-vs-sold-prices.translations';
 
 const keywords = [
@@ -16,10 +17,7 @@ const keywords = [
 const EbayActiveListingsVsSoldPricesArticle = () => {
   const t = getTranslations(ebayActiveListingsVsSoldPricesTranslations);
   const language = getCurrentLanguage();
-  const canonicalUrl =
-    language === 'pl'
-      ? 'https://myflipit.live/articles/aktywne-oferty-ebay-a-ceny-sprzedazy'
-      : 'https://myflipit.live/articles/ebay-active-listings-vs-sold-prices';
+  const canonicalUrl = `https://myflipit.live${getRoutePath('ebayActiveVsSold', language)}`;
 
   const articleStructuredData = {
     '@context': 'https://schema.org',
@@ -44,7 +42,7 @@ const EbayActiveListingsVsSoldPricesArticle = () => {
       '@id': canonicalUrl,
     },
     datePublished: '2026-06-13',
-    dateModified: '2026-06-13',
+    dateModified: '2026-07-13',
     keywords,
   };
 
@@ -106,7 +104,7 @@ const EbayActiveListingsVsSoldPricesArticle = () => {
     title: t.ctaTitle,
     description: t.ctaDescription,
     buttonText: t.ctaButtonText,
-    buttonLink: '/get-started',
+    buttonLink: getRoutePath('priceChecker', language),
     footerText: t.ctaFooterText,
     footerLinkText: t.ctaFooterLinkText,
     footerLinkHref: getLocalizedPathForLanguage('/articles/how-to-price-items-for-ebay', language),

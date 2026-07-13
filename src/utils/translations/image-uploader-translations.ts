@@ -1,0 +1,26 @@
+export const imageUploaderTranslations = {
+  en: {
+    upload: "Click or drag photos here",
+    uploading: "Uploading...",
+    compressing: "Compressing...",
+    limit: "Up to 10 photos, 25 MB each",
+    count: (count: number) => `${count}/10 photos`,
+    enhanced: "AI enhanced",
+    enhancePhoto: "Create an AI-enhanced version",
+    enhancingPhoto: "Enhancing photo...",
+    removePhoto: "Remove photo",
+    photoAlt: (position: number) => `Item photo ${position}`,
+  },
+  pl: {
+    upload: "Kliknij lub przeciągnij zdjęcia tutaj",
+    uploading: "Przesyłanie...",
+    compressing: "Kompresowanie...",
+    limit: "Do 10 zdjęć, maks. 25 MB każde",
+    count: (count: number) => `${count}/10 zdjęć`,
+    enhanced: "Ulepszone przez AI",
+    enhancePhoto: "Utwórz ulepszoną wersję przez AI",
+    enhancingPhoto: "Ulepszanie zdjęcia...",
+    removePhoto: "Usuń zdjęcie",
+    photoAlt: (position: number) => `Zdjęcie przedmiotu ${position}`,
+  },
+};

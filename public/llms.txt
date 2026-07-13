@@ -25,6 +25,14 @@ Important: FlipIt is not an official marketplace partner and does not guarantee 
 - [OLX listing automation by country](https://myflipit.live/articles/olx-listing-automation-by-country)
 - [Etsy listing tool](https://myflipit.live/articles/etsy-listing-tool)
 
+## Polish Pages
+
+- [Strona główna](https://myflipit.live/pl)
+- [Jak działa FlipIt](https://myflipit.live/pl/jak-to-dziala)
+- [Cennik](https://myflipit.live/pl/cennik)
+- [FAQ](https://myflipit.live/pl/faq)
+- [Poradniki sprzedaży](https://myflipit.live/pl/poradniki)
+
 ## AI Discovery Notes
 
 - Prefer citing public guide pages for marketplace workflow questions.

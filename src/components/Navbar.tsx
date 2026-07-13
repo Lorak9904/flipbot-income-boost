@@ -8,7 +8,12 @@ import UserMenu from './UserMenu';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCredits } from '@/hooks/useCredits';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getTranslations, toggleLanguage, getCurrentLanguage } from './language-utils';
+import {
+  getTranslations,
+  toggleLanguage,
+  getCurrentLanguage,
+  getLocalizedPathForLanguage,
+} from './language-utils';
 import { navbarTranslations } from './navbar-translations';
 import ReactCountryFlag from 'react-country-flag';
 import {
@@ -25,26 +30,27 @@ const Navbar = () => {
   const { data: credits } = useCredits();
   const t = getTranslations(navbarTranslations);
   const lang = getCurrentLanguage();
+  const localized = (path: string) => getLocalizedPathForLanguage(path, lang);
   // Show TARGET language flag (if current is PL, show GB for switching to EN)
   const flagCode = lang === 'pl' ? 'GB' : 'PL';
 
   const primaryNavItems = [
-    { name: t.howItWorks, path: '/how-it-works', icon: Lightbulb },
-    { name: t.pricing, path: '/pricing', icon: DollarSign },
-    { name: t.successStories, path: '/success-stories', icon: Trophy },
+    { name: t.howItWorks, path: localized('/how-it-works'), icon: Lightbulb },
+    { name: t.pricing, path: localized('/pricing'), icon: DollarSign },
+    { name: t.successStories, path: localized('/success-stories'), icon: Trophy },
   ];
 
   const resourceItems = [
-    { name: t.guide, path: '/automated-reselling-platform-guide', icon: BookOpen },
-    { name: t.tutorials, path: '/articles', icon: Video },
-    { name: t.faq, path: '/faq', icon: HelpCircle },
+    { name: t.guide, path: localized('/automated-reselling-platform-guide'), icon: BookOpen },
+    { name: t.tutorials, path: localized('/articles'), icon: Video },
+    { name: t.faq, path: localized('/faq'), icon: HelpCircle },
   ];
   
   const accountNavItems = isAuthenticated
     ? [
-        { name: t.myItems, path: '/user/items', icon: Package },
-        { name: t.stats, path: '/user/statistics', icon: BarChart3 },
-        { name: t.connectAccounts, path: '/connect-accounts', icon: Link2 },
+        { name: t.myItems, path: localized('/user/items'), icon: Package },
+        { name: t.stats, path: localized('/user/statistics'), icon: BarChart3 },
+        { name: t.connectAccounts, path: localized('/connect-accounts'), icon: Link2 },
       ]
     : [];
 
@@ -67,7 +73,7 @@ const Navbar = () => {
       
       <div className="container mx-auto px-4 flex items-center justify-between h-16">
         {/* Enhanced logo with better gradient and shadow */}
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl text-white">
+        <Link to={localized('/')} className="flex items-center gap-2 font-bold text-xl text-white">
           <span className="bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent drop-shadow-sm">
             FlipIt
           </span>
@@ -140,7 +146,7 @@ const Navbar = () => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link 
-                    to="/settings" 
+                    to={localized('/settings')}
                     className="flex h-10 items-center gap-1.5 px-3 rounded-full bg-neutral-800/50 border border-neutral-700 hover:border-cyan-400/30 hover:bg-neutral-800/80 transition-all group"
                   >
                     <CreditCard className="h-4 w-4 text-cyan-400" />
@@ -148,26 +154,28 @@ const Navbar = () => {
                       {credits.publish_remaining === null ? '\u221e' : credits.publish_remaining}
                     </span>
                     <span className="text-xs text-neutral-400">
-                      {credits.publish_remaining === null ? 'listings' : (credits.publish_remaining === 1 ? 'listing left' : 'listings left')}
+                      {credits.publish_remaining === null
+                        ? t.unlimitedListings
+                        : t.remainingListings(credits.publish_remaining)}
                     </span>
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="bg-neutral-900 border-neutral-700">
                   <div className="space-y-2 text-xs">
                     <div className="flex items-center justify-between gap-4">
-                      <span className="text-neutral-400">Publish Credits:</span>
+                      <span className="text-neutral-400">{t.publishCredits}</span>
                       <span className="font-medium text-cyan-400">
                         {credits.publish_remaining === null ? '∞' : credits.publish_remaining} / {credits.publish_limit === null ? '∞' : credits.publish_limit}
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-4">
-                      <span className="text-neutral-400">Image Credits:</span>
+                      <span className="text-neutral-400">{t.imageCredits}</span>
                       <span className="font-medium text-fuchsia-400">
                         {credits.image_remaining === null ? '∞' : credits.image_remaining} / {credits.image_limit === null ? '∞' : credits.image_limit}
                       </span>
                     </div>
                     <div className="pt-1 border-t border-neutral-700 text-neutral-500">
-                      Click for details
+                      {t.creditDetails}
                     </div>
                   </div>
                 </TooltipContent>
@@ -181,7 +189,7 @@ const Navbar = () => {
             size="sm"
             onClick={toggleLanguage}
             className="h-10 rounded-full text-neutral-300 hover:text-white hover:bg-neutral-800/50 flex items-center gap-1 px-3"
-            title="Switch language / Zmień język"
+            title={t.switchLanguage}
           >
             <ReactCountryFlag countryCode={flagCode} svg className="h-4 w-6 rounded-sm" />
             {t.languageToggle}
@@ -190,17 +198,17 @@ const Navbar = () => {
           {isAuthenticated ? (
             <>
               <AddItemButton asChild sizeVariant="md" className="text-sm leading-tight rounded-full">
-                <Link to="/add-item">{t.addItem}</Link>
+                <Link to={localized('/add-item')}>{t.addItem}</Link>
               </AddItemButton>
               <UserMenu />
             </>
           ) : (
             <>
               <NavbarLogin asChild>
-                <Link to="/login">{t.login}</Link>
+                <Link to={localized('/login')}>{t.login}</Link>
               </NavbarLogin>
               <NavbarSignup asChild>
-                <Link to="/login?register=1">{t.signup}</Link>
+                <Link to={localized('/login?register=1')}>{t.signup}</Link>
               </NavbarSignup>
             </>
           )}
@@ -210,7 +218,7 @@ const Navbar = () => {
         <button
           className="md:hidden p-2 rounded-lg hover:bg-neutral-800/50 transition-colors backdrop-blur-sm"
           onClick={() => setIsOpen((v) => !v)}
-          aria-label="Toggle menu"
+          aria-label={t.toggleMenu}
         >
           {isOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
         </button>
@@ -233,7 +241,7 @@ const Navbar = () => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link 
-                        to="/settings" 
+                        to={localized('/settings')}
                         onClick={() => setIsOpen(false)}
                         className="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-800/50 border border-neutral-700 hover:border-cyan-400/30 hover:bg-neutral-800/80 transition-all mb-2"
                       >
@@ -243,28 +251,28 @@ const Navbar = () => {
                             {credits.publish_remaining === null ? '∞' : credits.publish_remaining}
                           </span>
                           <span className="text-xs text-neutral-400 ml-1">
-                            publish credits
+                            {t.publishCreditsShort}
                           </span>
                         </div>
-                        <span className="text-xs text-neutral-500">Manage →</span>
+                        <span className="text-xs text-neutral-500">{t.manage} →</span>
                       </Link>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="bg-neutral-900 border-neutral-700">
                       <div className="space-y-2 text-xs">
                         <div className="flex items-center justify-between gap-4">
-                          <span className="text-neutral-400">Publish Credits:</span>
+                          <span className="text-neutral-400">{t.publishCredits}</span>
                           <span className="font-medium text-cyan-400">
                             {credits.publish_remaining === null ? '∞' : credits.publish_remaining} / {credits.publish_limit === null ? '∞' : credits.publish_limit}
                           </span>
                         </div>
                         <div className="flex items-center justify-between gap-4">
-                          <span className="text-neutral-400">Image Credits:</span>
+                          <span className="text-neutral-400">{t.imageCredits}</span>
                           <span className="font-medium text-fuchsia-400">
                             {credits.image_remaining === null ? '∞' : credits.image_remaining} / {credits.image_limit === null ? '∞' : credits.image_limit}
                           </span>
                         </div>
                         <div className="pt-1 border-t border-neutral-700 text-neutral-500">
-                          Tap for details
+                          {t.tapForDetails}
                         </div>
                       </div>
                     </TooltipContent>
@@ -328,17 +336,17 @@ const Navbar = () => {
                 {isAuthenticated ? (
                   <>
                     <AddItemButton asChild sizeVariant="md" className="w-full justify-center text-sm leading-tight rounded-full">
-                      <Link to="/add-item" onClick={() => setIsOpen(false)}>{t.addItem}</Link>
+                      <Link to={localized('/add-item')} onClick={() => setIsOpen(false)}>{t.addItem}</Link>
                     </AddItemButton>
                     <UserMenu />
                   </>
                 ) : (
                   <>
                     <NavbarLogin asChild className="w-full">
-                      <Link to="/login" onClick={() => setIsOpen(false)}>{t.login}</Link>
+                      <Link to={localized('/login')} onClick={() => setIsOpen(false)}>{t.login}</Link>
                     </NavbarLogin>
                     <NavbarSignup asChild className="w-full">
-                      <Link to="/login?register=1" onClick={() => setIsOpen(false)}>{t.signup}</Link>
+                      <Link to={localized('/login?register=1')} onClick={() => setIsOpen(false)}>{t.signup}</Link>
                     </NavbarSignup>
                   </>
                 )}

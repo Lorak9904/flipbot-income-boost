@@ -1,420 +1,23 @@
+#!/usr/bin/env node
+
 const fs = require('node:fs');
 const path = require('node:path');
 
-const DIST_DIR = path.resolve(__dirname, '..', 'dist');
+const ROOT_DIR = path.resolve(__dirname, '..');
+const DIST_DIR = path.join(ROOT_DIR, 'dist');
+const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 const SITE_URL = 'https://myflipit.live';
+const DEFAULT_LAST_MODIFIED = '2026-07-12';
 const DEFAULT_IMAGE = `${SITE_URL}/placeholder.svg`;
-const SEO_FALLBACK_HIDDEN_STYLE =
-  'position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;';
+const routeManifest = require('../src/lib/localized-routes.json');
+const pageMetadata = require('../src/lib/seo-page-metadata.json');
+const productRelisterQuestions = require('../src/pages/articles/content/product-relister-vinted.questions.json');
 
-const baseOrganization = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'FlipIt',
-  url: SITE_URL,
-  logo: `${SITE_URL}/favicon.ico`,
-};
-
-const baseWebsite = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: 'FlipIt',
-  url: SITE_URL,
-};
-
-const routes = [
-  {
-    path: '/',
-    title: 'AI Crosslisting for OLX, Vinted, eBay, Allegro and Etsy | FlipIt',
-    description:
-      'Create marketplace listing drafts from photos for OLX, Vinted, Facebook Marketplace, Allegro, eBay, and Etsy, then review before publishing.',
-    language: 'en',
-    structuredData: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'SoftwareApplication',
-        name: 'FlipIt',
-        applicationCategory: 'BusinessApplication',
-        operatingSystem: 'Web',
-        url: SITE_URL,
-        offers: {
-          '@type': 'Offer',
-          price: '0',
-          priceCurrency: 'PLN',
-        },
-        featureList: [
-          'AI-generated listing drafts from photos',
-          'Multi-marketplace publishing with manual approval',
-          'Category mapping and required attributes',
-        ],
-      },
-    ],
-  },
-  {
-    path: '/automated-reselling-platform-guide',
-    title: 'Automated Reselling Platform Guide for Marketplace Sellers | FlipIt',
-    description:
-      'A practical guide to AI-assisted listing drafts, crosslisting, and faster reseller workflows across OLX, Vinted, Allegro, eBay, and Facebook Marketplace.',
-    language: 'en',
-    type: 'article',
-  },
-  {
-    path: '/articles',
-    title: 'Marketplace Automation Guides for Resellers | FlipIt Articles',
-    description:
-      'Guides for Vinted relisting, OLX listing automation, Facebook Marketplace crosslisting, Allegro selling, eBay pricing, Etsy listing workflows, and reseller productivity.',
-    language: 'en',
-  },
-  {
-    path: '/articles/vinted-relisting-tool',
-    title: 'Vinted Relisting Tool: Refresh Listings Faster | FlipIt',
-    description:
-      'Learn how Vinted sellers can refresh stale listings, improve listing quality, and reduce manual relisting work with FlipIt-assisted marketplace workflows.',
-    language: 'en',
-    type: 'article',
-    dateModified: '2026-06-29',
-    fallbackHighlights: [
-      'Prepare refreshed Vinted-ready drafts from existing product photos.',
-      'Review updated titles, descriptions, categories, and price context before publishing.',
-      'Avoid duplicate active listings and keep seller approval in the workflow.',
-    ],
-    faq: [
-      {
-        question: 'Is relisting on Vinted allowed?',
-        answer:
-          'Yes, refreshing your own listings is a normal seller practice. Avoid creating duplicate active listings or spamming, which can violate Vinted\'s terms.',
-      },
-      {
-        question: 'Can FlipIt relist to multiple platforms at once?',
-        answer:
-          'Yes! FlipIt supports crosslisting to Vinted, OLX, Facebook Marketplace, eBay, Allegro, and Etsy. Prepare one draft and publish to multiple platforms with a single review.',
-      },
-    ],
-  },
-  {
-    path: '/articles/odswiezanie-ogloszen-vinted',
-    title: 'Odswiezanie ogloszen Vinted bez recznego przepisywania | FlipIt',
-    description:
-      'Praktyczny poradnik dla sprzedawcow Vinted: jak szybciej odswiezac ogloszenia, poprawiac opisy i ograniczac reczna prace przy wystawianiu produktow.',
-    language: 'pl',
-    type: 'article',
-  },
-  {
-    path: '/articles/cross-list-vinted-to-facebook-marketplace',
-    title: 'Cross-list Vinted Items to Facebook Marketplace | FlipIt',
-    description:
-      'Adapt Vinted product listings for Facebook Marketplace with better titles, descriptions, pricing context, and manual approval before publishing.',
-    language: 'en',
-    type: 'article',
-    dateModified: '2026-06-29',
-    fallbackHighlights: [
-      'Turn one Vinted product draft into a Facebook Marketplace-ready version.',
-      'Adjust title, description, category, price context, and publishing details per marketplace.',
-      'Keep inventory status and sold-item cleanup under seller control.',
-    ],
-    faq: [
-      {
-        question: 'Does FlipIt post to Facebook Marketplace automatically?',
-        answer:
-          'FlipIt prepares your listings and you approve before publishing. This keeps you in control while still saving significant time.',
-      },
-      {
-        question: 'What if I want different prices on Vinted vs Facebook?',
-        answer:
-          'FlipIt supports platform-specific price adjustments. You can set rules like "Facebook price = Vinted price + 10%" to account for different buyer expectations.',
-      },
-    ],
-  },
-  {
-    path: '/articles/crosslisting-z-vinted-na-facebook-marketplace',
-    title: 'Crosslisting z Vinted na Facebook Marketplace | FlipIt',
-    description:
-      'Jak przenosic oferty z Vinted na Facebook Marketplace bez kopiowania wszystkiego recznie: tytuly, opisy, cena i kontrola przed publikacja.',
-    language: 'pl',
-    type: 'article',
-  },
-  {
-    path: '/articles/product-relister-for-vinted',
-    title: 'Product Relister for Vinted: Relist and Refresh Listings | FlipIt',
-    description:
-      'Use FlipIt to rebuild Vinted listing drafts from photos, improve titles and descriptions, then review before relisting or cross-listing.',
-    language: 'en',
-    type: 'article',
-    dateModified: '2026-06-29',
-    fallbackHighlights: [
-      'Prepare a fresh Vinted listing draft from existing product photos and details.',
-      'Improve stale titles, descriptions, categories, and price context before relisting.',
-      'Adapt the same item for Facebook Marketplace, OLX, eBay, Allegro, or Etsy after seller review.',
-    ],
-    faq: [
-      {
-        question: 'What\'s the difference between relisting and refreshing?',
-        answer:
-          'Refreshing usually means updating an existing listing. Relisting often means preparing a new version of the listing. FlipIt helps with the draft work, but you still review before publishing.',
-      },
-      {
-        question: 'Does FlipIt automatically relist my items?',
-        answer:
-          'No. FlipIt helps prepare the content and publishing workflow, but you approve actions before listings go live.',
-      },
-    ],
-  },
-  {
-    path: '/articles/relister-produktow-vinted',
-    title: 'Relister produktów dla Vinted: wznawiaj i odświeżaj ogłoszenia | FlipIt',
-    description:
-      'Użyj FlipIt, aby przygotować nowy szkic ogłoszenia Vinted ze zdjęć, poprawić tytuł i opis, a potem zatwierdzić publikację.',
-    language: 'pl',
-    type: 'article',
-    dateModified: '2026-06-29',
-    fallbackHighlights: [
-      'Przygotuj świeży szkic ogłoszenia Vinted na podstawie zdjęć i danych produktu.',
-      'Popraw stary tytuł, opis, kategorię i kontekst ceny przed ponownym wystawieniem.',
-      'Dopasuj ten sam produkt do Facebook Marketplace, OLX, eBay, Allegro albo Etsy po sprawdzeniu przez sprzedawcę.',
-    ],
-    faq: [
-      {
-        question: 'Jaka jest różnica między wznawianiem a odświeżaniem?',
-        answer:
-          'Odświeżanie zwykle oznacza aktualizację istniejącego ogłoszenia. Wznawianie częściej polega na przygotowaniu nowej wersji oferty. FlipIt pomaga w pracy nad szkicem, ale publikację nadal zatwierdzasz samodzielnie.',
-      },
-      {
-        question: 'Czy FlipIt automatycznie wznawia moje produkty?',
-        answer:
-          'Nie. FlipIt pomaga przygotować treść i proces publikacji, ale działania zatwierdzasz przed wystawieniem oferty.',
-      },
-    ],
-  },
-  {
-    path: '/articles/how-to-sell-on-allegro',
-    title: 'How to Sell on Allegro with Better Listing Workflows | FlipIt',
-    description:
-      'A practical Allegro selling guide for preparing product listings, descriptions, pricing context, and marketplace-ready drafts with less manual work.',
-    language: 'en',
-    type: 'article',
-  },
-  {
-    path: '/articles/jak-sprzedawac-na-allegro',
-    title: 'Jak sprzedawac na Allegro z lepszym procesem ofert | FlipIt',
-    description:
-      'Poradnik dla sprzedawcow Allegro: jak przygotowac oferte, opis, cene i dane produktu bez powtarzalnego przepisywania informacji.',
-    language: 'pl',
-    type: 'article',
-  },
-  {
-    path: '/articles/how-to-price-items-for-ebay',
-    title: 'How to Price Items for eBay with Active and Sold Listings | FlipIt',
-    description:
-      'Use active listings and sold-price context to price eBay items more carefully before publishing marketplace listings from FlipIt.',
-    language: 'en',
-    type: 'article',
-  },
-  {
-    path: '/articles/jak-wycenic-przedmiot-na-ebay',
-    title: 'Jak wycenic przedmiot na eBay na podstawie ofert | FlipIt',
-    description:
-      'Jak porownywac aktywne i sprzedane oferty eBay, zeby ustawic bardziej realistyczna cene przed publikacja ogloszenia.',
-    language: 'pl',
-    type: 'article',
-  },
-  {
-    path: '/articles/ebay-active-listings-vs-sold-prices',
-    title: 'eBay Active Listings vs Sold Prices: What Sellers Should Compare | FlipIt',
-    description:
-      'Understand the difference between active eBay listings and sold prices, and use both signals when preparing marketplace listings.',
-    language: 'en',
-    type: 'article',
-  },
-  {
-    path: '/articles/aktywne-oferty-ebay-a-ceny-sprzedazy',
-    title: 'Aktywne oferty eBay a ceny sprzedazy | FlipIt',
-    description:
-      'Czym roznia sie aktywne oferty eBay od cen sprzedazy i jak wykorzystac oba sygnaly przy wycenie przedmiotu.',
-    language: 'pl',
-    type: 'article',
-  },
-  {
-    path: '/articles/olx-listing-automation-by-country',
-    title: 'OLX Listing Automation by Country: Supported Workflows | FlipIt',
-    description:
-      'See how OLX listing automation differs by country account and how FlipIt helps prepare marketplace-ready drafts with manual approval.',
-    language: 'en',
-    type: 'article',
-  },
-  {
-    path: '/articles/automatyzacja-ogloszen-olx-wedlug-kraju',
-    title: 'Automatyzacja ogloszen OLX wedlug kraju | FlipIt',
-    description:
-      'Jak podejsc do automatyzacji ogloszen OLX dla roznych krajow i przygotowac oferty z kontrola przed publikacja.',
-    language: 'pl',
-    type: 'article',
-  },
-  {
-    path: '/articles/etsy-listing-tool',
-    title: 'Etsy Listing Tool for Shop-Ready Drafts | FlipIt',
-    description:
-      'Prepare Etsy listing drafts from photos with category, attributes, price, shipping profile, active-listing import, and seller review before publishing.',
-    language: 'en',
-    type: 'article',
-    dateModified: '2026-06-26',
-    fallbackHighlights: [
-      'Prepare Etsy listing drafts from product photos and seller-provided details.',
-      'Review category, attributes, price, shipping profile, and shop-specific fields.',
-      'Use active-listing import and seller approval before publishing changes.',
-    ],
-    faq: [
-      {
-        question: 'Can FlipIt import my current Etsy listings?',
-        answer:
-          'Yes. After you connect an Etsy shop, FlipIt can import active Etsy listings into your workspace. If the connection expires, you reconnect before importing again.',
-      },
-      {
-        question: 'Does FlipIt publish to Etsy automatically?',
-        answer:
-          'No. FlipIt prepares the draft and required details, but you review and approve the listing before it is published.',
-      },
-    ],
-  },
-  {
-    path: '/articles/narzedzie-do-ogloszen-etsy',
-    title: 'Narzedzie do ofert Etsy ze zdjec produktu | FlipIt',
-    description:
-      'Przygotuj szkice ofert Etsy ze zdjec: opis, kategoria, atrybuty, cena, profil wysylki, import aktywnych ofert i publikacja po akceptacji.',
-    language: 'pl',
-    type: 'article',
-  },
-  {
-    path: '/how-it-works',
-    title: 'How AI Crosslisting Works for OLX, Vinted, Facebook Marketplace and eBay | FlipIt',
-    description:
-      'See how FlipIt turns one photo into marketplace-ready listing drafts, then lets sellers review, approve, publish, and track results per platform.',
-    language: 'en',
-    structuredData: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'HowTo',
-        name: 'How AI crosslisting works in FlipIt',
-        description:
-          'Upload product photos, review AI-generated listing drafts, and publish with manual approval to supported marketplaces.',
-        step: [
-          { '@type': 'HowToStep', position: 1, name: 'Connect marketplaces' },
-          { '@type': 'HowToStep', position: 2, name: 'Upload product photos' },
-          { '@type': 'HowToStep', position: 3, name: 'Review and publish' },
-        ],
-      },
-    ],
-  },
-  {
-    path: '/pricing',
-    title: 'FlipIt Pricing: Marketplace Automation Plans for Resellers',
-    description:
-      'Transparent pricing for FlipIt marketplace automation. Start free, then choose paid plans in PLN or EUR for supported marketplace workflows.',
-    language: 'en',
-  },
-  {
-    path: '/get-started',
-    title: 'Get Started with FlipIt Marketplace Automation',
-    description:
-      'Create a FlipIt account, connect supported marketplaces, and start preparing AI-assisted listing drafts with review and approval before publishing.',
-    language: 'en',
-  },
-  {
-    path: '/login',
-    title: 'Login to FlipIt Marketplace Automation',
-    description:
-      'Log in to your FlipIt workspace to create marketplace listing drafts, manage connected accounts, and prepare products for publishing.',
-    language: 'en',
-    robots: 'noindex, follow',
-  },
-  {
-    path: '/faq',
-    title: 'FlipIt FAQ: AI Marketplace Automation and Crosslisting',
-    description:
-      'Answers about FlipIt marketplace automation, OLX and Vinted workflows, AI listing drafts, manual approval, and current product limits.',
-    language: 'en',
-    structuredData: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: [
-          {
-            '@type': 'Question',
-            name: 'How does one-photo crosslisting work in FlipIt?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text:
-                'Upload product images and details once. FlipIt drafts marketplace-specific copy, then you review and approve before publishing.',
-            },
-          },
-          {
-            '@type': 'Question',
-            name: 'Will FlipIt keep my inventory synced?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text:
-                'Not yet. FlipIt does not sync sold status or availability between marketplaces in the current version.',
-            },
-          },
-        ],
-      },
-    ],
-  },
-  {
-    path: '/success-stories',
-    title: 'FlipIt Success Stories for Marketplace Sellers',
-    description:
-      'See how marketplace sellers use FlipIt to reduce repetitive listing work with AI-assisted descriptions, pricing context, and category mapping.',
-    language: 'en',
-  },
-  {
-    path: '/terms',
-    title: 'Terms of Service | FlipIt',
-    description:
-      'The rules for using FlipIt, including accounts, marketplace connections, AI-assisted drafts, publishing responsibility, billing, and support.',
-    language: 'en',
-    alternatePaths: { en: '/terms', pl: '/pl/regulamin' },
-  },
-  {
-    path: '/pl/regulamin',
-    title: 'Regulamin | FlipIt',
-    description:
-      'Zasady korzystania z FlipIt: konto, połączenia z marketplace, szkice AI, odpowiedzialność za publikację, rozliczenia i wsparcie.',
-    language: 'pl',
-    alternatePaths: { en: '/terms', pl: '/pl/regulamin' },
-  },
-  {
-    path: '/privacy',
-    title: 'Privacy Policy | FlipIt',
-    description:
-      'How FlipIt handles account data, marketplace connections, listing content, AI-assisted processing, payments, analytics, cookies, and user rights.',
-    language: 'en',
-    alternatePaths: { en: '/privacy', pl: '/pl/polityka-prywatnosci' },
-  },
-  {
-    path: '/pl/polityka-prywatnosci',
-    title: 'Polityka prywatności | FlipIt',
-    description:
-      'Jak FlipIt przetwarza dane konta, połączenia z marketplace, treści ogłoszeń, AI, płatności, analitykę, cookies i prawa użytkownika.',
-    language: 'pl',
-    alternatePaths: { en: '/privacy', pl: '/pl/polityka-prywatnosci' },
-  },
-  {
-    path: '/cookies',
-    title: 'Cookie Policy | FlipIt',
-    description:
-      'How FlipIt uses cookies, local storage, analytics, live chat tools, login providers, payment providers, and marketplace services.',
-    language: 'en',
-    alternatePaths: { en: '/cookies', pl: '/pl/polityka-cookies' },
-  },
-  {
-    path: '/pl/polityka-cookies',
-    title: 'Polityka cookies | FlipIt',
-    description:
-      'Jak FlipIt używa cookies, local storage, analityki, czatu, logowania, płatności i usług marketplace.',
-    language: 'pl',
-    alternatePaths: { en: '/cookies', pl: '/pl/polityka-cookies' },
-  },
-];
+const baseHtmlPath = path.join(DIST_DIR, 'index.html');
+if (!fs.existsSync(baseHtmlPath)) {
+  throw new Error(`Missing Vite output: ${baseHtmlPath}`);
+}
+const baseHtml = fs.readFileSync(baseHtmlPath, 'utf8');
 
 function escapeHtml(value) {
   return String(value)
@@ -428,297 +31,253 @@ function absoluteUrl(routePath) {
   return routePath === '/' ? `${SITE_URL}/` : `${SITE_URL}${routePath}`;
 }
 
-function stripSiteSuffix(siteTitle) {
-  return siteTitle
-    .replace(/\s+\|\s+FlipIt(?:\s+Articles)?$/i, '')
-    .replace(/\s+\|\s+FlipIt$/i, '');
+function ensureSiteTitle(title) {
+  return title.includes('FlipIt') ? title : `${title} | FlipIt`;
 }
 
-function localizedFallbackCopy(language) {
-  if (language === 'pl') {
-    return {
-      navLabel: 'Główna nawigacja',
-      coverageHeading: 'Co obejmuje ta strona',
-      highlights: [
-        'Przygotowanie ofert z pomocą AI na podstawie zdjęć i danych produktu.',
-        'Lepsze tytuły, opisy, kategorie, atrybuty i kontekst ceny przed publikacją.',
-        'Ręczna kontrola sprzedawcy przed wystawieniem oferty na obsługiwanym marketplace.',
-      ],
-      links: [
-        { href: '/', label: 'Start' },
-        { href: '/how-it-works', label: 'Jak działa' },
-        { href: '/articles', label: 'Poradniki' },
-        { href: '/pricing', label: 'Cennik' },
-        { href: '/faq', label: 'FAQ' },
-      ],
-      footer: 'FlipIt pomaga przygotowywać oferty marketplace szybciej, zawsze z kontrolą sprzedawcy.',
-    };
-  }
-
-  return {
-    navLabel: 'Primary navigation',
-    coverageHeading: 'What this page covers',
-    highlights: [
-      'AI-assisted listing drafts from product photos and details.',
-      'Better titles, descriptions, categories, attributes, and pricing context before publishing.',
-      'Seller review and approval before listings go live on supported marketplaces.',
-    ],
-    links: [
-      { href: '/', label: 'Home' },
-      { href: '/how-it-works', label: 'How it works' },
-      { href: '/articles', label: 'Guides' },
-      { href: '/pricing', label: 'Pricing' },
-      { href: '/faq', label: 'FAQ' },
-    ],
-    footer: 'FlipIt helps marketplace sellers prepare listing drafts faster, always with seller approval.',
-  };
+function pagePath(routeKey, language) {
+  return routeManifest.routes[routeKey][language];
 }
 
-function buildSeoFallback(route, siteTitle, canonical) {
-  const copy = localizedFallbackCopy(route.language);
-  const heading = route.heading || stripSiteSuffix(siteTitle);
-  const contentTag = route.type === 'article' ? 'article' : 'section';
-  const fallbackLinks = route.fallbackLinks || copy.links;
-  const fallbackHighlights = route.fallbackHighlights || copy.highlights;
-  const navLinks = copy.links
-    .map(
-      (link) =>
-        `          <a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`
-    )
-    .join('\n');
-  const contextualLinks = fallbackLinks
-    .map(
-      (link) =>
-        `            <li><a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a></li>`
-    )
-    .join('\n');
-  const highlights = fallbackHighlights
-    .map((item) => `            <li>${escapeHtml(item)}</li>`)
-    .join('\n');
-
-  return `    <div id="root">
-      <div data-seo-fallback="true" aria-hidden="true" style="${SEO_FALLBACK_HIDDEN_STYLE}">
-        <header>
-        <nav aria-label="${escapeHtml(copy.navLabel)}">
-${navLinks}
-        </nav>
-        </header>
-        <main>
-        <${contentTag}>
-          <h1>${escapeHtml(heading)}</h1>
-          <p>${escapeHtml(route.description)}</p>
-          <h2>${escapeHtml(copy.coverageHeading)}</h2>
-          <ul>
-${highlights}
-          </ul>
-          <h2>${route.language === 'pl' ? 'Powiązane strony' : 'Related pages'}</h2>
-          <ul>
-${contextualLinks}
-          </ul>
-          <p><a href="${escapeHtml(canonical)}">${escapeHtml(canonical)}</a></p>
-        </${contentTag}>
-        </main>
-        <footer>
-        <p>${escapeHtml(copy.footer)}</p>
-        </footer>
-      </div>
-    </div>`;
+function lastModified(routeKey) {
+  return pageMetadata[routeKey]?.lastModified || DEFAULT_LAST_MODIFIED;
 }
 
-function injectSeoFallback(html, route, siteTitle, canonical) {
-  const fallback = buildSeoFallback(route, siteTitle, canonical);
-  return html.replace(/    <div\s+id="root">\s*<\/div>/i, fallback);
-}
-
-function replaceOrInsert(html, pattern, replacement, before = '</head>') {
-  if (pattern.test(html)) {
-    return html.replace(pattern, replacement);
-  }
-  return html.replace(before, `${replacement}\n    ${before}`);
-}
-
-function removeTag(html, pattern) {
-  return html.replace(pattern, '');
-}
-
-function alternateLinkTags(route) {
-  if (!route.alternatePaths) {
-    return '';
-  }
-
+function alternateLinks(routeKey) {
+  const en = absoluteUrl(pagePath(routeKey, 'en'));
+  const pl = absoluteUrl(pagePath(routeKey, 'pl'));
   return [
-    { hrefLang: 'en', path: route.alternatePaths.en },
-    { hrefLang: 'pl', path: route.alternatePaths.pl },
-    { hrefLang: 'x-default', path: route.alternatePaths.en },
-  ]
-    .map(
-      (alternate) =>
-        `  <link data-rh="true" rel="alternate" hreflang="${alternate.hrefLang}" href="${absoluteUrl(alternate.path)}" />`
-    )
-    .join('\n');
+    { language: 'en', url: en },
+    { language: 'pl', url: pl },
+    { language: 'x-default', url: en },
+  ];
 }
 
-function buildBreadcrumbStructuredData(route, canonical, siteTitle) {
-  const items = [
+function stripManagedHead(html) {
+  return html
+    .replace(/<title>[\s\S]*?<\/title>/gi, '')
+    .replace(/\s*<meta\s+(?:name|property)=["'](?:description|title|robots|og:[^"']+|twitter:[^"']+)["'][^>]*\/?>(?:\s*)/gi, '\n')
+    .replace(/\s*<link\s+rel=["'](?:canonical|alternate)["'][^>]*\/?>(?:\s*)/gi, '\n')
+    .replace(/\s*<script\s+type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>(?:\s*)/gi, '\n')
+    .replace(/\s*<style\s+data-seo-prerender[^>]*>[\s\S]*?<\/style>(?:\s*)/gi, '\n');
+}
+
+function buildStructuredData(routeKey, language, metadata, canonicalUrl) {
+  const routeType = pageMetadata[routeKey]?.type === 'article' ? 'Article' : 'WebPage';
+  const graph = [
     {
-      '@type': 'ListItem',
-      position: 1,
-      name: 'Home',
-      item: `${SITE_URL}/`,
+      '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
+      name: 'FlipIt',
+      url: `${SITE_URL}/`,
+      logo: `${SITE_URL}/favicon.ico`,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      name: 'FlipIt',
+      url: `${SITE_URL}/`,
+      inLanguage: ['en', 'pl'],
+      publisher: { '@id': `${SITE_URL}/#organization` },
+    },
+    {
+      '@type': routeType,
+      '@id': `${canonicalUrl}#page`,
+      url: canonicalUrl,
+      name: metadata.title,
+      headline: metadata.title,
+      description: metadata.description,
+      inLanguage: language,
+      isPartOf: { '@id': `${SITE_URL}/#website` },
+      publisher: { '@id': `${SITE_URL}/#organization` },
+      ...(routeType === 'Article' ? { dateModified: lastModified(routeKey) } : {}),
     },
   ];
 
-  if (route.path.startsWith('/articles') && route.path !== '/articles') {
-    items.push({
-      '@type': 'ListItem',
-      position: items.length + 1,
-      name: route.language === 'pl' ? 'Poradniki' : 'Articles',
-      item: `${SITE_URL}/articles`,
+  if (routeKey === 'home') {
+    graph.push({
+      '@type': 'SoftwareApplication',
+      name: 'FlipIt',
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      url: canonicalUrl,
+      inLanguage: language,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'PLN' },
     });
   }
 
-  items.push({
-    '@type': 'ListItem',
-    position: items.length + 1,
-    name: stripSiteSuffix(siteTitle),
-    item: canonical,
-  });
-
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: items,
-  };
-}
-
-function buildArticleStructuredData(route, canonical, siteTitle) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: stripSiteSuffix(siteTitle),
-    description: route.description,
-    author: {
-      '@type': 'Organization',
-      name: 'FlipIt',
-      url: SITE_URL,
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'FlipIt',
-      logo: {
-        '@type': 'ImageObject',
-        url: `${SITE_URL}/favicon.ico`,
-      },
-    },
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': canonical,
-    },
-    datePublished: route.datePublished || '2026-01-06',
-    dateModified: route.dateModified || route.datePublished || '2026-06-29',
-  };
-}
-
-function buildFaqStructuredData(route) {
-  if (!route.faq?.length) {
-    return null;
+  if (routeKey === 'priceChecker') {
+    graph.push({
+      '@type': 'WebApplication',
+      name: metadata.title.replace(/\s*\|\s*FlipIt$/i, ''),
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'Web',
+      url: canonicalUrl,
+      inLanguage: language,
+      isAccessibleForFree: true,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: language === 'pl' ? 'PLN' : 'USD' },
+    });
   }
 
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: route.faq.map((item) => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: item.answer,
-      },
-    })),
-  };
+  return { '@context': 'https://schema.org', '@graph': graph };
 }
 
-function routeStructuredData(route, canonical, siteTitle) {
-  const generated = [];
+function localizedNav(language) {
+  const labels = language === 'pl'
+    ? { home: 'Strona główna', guide: 'Jak to działa', articles: 'Poradniki', pricing: 'Cennik', faq: 'FAQ' }
+    : { home: 'Home', guide: 'How it works', articles: 'Guides', pricing: 'Pricing', faq: 'FAQ' };
+  const keys = ['home', 'howItWorks', 'articles', 'pricing', 'faq'];
+  const labelKeys = ['home', 'guide', 'articles', 'pricing', 'faq'];
+  return keys
+    .map((key, index) => `<a href="${escapeHtml(pagePath(key, language))}">${escapeHtml(labels[labelKeys[index]])}</a>`)
+    .join('');
+}
 
-  if (route.type === 'article') {
-    generated.push(buildArticleStructuredData(route, canonical, siteTitle));
+function answerMarkup(routeKey, language) {
+  if (routeKey !== 'productRelisterVinted') return '';
+  const content = productRelisterQuestions[language];
+  if (!content) return '';
+
+  const sections = content.sections
+    .map((section) => `
+        <section>
+          <h2>${escapeHtml(section.heading)}</h2>
+          ${section.bodyParagraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}
+        </section>`)
+    .join('');
+  const faqTitle = language === 'pl' ? 'Najczęstsze pytania' : 'Frequently asked questions';
+  const faq = `
+        <section>
+          <h2>${escapeHtml(faqTitle)}</h2>
+          ${content.faq.map((item) => `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`).join('')}
+        </section>`;
+  const sources = `
+        <section>
+          <h2>${escapeHtml(content.sourcesTitle)}</h2>
+          <ul>${content.sources.map((source) => `<li><a href="${escapeHtml(source.href)}">${escapeHtml(source.text)}</a></li>`).join('')}</ul>
+        </section>`;
+  return `${sections}${faq}${sources}`;
+}
+
+function fallbackMarkup(routeKey, language, metadata) {
+  const navLabel = language === 'pl' ? 'Główna nawigacja' : 'Primary navigation';
+  const continueLabel = language === 'pl'
+    ? 'Aplikacja FlipIt ładuje pełną zawartość tej strony.'
+    : 'The FlipIt application is loading the full content of this page.';
+  return `
+    <div id="seo-prerender" class="seo-prerender">
+      <header><a class="seo-prerender__brand" href="${pagePath('home', language)}">FlipIt</a></header>
+      <main>
+        <h1>${escapeHtml(metadata.title.replace(/\s*\|\s*FlipIt$/i, ''))}</h1>
+        <p>${escapeHtml(metadata.description)}</p>
+        ${answerMarkup(routeKey, language)}
+        <p class="seo-prerender__status">${escapeHtml(continueLabel)}</p>
+      </main>
+      <nav aria-label="${escapeHtml(navLabel)}">${localizedNav(language)}</nav>
+    </div>`;
+}
+
+function buildPage(routeKey, language) {
+  const metadata = pageMetadata[routeKey]?.[language];
+  if (!metadata) throw new Error(`Missing SEO metadata for ${routeKey}.${language}`);
+
+  const routePath = pagePath(routeKey, language);
+  const canonicalUrl = absoluteUrl(routePath);
+  const title = ensureSiteTitle(metadata.title);
+  const alternates = alternateLinks(routeKey);
+  const locale = language === 'pl' ? 'pl_PL' : 'en_US';
+  const alternateLocale = language === 'pl' ? 'en_US' : 'pl_PL';
+  const structuredData = buildStructuredData(routeKey, language, metadata, canonicalUrl);
+  const managedHead = `
+    <title>${escapeHtml(title)}</title>
+    <meta name="description" content="${escapeHtml(metadata.description)}" />
+    <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
+    ${alternates.map((item) => `<link rel="alternate" hreflang="${item.language}" href="${escapeHtml(item.url)}" />`).join('\n    ')}
+    <meta property="og:type" content="${pageMetadata[routeKey]?.type === 'article' ? 'article' : 'website'}" />
+    <meta property="og:url" content="${escapeHtml(canonicalUrl)}" />
+    <meta property="og:title" content="${escapeHtml(title)}" />
+    <meta property="og:description" content="${escapeHtml(metadata.description)}" />
+    <meta property="og:image" content="${DEFAULT_IMAGE}" />
+    <meta property="og:site_name" content="FlipIt" />
+    <meta property="og:locale" content="${locale}" />
+    <meta property="og:locale:alternate" content="${alternateLocale}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(title)}" />
+    <meta name="twitter:description" content="${escapeHtml(metadata.description)}" />
+    <meta name="twitter:image" content="${DEFAULT_IMAGE}" />
+    <script type="application/ld+json" data-seo-prerender>${JSON.stringify(structuredData).replaceAll('<', '\\u003c')}</script>
+    <style data-seo-prerender>
+      .seo-prerender{min-height:100vh;padding:4rem max(1.25rem,calc((100vw - 72rem)/2));background:#0a0a0a;color:#fff;font:16px/1.6 system-ui,sans-serif}
+      .seo-prerender__brand{color:#22d3ee;font-size:1.5rem;font-weight:800;text-decoration:none}
+      .seo-prerender main{max-width:48rem;margin:6rem 0 4rem}.seo-prerender h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1}.seo-prerender p{color:#d4d4d4;font-size:1.125rem}
+      .seo-prerender__status{font-size:.875rem!important;color:#a3a3a3!important}.seo-prerender nav{display:flex;flex-wrap:wrap;gap:1rem}.seo-prerender nav a{color:#67e8f9}
+    </style>`;
+
+  let html = stripManagedHead(baseHtml)
+    .replace(/<html\s+lang=["'][^"']*["']>/i, `<html lang="${language}">`)
+    .replace('</head>', `${managedHead}\n  </head>`);
+  html = html.replace('<div id="root"></div>', `${fallbackMarkup(routeKey, language, metadata)}\n    <div id="root"></div>`);
+  return html;
+}
+
+function outputPath(routePath) {
+  if (routePath === '/') return path.join(DIST_DIR, 'index.html');
+  return path.join(DIST_DIR, routePath.replace(/^\//, ''), 'index.html');
+}
+
+function writePage(routePath, html) {
+  const target = outputPath(routePath);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, html, 'utf8');
+}
+
+function buildLegacyAlias(alias) {
+  const targetPath = pagePath(alias.key, alias.language);
+  const canonical = absoluteUrl(targetPath);
+  const metadata = pageMetadata[alias.key][alias.language];
+  return `<!doctype html><html lang="${alias.language}"><head><meta charset="utf-8"><meta name="robots" content="noindex, follow"><link rel="canonical" href="${escapeHtml(canonical)}"><meta http-equiv="refresh" content="0;url=${escapeHtml(targetPath)}"><title>${escapeHtml(ensureSiteTitle(metadata.title))}</title></head><body><p><a href="${escapeHtml(targetPath)}">${escapeHtml(metadata.title)}</a></p></body></html>`;
+}
+
+function buildAppShell() {
+  const managedHead = `
+    <title>FlipIt seller workspace</title>
+    <meta name="description" content="Sign in to manage marketplace listings, connected accounts, publishing settings, and seller workflows in FlipIt." />
+    <meta name="robots" content="noindex, nofollow" />`;
+  return stripManagedHead(baseHtml)
+    .replace(/<html\s+lang=["'][^"']*["']>/i, '<html lang="en">')
+    .replace('</head>', `${managedHead}\n  </head>`);
+}
+
+function buildSitemap() {
+  const entries = [];
+  for (const [routeKey, definition] of Object.entries(routeManifest.routes)) {
+    if (!definition.indexable || definition.en.includes(':') || !pageMetadata[routeKey]) continue;
+    const alternates = alternateLinks(routeKey);
+    for (const language of ['en', 'pl']) {
+      const loc = absoluteUrl(definition[language]);
+      entries.push(`  <url>\n    <loc>${escapeHtml(loc)}</loc>\n${alternates.map((item) => `    <xhtml:link rel="alternate" hreflang="${item.language}" href="${escapeHtml(item.url)}" />`).join('\n')}\n    <lastmod>${lastModified(routeKey)}</lastmod>\n  </url>`);
+    }
   }
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join('\n')}\n</urlset>\n`;
+}
 
-  if (route.path === '/articles' || route.path.startsWith('/articles/')) {
-    generated.push(buildBreadcrumbStructuredData(route, canonical, siteTitle));
+let pageCount = 0;
+for (const [routeKey, definition] of Object.entries(routeManifest.routes)) {
+  if (!definition.indexable || definition.en.includes(':') || !pageMetadata[routeKey]) continue;
+  for (const language of ['en', 'pl']) {
+    writePage(definition[language], buildPage(routeKey, language));
+    pageCount += 1;
   }
-
-  const faqStructuredData = buildFaqStructuredData(route);
-  if (faqStructuredData) {
-    generated.push(faqStructuredData);
-  }
-
-  return generated;
 }
 
-function applySeo(html, route) {
-  const canonical = absoluteUrl(route.path);
-  const siteTitle = route.title.includes('FlipIt') ? route.title : `${route.title} | FlipIt`;
-  const ogType = route.type || 'website';
-  const locale = route.language === 'pl' ? 'pl_PL' : 'en_US';
-  const structuredData = [
-    baseWebsite,
-    baseOrganization,
-    ...routeStructuredData(route, canonical, siteTitle),
-    ...(route.structuredData || []),
-  ];
-
-  let next = html.replace(/<html\s+lang="[^"]*"/i, `<html lang="${route.language || 'en'}"`);
-
-  next = replaceOrInsert(next, /<title(?:\s+[^>]*)?>[\s\S]*?<\/title>/i, `<title data-rh="true">${escapeHtml(siteTitle)}</title>`);
-  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bname="description")[^>]*>/i, `<meta data-rh="true" name="description" content="${escapeHtml(route.description)}" />`);
-  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bproperty="og:title")[^>]*>/i, `<meta data-rh="true" property="og:title" content="${escapeHtml(siteTitle)}" />`);
-  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bproperty="og:description")[^>]*>/i, `<meta data-rh="true" property="og:description" content="${escapeHtml(route.description)}" />`);
-  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bproperty="og:type")[^>]*>/i, `<meta data-rh="true" property="og:type" content="${ogType}" />`);
-  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bproperty="og:url")[^>]*>/i, `<meta data-rh="true" property="og:url" content="${canonical}" />`);
-  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bproperty="og:image")[^>]*>/i, `<meta data-rh="true" property="og:image" content="${DEFAULT_IMAGE}" />`);
-  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bproperty="og:locale")[^>]*>/i, `<meta data-rh="true" property="og:locale" content="${locale}" />`);
-  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bname="twitter:card")[^>]*>/i, '<meta data-rh="true" name="twitter:card" content="summary_large_image" />');
-  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bname="twitter:title")[^>]*>/i, `<meta data-rh="true" name="twitter:title" content="${escapeHtml(siteTitle)}" />`);
-  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bname="twitter:description")[^>]*>/i, `<meta data-rh="true" name="twitter:description" content="${escapeHtml(route.description)}" />`);
-  next = replaceOrInsert(next, /<meta\b(?=[^>]*\bname="twitter:image")[^>]*>/i, `<meta data-rh="true" name="twitter:image" content="${DEFAULT_IMAGE}" />`);
-  next = replaceOrInsert(next, /<link\b(?=[^>]*\brel="canonical")[^>]*>/i, `<link data-rh="true" rel="canonical" href="${canonical}" />`);
-  next = removeTag(next, /\s*<link\b(?=[^>]*\brel="alternate")(?=[^>]*\bhreflang="[^"]+")[^>]*>/gi);
-  const alternates = alternateLinkTags(route);
-  if (alternates) {
-    next = next.replace(/(<link\b(?=[^>]*\brel="canonical")[^>]*>)/i, `$1\n${alternates}`);
-  }
-
-  next = removeTag(next, /\s*<meta\b(?=[^>]*\bname="robots")[^>]*>/gi);
-  if (route.robots) {
-    next = next.replace('</head>', `    <meta data-rh="true" name="robots" content="${route.robots}" />\n  </head>`);
-  }
-
-  next = removeTag(next, /\s*<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/gi);
-  const structuredTags = structuredData
-    .map((data) => `    <script type="application/ld+json">${JSON.stringify(data)}</script>`)
-    .join('\n');
-  next = next.replace('</head>', `${structuredTags}\n  </head>`);
-  next = injectSeoFallback(next, route, siteTitle, canonical);
-
-  return next;
+for (const alias of routeManifest.legacyAliases) {
+  writePage(alias.path, buildLegacyAlias(alias));
 }
 
-function writeRoute(route, html) {
-  const targetDir = route.path === '/' ? DIST_DIR : path.join(DIST_DIR, route.path.replace(/^\/+/, ''));
-  fs.mkdirSync(targetDir, { recursive: true });
-  const target = route.path === '/' ? path.join(DIST_DIR, 'index.html') : path.join(targetDir, 'index.html');
-  fs.writeFileSync(target, html);
-}
+fs.writeFileSync(path.join(DIST_DIR, 'app.html'), buildAppShell(), 'utf8');
 
-if (!fs.existsSync(DIST_DIR)) {
-  throw new Error(`Missing build output directory: ${DIST_DIR}`);
-}
+const sitemap = buildSitemap();
+fs.writeFileSync(path.join(DIST_DIR, 'sitemap.xml'), sitemap, 'utf8');
+fs.writeFileSync(path.join(PUBLIC_DIR, 'sitemap.xml'), sitemap, 'utf8');
 
-const template = fs.readFileSync(path.join(DIST_DIR, 'index.html'), 'utf8');
-for (const route of routes) {
-  writeRoute(route, applySeo(template, route));
-}
-
-console.log(`Prerendered SEO HTML for ${routes.length} public routes.`);
+console.log(`Prerendered ${pageCount} localized public pages and ${routeManifest.legacyAliases.length} legacy redirects.`);

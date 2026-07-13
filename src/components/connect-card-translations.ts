@@ -15,7 +15,9 @@ export const connectCardTranslations: Translations = {
     
     // Compact card buttons
     connectButton: 'Connect',
+    connectingButton: 'Connecting…',
     reconnectButton: 'Reconnect',
+    actionsMenu: (platform: string) => `${platform} connection actions`,
     integrationPendingButton: 'In progress',
     integrationPendingTooltip: 'Etsy account connection is in progress. It will be available once setup is complete.',
     integrationPendingToast: 'Etsy integration is in progress. Account connection will be available once setup is complete.',
@@ -25,6 +27,13 @@ export const connectCardTranslations: Translations = {
     connectedDescription: 'You can now publish listings to {platform} from FlipIt (with your approval).',
     disconnectButton: 'Disconnect',
     settingsButton: 'Settings',
+    connectOlxCountry: 'Connect another OLX country',
+    disconnectAllOlxCountries: 'Disconnect all OLX countries',
+    disconnectOlxAccess: 'Disconnect OLX access',
+    disconnectOlxCountry: (country: string) => `Disconnect ${country}`,
+    olxCountryDialogTitle: 'Choose an OLX country',
+    olxCountryDialogDescription: 'Connect each country where you sell on OLX. Categories and listing sync are handled separately for every country.',
+    olxCountryConnected: 'Connected',
     
     // Manual connection form
     manualConnectTitle: 'Connect your {platform} account',
@@ -46,15 +55,18 @@ export const connectCardTranslations: Translations = {
     // DTSG instructions (Facebook)
     dtsgInstructionsToggle: 'How to get dtsg token?',
     dtsgInstructionsTitle: 'Get dtsg Token in 5 Simple Steps',
+    videoTutorialTitle: 'How to connect - video tutorial',
     dtsgStep1: 'Visit {fbLink} and log in to your account',
     dtsgStep2: 'Open Developer Tools:',
     dtsgStep2Keys: '{keys} or right-click → Inspect → Console',
+    dtsgStep2Alternative: 'or right-click → Inspect → Console',
     dtsgStep3: 'Click on the {consoleTab} tab',
     dtsgStep3Console: 'Console',
     dtsgStep4: 'Type or paste this command:',
     dtsgStep5: 'Press {enterKey} and copy the value shown, then paste it below.',
     dtsgStep5Enter: 'Enter',
     dtsgCommandCopied: 'Command copied to clipboard!',
+    copyDtsgCommand: 'Copy command',
     
     // Form placeholders
     cookiesPlaceholder: 'Paste {platform} cookies here...',
@@ -100,7 +112,9 @@ export const connectCardTranslations: Translations = {
     
     // Compact card buttons
     connectButton: 'Połącz',
+    connectingButton: 'Łączenie…',
     reconnectButton: 'Połącz ponownie',
+    actionsMenu: (platform: string) => `Działania dla połączenia z ${platform}`,
     integrationPendingButton: 'W trakcie',
     integrationPendingTooltip: 'Połączenie konta Etsy jest w przygotowaniu. Będzie dostępne po zakończeniu konfiguracji.',
     integrationPendingToast: 'Integracja Etsy jest w przygotowaniu. Połączenie konta będzie dostępne po zakończeniu konfiguracji.',
@@ -110,6 +124,13 @@ export const connectCardTranslations: Translations = {
     connectedDescription: 'Możesz teraz publikować ogłoszenia na {platform} z poziomu FlipIt (po Twojej akceptacji).',
     disconnectButton: 'Rozłącz',
     settingsButton: 'Ustawienia',
+    connectOlxCountry: 'Połącz kolejny kraj OLX',
+    disconnectAllOlxCountries: 'Rozłącz wszystkie kraje OLX',
+    disconnectOlxAccess: 'Rozłącz dostęp do OLX',
+    disconnectOlxCountry: (country: string) => `Rozłącz: ${country}`,
+    olxCountryDialogTitle: 'Wybierz kraj OLX',
+    olxCountryDialogDescription: 'Połącz osobno każdy kraj, w którym sprzedajesz na OLX. Kategorie i synchronizacja ogłoszeń są obsługiwane oddzielnie dla każdego kraju.',
+    olxCountryConnected: 'Połączono',
     
     // Manual connection form
     manualConnectTitle: 'Połącz swoje konto {platform}',
@@ -131,15 +152,18 @@ export const connectCardTranslations: Translations = {
     // DTSG instructions (Facebook)
     dtsgInstructionsToggle: 'Jak uzyskać token dtsg?',
     dtsgInstructionsTitle: 'Uzyskaj token dtsg w 5 prostych krokach',
+    videoTutorialTitle: 'Instrukcja połączenia - film',
     dtsgStep1: 'Odwiedź {fbLink} i zaloguj się na swoje konto',
     dtsgStep2: 'Otwórz narzędzia deweloperskie:',
     dtsgStep2Keys: '{keys} lub kliknij prawym przyciskiem → Zbadaj → Konsola',
+    dtsgStep2Alternative: 'lub kliknij prawym przyciskiem → Zbadaj → Konsola',
     dtsgStep3: 'Kliknij zakładkę {consoleTab}',
     dtsgStep3Console: 'Konsola',
     dtsgStep4: 'Wpisz lub wklej to polecenie:',
     dtsgStep5: 'Naciśnij {enterKey} i skopiuj wyświetloną wartość, następnie wklej ją poniżej.',
     dtsgStep5Enter: 'Enter',
     dtsgCommandCopied: 'Polecenie skopiowane do schowka!',
+    copyDtsgCommand: 'Skopiuj polecenie',
     
     // Form placeholders
     cookiesPlaceholder: 'Wklej ciasteczka {platform} tutaj...',

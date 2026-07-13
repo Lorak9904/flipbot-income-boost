@@ -214,10 +214,15 @@ export interface PlatformPublishResult {
 }
 
 export interface PlatformLifecycleStatus {
+  dirty?: boolean | null;
+  last_synced_at?: string | null;
+  last_payload_hash?: string | null;
   last_operation_type?: string;
   last_result?: 'pending' | 'success' | 'error' | null;
+  last_direction?: string | null;
   last_attempted_at?: string | null;
   last_completed_at?: string | null;
+  last_success_at?: string | null;
   listing_url?: string | null;
   external_listing_id?: string | null;
   last_error_message?: string | null;
@@ -367,7 +372,8 @@ export interface GeneratedItemDataWithVinted extends GeneratedItemData {
   // Important AI-generated fields for publishing
   brand_id?: number;           // Vinted brand ID (looked up from brand database)
   brand_title?: string;        // Resolved brand name
-  brand_confidence?: number;   // Brand match confidence (0-1)
+  brand_confidence?: string;   // Provider mapping result, e.g. exact or none
+  brand_match_reason?: string; // Why a provider mapping was or was not selected
   model_id?: number;           // Vinted model ID (for laptops/electronics)
   package_size_id?: number;    // Shipping package size ID (1=small, 2=medium, 3=large)
   package_size?: string;       // Package size string ('small', 'medium', 'large')

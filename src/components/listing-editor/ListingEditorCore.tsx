@@ -6,6 +6,7 @@ import type { PlatformHealthResponse } from '@/lib/api/platform-health';
 import AddItemForm from '@/components/AddItemForm';
 import ReviewItemForm from '@/components/ReviewItemForm';
 import { PlatformConnectionNotice } from '@/components/listing-editor/PlatformConnectionNotice';
+import type { AddItemFormSnapshot, ReviewItemFormSnapshot } from '@/lib/listing-editor-draft';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -40,6 +41,9 @@ interface ListingEditorCoreProps {
   editItemId?: string;
   publishedPlatforms: Platform[];
   publishPlatform?: Platform;
+  addItemSnapshot?: AddItemFormSnapshot;
+  reviewSnapshot?: ReviewItemFormSnapshot;
+  shouldPersistDraft?: boolean;
 }
 
 export function ListingEditorCore({
@@ -62,6 +66,9 @@ export function ListingEditorCore({
   editItemId,
   publishedPlatforms,
   publishPlatform,
+  addItemSnapshot,
+  reviewSnapshot,
+  shouldPersistDraft,
 }: ListingEditorCoreProps) {
   return (
     <div className="container mx-auto py-12 px-4 relative z-10">
@@ -89,7 +96,12 @@ export function ListingEditorCore({
               )}
             </CardHeader>
             <CardContent>
-              <AddItemForm onComplete={onComplete} language={language} />
+              <AddItemForm
+                onComplete={onComplete}
+                language={language}
+                initialSnapshot={addItemSnapshot}
+                shouldPersistDraft={shouldPersistDraft}
+              />
             </CardContent>
           </Card>
         ) : (
@@ -110,6 +122,8 @@ export function ListingEditorCore({
                   editItemId={editItemId}
                   publishedPlatforms={publishedPlatforms}
                   publishPlatform={publishPlatform}
+                  initialSnapshot={reviewSnapshot}
+                  shouldPersistDraft={shouldPersistDraft}
                 />
               )}
             </CardContent>

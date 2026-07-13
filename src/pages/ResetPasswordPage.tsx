@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AuthButton } from '@/components/ui/button-presets';
 import { SEOHead } from '@/components/SEOHead';
-import { getTranslations } from '../components/language-utils';
+import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from '../components/language-utils';
 import { resetPasswordTranslations } from './reset-password-translations';
 
 const fadeUp = {
@@ -17,6 +17,8 @@ const fadeUp = {
 
 const ResetPasswordPage = () => {
   const t = getTranslations(resetPasswordTranslations);
+  const language = getCurrentLanguage();
+  const localized = (path: string) => getLocalizedPathForLanguage(path, language);
   const location = useLocation();
   const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const token = (searchParams.get('token') || '').trim();
@@ -56,8 +58,8 @@ const ResetPasswordPage = () => {
       } else {
         setSuccess(true);
       }
-    } catch (err: any) {
-      setError(err?.message || t.errorGeneric);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : t.errorGeneric);
     } finally {
       setLoading(false);
     }
@@ -66,9 +68,9 @@ const ResetPasswordPage = () => {
   return (
     <div className="relative min-h-screen overflow-hidden bg-neutral-950 text-white">
       <SEOHead
-        title="Reset Password | FlipIt"
-        description="Set a new password for your FlipIt account"
-        canonicalUrl="https://myflipit.live/reset-password"
+        title={language === 'pl' ? 'Ustaw nowe hasło FlipIt' : 'Set a new FlipIt password'}
+        description={language === 'pl' ? 'Ustaw nowe hasło do swojego konta FlipIt.' : 'Set a new password for your FlipIt account.'}
+        language={language}
         robots="noindex, nofollow"
       />
       <div className="pointer-events-none fixed inset-0 -z-20">
@@ -177,7 +179,7 @@ const ResetPasswordPage = () => {
           </form>
 
           <div className="mt-6 text-center text-xs text-neutral-400">
-            <Link to="/login" className="transition-colors hover:text-cyan-400">
+            <Link to={localized('/login')} className="transition-colors hover:text-cyan-400">
               {t.backToLogin}
             </Link>
           </div>

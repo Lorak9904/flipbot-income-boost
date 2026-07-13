@@ -4,8 +4,10 @@ export const platformSettingsTranslations: Translations = {
   en: {
     // Page title & description
     pageTitle: 'Platform Settings',
+    pageHeading: (platform: string) => `${platform} settings`,
     pageDescription: 'Configure pricing adjustments and address override for {platform}.',
     backToConnectedAccounts: 'Back to Connected Accounts',
+    invalidPlatform: 'Unsupported platform',
     
     // Platform names
     platformFacebook: 'Facebook Marketplace',
@@ -143,6 +145,9 @@ export const platformSettingsTranslations: Translations = {
     allegroInvoiceLabel: 'Invoice type',
     allegroInvoicePlaceholder: 'Choose invoice type',
     allegroInvoiceHelper: 'Optional Allegro payment invoice declaration.',
+    allegroInvoiceVatMargin: 'VAT margin invoice',
+    allegroInvoiceWithoutVat: 'Invoice without VAT',
+    allegroInvoiceNone: 'No invoice',
     allegroHandlingTimeLabel: 'Handling time',
     allegroHandlingTimeHelper: 'Optional ISO 8601 duration, for example PT24H or P2D.',
     allegroNoOptionalValue: 'Not set',
@@ -196,8 +201,10 @@ export const platformSettingsTranslations: Translations = {
   pl: {
     // Page title & description
     pageTitle: 'Ustawienia platformy',
-    pageDescription: 'Skonfiguruj korekty cen i adres dla {platform}.',
+    pageHeading: (platform: string) => `Ustawienia ${platform}`,
+    pageDescription: 'Ustaw sposób wyliczania ceny i adres używany w {platform}.',
     backToConnectedAccounts: 'Powrót do połączonych kont',
+    invalidPlatform: 'Nieobsługiwana platforma',
     
     // Platform names
     platformFacebook: 'Facebook Marketplace',
@@ -209,16 +216,16 @@ export const platformSettingsTranslations: Translations = {
     // Pricing section
     pricingTitle: 'Korekty cen',
     pricingDescription: 'Automatycznie dostosuj ceny ogłoszeń na tej platformie.',
-    marginLabel: 'Mnożnik marży',
+    marginLabel: 'Mnożnik ceny',
     marginPlaceholder: '1.0',
     marginHelperText: '1.0 = ta sama cena, 1.1 = +10%, 0.9 = -10%',
-    surchargeLabel: 'Stała dopłata',
+    surchargeLabel: 'Stała korekta ceny',
     surchargePlaceholder: '0.00',
-    surchargeHelperText: 'Stała kwota dodawana po marży (może być ujemna)',
+    surchargeHelperText: 'Kwota dodawana po zastosowaniu mnożnika. Może być ujemna.',
     
     // Address section
-    addressTitle: 'Nadpisanie adresu',
-    addressDescription: 'Nadpisz swój domyślny adres dla tej platformy. Zostaw puste, aby używać adresu ogólnego.',
+    addressTitle: 'Adres dla tej platformy',
+    addressDescription: 'Podaj inny adres dla tej platformy albo zostaw pola puste, aby użyć adresu z ustawień konta.',
     addressCityLabel: 'Miasto',
     addressCityPlaceholder: 'Wprowadź miasto',
     addressPostalCodeLabel: 'Kod pocztowy',
@@ -227,9 +234,9 @@ export const platformSettingsTranslations: Translations = {
     addressCountryPlaceholder: 'Wprowadź kraj',
     addressStreetLabel: 'Adres (opcjonalnie)',
     addressStreetPlaceholder: 'Wprowadź adres ulicy',
-    syncAddressButton: 'Synchronizuj z ustawieniami ogólnymi',
-    syncAddressSuccess: 'Adres zsynchronizowany z ustawieniami ogólnymi',
-    syncAddressError: 'Nie udało się zsynchronizować adresu. Upewnij się, że masz ustawiony domyślny adres w Ustawieniach ogólnych.',
+    syncAddressButton: 'Użyj adresu z konta',
+    syncAddressSuccess: 'Wczytano adres z ustawień konta',
+    syncAddressError: 'Nie udało się wczytać adresu. Najpierw uzupełnij domyślny adres w ustawieniach konta.',
 
     // eBay policy section
     ebayPublishingTitle: 'Ustawienia publikacji eBay',
@@ -335,6 +342,9 @@ export const platformSettingsTranslations: Translations = {
     allegroInvoiceLabel: 'Typ faktury',
     allegroInvoicePlaceholder: 'Wybierz typ faktury',
     allegroInvoiceHelper: 'Opcjonalna deklaracja faktury dla Allegro.',
+    allegroInvoiceVatMargin: 'Faktura VAT marża',
+    allegroInvoiceWithoutVat: 'Faktura bez VAT',
+    allegroInvoiceNone: 'Bez faktury',
     allegroHandlingTimeLabel: 'Czas wysyłki',
     allegroHandlingTimeHelper: 'Opcjonalny czas ISO 8601, np. PT24H albo P2D.',
     allegroNoOptionalValue: 'Nie ustawiono',

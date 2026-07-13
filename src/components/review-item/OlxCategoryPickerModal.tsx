@@ -3,6 +3,7 @@ import { ChevronRight, House, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
 import {
   getOlxCategoryPath,
   getOlxCategoryTree,
@@ -16,6 +17,7 @@ interface OlxCategoryPickerModalProps {
   selectedCategoryId: number | string | null;
   selectedCategoryPath?: string | null;
   countryCode?: string;
+  language?: string;
   onSelectCategory: (node: OlxCategoryNode) => void;
 }
 
@@ -53,8 +55,10 @@ export default function OlxCategoryPickerModal({
   selectedCategoryId,
   selectedCategoryPath,
   countryCode,
+  language = 'en',
   onSelectCategory,
 }: OlxCategoryPickerModalProps) {
+  const copy = reviewItemFormTranslations[language === 'pl' ? 'pl' : 'en'].categoryPicker;
   const [pathNodes, setPathNodes] = useState<OlxCategoryNode[]>([]);
   const [pendingLeaf, setPendingLeaf] = useState<OlxCategoryNode | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -173,11 +177,11 @@ export default function OlxCategoryPickerModal({
         }
 
         setSearchResults(payload.results || []);
-      } catch (err) {
+      } catch {
         if (controller.signal.aborted || latestSearchRequestId.current !== requestId) {
           return;
         }
-        setSearchError(err instanceof Error ? err.message : 'Failed to search OLX categories');
+      setSearchError(copy.searchFailed('OLX'));
       } finally {
         if (latestSearchRequestId.current === requestId) {
           setSearchLoading(false);
@@ -186,7 +190,7 @@ export default function OlxCategoryPickerModal({
     })();
 
     return () => controller.abort();
-  }, [open, isSearching, trimmedSearchQuery, countryCode]);
+  }, [open, isSearching, trimmedSearchQuery, countryCode, copy]);
 
   useEffect(() => {
     if (!open || isSearching) {
@@ -220,11 +224,11 @@ export default function OlxCategoryPickerModal({
           next.set(parentId, payload.results || []);
           return next;
         });
-      } catch (err) {
+      } catch {
         if (latestTreeRequestId.current !== requestId || controller.signal.aborted) {
           return;
         }
-        setError(err instanceof Error ? err.message : 'Failed to load OLX categories');
+      setError(copy.loadFailed('OLX'));
       } finally {
         if (latestTreeRequestId.current === requestId) {
           setLoadingParent(null);
@@ -233,7 +237,7 @@ export default function OlxCategoryPickerModal({
     })();
 
     return () => controller.abort();
-  }, [open, isSearching, currentParentId, treeByParent, countryCode]);
+  }, [open, isSearching, currentParentId, treeByParent, countryCode, copy]);
 
   const handleSelectNode = (node: OlxCategoryNode) => {
     const nodeWithPath = withPath(node, pathNodes);
@@ -285,7 +289,7 @@ export default function OlxCategoryPickerModal({
       <DialogContent className="w-[calc(100vw-1rem)] h-[calc(100dvh-1rem)] max-w-none border-neutral-800 bg-neutral-950 p-0 text-white overflow-hidden sm:rounded-xl sm:w-[clamp(560px,50vw,840px)] sm:max-w-[clamp(560px,50vw,840px)] sm:h-[clamp(520px,72dvh,820px)] grid grid-rows-[auto_1fr_auto] gap-0">
         <DialogHeader className="border-b border-neutral-800 px-5 py-3">
           <DialogTitle className="text-lg sm:text-xl font-semibold tracking-tight text-neutral-100">
-            Choose OLX category
+            {copy.choose('OLX')}
           </DialogTitle>
         </DialogHeader>
 
@@ -295,7 +299,7 @@ export default function OlxCategoryPickerModal({
             <Input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search"
+              placeholder={copy.search}
               className="border-neutral-700 bg-neutral-900 pl-12 text-neutral-100 placeholder:text-neutral-500"
             />
           </div>
@@ -304,8 +308,8 @@ export default function OlxCategoryPickerModal({
             <button
               type="button"
               onClick={clearToRoot}
-              title="All categories"
-              aria-label="All categories"
+              title={copy.allCategories}
+              aria-label={copy.allCategories}
               className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-neutral-700 bg-neutral-800/60 text-neutral-200 hover:bg-neutral-800 hover:text-white"
             >
               <House className="h-3.5 w-3.5" />
@@ -315,10 +319,10 @@ export default function OlxCategoryPickerModal({
                 key={`${node.category_id}-${index}`}
                 type="button"
                 onClick={() => handleJumpToPath(index)}
-                title={node.name || 'Category'}
+                title={node.name || copy.category}
                 className="inline-flex max-w-full min-w-0 items-center rounded-full border border-cyan-500/45 bg-cyan-500/10 px-3 py-1 text-xs text-cyan-100 hover:bg-cyan-500/20"
               >
-                <span className="truncate">{node.name || 'Category'}</span>
+                <span className="truncate">{node.name || copy.category}</span>
               </button>
             ))}
           </div>
@@ -326,7 +330,7 @@ export default function OlxCategoryPickerModal({
           <div className="flex-1 min-h-0">
             {showLoadingState && (
               <div className="rounded-md border border-neutral-800 bg-neutral-900/60 px-4 py-3 text-sm text-neutral-400">
-                Loading categories...
+                {copy.loading}
               </div>
             )}
 
@@ -369,7 +373,7 @@ export default function OlxCategoryPickerModal({
                             )}
                             {!hasChildren && isSelectedLeaf && (
                               <span className="shrink-0 text-xs font-medium text-cyan-100">
-                                Selected
+                                {copy.selected}
                               </span>
                             )}
                           </button>
@@ -378,7 +382,7 @@ export default function OlxCategoryPickerModal({
 
                       {!showLoadingState && currentNodes.length === 0 && (
                         <div className="rounded-md border border-neutral-800 bg-neutral-950/30 px-4 py-3 text-sm text-neutral-400">
-                          No categories found at this level.
+                          {copy.noCategories}
                         </div>
                       )}
                     </div>
@@ -386,7 +390,7 @@ export default function OlxCategoryPickerModal({
 
                   {hasShortSearchQuery && (
                     <div className="rounded-md border border-neutral-800 bg-neutral-950/30 px-3 py-2 text-sm text-neutral-400">
-                      Type at least 2 characters.
+                      {copy.typeAtLeastTwo}
                     </div>
                   )}
 
@@ -394,13 +398,13 @@ export default function OlxCategoryPickerModal({
                     <div className="space-y-2">
                       {searchLoading && (
                         <div className="rounded-md border border-neutral-800 bg-neutral-950/30 px-3 py-2 text-sm text-neutral-400">
-                          Searching...
+                          {copy.searching}
                         </div>
                       )}
 
                       {!searchLoading && searchResults.length === 0 && (
                         <div className="rounded-md border border-neutral-800 bg-neutral-950/30 px-3 py-2 text-sm text-neutral-400">
-                          No matches found.
+                          {copy.noSearchResults}
                         </div>
                       )}
 
@@ -426,18 +430,6 @@ export default function OlxCategoryPickerModal({
                                 {match.path}
                               </p>
                             </div>
-                            <div className="shrink-0 flex items-center gap-2 pt-0.5">
-                              {!isLeaf && (
-                                <span className="rounded-full border border-neutral-700 bg-neutral-900/60 px-2 py-0.5 text-[11px] text-neutral-300">
-                                  Branch
-                                </span>
-                              )}
-                              {isLeaf && (
-                                <span className="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-2 py-0.5 text-[11px] text-cyan-100">
-                                  Leaf
-                                </span>
-                              )}
-                            </div>
                           </button>
                         );
                       })}
@@ -454,7 +446,7 @@ export default function OlxCategoryPickerModal({
             {pendingLeaf?.category_id ? (
               <div className="rounded-md border border-cyan-500/25 bg-cyan-500/10 px-3 py-2">
                 <p className="text-sm font-medium text-cyan-50 whitespace-normal break-words">
-                  {pendingPathText || pendingLeaf.name || 'Selected category'}
+                  {pendingPathText || pendingLeaf.name || copy.selectedCategory}
                 </p>
               </div>
             ) : (
@@ -473,7 +465,7 @@ export default function OlxCategoryPickerModal({
             disabled={!pendingLeaf?.category_id}
             className="w-full bg-cyan-500 text-black hover:bg-cyan-400 disabled:bg-neutral-700 disabled:text-neutral-400 sm:w-auto"
           >
-            Use this category
+            {copy.useCategory}
           </Button>
         </div>
       </DialogContent>

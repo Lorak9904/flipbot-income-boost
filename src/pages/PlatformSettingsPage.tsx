@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { DollarSign, MapPin, Plus, RefreshCw, ShieldCheck } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
-import { getTranslations } from '@/components/language-utils';
+import { getCurrentLanguage, getLocalizedPathForCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { platformSettingsTranslations } from './platform-settings-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -502,9 +502,9 @@ const PlatformSettingsPage = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-950 text-white">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Invalid Platform</h1>
-          <BackButtonGhost onClick={() => navigate('/connect-accounts')}>
-            Back to Connected Accounts
+          <h1 className="text-2xl font-bold mb-4">{t.invalidPlatform}</h1>
+          <BackButtonGhost onClick={() => navigate(getLocalizedPathForCurrentLanguage('/connect-accounts'))}>
+            {t.backToConnectedAccounts}
           </BackButtonGhost>
         </div>
       </div>
@@ -1099,9 +1099,9 @@ const PlatformSettingsPage = () => {
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
       <SEOHead
-        title={`${platformName} Settings | FlipIt`}
-        description={`Configure ${platformName} settings for FlipIt.`}
-        canonicalUrl={`https://myflipit.live/platform-settings/${platform}`}
+        title={t.pageHeading(platformName)}
+        description={t.pageDescription.replace('{platform}', platformName)}
+        language={getCurrentLanguage()}
         robots="noindex, nofollow"
       />
       
@@ -1110,12 +1110,12 @@ const PlatformSettingsPage = () => {
       <section className="relative py-28 text-center">
         <div className="container mx-auto px-4">
           <BackButtonGhost
-            onClick={() => navigate('/connect-accounts')}
+            onClick={() => navigate(getLocalizedPathForCurrentLanguage('/connect-accounts'))}
           >
             {t.backToConnectedAccounts}
           </BackButtonGhost>
           <motion.h1 initial="hidden" animate="visible" variants={fadeUp} className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">
-            {platformName} <span className="text-cyan-400">{t.pageTitle}</span>
+            {t.pageHeading(platformName)}
           </motion.h1>
           <motion.p custom={2} initial="hidden" animate="visible" variants={fadeUp} className="mx-auto mt-4 max-w-xl text-neutral-300">
             {t.pageDescription.replace('{platform}', platformName)}
@@ -1320,9 +1320,9 @@ const PlatformSettingsPage = () => {
                     <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
                       <SelectItem value={ALLEGRO_NONE_VALUE}>{t.allegroNoOptionalValue}</SelectItem>
                       <SelectItem value="VAT">VAT</SelectItem>
-                      <SelectItem value="VAT_MARGIN">VAT Margin</SelectItem>
-                      <SelectItem value="WITHOUT_VAT">Without VAT</SelectItem>
-                      <SelectItem value="NO_INVOICE">No invoice</SelectItem>
+                      <SelectItem value="VAT_MARGIN">{t.allegroInvoiceVatMargin}</SelectItem>
+                      <SelectItem value="WITHOUT_VAT">{t.allegroInvoiceWithoutVat}</SelectItem>
+                      <SelectItem value="NO_INVOICE">{t.allegroInvoiceNone}</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-neutral-400">{t.allegroInvoiceHelper}</p>

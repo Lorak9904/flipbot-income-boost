@@ -1,4 +1,7 @@
-﻿import { Helmet } from 'react-helmet-async';
+import { useEffect, useMemo } from 'react';
+
+import { syncClientSeo } from '@/lib/client-seo';
+import { getLocalizedSeoUrls } from '@/lib/localized-routes';
 
 interface SEOProps {
   title?: string;
@@ -13,10 +16,12 @@ interface SEOProps {
   robots?: string;
 }
 
+const SITE_URL = 'https://myflipit.live';
+
 export function SEOHead({
   title = 'FlipIt - AI-Assisted Crosslisting for Faster Listings',
-  description = 'FlipIt turns your product photos into marketplace-ready listings with AI. Review, edit, and publish faster — always with your approval.',
-  canonicalUrl = 'https://myflipit.live',
+  description = 'FlipIt turns your product photos into marketplace-ready listings with AI. Review, edit, and publish faster - always with your approval.',
+  canonicalUrl = SITE_URL,
   alternateUrls = [],
   ogImage = '/placeholder.svg',
   type = 'website',
@@ -25,82 +30,66 @@ export function SEOHead({
   language = 'en',
   robots,
 }: SEOProps) {
+  const routeSeo = typeof window === 'undefined'
+    ? null
+    : getLocalizedSeoUrls(window.location.pathname, SITE_URL);
+  const resolvedCanonicalUrl = routeSeo?.canonicalUrl ?? canonicalUrl;
+  const resolvedAlternateUrls = routeSeo?.alternateUrls ?? alternateUrls;
+  const resolvedLanguage = routeSeo?.language ?? language;
+  const resolvedRobots = robots ?? (routeSeo && !routeSeo.indexable ? 'noindex, nofollow' : undefined);
   const siteTitle = title.includes('FlipIt') ? title : `${title} | FlipIt`;
   const keywordContent = Array.isArray(keywords)
     ? keywords.join(', ')
     : keywords ?? 'flipit, crosslisting, marketplace listing tool, AI listing generator, marketplace automation, OLX listing tool, Vinted listing tool, Facebook Marketplace listing tool, eBay listing tool, Allegro listing tool, Etsy listing tool, reseller tools, ecommerce automation';
 
-  const websiteStructuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'FlipIt',
+  const structuredDataList = useMemo(() => {
+    const websiteStructuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'FlipIt',
+      description,
+      url: SITE_URL,
+    };
+    const organizationStructuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'FlipIt',
+      url: SITE_URL,
+      logo: `${SITE_URL}/favicon.ico`,
+    };
+
+    return Array.isArray(structuredData)
+      ? [websiteStructuredData, organizationStructuredData, ...structuredData]
+      : structuredData
+        ? [websiteStructuredData, organizationStructuredData, structuredData]
+        : [websiteStructuredData, organizationStructuredData];
+  }, [description, structuredData]);
+
+  useEffect(() => {
+    syncClientSeo({
+      title: siteTitle,
+      description,
+      canonicalUrl: resolvedCanonicalUrl,
+      alternateUrls: resolvedAlternateUrls,
+      language: resolvedLanguage,
+      robots: resolvedRobots,
+      keywords: keywordContent,
+      type,
+      imageUrl: ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage}`,
+      structuredData: structuredDataList,
+    });
+  }, [
     description,
-    url: canonicalUrl,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${canonicalUrl}?q={search_term_string}`,
-      'query-input': 'required name=search_term_string'
-    }
-  };
+    keywordContent,
+    ogImage,
+    resolvedAlternateUrls,
+    resolvedCanonicalUrl,
+    resolvedLanguage,
+    resolvedRobots,
+    siteTitle,
+    structuredDataList,
+    type,
+  ]);
 
-  const organizationStructuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'FlipIt',
-    url: 'https://myflipit.live',
-    logo: 'https://myflipit.live/favicon.ico'
-  };
-
-  const structuredDataList = Array.isArray(structuredData)
-    ? [websiteStructuredData, organizationStructuredData, ...structuredData]
-    : structuredData
-      ? [websiteStructuredData, organizationStructuredData, structuredData]
-      : [websiteStructuredData, organizationStructuredData];
-
-  const locale = language === 'pl' ? 'pl_PL' : 'en_US';
-
-  return (
-    <Helmet htmlAttributes={{ lang: language }}>
-      {/* Primary Meta Tags */}
-      <title>{siteTitle}</title>
-      <meta name="title" content={siteTitle} />
-      <meta name="description" content={description} />
-
-      {/* Open Graph / Facebook */}
-      <meta property="og:type" content={type} />
-      <meta property="og:url" content={canonicalUrl} />
-      <meta property="og:title" content={siteTitle} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={ogImage} />
-      <meta property="og:site_name" content="FlipIt" />
-      <meta property="og:locale" content={locale} />
-
-      {/* Twitter */}
-      <meta property="twitter:card" content="summary_large_image" />
-      <meta property="twitter:url" content={canonicalUrl} />
-      <meta property="twitter:title" content={siteTitle} />
-      <meta property="twitter:description" content={description} />
-      <meta property="twitter:image" content={ogImage} />
-
-      {/* Additional SEO tags */}
-      <link rel="canonical" href={canonicalUrl} />
-      {alternateUrls.map((alternate) => (
-        <link
-          key={`${alternate.hrefLang}:${alternate.href}`}
-          rel="alternate"
-          hrefLang={alternate.hrefLang}
-          href={alternate.href}
-        />
-      ))}
-      <meta name="keywords" content={keywordContent} />
-      {robots && <meta name="robots" content={robots} />}
-
-      {/* Structured Data */}
-      {structuredDataList.map((data, index) => (
-        <script key={index} type="application/ld+json">
-          {JSON.stringify(data)}
-        </script>
-      ))}
-    </Helmet>
-  );
+  return null;
 }

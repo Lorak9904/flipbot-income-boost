@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { GeneratedItemDataWithVinted, Platform } from '@/types/item';
 import { Loader2 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
-import { getTranslations, getCurrentLanguage } from '@/components/language-utils';
+import { getTranslations, getCurrentLanguage, getLocalizedPathForCurrentLanguage } from '@/components/language-utils';
 import { addItemTranslations } from '@/utils/translations/add-item-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { fetchItemDetail } from '@/lib/api/items';
@@ -17,9 +17,16 @@ import {
 import type { ReviewItemFormMode } from '@/components/review-item-form-mode';
 import { getPublishedPlatforms, toReviewFormData } from '@/lib/items/review-form-adapter';
 import { ListingEditorCore } from '@/components/listing-editor/ListingEditorCore';
+import {
+  clearListingEditorDraft,
+  persistListingEditorDraft,
+  readListingEditorDraft,
+  type AddItemFormSnapshot,
+  type ReviewItemFormSnapshot,
+} from '@/lib/listing-editor-draft';
 
 const AddItemPage = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -27,6 +34,9 @@ const AddItemPage = () => {
   const t = getTranslations(addItemTranslations);
   const [step, setStep] = useState<'add' | 'review'>('add');
   const [generatedData, setGeneratedData] = useState<GeneratedItemDataWithVinted | null>(null);
+  const [addItemSnapshot, setAddItemSnapshot] = useState<AddItemFormSnapshot | undefined>();
+  const [reviewSnapshot, setReviewSnapshot] = useState<ReviewItemFormSnapshot | undefined>();
+  const [sessionDraftReady, setSessionDraftReady] = useState(false);
   const [isLoadingItem, setIsLoadingItem] = useState(false);
   const [editItemId, setEditItemId] = useState<string | null>(null);
   const [publishedPlatforms, setPublishedPlatforms] = useState<Platform[]>([]);
@@ -51,9 +61,31 @@ const AddItemPage = () => {
     ? (editorModeParam === 'republish' || publishPlatform ? 'republish' : 'edit')
     : 'add';
 
+  useEffect(() => {
+    if (isLoading || !isAuthenticated || !user?.id) {
+      return;
+    }
+
+    const savedDraft = readListingEditorDraft(user.id);
+    if (!editId && savedDraft?.kind === 'add') {
+      setAddItemSnapshot(savedDraft.data);
+    }
+    if (
+      savedDraft?.kind === 'review' &&
+      savedDraft.data.editItemId === (editId || undefined)
+    ) {
+      setGeneratedData(savedDraft.data.data);
+      setReviewSnapshot(savedDraft.data);
+      setEditItemId(savedDraft.data.editItemId || null);
+      setPublishedPlatforms(savedDraft.data.publishedPlatforms || []);
+      setStep('review');
+    }
+    setSessionDraftReady(true);
+  }, [editId, isAuthenticated, isLoading, user?.id]);
+
   const redirectToLoginWithReturn = useCallback(() => {
     const returnTo = `${window.location.pathname}${window.location.search}`;
-    navigate(`/login?returnTo=${encodeURIComponent(returnTo)}`, { replace: true });
+    navigate(`${getLocalizedPathForCurrentLanguage('/login')}?returnTo=${encodeURIComponent(returnTo)}`, { replace: true });
   }, [navigate]);
 
   useEffect(() => {
@@ -125,7 +157,14 @@ const AddItemPage = () => {
     !hasConnectedPlatform;
 
   useEffect(() => {
-    if (!isAuthenticated || !editId) {
+    if (!isAuthenticated || !editId || !sessionDraftReady) {
+      return;
+    }
+
+    if (reviewSnapshot?.editItemId === editId) {
+      setEditItemId(editId);
+      setPublishedPlatforms(reviewSnapshot.publishedPlatforms || []);
+      setStep('review');
       return;
     }
 
@@ -140,31 +179,52 @@ const AddItemPage = () => {
 
         setStep('review');
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load item for edit';
+        const errorMessage = error instanceof Error ? error.message : t.toast.loadError;
         toast({
-          title: 'Error',
+          title: t.toast.loadErrorTitle,
           description: errorMessage,
           variant: "destructive",
         });
-        navigate('/user/items');
+        navigate(getLocalizedPathForCurrentLanguage('/user/items'));
       } finally {
         setIsLoadingItem(false);
       }
     };
 
     loadEditItem();
-  }, [editId, isAuthenticated, navigate, toast]);
+  }, [
+    editId,
+    isAuthenticated,
+    navigate,
+    reviewSnapshot,
+    sessionDraftReady,
+    t.toast.loadError,
+    t.toast.loadErrorTitle,
+    toast,
+  ]);
   
   const handleComplete = (data: GeneratedItemDataWithVinted) => {
+    const nextReviewSnapshot: ReviewItemFormSnapshot = { data };
     setGeneratedData(data);
+    setReviewSnapshot(nextReviewSnapshot);
+    setAddItemSnapshot(undefined);
+    persistListingEditorDraft(user?.id, {
+      version: 1,
+      kind: 'review',
+      data: nextReviewSnapshot,
+    });
     setStep('review');
   };
   
   const handleBack = () => {
     if (editId) {
-      navigate(`/user/items/${editId}`);
+      clearListingEditorDraft(user?.id);
+      navigate(getLocalizedPathForCurrentLanguage(`/user/items/${editId}`));
       return;
     }
+    clearListingEditorDraft(user?.id);
+    setAddItemSnapshot(undefined);
+    setReviewSnapshot(undefined);
     setStep('add');
   };
   
@@ -172,9 +232,8 @@ const AddItemPage = () => {
     return (
       <div className="relative min-h-screen text-white overflow-hidden">
         <SEOHead
-          title="Add Item | FlipIt"
-          description="Add an item for marketplace automation - FlipIt generates descriptions, pricing, and categories, then crosslists to OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy."
-          canonicalUrl="https://myflipit.live/add-item"
+          title={`${t.pageTitle} | FlipIt`}
+          description={t.addCard.description}
           robots="noindex, nofollow"
         />
         <AnimatedGradientBackground />
@@ -209,6 +268,9 @@ const AddItemPage = () => {
       editItemId={editItemId || undefined}
       publishedPlatforms={publishedPlatforms}
       publishPlatform={publishPlatform || undefined}
+      addItemSnapshot={addItemSnapshot}
+      reviewSnapshot={reviewSnapshot}
+      shouldPersistDraft={sessionDraftReady}
     />
   );
 
@@ -217,7 +279,6 @@ const AddItemPage = () => {
       <SEOHead
         title={`${step === 'add' ? t.pageTitle : t.reviewTitle} | FlipIt`}
         description={step === 'add' ? t.addCard.description : t.reviewCard.description}
-        canonicalUrl="https://myflipit.live/add-item"
         robots="noindex, nofollow"
       />
       <AnimatedGradientBackground />

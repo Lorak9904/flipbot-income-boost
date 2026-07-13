@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { buildListingEditorUrl } from '@/lib/listing-editor/navigation';
+import { getLocalizedPathForCurrentLanguage } from '@/components/language-utils';
 
 /**
  * Legacy edit route adapter.
@@ -15,14 +16,14 @@ const EditItemPage = () => {
 
   useEffect(() => {
     if (!uuid) {
-      navigate('/user/items', { replace: true });
+      navigate(getLocalizedPathForCurrentLanguage('/user/items'), { replace: true });
       return;
     }
     navigate(
-      buildListingEditorUrl({
+      getLocalizedPathForCurrentLanguage(buildListingEditorUrl({
         mode: 'edit',
         itemId: uuid,
-      }),
+      })),
       { replace: true }
     );
   }, [navigate, uuid]);

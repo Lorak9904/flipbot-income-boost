@@ -1,0 +1,41 @@
+{
+  "cleanUrls": true,
+  "directoryListing": false,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/login", "destination": "/app.html" },
+    { "source": "/pl/logowanie", "destination": "/app.html" },
+    { "source": "/forgot-password", "destination": "/app.html" },
+    { "source": "/pl/odzyskaj-haslo", "destination": "/app.html" },
+    { "source": "/reset-password", "destination": "/app.html" },
+    { "source": "/pl/ustaw-nowe-haslo", "destination": "/app.html" },
+    { "source": "/connect-accounts", "destination": "/app.html" },
+    { "source": "/pl/polacz-konta", "destination": "/app.html" },
+    { "source": "/add-item", "destination": "/app.html" },
+    { "source": "/pl/dodaj-ogloszenie", "destination": "/app.html" },
+    { "source": "/user/items", "destination": "/app.html" },
+    { "source": "/user/items/**", "destination": "/app.html" },
+    { "source": "/pl/moje-ogloszenia", "destination": "/app.html" },
+    { "source": "/pl/moje-ogloszenia/**", "destination": "/app.html" },
+    { "source": "/user/statistics", "destination": "/app.html" },
+    { "source": "/pl/statystyki", "destination": "/app.html" },
+    { "source": "/settings", "destination": "/app.html" },
+    { "source": "/pl/ustawienia", "destination": "/app.html" },
+    { "source": "/platform-settings/**", "destination": "/app.html" },
+    { "source": "/pl/ustawienia-platformy/**", "destination": "/app.html" }
+  ],
+  "headers": [
+    {
+      "source": "/assets/**",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/**/*.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache" }
+      ]
+    }
+  ]
+}

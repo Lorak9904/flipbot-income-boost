@@ -1,13 +1,13 @@
 export const addItemTranslations = {
   en: {
     // SEO & Meta
-    pageTitle: "Add New Item",
-    reviewTitle: "Review Your Item",
+    pageTitle: "Add listing",
+    reviewTitle: "Review listing",
     
     // Step: Add
     addCard: {
-      title: "Upload Item",
-      description: "Start by adding images and basic information about your item",
+      title: "Photos and basic information",
+      description: "Add photos and a few details to prepare your listing",
     },
 
     platformConnectionNotice: {
@@ -18,8 +18,8 @@ export const addItemTranslations = {
     
     // Step: Review
     reviewCard: {
-      title: "Review and Publish",
-      description: "Review your item details before publishing to your selected platforms",
+      title: "Review and publish",
+      description: "Check the listing details and platform requirements before publishing",
     },
     
     // Loading States
@@ -42,6 +42,8 @@ export const addItemTranslations = {
       uploadSuccess: "Item uploaded successfully!",
       uploadError: "Failed to upload item. Please try again.",
       sessionError: "Your session has expired. Please log in again.",
+      loadErrorTitle: "Could not load listing",
+      loadError: "We couldn't load this listing for editing. Please try again.",
     },
     
     // Form placeholders and labels (if needed)
@@ -55,13 +57,13 @@ export const addItemTranslations = {
   
   pl: {
     // SEO & Meta
-    pageTitle: "Dodaj nowy przedmiot",
-    reviewTitle: "Sprawdź przedmiot",
+    pageTitle: "Dodaj ogłoszenie",
+    reviewTitle: "Sprawdź ogłoszenie",
     
     // Krok: Dodawanie
     addCard: {
-      title: "Dodaj przedmiot",
-      description: "Zacznij od dodania zdjęć i podstawowych informacji o przedmiocie",
+      title: "Zdjęcia i podstawowe informacje",
+      description: "Dodaj zdjęcia i kilka informacji, aby przygotować ogłoszenie",
     },
 
     platformConnectionNotice: {
@@ -73,7 +75,7 @@ export const addItemTranslations = {
     // Krok: Przegląd
     reviewCard: {
       title: "Sprawdź i opublikuj",
-      description: "Przejrzyj szczegóły przedmiotu przed publikacją na wybranych platformach",
+      description: "Sprawdź dane ogłoszenia i wymagania platform przed publikacją",
     },
     
     // Stany ładowania
@@ -96,6 +98,8 @@ export const addItemTranslations = {
       uploadSuccess: "Przedmiot został przesłany.",
       uploadError: "Nie udało się przesłać przedmiotu. Spróbuj ponownie.",
       sessionError: "Twoja sesja wygasła. Zaloguj się ponownie.",
+      loadErrorTitle: "Nie udało się wczytać ogłoszenia",
+      loadError: "Nie udało się wczytać tego ogłoszenia do edycji. Spróbuj ponownie.",
     },
     
     // Formularz - placeholdery i etykiety

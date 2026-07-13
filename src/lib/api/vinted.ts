@@ -135,20 +135,29 @@ export async function getVintedCategories(options?: {
 }
 
 export async function getVintedCategoryAttributes(
-  catalogId: string | number
+  catalogId: string | number,
+  language?: string
 ): Promise<MarketplaceAttributeState> {
   const token = localStorage.getItem('flipit_token');
   if (!token) {
     throw new Error('No authentication token found');
   }
 
-  const response = await fetch(`${API_BASE}/vinted/categories/${catalogId}/attributes/`, {
+  const params = new URLSearchParams();
+  if (language) {
+    params.set('lang', language);
+  }
+
+  const response = await fetch(
+    `${API_BASE}/vinted/categories/${catalogId}/attributes/${params.size ? `?${params.toString()}` : ''}`,
+    {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-  });
+    }
+  );
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
@@ -158,6 +167,11 @@ export async function getVintedCategoryAttributes(
   }
 
   const data = (await response.json()) as VintedCategoryAttributesResponse;
+  const requirementErrors = Object.values(data.errors || {}).filter(Boolean);
+  if (requirementErrors.length > 0) {
+    throw new Error('Vinted requirements could not be verified');
+  }
+
   return data.marketplace_attributes?.vinted || {
     platform: 'vinted',
     category_id: data.catalog_id,

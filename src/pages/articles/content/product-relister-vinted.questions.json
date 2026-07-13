@@ -1,0 +1,152 @@
+{
+  "en": {
+    "sections": [
+      {
+        "heading": "Can you move a listing from eBay, OLX, or Facebook Marketplace to Vinted?",
+        "bodyParagraphs": [
+          "Yes, but treat it as a new Vinted draft rather than a blind copy. Reuse facts you already know about the item, then match them to Vinted's category, brand, condition, size, color, price, and parcel fields.",
+          "Marketplace data is not interchangeable. An eBay condition code, an OLX category, or a Facebook description may mean something different on Vinted, so each destination draft needs a final check before publication."
+        ]
+      },
+      {
+        "heading": "What information do you need before listing an item on Vinted?",
+        "bodyParagraphs": [
+          "Start with your own clear photos, a factual title and description, the correct category, brand or no-brand choice, true condition, price, and parcel size. Depending on the category, Vinted may also require a clothing or shoe size, color, material, model, storage capacity, or another product-specific detail.",
+          "If a required value is unknown, stop and ask for it. A guessed shoe size, device capacity, brand, or condition can mislead a buyer and may cause the listing to be rejected or removed."
+        ]
+      },
+      {
+        "heading": "Can you bulk upload listings to Vinted?",
+        "bodyParagraphs": [
+          "Vinted's current help and catalog rules describe adding each item separately and keeping one listing per item. A batch workflow can still prepare many drafts, find missing information, and queue approved work, but it should not skip item-by-item review or create identical active listings.",
+          "For a larger transfer, the practical flow is: import the source listings, prepare Vinted-specific fields, review the exceptions, then publish only the drafts that are complete."
+        ]
+      },
+      {
+        "heading": "How do you avoid duplicate listings while cross-listing?",
+        "bodyParagraphs": [
+          "Keep one FlipIt record for each physical item and attach its marketplace links to that record. Compare photos and remote listing IDs, not only titles and prices, before merging possible duplicates.",
+          "When an item sells, use the stored marketplace status to identify the other active offers that need attention. On Vinted, identical active listings for the same item are not allowed."
+        ]
+      },
+      {
+        "heading": "Can you use the same photos and description on every marketplace?",
+        "bodyParagraphs": [
+          "You can reuse the same source facts, but the final listing should fit the destination. Vinted expects clear photos of the actual item, visible flaws, the correct color and size, and a description that does not promote another selling platform.",
+          "Keep the original photos available and adapt the title, description, category, price, and required attributes where the marketplaces differ."
+        ]
+      },
+      {
+        "heading": "What should you check before publishing?",
+        "bodyParagraphs": [
+          "Confirm the destination category, every required field, the selected brand, condition, size, color, parcel size, price, and the photos that will actually be uploaded. A marketplace should show as ready only after its own requirements have been verified.",
+          "That final review is where a relisting tool earns trust: it should make missing information obvious, not hide it behind a generic success message."
+        ]
+      }
+    ],
+    "faq": [
+      {
+        "q": "Can I cross-list an eBay item to Vinted?",
+        "a": "Yes. Reuse the product facts and original photos, then choose the matching Vinted category and complete Vinted's required fields. Do not copy eBay-specific condition codes, item specifics, or shipping settings without checking them."
+      },
+      {
+        "q": "Can I move OLX listings to Vinted?",
+        "a": "You can prepare Vinted drafts from OLX listings. Category paths and required details differ, so review each draft's brand, condition, size, color, price, and parcel size before publishing."
+      },
+      {
+        "q": "How should a cross-listing tool handle possible duplicates?",
+        "a": "It should compare listing identity, marketplace IDs, and image similarity, show the evidence to the seller, and merge only after confirmation. Similar titles alone are not enough."
+      },
+      {
+        "q": "What happens if a marketplace requires a field the source listing does not have?",
+        "a": "The destination draft should stay incomplete and show the missing field. The tool may suggest values that are supported by the photos or existing data, but it should not guess facts such as size, brand, storage capacity, or item condition."
+      }
+    ],
+    "sourcesTitle": "Current Vinted guidance used for this article",
+    "sources": [
+      {
+        "text": "Vinted: uploading an item step by step",
+        "href": "https://www.vinted.com/help/313/375-uploading-an-item-step-by-step"
+      },
+      {
+        "text": "Vinted catalog rules",
+        "href": "https://www.vinted.com/catalog-rules"
+      }
+    ]
+  },
+  "pl": {
+    "sections": [
+      {
+        "heading": "Czy można przenieść ogłoszenie z OLX, eBay lub Facebook Marketplace na Vinted?",
+        "bodyParagraphs": [
+          "Tak, ale potraktuj je jak nowy szkic Vinted, a nie kopię jeden do jednego. Wykorzystaj pewne informacje o przedmiocie, a następnie dopasuj kategorię, markę, stan, rozmiar, kolor, cenę i wielkość paczki wymagane na Vinted.",
+          "Dane platform nie są zamienne. Stan przedmiotu z eBay, kategoria OLX albo opis z Facebook Marketplace mogą nie pasować do formularza Vinted, dlatego przed publikacją trzeba sprawdzić każdą ofertę."
+        ]
+      },
+      {
+        "heading": "Jakie dane trzeba przygotować przed wystawieniem przedmiotu na Vinted?",
+        "bodyParagraphs": [
+          "Potrzebujesz własnych, wyraźnych zdjęć, konkretnego tytułu i opisu, właściwej kategorii, marki lub opcji bez marki, prawdziwego stanu, ceny i wielkości paczki. Zależnie od kategorii Vinted może też wymagać rozmiaru, koloru, materiału, modelu, pamięci urządzenia albo innej cechy produktu.",
+          "Jeśli nie znasz wymaganej wartości, zatrzymaj publikację i uzupełnij ją ręcznie. Zgadywanie rozmiaru butów, pojemności telefonu, marki czy stanu może wprowadzić kupującego w błąd i skończyć się odrzuceniem oferty."
+        ]
+      },
+      {
+        "heading": "Czy na Vinted można wystawiać wiele ogłoszeń naraz?",
+        "bodyParagraphs": [
+          "Aktualna pomoc i zasady katalogu Vinted opisują dodawanie każdego przedmiotu osobno oraz jedno ogłoszenie dla jednego przedmiotu. Przy większej liczbie ofert można przygotować serię szkiców, wykryć brakujące dane i ustawić kolejkę zatwierdzonych ofert, ale nie należy pomijać kontroli każdej z nich ani tworzyć identycznych aktywnych ogłoszeń.",
+          "Przy większym przenoszeniu najlepiej działa prosty proces: import ofert źródłowych, przygotowanie pól Vinted, sprawdzenie wyjątków i publikacja tylko kompletnych szkiców."
+        ]
+      },
+      {
+        "heading": "Jak uniknąć duplikatów podczas crosslistingu?",
+        "bodyParagraphs": [
+          "Dla każdego fizycznego przedmiotu trzymaj jeden rekord w FlipIt i przypinaj do niego odnośniki do ofert na poszczególnych platformach. Przy sprawdzaniu duplikatów porównuj zdjęcia i identyfikatory ofert, a nie tylko tytuł i cenę.",
+          "Po sprzedaży łatwiej wtedy ustalić, które pozostałe oferty nadal wymagają reakcji. Vinted nie zezwala na kilka identycznych, aktywnych ogłoszeń tego samego przedmiotu."
+        ]
+      },
+      {
+        "heading": "Czy na każdej platformie można użyć tych samych zdjęć i opisu?",
+        "bodyParagraphs": [
+          "Możesz wykorzystać te same pewne informacje o produkcie, ale gotowa oferta powinna pasować do miejsca publikacji. Vinted wymaga wyraźnych zdjęć rzeczywistego przedmiotu, pokazania wad, właściwego koloru i rozmiaru oraz opisu, który nie promuje innej platformy sprzedażowej.",
+          "Zachowaj oryginalne zdjęcia, a tytuł, opis, kategorię, cenę i wymagane pola dopasuj tam, gdzie formularze platform się różnią."
+        ]
+      },
+      {
+        "heading": "Co sprawdzić tuż przed publikacją?",
+        "bodyParagraphs": [
+          "Sprawdź kategorię docelową, wszystkie wymagane pola, markę, stan, rozmiar, kolor, wielkość paczki, cenę oraz zdjęcia, które rzeczywiście zostaną wysłane. Platforma powinna mieć status gotowości dopiero wtedy, gdy jej własne wymagania zostały potwierdzone.",
+          "Właśnie na tym etapie narzędzie do wystawiania powinno pomagać najbardziej: jasno pokazać braki zamiast ukrywać je pod ogólnym komunikatem o gotowości."
+        ]
+      }
+    ],
+    "faq": [
+      {
+        "q": "Czy można przenieść ofertę z eBay na Vinted?",
+        "a": "Tak. Wykorzystaj pewne dane produktu i oryginalne zdjęcia, a następnie wybierz kategorię Vinted i uzupełnij wymagane pola. Nie kopiuj bez sprawdzenia kodów stanu, parametrów i ustawień wysyłki z eBay."
+      },
+      {
+        "q": "Czy można przenieść ogłoszenia z OLX na Vinted?",
+        "a": "Na podstawie ofert OLX można przygotować szkice Vinted. Kategorie i wymagane dane różnią się, dlatego przed publikacją sprawdź markę, stan, rozmiar, kolor, cenę i wielkość paczki."
+      },
+      {
+        "q": "Jak narzędzie do crosslistingu powinno wykrywać duplikaty?",
+        "a": "Powinno porównywać tożsamość oferty, identyfikatory na platformach i podobieństwo zdjęć, pokazać użytkownikowi dowody i scalać dopiero po potwierdzeniu. Sam podobny tytuł nie wystarczy."
+      },
+      {
+        "q": "Co zrobić, gdy platforma wymaga danych, których nie ma w ogłoszeniu źródłowym?",
+        "a": "Szkic docelowy powinien pozostać niekompletny i wyraźnie pokazać brakujące pole. Można podpowiadać wartości potwierdzone przez zdjęcia lub zapisane dane, ale nie należy zgadywać rozmiaru, marki, pojemności urządzenia ani stanu."
+      }
+    ],
+    "sourcesTitle": "Aktualne zasady Vinted wykorzystane w poradniku",
+    "sources": [
+      {
+        "text": "Vinted: zasady katalogu",
+        "href": "https://www.vinted.pl/catalog-rules"
+      },
+      {
+        "text": "Vinted: dlaczego ogłoszenie zostało ukryte lub usunięte",
+        "href": "https://www.vinted.pl/help/62-dlaczego-ogloszenie-zostalo-ukryte-lub-usuniete"
+      }
+    ]
+  }
+}

@@ -1,5 +1,6 @@
 import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '@/components/language-utils';
 import { SeoArticleLayout } from '@/components/seo/SeoArticleLayout';
+import { getRoutePath } from '@/lib/localized-routes';
 import { vintedRelistingToolTranslations } from './translations/vinted-relisting-tool.translations';
 
 const keywords = [
@@ -17,10 +18,7 @@ const keywords = [
 const VintedRelistingToolArticle = () => {
   const t = getTranslations(vintedRelistingToolTranslations);
   const language = getCurrentLanguage();
-  const canonicalUrl =
-    language === 'pl'
-      ? 'https://myflipit.live/articles/odswiezanie-ogloszen-vinted'
-      : 'https://myflipit.live/articles/vinted-relisting-tool';
+  const canonicalUrl = `https://myflipit.live${getRoutePath('vintedRelisting', language)}`;
   
   const articleStructuredData = {
     '@context': 'https://schema.org',
@@ -45,7 +43,7 @@ const VintedRelistingToolArticle = () => {
       '@id': canonicalUrl,
     },
     datePublished: '2026-01-06',
-    dateModified: '2026-02-01',
+    dateModified: '2026-07-13',
     keywords,
   };
 
@@ -82,17 +80,32 @@ const VintedRelistingToolArticle = () => {
   const relatedLinks = [
     { text: t.relatedLink1, href: getLocalizedPathForLanguage('/articles/cross-list-vinted-to-facebook-marketplace', language) },
     { text: t.relatedLink2, href: getLocalizedPathForLanguage('/articles/product-relister-for-vinted', language) },
-    { text: t.relatedLink3, href: '/automated-reselling-platform-guide' },
+    { text: t.relatedLink3, href: getLocalizedPathForLanguage('/automated-reselling-platform-guide', language) },
   ];
+  const sourceLinks = language === 'pl'
+    ? [
+        { text: 'Vinted: zasady katalogu', href: 'https://www.vinted.pl/catalog-rules' },
+        {
+          text: 'Vinted: dlaczego ogłoszenie zostało ukryte lub usunięte',
+          href: 'https://www.vinted.pl/help/62-dlaczego-ogloszenie-zostalo-ukryte-lub-usuniete',
+        },
+      ]
+    : [
+        { text: 'Vinted catalog rules', href: 'https://www.vinted.com/catalog-rules' },
+        {
+          text: 'Vinted: hiding, editing, or deleting listings',
+          href: 'https://www.vinted.com/help/4/60-hiding-editing-or-deleting-listings',
+        },
+      ];
 
   const cta = {
     title: t.ctaTitle,
     description: t.ctaDescription,
     buttonText: t.ctaButtonText,
-    buttonLink: '/get-started',
+    buttonLink: getLocalizedPathForLanguage('/get-started', language),
     footerText: t.ctaFooterText,
     footerLinkText: t.ctaFooterLinkText,
-    footerLinkHref: '/login',
+    footerLinkHref: getLocalizedPathForLanguage('/login', language),
   };
 
   const highlights = [t.highlight1, t.highlight2, t.highlight3];
@@ -116,6 +129,8 @@ const VintedRelistingToolArticle = () => {
       cta={cta}
       relatedLinks={relatedLinks}
       relatedLinksTitle={t.relatedLinksTitle}
+      sourceLinks={sourceLinks}
+      sourceLinksTitle={language === 'pl' ? 'Aktualne zasady Vinted' : 'Current Vinted guidance'}
     />
   );
 };

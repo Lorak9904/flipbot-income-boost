@@ -8,6 +8,7 @@ import {
   CHECKOUT_CURRENCY_STORAGE_KEY,
   normalizeBillingCurrency,
 } from "@/lib/billing-pricing";
+import { getCurrentLanguage, getLocalizedPathForLanguage } from "./language-utils";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -49,9 +50,14 @@ export default function LoginWithGmail() {
               sessionStorage.getItem(CHECKOUT_CURRENCY_STORAGE_KEY)
             ) || 'pln';
             if (checkoutPlan) {
-              navigate(`/pricing?checkout=1&plan=${checkoutPlan}&billing=${checkoutBilling}&currency=${checkoutCurrency}`);
+              navigate(
+                getLocalizedPathForLanguage(
+                  `/pricing?checkout=1&plan=${checkoutPlan}&billing=${checkoutBilling}&currency=${checkoutCurrency}`,
+                  getCurrentLanguage(),
+                ),
+              );
             } else {
-              navigate("/");
+              navigate(getLocalizedPathForLanguage('/', getCurrentLanguage()));
             }
             window.location.reload();
           } catch (err) {

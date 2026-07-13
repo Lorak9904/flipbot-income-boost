@@ -23,7 +23,7 @@ const Footer = () => {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Logo & tagline */}
           <div>
-            <Link to="/" className="mb-4 flex items-center gap-2" aria-label="FlipIt">
+            <Link to={getLocalized('/')} className="mb-4 flex items-center gap-2" aria-label="FlipIt">
               <div
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 font-bold"
                 aria-hidden="true"
@@ -45,8 +45,13 @@ const Footer = () => {
             <h4 className="mb-4 text-sm font-semibold text-neutral-100">{t.productTitle}</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/automated-reselling-platform-guide" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <Link to={getLocalized('/automated-reselling-platform-guide')} className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.automatedResellingGuide}
+                </Link>
+              </li>
+              <li>
+                <Link to={getLocalized('/price-checker')} className="text-neutral-300 transition-colors hover:text-cyan-400">
+                  {t.priceChecker}
                 </Link>
               </li>
               {/* <li>
@@ -55,12 +60,12 @@ const Footer = () => {
                 </Link>
               </li> */}
               <li>
-                <Link to="/how-it-works" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <Link to={getLocalized('/how-it-works')} className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.howItWorks}
                 </Link>
               </li>
               <li>
-                <Link to="/success-stories" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <Link to={getLocalized('/success-stories')} className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.successStories}
                 </Link>
               </li>
@@ -72,7 +77,7 @@ const Footer = () => {
             <h4 className="mb-4 text-sm font-semibold text-neutral-100">{t.tutorialsTitle}</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/articles" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <Link to={getLocalized('/articles')} className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.tutorials}
                 </Link>
               </li>
@@ -109,7 +114,7 @@ const Footer = () => {
             <h4 className="mb-4 text-sm font-semibold text-neutral-100">{t.supportTitle}</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/faq" className="text-neutral-300 transition-colors hover:text-cyan-400">
+                <Link to={getLocalized('/faq')} className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.faq}
                 </Link>
               </li>

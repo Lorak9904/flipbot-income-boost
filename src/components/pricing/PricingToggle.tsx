@@ -47,7 +47,7 @@ export const PricingToggle = ({
         </div>
       </div>
       <span className="text-xs text-green-400 font-medium">
-        💰 {savingsLabel} with annual billing
+        {savingsLabel}
       </span>
     </div>
   );

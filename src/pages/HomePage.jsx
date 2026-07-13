@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { HeroCTA, SecondaryActionWithArrow } from '@/components/ui/button-presets';
 import { SEOHead } from '@/components/SEOHead';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Users, Zap, BadgeCheck, UploadCloud, Store, Send } from 'lucide-react';
 import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '../components/language-utils';
 import { homePageTranslations } from './homepage-translations';
 import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
+import { getSeoMetadata } from '@/lib/seo-metadata';
 
 // Simple fade-up animation variant
 const fadeUp = {
@@ -24,6 +26,15 @@ const platformTone = {
 };
 
 const PREVIEW_ROTATION_MS = 4500;
+const HERO_PREVIEW_IMAGE_SIZES = '(min-width: 640px) 26rem, calc(100vw - 3rem)';
+
+const getIdlePreloadImageSrc = (listing) => {
+  if (window.devicePixelRatio > 1.25) {
+    return listing.imageHighDensityPreloadSrc ?? listing.imagePreloadSrc ?? listing.imageSrc;
+  }
+
+  return listing.imagePreloadSrc ?? listing.imageSrc;
+};
 
 function HeroListingPreview({ t }) {
   const listings = t.previewListings ?? [];
@@ -41,6 +52,30 @@ function HeroListingPreview({ t }) {
 
     return () => window.clearInterval(intervalId);
   }, [activeIndex, listings.length]);
+
+  useEffect(() => {
+    if (listings.length <= 1) {
+      return undefined;
+    }
+
+    const preloadRemainingImages = () => {
+      listings.slice(1).forEach((listing) => {
+        const image = new Image();
+        image.decoding = 'async';
+        image.src = getIdlePreloadImageSrc(listing);
+      });
+    };
+
+    if ('requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(preloadRemainingImages, { timeout: 2500 });
+
+      return () => window.cancelIdleCallback?.(idleId);
+    }
+
+    const timeoutId = window.setTimeout(preloadRemainingImages, 1200);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [listings]);
 
   if (!activeListing) {
     return null;
@@ -76,11 +111,14 @@ function HeroListingPreview({ t }) {
             <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-neutral-950">
               <img
                 src={activeListing.imageSrc}
+                srcSet={activeListing.imageSrcSet}
+                sizes={HERO_PREVIEW_IMAGE_SIZES}
                 alt={activeListing.imageAlt}
                 width="1200"
                 height="900"
                 loading="eager"
                 decoding="async"
+                fetchpriority="high"
                 className="h-full w-full object-cover"
               />
               <div className="absolute bottom-2 left-2 rounded-full bg-neutral-950/85 px-2.5 py-1 text-[11px] font-medium text-neutral-200 ring-1 ring-white/10">
@@ -159,11 +197,6 @@ function HeroListingPreview({ t }) {
         </div>
       )}
 
-      <div className="hidden" aria-hidden="true">
-        {listings.slice(1).map((listing) => (
-          <img key={listing.id} src={listing.imageSrc} alt="" width="1200" height="900" loading="lazy" />
-        ))}
-      </div>
     </div>
   );
 }
@@ -171,9 +204,12 @@ function HeroListingPreview({ t }) {
 const HomePage = () => {
   const t = getTranslations(homePageTranslations);
   const language = getCurrentLanguage();
+  const firstPreviewListing = t.previewListings?.[0];
+  const localized = (path) => getLocalizedPathForLanguage(path, language);
   const olxHubPath = getLocalizedPathForLanguage('/articles/olx-listing-automation-by-country', language);
-  const pageTitle = 'AI Crosslisting for OLX, Vinted, Facebook Marketplace, eBay, Allegro & Etsy | myflipit.live';
-  const pageDescription = 'FlipIt helps you create marketplace listings faster: upload photos once, get AI-generated drafts (description, pricing suggestions, categories, attributes), then review and publish with your approval.';
+  const seo = getSeoMetadata('home', language);
+  const pageTitle = seo?.title ?? t.pageTitle;
+  const pageDescription = seo?.description ?? t.pageDescription;
   const keywords = [
     'automated reselling platform',
     'AI crosslisting',
@@ -222,6 +258,18 @@ const HomePage = () => {
         structuredData={structuredData}
         language={language}
       />
+      {firstPreviewListing?.imageSrc && (
+        <Helmet>
+          <link
+            rel="preload"
+            as="image"
+            href={firstPreviewListing.imagePreloadSrc ?? firstPreviewListing.imageSrc}
+            type="image/webp"
+            imageSrcSet={firstPreviewListing.imageSrcSet}
+            imageSizes={HERO_PREVIEW_IMAGE_SIZES}
+          />
+        </Helmet>
+      )}
       {/* Unified Animated Gradient Background */}
       <div className="fixed inset-0 -z-20">
         {/* Base dark background */}
@@ -333,16 +381,16 @@ const HomePage = () => {
               </span>
               <h1 className="my-custom-font hero-title font-extrabold tracking-tight leading-tight mb-8 max-w-5xl mx-auto lg:mx-0">
                 {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight1}</span> {t.heroTitleEnd}&nbsp;
-                <span className="bg-gradient-to-r from-fuchsia-400 to-cyan-400 inline-block text-transparent bg-clip-text">{t.heroTitleHighlight2}</span>.
+                <span className="bg-gradient-to-r from-fuchsia-400 to-cyan-400 inline-block text-transparent bg-clip-text">{t.heroTitleHighlight2}.</span>
               </h1>
               <p className="max-w-2xl text-lg/relaxed text-neutral-300 mx-auto lg:mx-0 mb-8">
                 {t.heroDescription}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <HeroCTA asChild>
-                  <Link to="/get-started">{t.startFlipping}</Link>
+                  <Link to={localized('/get-started')}>{t.startFlipping}</Link>
                 </HeroCTA>
-                <Link to="/how-it-works">
+                <Link to={localized('/how-it-works')}>
                   <SecondaryActionWithArrow>
                     {t.seeHowItWorks}
                   </SecondaryActionWithArrow>
@@ -497,8 +545,8 @@ const HomePage = () => {
             eyebrow={t.ctaEyebrow}
             title={t.ctaTitle}
             description={t.ctaDescription}
-            primaryAction={{ text: t.ctaButton, href: '/get-started' }}
-            secondaryAction={{ text: t.ctaSecondaryButton, href: '/how-it-works' }}
+            primaryAction={{ text: t.ctaButton, href: localized('/get-started') }}
+            secondaryAction={{ text: t.ctaSecondaryButton, href: localized('/how-it-works') }}
             proofPoints={[t.ctaProof1, t.ctaProof2, t.ctaProof3]}
             footer={t.ctaFooter}
             maxWidthClassName="max-w-4xl"

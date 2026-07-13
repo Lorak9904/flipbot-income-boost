@@ -1,10 +1,11 @@
 ﻿import { Plug, Upload, Repeat } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { motion } from 'framer-motion';
-import { getTranslations, getCurrentLanguage } from '../components/language-utils';
+import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '../components/language-utils';
 import { howItWorksTranslations } from './howitworks-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
+import { getSeoMetadata } from '@/lib/seo-metadata';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -19,8 +20,10 @@ const iconMap = [Plug, Upload, Repeat]; // keep icons aligned with steps order
 
   const HowItWorksPage = () => {
   const t = getTranslations(howItWorksTranslations);
-  const pageTitle = 'How AI Crosslisting Works (OLX, Vinted, Facebook Marketplace, eBay, Allegro, Etsy)';
-  const pageDescription = 'See how FlipIt turns one photo into marketplace-ready listing drafts for OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy — then publishes with your approval and tracks results per platform.';
+  const language = getCurrentLanguage();
+  const seo = getSeoMetadata('howItWorks', language);
+  const pageTitle = seo?.title ?? t.pageTitle;
+  const pageDescription = seo?.description ?? t.pageDescription;
   const keywords = [
     'automated reselling platform',
     'marketplace automation',
@@ -65,7 +68,7 @@ const iconMap = [Plug, Upload, Repeat]; // keep icons aligned with steps order
         canonicalUrl="https://myflipit.live/how-it-works"
         keywords={keywords}
         structuredData={structuredData}
-        language={getCurrentLanguage()}
+        language={language}
       />
       <AnimatedGradientBackground />
 
@@ -131,7 +134,7 @@ const iconMap = [Plug, Upload, Repeat]; // keep icons aligned with steps order
           >
             <MarketingCtaBanner
               title={t.ctaTitle}
-              primaryAction={{ text: t.ctaButton, href: '/get-started' }}
+              primaryAction={{ text: t.ctaButton, href: getLocalizedPathForLanguage('/get-started', language) }}
             />
           </motion.div>
         </div>

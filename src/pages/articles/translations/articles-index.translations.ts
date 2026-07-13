@@ -16,16 +16,16 @@ export const articlesIndexTranslations: Translations = {
     readMore: 'Read more →',
     
     article1Title: 'Vinted Relisting Tool',
-    article1Description: 'Learn how to refresh your Vinted listings to boost visibility and sell items faster. Automate the relisting process with FlipIt.',
+    article1Description: 'Review an older Vinted listing, prepare a clearer draft, and avoid publishing an identical active listing.',
     article1Badge: 'Popular',
     
     article2Title: 'Cross List Vinted to Facebook Marketplace',
-    article2Description: 'Expand your reach by crosslisting from Vinted to Facebook Marketplace. Reach millions more buyers with a single workflow.',
+    article2Description: 'Adapt a Vinted item for Facebook Marketplace while checking the destination copy, category, price, and photos.',
     article2Badge: 'Crosslisting',
     
     article3Title: 'Product Relister for Vinted',
-    article3Description: 'Manage the full lifecycle of your Vinted listings — from first post to final sale. Post, refresh, relist, and crosslist efficiently.',
-    article3Badge: 'Lifecycle',
+    article3Description: 'Prepare a Vinted draft from existing photos or another marketplace, then complete Vinted-specific requirements before publishing.',
+    article3Badge: 'Preparation',
 
     article4Title: 'How to Sell on Allegro',
     article4Description: 'A step-by-step Allegro selling guide for power sellers: setup, offer creation, pricing, and automation.',
@@ -46,6 +46,9 @@ export const articlesIndexTranslations: Translations = {
     article8Title: 'Etsy Listing Tool',
     article8Description: 'Prepare Etsy-ready drafts from product photos, review shop-specific fields, import active listings, and publish only after approval.',
     article8Badge: 'Etsy',
+    article9Title: 'How Much Is My Used Item Worth?',
+    article9Description: 'A practical guide to pricing used phones, laptops, furniture, jewellery and other second-hand items with stronger comparisons.',
+    article9Badge: 'Price guide',
     
     // CTA
     ctaTitle: 'Ready to Automate Your Reselling?',
@@ -72,16 +75,16 @@ export const articlesIndexTranslations: Translations = {
     readMore: 'Czytaj dalej →',
     
     article1Title: 'Narzędzie do odświeżania Vinted',
-    article1Description: 'Dowiedz się, jak odświeżać ogłoszenia na Vinted, aby zwiększyć widoczność i sprzedawać szybciej. Automatyzuj proces odświeżania z FlipIt.',
+    article1Description: 'Sprawdź starsze ogłoszenie Vinted, przygotuj czytelniejszy szkic i nie publikuj identycznej aktywnej oferty.',
     article1Badge: 'Popularne',
     
     article2Title: 'Crosslisting z Vinted na Facebook Marketplace',
-    article2Description: 'Rozszerz zasięg, crosslistując z Vinted na Facebook Marketplace. Dotrzyj do milionów dodatkowych kupujących w jednym procesie.',
+    article2Description: 'Dopasuj przedmiot z Vinted do Facebook Marketplace i sprawdź opis, kategorię, cenę oraz zdjęcia przed publikacją.',
     article2Badge: 'Crosslisting',
     
-    article3Title: 'Relister produktów dla Vinted',
-    article3Description: 'Zarządzaj pełnym cyklem życia ogłoszeń na Vinted — od pierwszej publikacji do sprzedaży. Publikuj, odświeżaj, wznawiaj i crosslistuj sprawnie.',
-    article3Badge: 'Cykl oferty',
+    article3Title: 'Jak przenieść lub odświeżyć ogłoszenie na Vinted',
+    article3Description: 'Przygotuj szkic Vinted z własnych zdjęć albo oferty z innej platformy, a przed publikacją uzupełnij wymagane dane.',
+    article3Badge: 'Przygotowanie',
 
     article4Title: 'Jak sprzedawać na Allegro',
     article4Description: 'Poradnik dla power sellerów: start, tworzenie ofert, ceny i automatyzacja sprzedaży na Allegro.',
@@ -102,6 +105,9 @@ export const articlesIndexTranslations: Translations = {
     article8Title: 'Narzędzie do ofert Etsy',
     article8Description: 'Przygotuj szkice ofert Etsy ze zdjęć, sprawdź pola sklepu, importuj aktywne oferty i publikuj dopiero po akceptacji.',
     article8Badge: 'Etsy',
+    article9Title: 'Ile wart jest używany przedmiot?',
+    article9Description: 'Praktyczny poradnik wyceny używanych telefonów, laptopów, mebli, biżuterii i innych rzeczy na podstawie lepszych porównań.',
+    article9Badge: 'Poradnik wyceny',
     
     // CTA
     ctaTitle: 'Gotowy na automatyzację sprzedaży?',

@@ -3,6 +3,7 @@ import { ChevronRight, House, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
 import {
   getAllegroCategoryTree,
   searchAllegroCategories,
@@ -61,6 +62,7 @@ export default function AllegroCategoryPickerModal({
   selectedCategoryPath,
   onSelectCategory,
 }: AllegroCategoryPickerModalProps) {
+  const copy = reviewItemFormTranslations[language.startsWith('pl') ? 'pl' : 'en'].categoryPicker;
   const [pathNodes, setPathNodes] = useState<AllegroCategoryNode[]>([]);
   const [pendingLeaf, setPendingLeaf] = useState<AllegroCategoryNode | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -156,11 +158,11 @@ export default function AllegroCategoryPickerModal({
           return b.score - a.score;
         });
         setSearchResults(sorted);
-      } catch (err) {
+      } catch {
         if (controller.signal.aborted || latestSearchRequestId.current !== requestId) {
           return;
         }
-        setSearchError(err instanceof Error ? err.message : 'Failed to search Allegro categories');
+      setSearchError(copy.searchFailed('Allegro'));
       } finally {
         if (latestSearchRequestId.current === requestId) {
           setSearchLoading(false);
@@ -169,7 +171,7 @@ export default function AllegroCategoryPickerModal({
     })();
 
     return () => controller.abort();
-  }, [open, isSearching, trimmedSearchQuery, marketplaceId, language]);
+  }, [open, isSearching, trimmedSearchQuery, marketplaceId, language, copy]);
 
   useEffect(() => {
     if (!open) {
@@ -250,18 +252,18 @@ export default function AllegroCategoryPickerModal({
           next.set(parentId, payload.results || []);
           return next;
         });
-      } catch (err) {
+      } catch {
         if (latestRequestId.current !== requestId) {
           return;
         }
-        setError(err instanceof Error ? err.message : 'Failed to load Allegro categories');
+      setError(copy.loadFailed('Allegro'));
       } finally {
         if (latestRequestId.current === requestId) {
           setLoadingParent(null);
         }
       }
     })();
-  }, [open, isSearching, currentParentId, treeByParent, marketplaceId, language]);
+  }, [open, isSearching, currentParentId, treeByParent, marketplaceId, language, copy]);
 
   const handleSelectNode = (node: AllegroCategoryNode) => {
     const nodeWithPath = withPath(node, pathNodes);
@@ -319,7 +321,7 @@ export default function AllegroCategoryPickerModal({
       <DialogContent className="w-[calc(100vw-1rem)] h-[calc(100dvh-1rem)] max-w-none border-neutral-800 bg-neutral-950 p-0 text-white overflow-hidden sm:rounded-xl sm:w-[clamp(560px,50vw,840px)] sm:max-w-[clamp(560px,50vw,840px)] sm:h-[clamp(520px,72dvh,820px)] grid grid-rows-[auto_1fr_auto] gap-0">
         <DialogHeader className="border-b border-neutral-800 px-5 py-3">
           <DialogTitle className="text-lg sm:text-xl font-semibold tracking-tight text-neutral-100">
-            Choose Allegro category
+            {copy.choose('Allegro')}
           </DialogTitle>
         </DialogHeader>
 
@@ -329,7 +331,7 @@ export default function AllegroCategoryPickerModal({
             <Input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search"
+              placeholder={copy.search}
               className="border-neutral-700 bg-neutral-900 pl-12 text-neutral-100 placeholder:text-neutral-500"
             />
           </div>
@@ -338,8 +340,8 @@ export default function AllegroCategoryPickerModal({
             <button
               type="button"
               onClick={clearToRoot}
-              title="All categories"
-              aria-label="All categories"
+              title={copy.allCategories}
+              aria-label={copy.allCategories}
               className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-neutral-700 bg-neutral-800/60 text-neutral-200 hover:bg-neutral-800 hover:text-white"
             >
               <House className="h-3.5 w-3.5" />
@@ -349,10 +351,10 @@ export default function AllegroCategoryPickerModal({
                 key={`${node.category_id}-${index}`}
                 type="button"
                 onClick={() => handleJumpToPath(index)}
-                title={node.name || 'Category'}
+                title={node.name || copy.category}
                 className="inline-flex max-w-full min-w-0 items-center rounded-full border border-cyan-500/45 bg-cyan-500/10 px-3 py-1 text-xs text-cyan-100 hover:bg-cyan-500/20"
               >
-                <span className="truncate">{node.name || 'Category'}</span>
+                <span className="truncate">{node.name || copy.category}</span>
               </button>
             ))}
           </div>
@@ -360,7 +362,7 @@ export default function AllegroCategoryPickerModal({
           <div className="flex-1 min-h-0">
             {showLoadingState && (
               <div className="rounded-md border border-neutral-800 bg-neutral-900/60 px-4 py-3 text-sm text-neutral-400">
-                Loading categories...
+                {copy.loading}
               </div>
             )}
 
@@ -403,7 +405,7 @@ export default function AllegroCategoryPickerModal({
                             )}
                             {!hasChildren && isSelectedLeaf && (
                               <span className="shrink-0 text-xs font-medium text-cyan-100">
-                                Selected
+                                {copy.selected}
                               </span>
                             )}
                           </button>
@@ -412,7 +414,7 @@ export default function AllegroCategoryPickerModal({
 
                       {!showLoadingState && currentNodes.length === 0 && (
                         <div className="rounded-md border border-neutral-800 bg-neutral-950/30 px-4 py-3 text-sm text-neutral-400">
-                          No categories found at this level.
+                          {copy.noCategories}
                         </div>
                       )}
                     </div>
@@ -420,7 +422,7 @@ export default function AllegroCategoryPickerModal({
 
                   {hasShortSearchQuery && (
                     <div className="rounded-md border border-neutral-800 bg-neutral-950/30 px-3 py-2 text-sm text-neutral-400">
-                      Type at least 2 characters.
+                      {copy.typeAtLeastTwo}
                     </div>
                   )}
 
@@ -428,13 +430,13 @@ export default function AllegroCategoryPickerModal({
                     <div className="space-y-2">
                       {searchLoading && (
                         <div className="rounded-md border border-neutral-800 bg-neutral-950/30 px-3 py-2 text-sm text-neutral-400">
-                          Searching...
+                          {copy.searching}
                         </div>
                       )}
 
                       {!searchLoading && searchResults.length === 0 && (
                         <div className="rounded-md border border-neutral-800 bg-neutral-950/30 px-3 py-2 text-sm text-neutral-400">
-                          No matches found.
+                          {copy.noSearchResults}
                         </div>
                       )}
 
@@ -460,18 +462,6 @@ export default function AllegroCategoryPickerModal({
                                 {match.path}
                               </p>
                             </div>
-                            <div className="shrink-0 flex items-center gap-2 pt-0.5">
-                              {!isLeaf && (
-                                <span className="rounded-full border border-neutral-700 bg-neutral-900/60 px-2 py-0.5 text-[11px] text-neutral-300">
-                                  Branch
-                                </span>
-                              )}
-                              {isLeaf && (
-                                <span className="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-2 py-0.5 text-[11px] text-cyan-100">
-                                  Leaf
-                                </span>
-                              )}
-                            </div>
                           </button>
                         );
                       })}
@@ -489,7 +479,7 @@ export default function AllegroCategoryPickerModal({
             {pendingLeaf?.category_id ? (
               <div className="rounded-md border border-cyan-500/25 bg-cyan-500/10 px-3 py-2">
                 <p className="text-sm font-medium text-cyan-50 whitespace-normal break-words">
-                  {pendingPathText || pendingLeaf.name || 'Selected category'}
+                  {pendingPathText || pendingLeaf.name || copy.selectedCategory}
                 </p>
               </div>
             ) : (
@@ -508,7 +498,7 @@ export default function AllegroCategoryPickerModal({
             disabled={!pendingLeaf?.category_id}
             className="w-full bg-cyan-500 text-black hover:bg-cyan-400 disabled:bg-neutral-700 disabled:text-neutral-400 sm:w-auto"
           >
-            Use this category
+            {copy.useCategory}
           </Button>
         </div>
       </DialogContent>

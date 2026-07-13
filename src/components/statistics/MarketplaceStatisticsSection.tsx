@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { enUS, pl } from 'date-fns/locale';
 import {
   AlertCircle,
   BarChart3,
@@ -22,10 +23,17 @@ import type {
   ListingPlatformStatisticsPayload,
   Platform,
 } from '@/types/item';
+import { getTranslations, type Language } from '@/components/language-utils';
+import {
+  resolveStatisticMetricLabel,
+  statisticsTranslations,
+  type StatisticsTranslations,
+} from '@/pages/statistics-translations';
 
 interface MarketplaceStatisticsSectionProps {
   itemId: string;
   platforms: Platform[];
+  language: Language;
 }
 
 const statusStyles: Record<string, string> = {
@@ -43,24 +51,28 @@ const statusIcon = (status: string) => {
   return <MinusCircle className="h-4 w-4 text-neutral-400" />;
 };
 
-const chartData = (payload: ListingPlatformStatisticsPayload, metricKey: string) =>
+const chartData = (payload: ListingPlatformStatisticsPayload, metricKey: string, language: Language) =>
   (payload.metrics.timeseries || [])
     .map((point) => ({
-      name: format(new Date(point.captured_at), 'MMM d'),
+      name: format(new Date(point.captured_at), 'MMM d', { locale: language === 'pl' ? pl : enUS }),
       value: Number(point.metrics?.[metricKey] ?? 0),
     }))
     .filter((point) => Number.isFinite(point.value));
 
-const statusMessage = (platform: Platform, payload: ListingPlatformStatisticsPayload): string => {
-  if (payload.message) return payload.message;
-  if (payload.status === 'unsupported') return `${formatPlatformLabel(platform)} does not expose official listing statistics yet.`;
-  if (payload.status === 'not_published') return 'This listing is not published on this marketplace.';
-  if (payload.status === 'no_data') return 'Statistics will appear after the scheduled marketplace refresh runs.';
-  if (payload.status === 'error') return 'The latest statistics fetch failed. The scheduler will try again.';
-  return '';
+const statusMessage = (
+  platform: Platform,
+  payload: ListingPlatformStatisticsPayload,
+  t: StatisticsTranslations
+): string => {
+  if (payload.status === 'unsupported') return t.detail.unsupported(formatPlatformLabel(platform));
+  if (payload.status === 'not_published') return t.detail.notPublished;
+  if (payload.status === 'no_data') return t.detail.noData;
+  if (payload.status === 'error') return t.detail.error;
+  return payload.message || '';
 };
 
-export function MarketplaceStatisticsSection({ itemId, platforms }: MarketplaceStatisticsSectionProps) {
+export function MarketplaceStatisticsSection({ itemId, platforms, language }: MarketplaceStatisticsSectionProps) {
+  const t = getTranslations(statisticsTranslations);
   const selectedPlatforms = useMemo(
     () => Array.from(new Set(platforms.filter(Boolean))),
     [platforms]
@@ -83,9 +95,9 @@ export function MarketplaceStatisticsSection({ itemId, platforms }: MarketplaceS
       <div className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <BarChart3 className="h-5 w-5 text-cyan-300" />
-          <h3 className="text-base sm:text-lg font-semibold text-white">Marketplace statistics</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-white">{t.detail.title}</h3>
         </div>
-        <span className="text-xs text-neutral-500">Updated by scheduler</span>
+        <span className="text-xs text-neutral-500">{t.detail.scheduler}</span>
       </div>
 
       {isLoading ? (
@@ -96,11 +108,11 @@ export function MarketplaceStatisticsSection({ itemId, platforms }: MarketplaceS
         </div>
       ) : isError ? (
         <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
-          Marketplace statistics could not be loaded.
+          {t.detail.loadError}
         </div>
       ) : platformOrder.length === 0 ? (
         <div className="rounded-lg border border-neutral-800 bg-neutral-900/40 p-4 text-sm text-neutral-400">
-          No marketplace statistics are available for this listing yet.
+          {t.detail.empty}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -119,7 +131,7 @@ export function MarketplaceStatisticsSection({ itemId, platforms }: MarketplaceS
             const summary = displayPayload?.metrics.summary || [];
             const highlighted = pickPrimaryStatisticMetric(summary);
             const chartMetricKey = highlighted?.key;
-            const points = displayPayload && chartMetricKey ? chartData(displayPayload, chartMetricKey) : [];
+            const points = displayPayload && chartMetricKey ? chartData(displayPayload, chartMetricKey, language) : [];
 
             return (
               <div key={platform} className="rounded-lg border border-neutral-800 bg-neutral-900/45 p-4">
@@ -130,13 +142,13 @@ export function MarketplaceStatisticsSection({ itemId, platforms }: MarketplaceS
                       <p className="font-semibold text-white">{formatPlatformLabel(platform)}</p>
                       {platformPayload.captured_at && (
                         <p className="text-xs text-neutral-500">
-                          {format(new Date(platformPayload.captured_at), 'PPp')}
+                          {format(new Date(platformPayload.captured_at), 'PPp', { locale: language === 'pl' ? pl : enUS })}
                         </p>
                       )}
                     </div>
                   </div>
                   <Badge className={statusStyles[platformPayload.status] || statusStyles.no_data}>
-                    {platformPayload.status.replace('_', ' ')}
+                    {(t.statuses as Record<string, string>)[platformPayload.status] || platformPayload.status.replaceAll('_', ' ')}
                   </Badge>
                 </div>
 
@@ -147,7 +159,9 @@ export function MarketplaceStatisticsSection({ itemId, platforms }: MarketplaceS
                         const delta = formatStatisticDelta(metric);
                         return (
                           <div key={metric.key} className="rounded-md bg-neutral-800/55 p-3">
-                            <p className="text-xs text-neutral-400">{metric.label}</p>
+                            <p className="text-xs text-neutral-400">
+                              {resolveStatisticMetricLabel(t, metric.key, metric.label)}
+                            </p>
                             <p className="mt-1 text-lg font-semibold text-white">{formatStatisticMetricValue(metric)}</p>
                             {delta && (
                               <p className={Number(metric.delta_value) >= 0 ? 'text-xs text-emerald-300' : 'text-xs text-red-300'}>
@@ -175,7 +189,7 @@ export function MarketplaceStatisticsSection({ itemId, platforms }: MarketplaceS
                     )}
                   </>
                 ) : (
-                  <p className="mt-4 text-sm text-neutral-400">{statusMessage(platform, platformPayload)}</p>
+                  <p className="mt-4 text-sm text-neutral-400">{statusMessage(platform, platformPayload, t)}</p>
                 )}
               </div>
             );

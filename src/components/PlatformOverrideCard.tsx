@@ -7,13 +7,13 @@
  * Task 2: Per-Platform Override Editor UI
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Loader2, ChevronDown, ChevronUp, Settings2, Search, X } from 'lucide-react';
 import { 
   getPlatformCategoryAttributes, 
@@ -26,6 +26,11 @@ import {
 } from '@/lib/api/allegro';
 import { cn } from '@/lib/utils';
 import type { PlatformDynamicAttributeValue } from '@/types/item';
+import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
+import {
+  countMissingRequiredFields,
+  type MarketplaceRequirementReadiness,
+} from '@/components/review-item/marketplace-requirements';
 
 interface SelectedAllegroProduct {
   id?: string;
@@ -65,6 +70,15 @@ interface PlatformOverrideCardProps {
   onAllegroProductSelect?: (product: AllegroProductSearchResult) => void;
   /** Callback when the selected Allegro catalog product is removed. */
   onAllegroProductClear?: () => void;
+  /** Current form language for app-owned labels. */
+  language?: string;
+  /** Keeps mandatory marketplace details visible instead of treating them as optional customization. */
+  requirementsMode?: boolean;
+  /** Reports live category/field readiness to the marketplace selector. */
+  onRequirementsChange?: (
+    platform: 'olx' | 'ebay' | 'allegro' | 'etsy',
+    readiness: MarketplaceRequirementReadiness
+  ) => void;
 }
 
 const formatProductCategoryPath = (product: AllegroProductSearchResult): string => {
@@ -116,24 +130,32 @@ const PlatformOverrideCard = ({
   attributeValues = {},
   onCategoryChange,
   onAttributeChange,
-  categoryPlaceholder = 'Enter category ID',
-  categoryLabel = 'Category ID',
+  categoryPlaceholder,
+  categoryLabel,
   categoryInputMode = 'editable',
   allegroSearchPhrase,
   selectedAllegroProduct,
   onAllegroProductSelect,
   onAllegroProductClear,
+  language = 'en',
+  requirementsMode = false,
+  onRequirementsChange,
 }: PlatformOverrideCardProps) => {
+  const copy = reviewItemFormTranslations[language === 'pl' ? 'pl' : 'en'].marketplaceRequirements;
+  const resolvedCategoryLabel = categoryLabel || copy.category;
+  const resolvedCategoryPlaceholder = categoryPlaceholder || copy.enterValue(copy.category);
   const categoryIsSummary = categoryInputMode === 'summary';
   // Toggle state: whether customization is enabled for this platform
   const [isCustomizing, setIsCustomizing] = useState(() => {
     // Auto-enable if there's already a category ID or attributes set
     const hasAttributes = attributeValues && Object.keys(attributeValues).length > 0;
-    return categoryIsSummary || Boolean(categoryId || hasAttributes);
+    return requirementsMode || categoryIsSummary || Boolean(categoryId || hasAttributes);
   });
   
   // Expanded/collapsed state for the card content
-  const [isExpanded, setIsExpanded] = useState(() => categoryIsSummary || Boolean(categoryId));
+  const [isExpanded, setIsExpanded] = useState(
+    () => requirementsMode || categoryIsSummary || Boolean(categoryId)
+  );
   
   // Dynamic attributes fetched from backend
   const [attributes, setAttributes] = useState<PlatformAttributeField[]>([]);
@@ -235,19 +257,17 @@ const PlatformOverrideCard = ({
       const response = await getPlatformCategoryAttributes(
         platform,
         debouncedCategoryId,
-        { marketplaceId, countryCode }
+        { marketplaceId, countryCode, language }
       );
       setAttributes(response.fields || response.required_fields || []);
     } catch (err) {
       console.error(`Failed to fetch ${platform} attributes:`, err);
-      setAttributeError(
-        err instanceof Error ? err.message : 'Failed to load attributes'
-      );
+      setAttributeError(err instanceof Error ? err.message : 'load_failed');
       setAttributes([]);
     } finally {
       setIsLoadingAttributes(false);
     }
-  }, [debouncedCategoryId, platform, isCustomizing, marketplaceId, countryCode, isConnected]);
+  }, [debouncedCategoryId, platform, isCustomizing, marketplaceId, countryCode, language, isConnected]);
   
   useEffect(() => {
     fetchAttributes();
@@ -261,15 +281,81 @@ const PlatformOverrideCard = ({
   }, [categoryIsSummary]);
 
   useEffect(() => {
+    if (requirementsMode) {
+      setIsCustomizing(true);
+      setIsExpanded(true);
+    }
+  }, [requirementsMode]);
+
+  useEffect(() => {
     if (!productSearchPhrase && allegroSearchPhrase) {
       setProductSearchPhrase(allegroSearchPhrase);
     }
   }, [allegroSearchPhrase, productSearchPhrase]);
 
-  const visibleAttributes =
-    platform === 'allegro' && selectedAllegroProduct?.id
-      ? attributes.filter((attribute) => !isProductOnlyAttribute(attribute))
-      : attributes;
+  const visibleAttributes = useMemo(
+    () =>
+      platform === 'allegro' && selectedAllegroProduct?.id
+        ? attributes.filter((attribute) => !isProductOnlyAttribute(attribute))
+        : attributes,
+    [attributes, platform, selectedAllegroProduct?.id]
+  );
+  const requiredAttributes = useMemo(
+    () => visibleAttributes.filter((attribute) => attribute.required),
+    [visibleAttributes]
+  );
+  const recommendedAttributes = useMemo(
+    () =>
+      visibleAttributes.filter(
+        (attribute) => !attribute.required && attribute.metadata?.aspect_usage === 'RECOMMENDED'
+      ),
+    [visibleAttributes]
+  );
+  const optionalAttributes = useMemo(
+    () =>
+      visibleAttributes.filter(
+        (attribute) => !attribute.required && attribute.metadata?.aspect_usage !== 'RECOMMENDED'
+      ),
+    [visibleAttributes]
+  );
+
+  useEffect(() => {
+    if (!onRequirementsChange) {
+      return;
+    }
+
+    if (!isConnected) {
+      onRequirementsChange(platform, { state: 'unavailable' });
+      return;
+    }
+    if (!debouncedCategoryId) {
+      onRequirementsChange(platform, { state: 'needs_category' });
+      return;
+    }
+    if (isLoadingAttributes) {
+      onRequirementsChange(platform, { state: 'checking' });
+      return;
+    }
+    if (attributeError) {
+      onRequirementsChange(platform, { state: 'unavailable' });
+      return;
+    }
+
+    const missingCount = countMissingRequiredFields(requiredAttributes, attributeValues);
+    onRequirementsChange(platform, {
+      state: missingCount ? 'needs_attributes' : 'ready',
+      missingCount,
+    });
+  }, [
+    attributeError,
+    attributeValues,
+    debouncedCategoryId,
+    isConnected,
+    isLoadingAttributes,
+    onRequirementsChange,
+    platform,
+    requiredAttributes,
+  ]);
   
   // Handle toggle change
   const handleToggleCustomization = (enabled: boolean) => {
@@ -302,7 +388,7 @@ const PlatformOverrideCard = ({
     } catch (error) {
       console.error('Failed to search Allegro products:', error);
       setProductResults([]);
-      setProductSearchError(error instanceof Error ? error.message : 'Failed to search Allegro products');
+      setProductSearchError(copy.searchFailed);
     } finally {
       setIsSearchingProducts(false);
     }
@@ -312,6 +398,7 @@ const PlatformOverrideCard = ({
   const renderAttributeInput = (attr: PlatformAttributeField) => {
     const currentValue = attributeValues[attr.key];
     const currentScalar = selectedScalar(currentValue);
+    const attributeId = `${platform}-attr-${attr.key}`;
     const maxLength = typeof attr.metadata?.max_length === 'number'
       ? attr.metadata.max_length
       : undefined;
@@ -325,8 +412,8 @@ const PlatformOverrideCard = ({
           }
           disabled={isDisabled}
         >
-          <SelectTrigger className="text-black">
-            <SelectValue placeholder={`Select ${attr.label.toLowerCase()}`} />
+          <SelectTrigger id={attributeId} className="text-black" aria-required={attr.required}>
+            <SelectValue placeholder={copy.selectValue(attr.label)} />
           </SelectTrigger>
           <SelectContent>
             {attr.options.map((opt) => (
@@ -346,7 +433,7 @@ const PlatformOverrideCard = ({
       return (
         <div className="rounded-md border border-neutral-700 bg-neutral-900/60">
           <div className="border-b border-neutral-800 px-3 py-2 text-xs text-neutral-400">
-            {selectedValues.length} selected
+            {copy.selectedCount(selectedValues.length)}
           </div>
           <div className="max-h-48 space-y-1 overflow-y-auto p-2">
             {attr.options.map((opt) => {
@@ -386,9 +473,12 @@ const PlatformOverrideCard = ({
       return (
         <Input
           type="number"
+          id={attributeId}
           value={currentScalar}
           onChange={(e) => onAttributeChange(attr.key, toStoredAttributeValue(attr, e.target.value))}
-          placeholder={`Enter ${attr.label.toLowerCase()}`}
+          placeholder={copy.enterValue(attr.label)}
+          required={attr.required}
+          aria-required={attr.required}
           disabled={isDisabled}
         />
       );
@@ -398,10 +488,13 @@ const PlatformOverrideCard = ({
     return (
       <Input
         type="text"
+        id={attributeId}
         value={currentScalar}
         onChange={(e) => onAttributeChange(attr.key, toStoredAttributeValue(attr, e.target.value))}
-        placeholder={`Enter ${attr.label.toLowerCase()}`}
+        placeholder={copy.enterValue(attr.label)}
         maxLength={maxLength}
+        required={attr.required}
+        aria-required={attr.required}
         disabled={isDisabled}
       />
     );
@@ -415,9 +508,9 @@ const PlatformOverrideCard = ({
     return (
       <div className="space-y-3 rounded-lg border border-neutral-700 bg-neutral-900/40 p-3">
         <div className="space-y-1">
-          <Label className="text-xs text-neutral-300">Allegro catalog product</Label>
+          <Label className="text-xs text-neutral-300">{copy.allegroCatalogProduct}</Label>
           <p className="text-xs text-neutral-500">
-            Use this when you do not know the EAN/GTIN. Selecting a catalog product fills product identity through Allegro.
+            {copy.allegroCatalogHint}
           </p>
         </div>
 
@@ -442,7 +535,7 @@ const PlatformOverrideCard = ({
                 </div>
               )}
               <div className="mt-1 text-[11px] text-cyan-300">
-                Product ID: {selectedAllegroProduct.id}
+                {copy.productId}: {selectedAllegroProduct.id}
               </div>
             </div>
             <button
@@ -450,7 +543,7 @@ const PlatformOverrideCard = ({
               onClick={onAllegroProductClear}
               disabled={isDisabled}
               className="rounded-md p-1 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label="Clear Allegro catalog product"
+              aria-label={copy.clearCatalogProduct}
             >
               <X className="h-4 w-4" />
             </button>
@@ -461,7 +554,7 @@ const PlatformOverrideCard = ({
           <Input
             value={productSearchPhrase}
             onChange={(event) => setProductSearchPhrase(event.target.value)}
-            placeholder="Search Allegro catalog by title"
+            placeholder={copy.searchAllegroCatalog}
             disabled={isDisabled || !isConnected || isSearchingProducts}
             className="text-sm"
           />
@@ -476,13 +569,13 @@ const PlatformOverrideCard = ({
             ) : (
               <Search className="h-3.5 w-3.5" />
             )}
-            Search
+            {copy.search}
           </button>
         </div>
 
         {!isConnected && (
           <div className="text-xs text-amber-400">
-            Connect Allegro to search the live catalog.
+            {copy.connectAllegro}
           </div>
         )}
 
@@ -537,7 +630,7 @@ const PlatformOverrideCard = ({
                     disabled={isDisabled}
                     className="self-start rounded-md bg-cyan-500 px-3 py-1.5 text-xs font-semibold text-neutral-950 hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Use
+                    {copy.useCatalogProduct}
                   </button>
                 </div>
               );
@@ -555,9 +648,12 @@ const PlatformOverrideCard = ({
     )}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle 
-            className="text-sm font-medium text-neutral-300 flex items-center gap-2 cursor-pointer"
+          <button
+            type="button"
+            className="flex items-center gap-2 text-left text-sm font-medium text-neutral-300"
             onClick={() => setIsExpanded(!isExpanded)}
+            aria-expanded={isExpanded}
+            aria-controls={`${platform}-requirements-content`}
           >
             <Settings2 className="h-4 w-4 text-cyan-400" />
             {platformLabel}
@@ -566,15 +662,15 @@ const PlatformOverrideCard = ({
             ) : (
               <ChevronDown className="h-4 w-4 text-neutral-500" />
             )}
-          </CardTitle>
+          </button>
           
-          {!categoryIsSummary && (
+          {!categoryIsSummary && !requirementsMode && (
             <div className="flex items-center gap-2">
               <Label
                 htmlFor={`${platform}-customize-toggle`}
                 className="text-xs text-neutral-400"
               >
-                Customize
+                {copy.editDetails}
               </Label>
               <Switch
                 id={`${platform}-customize-toggle`}
@@ -586,28 +682,28 @@ const PlatformOverrideCard = ({
           )}
         </div>
         
-        {!isCustomizing && !categoryIsSummary && (
+        {!isCustomizing && !categoryIsSummary && !requirementsMode && (
           <CardDescription className="text-xs text-neutral-500 mt-1">
-            Using default category mapping
+            {copy.chooseCategoryFirst}
           </CardDescription>
         )}
 
         {!isConnected && (
           <CardDescription className="text-xs text-amber-400 mt-1">
-            Not connected. You can prefill category/attributes manually; automatic attribute fetch needs connection.
+            {copy.notConnected.replace('{platform}', platformLabel)}
           </CardDescription>
         )}
       </CardHeader>
       
       {isExpanded && isCustomizing && (
-        <CardContent className="pt-0 space-y-4">
+        <CardContent id={`${platform}-requirements-content`} className="pt-0 space-y-4">
           {/* Category Selection Summary / Input */}
           <div className="space-y-2">
             <Label 
               htmlFor={`${platform}-category-id`} 
               className="text-xs text-neutral-400"
             >
-              {categoryLabel}
+              {resolvedCategoryLabel}
             </Label>
             {categoryIsSummary ? (
               <div
@@ -615,8 +711,8 @@ const PlatformOverrideCard = ({
                 className="rounded-md border border-neutral-700 bg-neutral-900/60 px-3 py-2 text-sm text-neutral-300"
               >
                 {categoryId
-                  ? `Selected category ID: ${categoryId}`
-                  : 'Choose a category in the Category section above to load required attributes.'}
+                  ? `${copy.selectedCategory}: ${categoryId}`
+                  : copy.chooseCategoryFirst}
               </div>
             ) : (
               <Input
@@ -624,7 +720,7 @@ const PlatformOverrideCard = ({
                 type={platform === 'olx' ? 'number' : 'text'}
                 value={categoryId || ''}
                 onChange={(e) => onCategoryChange(e.target.value)}
-                placeholder={categoryPlaceholder}
+                placeholder={resolvedCategoryPlaceholder}
                 disabled={isDisabled}
                 className="text-sm"
               />
@@ -637,14 +733,14 @@ const PlatformOverrideCard = ({
           {isLoadingAttributes && (
             <div className="flex items-center gap-2 text-xs text-neutral-400 py-2">
               <Loader2 className="h-3 w-3 animate-spin" />
-              Loading required attributes...
+              {copy.loadingRequirements}
             </div>
           )}
           
           {/* Error State */}
           {attributeError && (
             <div className="text-xs text-red-400 py-2">
-              {attributeError}
+              {copy.loadFailed.replace('{platform}', platformLabel)}
             </div>
           )}
           
@@ -652,13 +748,12 @@ const PlatformOverrideCard = ({
           {!isLoadingAttributes && visibleAttributes.length > 0 && (
             <div className="space-y-3 pt-2 border-t border-neutral-700">
               <p className="text-xs text-neutral-400 font-medium">
-                Required Attributes ({visibleAttributes.filter(a => a.required).length})
+                {copy.requiredBy.replace('{platform}', platformLabel)}
               </p>
               
-              <div className="grid grid-cols-1 gap-3">
-                {visibleAttributes
-                  .filter(attr => attr.required)
-                  .map((attr) => (
+              {requiredAttributes.length > 0 && (
+                <div className="grid grid-cols-1 gap-3">
+                  {requiredAttributes.map((attr) => (
                     <div key={attr.key} className="space-y-1">
                       <Label 
                         htmlFor={`${platform}-attr-${attr.key}`}
@@ -666,21 +761,22 @@ const PlatformOverrideCard = ({
                       >
                         {attr.label}
                         <span className="text-red-400 ml-1">*</span>
+                        <span className="sr-only"> {copy.required}</span>
                       </Label>
                       {renderAttributeInput(attr)}
                     </div>
                   ))}
-              </div>
+                </div>
+              )}
               
               {/* Optional Attributes (collapsed by default) */}
-              {visibleAttributes.filter(a => !a.required).length > 0 && (
+              {recommendedAttributes.length > 0 && (
                 <details className="pt-2">
                   <summary className="text-xs text-neutral-500 cursor-pointer hover:text-neutral-400">
-                    Optional attributes ({visibleAttributes.filter(a => !a.required).length})
+                    {copy.recommendedFields(recommendedAttributes.length)}
                   </summary>
                   <div className="grid grid-cols-1 gap-3 pt-3">
-                    {visibleAttributes
-                      .filter(attr => !attr.required)
+                    {recommendedAttributes
                       .map((attr) => (
                         <div key={attr.key} className="space-y-1">
                           <Label 
@@ -695,6 +791,27 @@ const PlatformOverrideCard = ({
                   </div>
                 </details>
               )}
+
+              {optionalAttributes.length > 0 && (
+                <details className="pt-2">
+                  <summary className="text-xs text-neutral-500 cursor-pointer hover:text-neutral-400">
+                    {copy.optionalFields(optionalAttributes.length)}
+                  </summary>
+                  <div className="grid grid-cols-1 gap-3 pt-3">
+                    {optionalAttributes.map((attr) => (
+                      <div key={attr.key} className="space-y-1">
+                        <Label
+                          htmlFor={`${platform}-attr-${attr.key}`}
+                          className="text-xs text-neutral-300"
+                        >
+                          {attr.label}
+                        </Label>
+                        {renderAttributeInput(attr)}
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
             </div>
           )}
           
@@ -704,7 +821,7 @@ const PlatformOverrideCard = ({
            debouncedCategoryId && 
            visibleAttributes.length === 0 && (
             <div className="text-xs text-neutral-500 py-2">
-              No required attributes found for this category
+              {copy.noAdditionalRequirements}
             </div>
           )}
         </CardContent>

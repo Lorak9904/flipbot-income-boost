@@ -5,6 +5,8 @@ import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from
 import { guideTranslations } from './guide-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
+import { getRoutePath } from '@/lib/localized-routes';
+import { getSeoMetadata } from '@/lib/seo-metadata';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -37,8 +39,10 @@ const AutomatedResellingPlatformGuide = () => {
   const language = getCurrentLanguage();
   const getLocalized = (path: string) => getLocalizedPathForLanguage(path, language);
   
-  const pageTitle = t.pageTitle;
-  const pageDescription = t.pageDescription;
+  const seo = getSeoMetadata('guide', language);
+  const pageTitle = seo?.title ?? t.pageTitle;
+  const pageDescription = seo?.description ?? t.pageDescription;
+  const canonicalUrl = `https://myflipit.live${getRoutePath('guide', language)}`;
   
   const articleStructuredData = {
     '@context': 'https://schema.org',
@@ -60,7 +64,7 @@ const AutomatedResellingPlatformGuide = () => {
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': 'https://myflipit.live/automated-reselling-platform-guide',
+      '@id': canonicalUrl,
     },
     datePublished: '2025-09-23',
     dateModified: '2025-09-23',
@@ -72,9 +76,9 @@ const AutomatedResellingPlatformGuide = () => {
   const futureHighlights = [t.futurePoint1, t.futurePoint2, t.futurePoint3];  return (
     <div className="relative min-h-screen text-white overflow-hidden">
       <SEOHead
-        title={t.pageTitle}
-        description={t.pageDescription}
-        canonicalUrl="https://myflipit.live/automated-reselling-platform-guide"
+        title={pageTitle}
+        description={pageDescription}
+        canonicalUrl={canonicalUrl}
         type="article"
         keywords={keywords}
         structuredData={articleStructuredData}
@@ -172,7 +176,7 @@ const AutomatedResellingPlatformGuide = () => {
               </Link>
             </li>
           </ul>
-          <Link to="/articles" className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
+          <Link to={getLocalized('/articles')} className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
             {t.viewAllTutorials}
           </Link>
         </motion.section>
@@ -224,7 +228,7 @@ const AutomatedResellingPlatformGuide = () => {
             {t.section3Para1}
           </p>
           <p className="text-neutral-300">
-            {t.section3Para2} <Link to="/how-it-works" className="text-cyan-300 underline hover:text-cyan-200">{t.section3LinkText}</Link>.
+            {t.section3Para2} <Link to={getLocalized('/how-it-works')} className="text-cyan-300 underline hover:text-cyan-200">{t.section3LinkText}</Link>.
           </p>
         </motion.section>
 
@@ -247,7 +251,7 @@ const AutomatedResellingPlatformGuide = () => {
               </div>
               <p className="font-semibold text-white text-lg mb-2">{t.step1Title}</p>
               <p className="text-neutral-300">
-                {t.step1Description} <Link to="/login" className="text-cyan-300 underline hover:text-cyan-200">{t.step1LinkText}</Link> {t.step1DescriptionEnd}
+                {t.step1Description} <Link to={getLocalized('/login')} className="text-cyan-300 underline hover:text-cyan-200">{t.step1LinkText}</Link> {t.step1DescriptionEnd}
               </p>
             </div>
             
@@ -389,15 +393,15 @@ const AutomatedResellingPlatformGuide = () => {
           <MarketingCtaBanner
             title={t.ctaTitle}
             description={t.ctaDescription}
-            primaryAction={{ text: t.ctaButton, href: '/get-started' }}
+            primaryAction={{ text: t.ctaButton, href: getLocalized('/get-started') }}
             footer={
               <>
                 {t.ctaFooterText}{' '}
-                <Link to="/login" className="text-cyan-300 underline hover:text-cyan-200">
+                <Link to={getLocalized('/login')} className="text-cyan-300 underline hover:text-cyan-200">
                   {t.ctaLoginLink}
                 </Link>
                 {t.ctaFooterMiddle}{' '}
-                <Link to="/how-it-works" className="text-cyan-300 underline hover:text-cyan-200">
+                <Link to={getLocalized('/how-it-works')} className="text-cyan-300 underline hover:text-cyan-200">
                   {t.ctaHowItWorksLink}
                 </Link>
                 .

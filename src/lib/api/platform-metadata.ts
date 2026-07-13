@@ -106,7 +106,8 @@ export async function getEbayCategoryAttributes(
  */
 export async function getAllegroCategoryAttributes(
   categoryId: string | number,
-  marketplaceId: string = 'allegro-pl'
+  marketplaceId: string = 'allegro-pl',
+  language?: string
 ): Promise<PlatformAttributesResponse> {
   const token = localStorage.getItem('flipit_token');
   if (!token) {
@@ -117,6 +118,9 @@ export async function getAllegroCategoryAttributes(
     category_id: String(categoryId),
     marketplace_id: marketplaceId,
   });
+  if (language) {
+    params.set('accept_language', language);
+  }
 
   const response = await fetch(
     `${API_BASE}/platforms/allegro/attributes/?${params}`,
@@ -177,14 +181,14 @@ export async function getEtsyCategoryAttributes(
 export async function getPlatformCategoryAttributes(
   platform: 'olx' | 'ebay' | 'allegro' | 'etsy',
   categoryId: string | number,
-  options?: { marketplaceId?: string; countryCode?: string }
+  options?: { marketplaceId?: string; countryCode?: string; language?: string }
 ): Promise<PlatformAttributesResponse> {
   if (platform === 'olx') {
     return getOlxCategoryAttributes(categoryId, options?.countryCode);
   } else if (platform === 'ebay') {
     return getEbayCategoryAttributes(String(categoryId), options?.marketplaceId);
   } else if (platform === 'allegro') {
-    return getAllegroCategoryAttributes(categoryId, options?.marketplaceId);
+    return getAllegroCategoryAttributes(categoryId, options?.marketplaceId, options?.language);
   } else if (platform === 'etsy') {
     return getEtsyCategoryAttributes(categoryId);
   }

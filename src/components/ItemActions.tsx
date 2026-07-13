@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/dialog';
 import { Edit, Copy, Trash2, MoreVertical, Loader2, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getTranslations } from '@/components/language-utils';
+import { getLocalizedPathForCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { itemDetailTranslations } from '@/utils/translations/item-detail-translations';
 import { UserItem, Platform, PlatformPublishResult } from '@/types/item';
 import { duplicateItem, deleteItem, removeListingFromMarketplaces, syncPlatformListings } from '@/lib/api/items';
@@ -61,7 +61,7 @@ export function ItemActions({
   const [isRemovingFromMarketplaces, setIsRemovingFromMarketplaces] = useState(false);
   const [showRemoveMarketplacesDialog, setShowRemoveMarketplacesDialog] = useState(false);
   
-  const isDraft = item.stage === 'draft';
+  const isDraft = item.status === 'draft';
   
   // Get platforms already published to
   const publishedPlatforms = new Set(
@@ -120,10 +120,10 @@ export function ItemActions({
 
   const navigateToListingEditor = () => {
     navigate(
-      buildListingEditorUrl({
+      getLocalizedPathForCurrentLanguage(buildListingEditorUrl({
         mode: canPublishToMorePlatforms ? 'republish' : 'edit',
         itemId: item.uuid,
-      })
+      }))
     );
   };
   
@@ -142,7 +142,7 @@ export function ItemActions({
         });
         onRefresh?.();
       } else {
-        const errorMsg = result?.message || result?.error || 'Unknown error';
+        const errorMsg = result?.message || result?.error || t.toasts.unknownError;
         toast({
           title: t.toasts.updateMarketplaceError.replace('{platform}', PLATFORM_CONFIG[platform].name),
           description: errorMsg,
@@ -152,7 +152,7 @@ export function ItemActions({
     } catch (error) {
       toast({
         title: t.toasts.updateMarketplaceError.replace('{platform}', PLATFORM_CONFIG[platform].name),
-        description: error instanceof Error ? error.message : 'Unknown error',
+        description: error instanceof Error ? error.message : t.toasts.unknownError,
         variant: 'destructive',
       });
     } finally {
@@ -205,7 +205,7 @@ export function ItemActions({
     } catch (error) {
       toast({
         title: t.toasts.updateMarketplacesError,
-        description: error instanceof Error ? error.message : 'Unknown error',
+        description: error instanceof Error ? error.message : t.toasts.unknownError,
         variant: 'destructive',
       });
     } finally {
@@ -223,15 +223,15 @@ export function ItemActions({
     try {
       const newItem = await duplicateItem(item.uuid);
       toast({
-        title: '✅ ' + t.toasts.duplicateSuccess,
-        description: `New draft created: ${newItem.title}`,
+        title: t.toasts.duplicateSuccess,
+        description: t.toasts.duplicateDescription(newItem.title),
       });
       // Navigate to the duplicated item
-      navigate(`/user/items/${newItem.uuid}`);
+      navigate(getLocalizedPathForCurrentLanguage(`/user/items/${newItem.uuid}`));
     } catch (error) {
       toast({
-        title: '❌ ' + t.toasts.duplicateError,
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t.toasts.duplicateError,
+        description: error instanceof Error ? error.message : t.toasts.unknownError,
         variant: 'destructive',
       });
     } finally {
@@ -244,13 +244,13 @@ export function ItemActions({
     try {
       await deleteItem(item.uuid);
       toast({
-        title: '✅ ' + t.toasts.deleteSuccess,
+        title: t.toasts.deleteSuccess,
       });
-      navigate('/user/items');
+      navigate(getLocalizedPathForCurrentLanguage('/user/items'));
     } catch (error) {
       toast({
-        title: '❌ ' + t.toasts.deleteError,
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t.toasts.deleteError,
+        description: error instanceof Error ? error.message : t.toasts.unknownError,
         variant: 'destructive',
       });
     } finally {
@@ -273,8 +273,8 @@ export function ItemActions({
 
       toast({
         title: failedPlatforms.length > 0
-          ? '⚠️ ' + t.toasts.removeMarketplacesPartial
-          : '✅ ' + t.toasts.removeMarketplacesSuccess,
+          ? t.toasts.removeMarketplacesPartial
+          : t.toasts.removeMarketplacesSuccess,
         description: failedPlatforms.length > 0
           ? failedPlatforms.map(platform => PLATFORM_CONFIG[platform].name).join(', ')
           : removableMarketplaceNames,
@@ -284,8 +284,8 @@ export function ItemActions({
       onRefresh?.();
     } catch (error) {
       toast({
-        title: '❌ ' + t.toasts.removeMarketplacesError,
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t.toasts.removeMarketplacesError,
+        description: error instanceof Error ? error.message : t.toasts.unknownError,
         variant: 'destructive',
       });
     } finally {
@@ -299,7 +299,7 @@ export function ItemActions({
       <>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <GhostIconButton sizeVariant="lg" aria-label="Listing actions">
+            <GhostIconButton sizeVariant="lg" aria-label={t.actions.actionsMenu}>
               <MoreVertical className="h-4 w-4" />
             </GhostIconButton>
           </DropdownMenuTrigger>
@@ -358,7 +358,7 @@ export function ItemActions({
                       {getMarketplaceUpdateLabel(platform)}
                       {isDirty && (
                         <Badge className="ml-2 bg-amber-500/20 text-amber-400 border-amber-500/50 text-xs">
-                          Changed
+                          {t.actions.changed}
                         </Badge>
                       )}
                     </DropdownMenuItem>
@@ -497,7 +497,7 @@ export function ItemActions({
         {/* Secondary actions in dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <GhostIconButton sizeVariant="lg" aria-label="Listing actions">
+            <GhostIconButton sizeVariant="lg" aria-label={t.actions.actionsMenu}>
               <MoreVertical className="h-4 w-4" />
             </GhostIconButton>
           </DropdownMenuTrigger>
@@ -538,7 +538,7 @@ export function ItemActions({
                       {getMarketplaceUpdateLabel(platform)}
                       {isDirty && (
                         <Badge className="ml-2 bg-amber-500/20 text-amber-400 border-amber-500/50 text-xs">
-                          Changed
+                          {t.actions.changed}
                         </Badge>
                       )}
                     </DropdownMenuItem>

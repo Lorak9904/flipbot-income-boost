@@ -4,6 +4,8 @@
  * Handles OLX country account connection, status checks, and token management.
  */
 
+import { getLocalizedPath, getPathLanguage } from '@/lib/localized-routes';
+
 // Base URL for API calls
 // Update this if your backend is hosted elsewhere
 const API_BASE = '/api';
@@ -214,7 +216,9 @@ export function handleOlxTokenExpired(): void {
   sessionStorage.setItem('olx_reconnect_return', window.location.pathname);
   
   // Redirect to settings with reconnect flag
-  window.location.href = '/settings?reconnect=olx&message=OLX+token+expired';
+  const language = getPathLanguage(window.location.pathname) ?? 'en';
+  const query = new URLSearchParams({ reconnect: 'olx', message: 'OLX token expired' });
+  window.location.href = `${getLocalizedPath('/settings', language)}?${query}`;
 }
 
 /**

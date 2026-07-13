@@ -47,6 +47,99 @@ export interface FetchItemsParams {
   platform?: Platform;
 }
 
+export interface RefreshListingStatusesParams {
+  item_ids?: string[];
+  platforms?: Platform[];
+}
+
+export interface PlatformStatusRefreshResult {
+  status: 'success' | 'partial_success' | 'unsupported' | 'skipped' | 'error';
+  message?: string;
+  error?: string;
+  summary?: Record<string, unknown>;
+}
+
+export interface RefreshListingStatusesResponse {
+  status: 'success' | 'partial_success' | 'unsupported' | 'error';
+  supported_platforms: Platform[];
+  results: Partial<Record<Platform, PlatformStatusRefreshResult>>;
+  items: UserItem[];
+}
+
+export interface DuplicateSuggestionItem {
+  id: string;
+  uuid: string;
+  title?: string | null;
+  description?: string | null;
+  price?: string | number | null;
+  currency?: string | null;
+  images?: UserItem['images'];
+  platforms: Platform[];
+  status?: ItemStatus;
+}
+
+export interface DuplicateFieldConflict {
+  field: string;
+  primary_value?: unknown;
+  duplicate_value?: unknown;
+  resolution?: 'primary_kept' | string;
+}
+
+export interface DuplicateSuggestion {
+  key: string;
+  score: number;
+  confidence: 'high' | 'medium';
+  reasons: string[];
+  field_conflicts?: DuplicateFieldConflict[];
+  primary_item: DuplicateSuggestionItem;
+  duplicate_item: DuplicateSuggestionItem;
+  merged_platforms: Platform[];
+}
+
+export interface DuplicateSuggestionsResponse {
+  count: number;
+  suggestions: DuplicateSuggestion[];
+}
+
+export interface MergeDuplicateItemsResponse {
+  status: 'merged';
+  merged_item_id: string;
+  score: number;
+  reasons: string[];
+  item: UserItem;
+}
+
+export interface DismissDuplicateSuggestionResponse {
+  status: 'dismissed';
+  pair_key: string;
+}
+
+export interface UnmergeDuplicateItemResponse {
+  status: 'unmerged';
+  primary_item: UserItem;
+  restored_item: UserItem;
+}
+
+export interface BulkMergeDuplicateResult {
+  status: 'merged' | 'error';
+  primary_item_id: string;
+  duplicate_item_id?: string;
+  merged_item_id?: string;
+  score?: number;
+  message?: string;
+}
+
+export interface BulkMergeDuplicateSuggestionsResponse {
+  status: 'success' | 'partial_success';
+  merged_count: number;
+  results: BulkMergeDuplicateResult[];
+}
+
+const withSuggestionItemUuid = (item: Omit<DuplicateSuggestionItem, 'uuid'> & { uuid?: string }): DuplicateSuggestionItem => ({
+  ...item,
+  uuid: item.id || item.uuid || '',
+});
+
 /**
  * Fetch user's items with optional filtering and pagination
  */
@@ -115,6 +208,219 @@ export async function fetchUserItems(params: FetchItemsParams = {}): Promise<Use
     page_size: pageSize,
     total_pages: totalPages,
   };
+}
+
+/**
+ * Refresh remote marketplace statuses for selected listing cards.
+ */
+export async function refreshListingStatuses(
+  params: RefreshListingStatusesParams = {}
+): Promise<RefreshListingStatusesResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE}/items/refresh-statuses/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    const errorData = (await response.json().catch(() => ({}))) as ApiErrorPayload;
+    throw new Error(errorData.detail || `Failed to refresh listing statuses: ${response.statusText}`);
+  }
+
+  const data = (await response.json()) as Omit<RefreshListingStatusesResponse, 'items'> & { items?: unknown[] };
+  const rawItems = Array.isArray(data.items) ? data.items.filter(isRawUserItem) : [];
+  return {
+    ...data,
+    items: rawItems.map(withUuid),
+  };
+}
+
+export async function fetchDuplicateSuggestions(params: {
+  item_ids?: string[];
+  limit?: number;
+} = {}): Promise<DuplicateSuggestionsResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const searchParams = new URLSearchParams();
+  if (params.item_ids && params.item_ids.length > 0) {
+    searchParams.set('item_ids', params.item_ids.join(','));
+  }
+  if (params.limit !== undefined) {
+    searchParams.set('limit', params.limit.toString());
+  }
+
+  const query = searchParams.toString();
+  const response = await fetch(`${API_BASE}/items/duplicate-suggestions/${query ? `?${query}` : ''}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    const errorData = (await response.json().catch(() => ({}))) as ApiErrorPayload;
+    throw new Error(errorData.detail || `Failed to fetch duplicate suggestions: ${response.statusText}`);
+  }
+
+  const data = (await response.json()) as DuplicateSuggestionsResponse;
+  return {
+    ...data,
+    suggestions: (data.suggestions || []).map((suggestion) => ({
+      ...suggestion,
+      primary_item: withSuggestionItemUuid(suggestion.primary_item),
+      duplicate_item: withSuggestionItemUuid(suggestion.duplicate_item),
+    })),
+  };
+}
+
+export async function mergeDuplicateItems(
+  primaryItemId: string,
+  duplicateItemId: string
+): Promise<MergeDuplicateItemsResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE}/items/duplicates/merge/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      primary_item_id: primaryItemId,
+      duplicate_item_id: duplicateItemId,
+    }),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    const errorData = (await response.json().catch(() => ({}))) as ApiErrorPayload;
+    throw new Error(errorData.detail || `Failed to merge duplicate listings: ${response.statusText}`);
+  }
+
+  const data = (await response.json()) as Omit<MergeDuplicateItemsResponse, 'item'> & { item?: RawUserItem };
+  return {
+    ...data,
+    item: withUuid(data.item || {}),
+  };
+}
+
+export async function dismissDuplicateSuggestion(
+  primaryItemId: string,
+  duplicateItemId: string
+): Promise<DismissDuplicateSuggestionResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE}/items/duplicates/dismiss/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      primary_item_id: primaryItemId,
+      duplicate_item_id: duplicateItemId,
+    }),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    const errorData = (await response.json().catch(() => ({}))) as ApiErrorPayload;
+    throw new Error(errorData.detail || `Failed to dismiss duplicate suggestion: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function unmergeDuplicateItem(mergedItemId: string): Promise<UnmergeDuplicateItemResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE}/items/duplicates/unmerge/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      merged_item_id: mergedItemId,
+    }),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    const errorData = (await response.json().catch(() => ({}))) as ApiErrorPayload;
+    throw new Error(errorData.detail || `Failed to undo duplicate merge: ${response.statusText}`);
+  }
+
+  const data = (await response.json()) as Omit<UnmergeDuplicateItemResponse, 'primary_item' | 'restored_item'> & {
+    primary_item?: RawUserItem;
+    restored_item?: RawUserItem;
+  };
+  return {
+    ...data,
+    primary_item: withUuid(data.primary_item || {}),
+    restored_item: withUuid(data.restored_item || {}),
+  };
+}
+
+export async function bulkMergeDuplicateSuggestions(
+  pairs: Array<{ primary_item_id: string; duplicate_item_id: string }>
+): Promise<BulkMergeDuplicateSuggestionsResponse> {
+  const token = localStorage.getItem('flipit_token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE}/items/duplicates/bulk-merge/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ pairs }),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required');
+    }
+    const errorData = (await response.json().catch(() => ({}))) as ApiErrorPayload;
+    throw new Error(errorData.detail || `Failed to bulk merge duplicate listings: ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 /**
@@ -330,11 +636,7 @@ export interface UpdateItemPayload {
 
 export type RegeneratableItemField =
   | 'title'
-  | 'description'
-  | 'brand'
-  | 'condition'
-  | 'category'
-  | 'size';
+  | 'description';
 
 export interface RegenerateItemFieldPayload {
   field: RegeneratableItemField;
@@ -422,8 +724,14 @@ export async function regenerateItemField(
  */
 export async function enhanceItemImages(
   uuid: string,
-  imageUrls?: string[]
-): Promise<{ enhanced_images: string[]; all_images: string[]; message: string }> {
+  imageUrls?: string[],
+  sourceImageUrl?: string,
+): Promise<{
+  enhanced_images: string[];
+  all_images: string[];
+  source_image_url?: string;
+  message: string;
+}> {
   const token = localStorage.getItem('flipit_token');
   if (!token) {
     throw new Error('No authentication token found');
@@ -436,7 +744,8 @@ export async function enhanceItemImages(
       'Authorization': `Bearer ${token}`,
     },
     body: JSON.stringify({
-      image_urls: imageUrls, // Send current image order from frontend
+      image_urls: imageUrls,
+      source_image_url: sourceImageUrl,
     }),
   });
 

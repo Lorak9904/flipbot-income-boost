@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { enUS, pl } from 'date-fns/locale';
 import {
   AlertCircle,
   ArrowDownRight,
@@ -20,6 +21,7 @@ import { motion } from 'framer-motion';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { SEOHead } from '@/components/SEOHead';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
@@ -39,6 +41,8 @@ import {
 } from '@/components/ui/table';
 import { fetchPlatformStatistics } from '@/lib/api/items';
 import { ALL_PLATFORMS, formatPlatformLabel } from '@/lib/platforms';
+import { getCurrentLanguage, getLocalizedPathForCurrentLanguage, getTranslations } from '@/components/language-utils';
+import { resolveStatisticMetricLabel, statisticsTranslations } from './statistics-translations';
 import {
   formatStatisticDelta,
   formatStatisticMetricValue,
@@ -67,6 +71,7 @@ const metricColorClass = ['text-cyan-300', 'text-fuchsia-300', 'text-emerald-300
 type MetricColumn = Pick<ListingStatisticMetric, 'key' | 'label'>;
 type SortKey = 'title' | 'captured_at' | `metric:${string}`;
 type SortDirection = 'asc' | 'desc';
+const PAGE_SIZE = 25;
 
 const validPlatform = (value: string | null): Platform =>
   ALL_PLATFORMS.includes(value as Platform) ? (value as Platform) : 'olx';
@@ -113,6 +118,9 @@ const UserStatisticsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sortKey, setSortKey] = useState<SortKey>(metricSortKey('views'));
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [page, setPage] = useState(1);
+  const language = getCurrentLanguage();
+  const t = getTranslations(statisticsTranslations);
   const selectedPlatform = validPlatform(searchParams.get('platform'));
 
   const { data, isLoading, isError } = useQuery({
@@ -121,10 +129,14 @@ const UserStatisticsPage = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  const summary = data?.summary || [];
+  const summary = useMemo(() => data?.summary || [], [data?.summary]);
   const metricColumns = useMemo(
-    () => buildMetricColumns(summary, data?.items || []),
-    [data?.items, summary]
+    () =>
+      buildMetricColumns(summary, data?.items || []).map((metric) => ({
+        ...metric,
+        label: resolveStatisticMetricLabel(t, metric.key, metric.label),
+      })),
+    [data?.items, summary, t]
   );
   const activeSortKey = useMemo<SortKey>(() => {
     const metricKey = sortMetricKey(sortKey);
@@ -134,11 +146,11 @@ const UserStatisticsPage = () => {
     return 'captured_at';
   }, [metricColumns, sortKey]);
   const sortLabel = useMemo(() => {
-    if (activeSortKey === 'title') return 'title';
-    if (activeSortKey === 'captured_at') return 'capture date';
+    if (activeSortKey === 'title') return t.titleSort;
+    if (activeSortKey === 'captured_at') return t.captureDateSort;
     const metricKey = sortMetricKey(activeSortKey);
-    return metricColumns.find((metric) => metric.key === metricKey)?.label.toLowerCase() || metricKey || 'metric';
-  }, [activeSortKey, metricColumns]);
+    return metricColumns.find((metric) => metric.key === metricKey)?.label.toLowerCase() || metricKey || t.metricSort;
+  }, [activeSortKey, metricColumns, t.captureDateSort, t.metricSort, t.titleSort]);
 
   const sortedItems = useMemo(
     () =>
@@ -165,14 +177,25 @@ const UserStatisticsPage = () => {
         .map(({ item }) => item),
     [activeSortKey, data?.items, sortDirection]
   );
+  const totalPages = Math.max(1, Math.ceil(sortedItems.length / PAGE_SIZE));
+  const visibleItems = useMemo(
+    () => sortedItems.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [page, sortedItems]
+  );
+
+  useEffect(() => {
+    setPage((current) => Math.min(current, totalPages));
+  }, [totalPages]);
 
   const handlePlatformChange = (platform: Platform) => {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set('platform', platform);
     setSearchParams(nextParams);
+    setPage(1);
   };
 
   const handleSort = (key: SortKey) => {
+    setPage(1);
     if (activeSortKey === key) {
       setSortDirection((direction) => direction === 'asc' ? 'desc' : 'asc');
       return;
@@ -194,7 +217,7 @@ const UserStatisticsPage = () => {
         type="button"
         onClick={() => handleSort(key)}
         className="inline-flex items-center gap-1 text-left text-neutral-400 transition-colors hover:text-white"
-        aria-label={`Sort listings by ${label.toLowerCase()}`}
+        aria-label={t.sortAria(label.toLowerCase())}
       >
         {label}
         <SortIcon className={active ? 'h-3.5 w-3.5 text-cyan-300' : 'h-3.5 w-3.5 text-neutral-500'} />
@@ -205,8 +228,10 @@ const UserStatisticsPage = () => {
   return (
     <>
       <SEOHead
-        title="Marketplace Statistics - FlipIt"
-        description="Stored marketplace performance statistics for your published listings."
+        title={t.seoTitle}
+        description={t.seoDescription}
+        language={language}
+        robots="noindex, nofollow"
       />
       <div className="relative min-h-screen overflow-hidden text-white">
         <AnimatedGradientBackground />
@@ -217,20 +242,20 @@ const UserStatisticsPage = () => {
               <div>
                 <div className="mb-2 flex items-center gap-2 text-cyan-300">
                   <BarChart3 className="h-5 w-5" />
-                  <span className="text-sm font-medium">Marketplace performance</span>
+                  <span className="text-sm font-medium">{t.eyebrow}</span>
                 </div>
                 <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
-                  Statistics
+                  {t.title}
                 </h1>
                 <p className="mt-2 max-w-2xl text-sm text-neutral-300 md:text-base">
-                  Read-only marketplace metrics captured from official platform APIs.
+                  {t.description}
                 </p>
               </div>
 
               <div className="sm:hidden">
                 <Select value={selectedPlatform} onValueChange={(value) => handlePlatformChange(value as Platform)}>
                   <SelectTrigger className="w-full bg-neutral-900/70 border-neutral-700 text-white">
-                    <SelectValue placeholder="Platform" />
+                    <SelectValue placeholder={t.platform} />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
                     {ALL_PLATFORMS.map((platform) => (
@@ -268,7 +293,7 @@ const UserStatisticsPage = () => {
             <Card className="border-red-500/40 bg-red-500/10">
               <CardContent className="flex items-center gap-3 p-6 text-red-100">
                 <AlertCircle className="h-5 w-5" />
-                Marketplace statistics could not be loaded.
+                {t.loadError}
               </CardContent>
             </Card>
           ) : (
@@ -276,8 +301,7 @@ const UserStatisticsPage = () => {
               {!data?.supported && (
                 <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={3} className="mb-6">
                   <div className="rounded-lg border border-neutral-700 bg-neutral-900/60 p-4 text-sm text-neutral-300">
-                    Official listing statistics are not available for {formatPlatformLabel(selectedPlatform)} yet.
-                    Published listings stay visible here so unsupported state is explicit.
+                    {t.unsupported(formatPlatformLabel(selectedPlatform))}
                   </div>
                 </motion.div>
               )}
@@ -293,7 +317,9 @@ const UserStatisticsPage = () => {
                   summary.map((metric, index) => (
                     <Card key={metric.key} className="border-neutral-800 bg-neutral-900/55 backdrop-blur-sm">
                       <CardContent className="p-5">
-                        <p className="text-sm text-neutral-400">{metric.label}</p>
+                        <p className="text-sm text-neutral-400">
+                          {resolveStatisticMetricLabel(t, metric.key, metric.label)}
+                        </p>
                         <p className={`mt-2 text-3xl font-semibold ${metricColorClass[index % metricColorClass.length]}`}>
                           {formatStatisticMetricValue(metric)}
                         </p>
@@ -310,7 +336,7 @@ const UserStatisticsPage = () => {
                   <Card className="col-span-full border-neutral-800 bg-neutral-900/55">
                     <CardContent className="flex items-center gap-3 p-6 text-neutral-400">
                       <Package className="h-5 w-5" />
-                      No captured statistics for {formatPlatformLabel(selectedPlatform)} yet.
+                      {t.noStatistics(formatPlatformLabel(selectedPlatform))}
                     </CardContent>
                   </Card>
                 )}
@@ -319,36 +345,36 @@ const UserStatisticsPage = () => {
               <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={4}>
                 <Card className="border-neutral-800 bg-neutral-900/55 backdrop-blur-sm">
                   <CardHeader>
-                    <CardTitle className="text-white">Listings on {formatPlatformLabel(selectedPlatform)}</CardTitle>
+                    <CardTitle className="text-white">{t.listingsOn(formatPlatformLabel(selectedPlatform))}</CardTitle>
                     <CardDescription className="text-neutral-400">
-                      Sorted by {sortLabel} {sortDirection === 'asc' ? 'ascending' : 'descending'}.
+                      {t.sortedBy(sortLabel, sortDirection === 'asc' ? t.ascending : t.descending)}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     {sortedItems.length === 0 ? (
                       <div className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-8 text-center text-neutral-400">
-                        No published listings were found for this platform.
+                        {t.noListings}
                       </div>
                     ) : (
                       <Table className="min-w-max">
                         <TableHeader>
                           <TableRow className="border-neutral-800 hover:bg-transparent">
-                            <TableHead>{renderSortLabel('title', 'Listing')}</TableHead>
-                            <TableHead className="text-neutral-400">Status</TableHead>
+                            <TableHead>{renderSortLabel('title', t.listing)}</TableHead>
+                            <TableHead className="text-neutral-400">{t.status}</TableHead>
                             {metricColumns.map((metric) => (
                               <TableHead key={metric.key} className="min-w-[130px]">
                                 {renderSortLabel(metricSortKey(metric.key), metric.label)}
                               </TableHead>
                             ))}
-                            <TableHead>{renderSortLabel('captured_at', 'Captured')}</TableHead>
-                            <TableHead className="text-right text-neutral-400">Link</TableHead>
+                            <TableHead>{renderSortLabel('captured_at', t.captured)}</TableHead>
+                            <TableHead className="text-right text-neutral-400">{t.link}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {sortedItems.map((item) => (
+                          {visibleItems.map((item) => (
                             <TableRow key={item.item_id} className="border-neutral-800 hover:bg-neutral-800/30">
                               <TableCell className="min-w-[220px]">
-                                <Link to={`/user/items/${item.item_id}`} className="font-medium text-white hover:text-cyan-300">
+                                <Link to={getLocalizedPathForCurrentLanguage(`/user/items/${item.item_id}`)} className="font-medium text-white hover:text-cyan-300">
                                   {item.title}
                                 </Link>
                                 {item.external_id && (
@@ -357,7 +383,7 @@ const UserStatisticsPage = () => {
                               </TableCell>
                               <TableCell>
                                 <Badge className={statusStyles[item.status] || statusStyles.no_data}>
-                                  {item.status.replace('_', ' ')}
+                                  {t.statuses[item.status] || item.status.replace('_', ' ')}
                                 </Badge>
                                 {item.message && (
                                   <p className="mt-1 max-w-[260px] text-xs text-neutral-500">{item.message}</p>
@@ -383,7 +409,7 @@ const UserStatisticsPage = () => {
                                 );
                               })}
                               <TableCell className="text-neutral-300">
-                                {item.captured_at ? format(new Date(item.captured_at), 'PPp') : '-'}
+                                {item.captured_at ? format(new Date(item.captured_at), 'PPp', { locale: language === 'pl' ? pl : enUS }) : '-'}
                               </TableCell>
                               <TableCell className="text-right">
                                 {item.listing_url ? (
@@ -392,7 +418,7 @@ const UserStatisticsPage = () => {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center justify-end text-cyan-300 hover:text-cyan-200"
-                                    aria-label={`Open ${formatPlatformLabel(item.platform)} listing`}
+                                    aria-label={t.openListingAria(formatPlatformLabel(item.platform))}
                                   >
                                     <ExternalLink className="h-4 w-4" />
                                   </a>
@@ -404,6 +430,38 @@ const UserStatisticsPage = () => {
                           ))}
                         </TableBody>
                       </Table>
+                    )}
+
+                    {sortedItems.length > PAGE_SIZE && (
+                      <div className="mt-4 flex flex-col gap-3 border-t border-neutral-800 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-sm text-neutral-400">
+                          {t.pagination(
+                            (page - 1) * PAGE_SIZE + 1,
+                            Math.min(page * PAGE_SIZE, sortedItems.length),
+                            sortedItems.length
+                          )}
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={page === 1}
+                            onClick={() => setPage((current) => Math.max(1, current - 1))}
+                          >
+                            {t.previous}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={page === totalPages}
+                            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                          >
+                            {t.next}
+                          </Button>
+                        </div>
+                      </div>
                     )}
                   </CardContent>
                 </Card>

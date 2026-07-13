@@ -3,6 +3,8 @@
  * Visual progress indicator for credit usage
  */
 import { getCreditsHealthStatus } from '@/lib/api/credits';
+import { getTranslations } from '@/components/language-utils';
+import { creditsTranslations } from './credits-translations';
 
 interface CreditsProgressBarProps {
   used: number;
@@ -11,6 +13,7 @@ interface CreditsProgressBarProps {
 }
 
 export function CreditsProgressBar({ used, limit, bonusCredits = 0 }: CreditsProgressBarProps) {
+  const t = getTranslations(creditsTranslations);
   // Unlimited plans
   if (limit === null) {
     return (
@@ -74,14 +77,14 @@ export function CreditsProgressBar({ used, limit, bonusCredits = 0 }: CreditsPro
       {/* Numbers */}
       <div className="flex justify-between items-center text-xs">
         <span className="text-neutral-400">
-          {used} used
+          {t.usedLabel}: {used}
         </span>
         <span className={`font-semibold ${
           healthStatus === 'critical' ? 'text-red-400' :
           healthStatus === 'warning' ? 'text-yellow-400' :
           'text-cyan-400'
         }`}>
-          {remaining} / {limit} remaining
+          {t.remainingCredits}: {remaining} / {limit}
         </span>
       </div>
     </div>

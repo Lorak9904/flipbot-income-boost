@@ -2,21 +2,28 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { ItemImage } from "@/types/item";
-import { Image, Trash, Upload, Loader2 } from "lucide-react";
+import { Image, Trash, Upload, Loader2, WandSparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import imageCompression from "browser-image-compression";
 import heic2any from "heic2any";
 import { ImagePreview } from "./ImagePreview";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { imageUploaderTranslations } from "@/utils/translations/image-uploader-translations";
 
 // Public base for served images (configure via VITE_IMAGES_BASE_URL)
-const PUBLIC_IMAGES_BASE = (import.meta as any)?.env?.VITE_IMAGES_BASE_URL || 'https://images.myflipit.live/';
+const PUBLIC_IMAGES_BASE = import.meta.env.VITE_IMAGES_BASE_URL || 'https://images.myflipit.live/';
+const MARKETPLACE_SAFE_MAX_BYTES = 4_500_000;
+const MARKETPLACE_TARGET_LONG_EDGE = 2560;
 
 interface ImageUploaderProps {
   images: ItemImage[];
   onChange: (images: ItemImage[]) => void;
   isDisabled?: boolean;
+  language?: string;
+  onEnhanceImage?: (image: ItemImage) => void;
+  enhancingImageId?: string | null;
 }
 
 /**
@@ -27,8 +34,16 @@ interface ImageUploaderProps {
  * 3. Ensuring the parent receives the *final* list – including the new images –
  *    so that a page change can re‑hydrate the same data.
  */
-const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisabled = false }) => {
+const ImageUploader: React.FC<ImageUploaderProps> = ({
+  images,
+  onChange,
+  isDisabled = false,
+  language = 'en',
+  onEnhanceImage,
+  enhancingImageId = null,
+}) => {
   const { toast } = useToast();
+  const copy = imageUploaderTranslations[language === 'pl' ? 'pl' : 'en'];
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [draggedImageId, setDraggedImageId] = useState<string | null>(null);
@@ -47,7 +62,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
   };
 
   /**
-   * Convert image to JPEG format for consistency and compatibility.
+   * Convert source formats that cannot be uploaded consistently as a JPEG.
    * Handles HEIC (iPhone), PNG, WebP, and other formats.
    */
   const convertToJPEG = async (file: File): Promise<File> => {
@@ -67,7 +82,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
         const convertedBlob = await heic2any({
           blob: file,
           toType: 'image/jpeg',
-          quality: 0.9,
+          quality: 0.95,
         });
 
         // heic2any can return Blob or Blob[], handle both
@@ -76,45 +91,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
         return new File([blob], newFileName, { type: 'image/jpeg' });
       }
 
-      // Convert PNG/WebP to JPEG for consistency (optional but saves space)
-      if (fileType === 'image/png' || fileType === 'image/webp') {
-        console.log('Converting to JPEG:', file.name);
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const img = new window.Image();
-            img.onload = () => {
-              const canvas = document.createElement('canvas');
-              canvas.width = img.width;
-              canvas.height = img.height;
-              const ctx = canvas.getContext('2d');
-              if (!ctx) {
-                resolve(file); // Fallback to original
-                return;
-              }
-              ctx.drawImage(img, 0, 0);
-              canvas.toBlob(
-                (blob) => {
-                  if (!blob) {
-                    resolve(file); // Fallback to original
-                    return;
-                  }
-                  const newFileName = file.name.replace(/\.(png|webp)$/i, '.jpg');
-                  resolve(new File([blob], newFileName, { type: 'image/jpeg' }));
-                },
-                'image/jpeg',
-                0.9
-              );
-            };
-            img.onerror = () => resolve(file); // Fallback to original
-            img.src = e.target?.result as string;
-          };
-          reader.onerror = () => resolve(file); // Fallback to original
-          reader.readAsDataURL(file);
-        });
-      }
-
-      // Already JPEG or other supported format, return as-is
+      // Browser Image Compression performs the JPEG conversion for browser-
+      // decodable PNG/WebP inputs in one rasterization pass.
       return file;
     } catch (error) {
       console.warn('Format conversion failed, using original:', error);
@@ -123,23 +101,32 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
   };
 
   /**
-   * Compress image on client-side before upload.
-   * Reduces bandwidth and storage costs while maintaining decent quality.
+   * Preserve an already suitable JPEG. Other images get one normalized export
+   * with enough room for marketplace detail photos without exceeding Vinted's
+   * documented 5 MB photo limit.
    */
-  const compressImage = async (file: File): Promise<File> => {
+  const compressImage = async (file: File, forceNormalization: boolean): Promise<File> => {
     try {
+      const shouldPreserve = (
+        !forceNormalization
+        &&
+        file.type === 'image/jpeg'
+        && file.size <= MARKETPLACE_SAFE_MAX_BYTES
+      );
+
+      if (shouldPreserve) {
+        return file;
+      }
+
       const options = {
-        maxWidthOrHeight: 1920,      // Keep reasonable resolution for zoom/detail
-        initialQuality: 0.85,         // Balance quality vs size
-        maxSizeMB: 2,                 // Target max 2MB after compression
-        useWebWorker: true,           // Non-blocking compression
-        fileType: file.type,          // Preserve original format
+        maxWidthOrHeight: MARKETPLACE_TARGET_LONG_EDGE,
+        initialQuality: 0.92,
+        maxSizeMB: MARKETPLACE_SAFE_MAX_BYTES / (1024 * 1024),
+        useWebWorker: true,
+        fileType: 'image/jpeg',
       };
 
-      const compressed = await imageCompression(file, options);
-      
-      // Only use compressed if it's actually smaller (edge case: small images might grow)
-      return compressed.size < file.size ? compressed : file;
+      return await imageCompression(file, options);
     } catch (error) {
       console.warn("Image compression failed, using original:", error);
       // Fallback to original file on compression error
@@ -158,7 +145,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
           if (!img.isUploaded && img.url && img.url.startsWith('blob:')) {
             URL.revokeObjectURL(img.url);
           }
-        } catch {}
+        } catch {
+          // Blob URLs may already have been revoked by a prior state update.
+        }
       });
     };
   }, [images]);
@@ -232,10 +221,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
       // Convert and compress images in parallel (client-side, non-blocking)
       const compressedFiles = await Promise.all(
         placeholderImages.map(async (placeholder) => {
-          // Step 1: Convert to JPEG (handles HEIC, PNG, WebP)
+          // Step 1: HEIC needs a browser-supported JPEG conversion.
           const converted = await convertToJPEG(placeholder.file!);
-          // Step 2: Compress the JPEG
-          const compressed = await compressImage(converted);
+          // Step 2: Normalize only when the original is not already a
+          // marketplace-safe JPEG or exceeds the photo-size safety margin.
+          const compressed = await compressImage(
+            converted,
+            placeholder.file!.type !== 'image/jpeg',
+          );
           return {
             id: placeholder.id,
             compressed,
@@ -250,7 +243,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
 
         // Revoke old blob URL and create new one for compressed file
         if (img.url && img.url.startsWith('blob:')) {
-          try { URL.revokeObjectURL(img.url); } catch {}
+          try {
+            URL.revokeObjectURL(img.url);
+          } catch {
+            // Blob URLs may already have been revoked by a prior state update.
+          }
         }
 
         const blobUrl = URL.createObjectURL(compressed.compressed);
@@ -373,7 +370,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
 
         // Clean up blob preview URL after successful upload
         if (img.preview && img.preview.startsWith('blob:')) {
-          try { URL.revokeObjectURL(img.preview); } catch {}
+          try {
+            URL.revokeObjectURL(img.preview);
+          } catch {
+            // Blob URLs may already have been revoked by a prior state update.
+          }
         }
 
         // Replace with final CDN URL and clear blob preview
@@ -425,10 +426,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
       .filter((img) => img.id === id)
       .forEach((img) => {
         if (img.preview && img.preview.startsWith('blob:')) {
-          try { URL.revokeObjectURL(img.preview); } catch {}
+          try {
+            URL.revokeObjectURL(img.preview);
+          } catch {
+            // Blob URLs may already have been revoked by a prior state update.
+          }
         }
         if (!img.isUploaded && img.url && img.url.startsWith('blob:')) {
-          try { URL.revokeObjectURL(img.url); } catch {}
+          try {
+            URL.revokeObjectURL(img.url);
+          } catch {
+            // Blob URLs may already have been revoked by a prior state update.
+          }
         }
       });
 
@@ -502,21 +511,25 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
               {(image.url || image.preview) ? (
                 <img
                   src={image.url || image.preview}
-                  alt="Item photo"
+                  alt={copy.photoAlt(index + 1)}
                   className="w-full h-full object-cover pointer-events-none"
                   onError={() => console.error(`Failed to load image: ${image.url || image.preview}`)}
                 />
               ) : (
                 <div className="w-full h-full bg-slate-200" />
               )}
-              {(image.isCompressing || image.isUploading) && (
+              {(image.isCompressing || image.isUploading || enhancingImageId === image.id) && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <div className="text-white text-center">
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                     <p className="text-xs">
-                      {image.isCompressing 
-                        ? 'Compressing...' 
-                        : `Uploading${typeof image.progress === 'number' ? ` ${image.progress}%` : '...'}`
+                      {enhancingImageId === image.id
+                        ? copy.enhancingPhoto
+                        : image.isCompressing
+                        ? copy.compressing
+                        : typeof image.progress === 'number'
+                          ? `${copy.uploading.replace('...', '')} ${image.progress}%`
+                          : copy.uploading
                       }
                     </p>
                   </div>
@@ -525,7 +538,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
               {/* Enhanced image badge */}
               {image.enhanced && (
                 <div className="absolute top-2 left-2 bg-purple-600/90 text-white text-xs px-2 py-1 rounded">
-                  🎨 Enhanced
+                  {copy.enhanced}
                 </div>
               )}
               {/* Image position indicator */}
@@ -534,10 +547,36 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
               </div>
             </AspectRatio>
             {!isDisabled && !image.isCompressing && !image.isUploading && (
+              <TooltipProvider delayDuration={150}>
+                {onEnhanceImage && !image.enhanced && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="icon"
+                        className="absolute bottom-2 right-2 h-11 w-11 border border-cyan-400/40 bg-neutral-950/90 text-cyan-200 opacity-100 transition-opacity hover:bg-cyan-500/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+                        aria-label={copy.enhancePhoto}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onEnhanceImage(image);
+                        }}
+                      >
+                        <WandSparkles className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{copy.enhancePhoto}</TooltipContent>
+                  </Tooltip>
+                )}
+              </TooltipProvider>
+            )}
+            {!isDisabled && !image.isCompressing && !image.isUploading && (
               <Button
+                type="button"
                 variant="destructive"
                 size="icon"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-2 right-2 h-11 w-11 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+                aria-label={copy.removePhoto}
                 onClick={(e) => {
                   e.stopPropagation();
                   removeImage(image.id);
@@ -572,10 +611,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
             />
             <Upload className="h-8 w-8 text-slate-400 mb-2" />
             <p className="text-sm text-slate-600">
-              {uploading ? "Uploading..." : "Click or drag images here"}
+              {uploading ? copy.uploading : copy.upload}
             </p>
             <p className="text-xs text-slate-400 mt-1">
-              Up to 10 images, 25MB each
+              {copy.limit}
             </p>
           </div>
         )}
@@ -583,7 +622,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange, isDisab
 
       <div className="text-xs text-slate-500 flex items-center gap-1">
         <Image className="h-3 w-4" />
-        {images.length}/10 images
+        {copy.count(images.length)}
       </div>
 
       {/* Image Preview Modal */}

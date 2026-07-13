@@ -1,5 +1,6 @@
 import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from '@/components/language-utils';
 import { SeoArticleLayout } from '@/components/seo/SeoArticleLayout';
+import { getRoutePath } from '@/lib/localized-routes';
 import { howToPriceItemsForEbayTranslations } from './translations/how-to-price-items-for-ebay.translations';
 
 const keywords = [
@@ -16,10 +17,7 @@ const keywords = [
 const HowToPriceItemsForEbayArticle = () => {
   const t = getTranslations(howToPriceItemsForEbayTranslations);
   const language = getCurrentLanguage();
-  const canonicalUrl =
-    language === 'pl'
-      ? 'https://myflipit.live/articles/jak-wycenic-przedmiot-na-ebay'
-      : 'https://myflipit.live/articles/how-to-price-items-for-ebay';
+  const canonicalUrl = `https://myflipit.live${getRoutePath('priceForEbay', language)}`;
 
   const articleStructuredData = {
     '@context': 'https://schema.org',
@@ -44,7 +42,7 @@ const HowToPriceItemsForEbayArticle = () => {
       '@id': canonicalUrl,
     },
     datePublished: '2026-06-13',
-    dateModified: '2026-06-13',
+    dateModified: '2026-07-13',
     keywords,
   };
 
@@ -99,14 +97,14 @@ const HowToPriceItemsForEbayArticle = () => {
       text: t.relatedLink3,
       href: getLocalizedPathForLanguage('/articles/product-relister-for-vinted', language),
     },
-    { text: t.relatedLink4, href: '/automated-reselling-platform-guide' },
+    { text: t.relatedLink4, href: getRoutePath('usedItemValueGuide', language) },
   ];
 
   const cta = {
     title: t.ctaTitle,
     description: t.ctaDescription,
     buttonText: t.ctaButtonText,
-    buttonLink: '/get-started',
+    buttonLink: getRoutePath('priceChecker', language),
     footerText: t.ctaFooterText,
     footerLinkText: t.ctaFooterLinkText,
     footerLinkHref: getLocalizedPathForLanguage('/articles/ebay-active-listings-vs-sold-prices', language),
@@ -138,4 +136,3 @@ const HowToPriceItemsForEbayArticle = () => {
 };
 
 export default HowToPriceItemsForEbayArticle;
-

@@ -64,6 +64,8 @@ interface SeoArticleLayoutProps {
   // Related links
   relatedLinks: RelatedLink[];
   relatedLinksTitle?: string;
+  sourceLinks?: RelatedLink[];
+  sourceLinksTitle?: string;
   
   // Optional highlights box
   highlightsTitle?: string;
@@ -86,12 +88,15 @@ export const SeoArticleLayout = ({
   cta,
   relatedLinks,
   relatedLinksTitle = 'Related Tutorials',
+  sourceLinks,
+  sourceLinksTitle,
   highlightsTitle,
   highlights,
 }: SeoArticleLayoutProps) => {
   const language = getCurrentLanguage();
   const highlightsLabel = language === 'pl' ? 'Najważniejsze punkty' : 'Key Points';
   const faqTitle = language === 'pl' ? 'Najczęstsze pytania' : 'Frequently Asked Questions';
+  const sourcesTitle = sourceLinksTitle || (language === 'pl' ? 'Źródła' : 'Sources');
   
   // Build FAQ structured data if FAQ exists
   const faqStructuredData = faq && faq.length > 0 ? {
@@ -246,6 +251,25 @@ export const SeoArticleLayout = ({
             ))}
           </motion.section>
         ))}
+
+        {sourceLinks && sourceLinks.length > 0 && (
+          <section className="mb-16 border-l-2 border-cyan-400/60 pl-5">
+            <h2 className="mb-3 text-lg font-semibold text-white">{sourcesTitle}</h2>
+            <ul className="space-y-2 text-sm">
+              {sourceLinks.map((source) => (
+                <li key={source.href}>
+                  <a
+                    href={source.href}
+                    className="text-cyan-300 underline transition-colors hover:text-cyan-200"
+                    rel="noreferrer"
+                  >
+                    {source.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {/* FAQ section */}
         {faq && faq.length > 0 && (

@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { usePostHog } from '@posthog/react';
 import { SEOHead } from '@/components/SEOHead';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getTranslations } from '@/components/language-utils';
+import { getCurrentLanguage, getLocalizedPathForCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { connectAccountsTranslations } from './connect-accounts-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { PLATFORM_LOGOS } from '@/lib/platform-logos';
@@ -140,7 +140,7 @@ const ConnectAccountsPage = () => {
         description: t.toastAuthRequiredDescription,
         variant: "destructive",
       });
-      navigate('/login');
+      navigate(getLocalizedPathForCurrentLanguage('/login'));
       return;
     }
     if (!!user && isAuthenticated === false) {
@@ -149,7 +149,7 @@ const ConnectAccountsPage = () => {
         description: t.toastAuthRequiredDescription,
         variant: "destructive",
       });
-      navigate('/login');
+      navigate(getLocalizedPathForCurrentLanguage('/login'));
     }
   }, [
     isAuthenticated,
@@ -274,6 +274,7 @@ const ConnectAccountsPage = () => {
           description={t.pageDescription}
           canonicalUrl="https://myflipit.live/connect-accounts"
           robots="noindex, nofollow"
+          language={getCurrentLanguage()}
         />
         <AnimatedGradientBackground />
 
@@ -294,6 +295,7 @@ const ConnectAccountsPage = () => {
         description={t.pageDescription}
         canonicalUrl="https://myflipit.live/connect-accounts"
         robots="noindex, nofollow"
+        language={getCurrentLanguage()}
       />
       <AnimatedGradientBackground />
 
@@ -407,7 +409,7 @@ const ConnectAccountsPage = () => {
                 : t.ctaNotConnectedMessage}
             </p>
             <HeroCTA asChild>
-              <Link to="/">
+              <Link to={getLocalizedPathForCurrentLanguage('/')}>
                 {t.ctaDashboardButton} <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </HeroCTA>

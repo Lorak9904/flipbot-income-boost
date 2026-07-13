@@ -2,9 +2,11 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
 import { HeroCTAWithArrow, SecondaryAction } from '@/components/ui/button-presets';
-import { getCurrentLanguage, getTranslations } from '../components/language-utils';
+import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from '../components/language-utils';
 import { getStartedTranslations } from './getstarted-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import { getRoutePath } from '@/lib/localized-routes';
+import { getSeoMetadata } from '@/lib/seo-metadata';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -34,8 +36,10 @@ const GetStartedPage = () => {
   const t = getTranslations(getStartedTranslations);
   const language = getCurrentLanguage();
 
-  const pageTitle = t.pageTitle;
-  const pageDescription = t.pageDescription;
+  const seo = getSeoMetadata('getStarted', language);
+  const pageTitle = seo?.title ?? t.pageTitle;
+  const pageDescription = seo?.description ?? t.pageDescription;
+  const localized = (path: string) => getLocalizedPathForLanguage(path, language);
 
   const benefits = [
     { title: t.benefit1Title, desc: t.benefit1Description },
@@ -49,11 +53,11 @@ const GetStartedPage = () => {
     '@type': 'WebPage',
     name: pageTitle,
     description: pageDescription,
-    url: 'https://myflipit.live/get-started',
+    url: `https://myflipit.live${getRoutePath('getStarted', language)}`,
     inLanguage: language === 'pl' ? 'pl-PL' : 'en-US',
     potentialAction: {
       '@type': 'RegisterAction',
-      target: 'https://myflipit.live/login?register=1',
+      target: `https://myflipit.live${localized('/login?register=1')}`,
       name: t.primaryCta,
     },
   };
@@ -98,10 +102,10 @@ const GetStartedPage = () => {
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <HeroCTAWithArrow asChild>
-              <Link to="/login?register=1">{t.primaryCta}</Link>
+              <Link to={localized('/login?register=1')}>{t.primaryCta}</Link>
             </HeroCTAWithArrow>
             <SecondaryAction asChild>
-              <Link to="/login">{t.secondaryCta}</Link>
+              <Link to={localized('/login')}>{t.secondaryCta}</Link>
             </SecondaryAction>
           </motion.div>
         </div>
@@ -159,7 +163,7 @@ const GetStartedPage = () => {
         >
           <h2 className="text-2xl md:text-3xl font-bold mb-6">{t.finalCtaTitle}</h2>
           <HeroCTAWithArrow asChild>
-            <Link to="/login?register=1">{t.finalCtaButton}</Link>
+            <Link to={localized('/login?register=1')}>{t.finalCtaButton}</Link>
           </HeroCTAWithArrow>
         </motion.div>
       </section>

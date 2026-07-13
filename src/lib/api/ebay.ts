@@ -5,6 +5,8 @@
  * Pattern follows OLX integration (src/lib/api/olx.ts).
  */
 
+import { getLocalizedPath, getPathLanguage } from '@/lib/localized-routes';
+
 // Base URL for API calls
 const API_BASE = '/api';
 
@@ -161,15 +163,16 @@ export async function syncEbayListings(): Promise<EbaySyncResponse> {
 /**
  * Check if an error response indicates eBay token expiration
  */
-export function isEbayTokenExpiredError(error: any): boolean {
-  if (!error) return false;
+export function isEbayTokenExpiredError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const payload = error as Record<string, unknown>;
   
   // Check for specific error structure from backend
-  if (error.error === 'ebay_token_expired') return true;
-  if (error.action_required === 'reconnect_ebay') return true;
+  if (payload.error === 'ebay_token_expired') return true;
+  if (payload.action_required === 'reconnect_ebay') return true;
   
   // Check error message
-  const message = error.message || error.detail || '';
+  const message = [payload.message, payload.detail].find((value): value is string => typeof value === 'string') || '';
   return message.toLowerCase().includes('ebay') && 
          (message.toLowerCase().includes('expired') || 
           message.toLowerCase().includes('invalid') ||
@@ -184,5 +187,7 @@ export function handleEbayTokenExpired(): void {
   sessionStorage.setItem('ebay_reconnect_return', window.location.pathname);
   
   // Redirect to connect-accounts with reconnect flag
-  window.location.href = '/connect-accounts?reconnect=ebay&message=eBay+token+expired';
+  const language = getPathLanguage(window.location.pathname) ?? 'en';
+  const query = new URLSearchParams({ reconnect: 'ebay', message: 'eBay token expired' });
+  window.location.href = `${getLocalizedPath('/connect-accounts', language)}?${query}`;
 }

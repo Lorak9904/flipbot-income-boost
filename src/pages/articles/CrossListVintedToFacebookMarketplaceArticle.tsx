@@ -1,5 +1,6 @@
 import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '@/components/language-utils';
 import { SeoArticleLayout } from '@/components/seo/SeoArticleLayout';
+import { getRoutePath } from '@/lib/localized-routes';
 import { crossListVintedFbTranslations } from './translations/cross-list-vinted-to-facebook-marketplace.translations';
 
 const keywords = [
@@ -17,10 +18,7 @@ const keywords = [
 const CrossListVintedToFacebookMarketplaceArticle = () => {
   const t = getTranslations(crossListVintedFbTranslations);
   const language = getCurrentLanguage();
-  const canonicalUrl =
-    language === 'pl'
-      ? 'https://myflipit.live/articles/crosslisting-z-vinted-na-facebook-marketplace'
-      : 'https://myflipit.live/articles/cross-list-vinted-to-facebook-marketplace';
+  const canonicalUrl = `https://myflipit.live${getRoutePath('crosslistVintedFacebook', language)}`;
   
   const articleStructuredData = {
     '@context': 'https://schema.org',
@@ -93,10 +91,10 @@ const CrossListVintedToFacebookMarketplaceArticle = () => {
     title: t.ctaTitle,
     description: t.ctaDescription,
     buttonText: t.ctaButtonText,
-    buttonLink: '/get-started',
+    buttonLink: getLocalizedPathForLanguage('/get-started', language),
     footerText: t.ctaFooterText,
     footerLinkText: t.ctaFooterLinkText,
-    footerLinkHref: '/how-it-works',
+    footerLinkHref: getLocalizedPathForLanguage('/how-it-works', language),
   };
 
   const highlights = [t.highlight1, t.highlight2, t.highlight3];

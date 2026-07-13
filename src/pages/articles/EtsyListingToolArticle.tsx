@@ -1,5 +1,6 @@
 import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from '@/components/language-utils';
 import { SeoArticleLayout } from '@/components/seo/SeoArticleLayout';
+import { getRoutePath } from '@/lib/localized-routes';
 import { etsyListingToolTranslations } from './translations/etsy-listing-tool.translations';
 
 const keywords = [
@@ -18,10 +19,7 @@ const keywords = [
 const EtsyListingToolArticle = () => {
   const t = getTranslations(etsyListingToolTranslations);
   const language = getCurrentLanguage();
-  const canonicalUrl =
-    language === 'pl'
-      ? 'https://myflipit.live/articles/narzedzie-do-ogloszen-etsy'
-      : 'https://myflipit.live/articles/etsy-listing-tool';
+  const canonicalUrl = `https://myflipit.live${getRoutePath('etsyListingTool', language)}`;
 
   const articleStructuredData = {
     '@context': 'https://schema.org',
@@ -101,10 +99,10 @@ const EtsyListingToolArticle = () => {
     title: t.ctaTitle,
     description: t.ctaDescription,
     buttonText: t.ctaButtonText,
-    buttonLink: '/get-started',
+    buttonLink: getLocalizedPathForLanguage('/get-started', language),
     footerText: t.ctaFooterText,
     footerLinkText: t.ctaFooterLinkText,
-    footerLinkHref: '/login',
+    footerLinkHref: getLocalizedPathForLanguage('/login', language),
   };
 
   const highlights = [t.highlight1, t.highlight2, t.highlight3];

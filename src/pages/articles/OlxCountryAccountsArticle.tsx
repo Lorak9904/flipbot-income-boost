@@ -1,5 +1,6 @@
 import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from '@/components/language-utils';
 import { SeoArticleLayout } from '@/components/seo/SeoArticleLayout';
+import { getRoutePath } from '@/lib/localized-routes';
 import { olxCountryAccountsTranslations } from './translations/olx-country-accounts.translations';
 
 const keywords = [
@@ -18,10 +19,7 @@ const keywords = [
 const OlxCountryAccountsArticle = () => {
   const t = getTranslations(olxCountryAccountsTranslations);
   const language = getCurrentLanguage();
-  const canonicalUrl =
-    language === 'pl'
-      ? 'https://myflipit.live/articles/automatyzacja-ogloszen-olx-wedlug-kraju'
-      : 'https://myflipit.live/articles/olx-listing-automation-by-country';
+  const canonicalUrl = `https://myflipit.live${getRoutePath('olxCountryAutomation', language)}`;
 
   const articleStructuredData = {
     '@context': 'https://schema.org',
@@ -83,7 +81,7 @@ const OlxCountryAccountsArticle = () => {
   ];
 
   const relatedLinks = [
-    { text: t.relatedLink1, href: '/how-it-works' },
+    { text: t.relatedLink1, href: getLocalizedPathForLanguage('/how-it-works', language) },
     { text: t.relatedLink2, href: '/automated-reselling-platform-guide' },
     {
       text: t.relatedLink3,
@@ -95,10 +93,10 @@ const OlxCountryAccountsArticle = () => {
     title: t.ctaTitle,
     description: t.ctaDescription,
     buttonText: t.ctaButtonText,
-    buttonLink: '/get-started',
+    buttonLink: getLocalizedPathForLanguage('/get-started', language),
     footerText: t.ctaFooterText,
     footerLinkText: t.ctaFooterLinkText,
-    footerLinkHref: '/login',
+    footerLinkHref: getLocalizedPathForLanguage('/login', language),
   };
 
   const highlights = [

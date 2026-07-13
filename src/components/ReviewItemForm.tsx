@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { 
   GeneratedItemData, 
   GeneratedItemDataWithVinted, 
@@ -42,8 +42,8 @@ import PlatformCategoryBooks from './PlatformCategoryBooks';
 import PlatformFieldOverridesSection from './PlatformFieldOverridesSection';
 import { Loader2, CreditCard, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getLocalizedPathForCurrentLanguage } from './language-utils';
 import { usePostHog } from '@posthog/react';
-import { getTranslations } from '@/components/language-utils';
 import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
 import { useCredits } from '@/hooks/useCredits';
 import { useAuth } from '@/contexts/AuthContext';
@@ -61,12 +61,25 @@ import { submitEditDraft } from './review-item/submit-edit';
 import { getVintedCategoryAttributes } from '@/lib/api/vinted';
 import type { AllegroProductSearchResult } from '@/lib/api/allegro';
 import { SUPPORTED_CURRENCIES, resolveCurrency } from '@/lib/currency';
-import { syncPlatformListings, type RegeneratableItemField } from '@/lib/api/items';
+import { enhanceItemImages, syncPlatformListings, type RegeneratableItemField } from '@/lib/api/items';
+import {
+  baseMarketplaceReadiness,
+  countMissingRequiredFields,
+  type MarketplaceRequirementReadiness,
+} from '@/components/review-item/marketplace-requirements';
 import { AiFieldRegenerationControl } from '@/components/listing-editor/AiFieldRegenerationControl';
 import {
   captureActivationEvent,
   captureFirstLiveListingCreated,
 } from '@/lib/analytics/activation';
+import {
+  clearListingEditorDraft,
+  LISTING_EDITOR_DRAFT_SAVE_EVENT,
+  persistListingEditorDraft,
+  persistableImages,
+  type ReviewItemFormSnapshot,
+} from '@/lib/listing-editor-draft';
+import { formatCountryLabel } from '@/lib/country-label';
 
 interface ReviewItemFormProps {
   initialData: GeneratedItemDataWithVinted;
@@ -78,6 +91,8 @@ interface ReviewItemFormProps {
   editItemId?: string;
   publishedPlatforms?: Platform[];
   publishPlatform?: Platform;
+  initialSnapshot?: ReviewItemFormSnapshot;
+  shouldPersistDraft?: boolean;
 }
 
 const formatAllegroProductCategoryPath = (product: AllegroProductSearchResult): string => {
@@ -86,6 +101,8 @@ const formatAllegroProductCategoryPath = (product: AllegroProductSearchResult): 
 };
 
 const MARKETPLACE_UPDATE_PLATFORMS: Platform[] = ['olx', 'ebay', 'allegro', 'etsy'];
+
+const imageUrl = (image: ItemImage): string => image.url || image.preview || '';
 
 const ReviewItemForm = ({
   initialData,
@@ -97,20 +114,25 @@ const ReviewItemForm = ({
   editItemId,
   publishedPlatforms = [],
   publishPlatform,
+  initialSnapshot,
+  shouldPersistDraft = false,
 }: ReviewItemFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitIntent, setSubmitIntent] = useState<'save' | 'saveAndUpdate' | 'publish' | null>(null);
   const [regeneratingField, setRegeneratingField] = useState<RegeneratableItemField | null>(null);
+  const [enhancingImageId, setEnhancingImageId] = useState<string | null>(null);
   const [insufficientCreditsError, setInsufficientCreditsError] = useState<{
     required: number;
     available: number;
   } | null>(null);
   const isPublishingMode = isPublishMode(mode);
-  const defaultCurrency = resolveCurrency(initialData.currency, language);
+  const interfaceLanguage = language === 'pl' ? 'pl' : 'en';
+  const restoredData = initialSnapshot?.data || initialData;
+  const defaultCurrency = resolveCurrency(restoredData.currency, language);
   // Ensure draft_id is preserved in state
   const [data, setData] = useState<GeneratedItemData & { draft_id?: string }>(() => ({
-    ...initialData,
+    ...restoredData,
     currency: defaultCurrency,
   }));
   const navigate = useNavigate();
@@ -118,7 +140,7 @@ const ReviewItemForm = ({
   const { user } = useAuth();
   const { data: credits } = useCredits();
   const queryClient = useQueryClient();
-  const t = getTranslations(reviewItemFormTranslations);
+  const t = reviewItemFormTranslations[interfaceLanguage];
 
   const platformSelectionOptions = useMemo(
     () =>
@@ -139,7 +161,9 @@ const ReviewItemForm = ({
     },
     [mode, platformSelectionOptions, publishPlatform, isPublishingMode, connectedPlatforms]
   );
-  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(defaultSelectedPlatforms);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(
+    () => initialSnapshot?.selectedPlatforms || defaultSelectedPlatforms
+  );
 
   const requiredPublishCredits = isPublishingMode && selectedPlatforms.length > 0 ? 1 : 0;
   const hasInsufficientPublishCredits =
@@ -164,15 +188,27 @@ const ReviewItemForm = ({
   const isSaving = isSubmitting && submitIntent === 'save';
   const isSavingAndUpdating = isSubmitting && submitIntent === 'saveAndUpdate';
   const isPublishing = isSubmitting && submitIntent === 'publish';
+  const isEnhancingImage = Boolean(enhancingImageId);
   
   const [marketplaceAttributes, setMarketplaceAttributes] = useState<MarketplaceAttributes>(
-    initialData.marketplace_attributes || {}
+    initialSnapshot?.marketplaceAttributes || initialData.marketplace_attributes || {}
   );
   const [loadingMarketplaceAttributes, setLoadingMarketplaceAttributes] = useState<
     Partial<Record<Platform, boolean>>
   >({});
+  const [marketplaceAttributeErrors, setMarketplaceAttributeErrors] = useState<
+    Partial<Record<Platform, boolean>>
+  >({});
+  const loadedVintedRequirementKey = useRef<string | null>(null);
+  const loadingVintedRequirementKey = useRef<string | null>(null);
+  const [dynamicRequirementReadiness, setDynamicRequirementReadiness] = useState<
+    Partial<Record<Platform, MarketplaceRequirementReadiness>>
+  >({});
+  const [activeRequirementPlatform, setActiveRequirementPlatform] = useState<Platform | null>(
+    () => initialSnapshot?.selectedPlatforms?.[0] || defaultSelectedPlatforms[0] || null
+  );
   const [platformOverrides, setPlatformOverrides] = useState<PlatformOverrides>(() => {
-    const overrides = initialData.platform_listing_overrides;
+    const overrides = initialSnapshot?.platformOverrides || initialData.platform_listing_overrides;
     if (!overrides || typeof overrides !== 'object') {
       return {};
     }
@@ -186,6 +222,52 @@ const ReviewItemForm = ({
     };
   });
   const [pendingOlxCountryCode, setPendingOlxCountryCode] = useState<string | null>(null);
+
+  const persistDraft = useCallback(() => {
+    if (!shouldPersistDraft) {
+      return;
+    }
+
+    persistListingEditorDraft(user?.id, {
+      version: 1,
+      kind: 'review',
+      data: {
+        data: {
+          ...data,
+          images: persistableImages(data.images),
+        },
+        selectedPlatforms,
+        marketplaceAttributes,
+        platformOverrides,
+        editItemId,
+        publishedPlatforms,
+      },
+    });
+  }, [
+    data,
+    editItemId,
+    marketplaceAttributes,
+    platformOverrides,
+    publishedPlatforms,
+    selectedPlatforms,
+    shouldPersistDraft,
+    user?.id,
+  ]);
+
+  useEffect(() => {
+    if (!shouldPersistDraft) {
+      return;
+    }
+
+    persistDraft();
+    window.addEventListener(LISTING_EDITOR_DRAFT_SAVE_EVENT, persistDraft);
+    return () => window.removeEventListener(LISTING_EDITOR_DRAFT_SAVE_EVENT, persistDraft);
+  }, [persistDraft, shouldPersistDraft]);
+
+  const navigateAfterCompletion = (target: string, delay: number) => {
+    clearListingEditorDraft(user?.id);
+    window.setTimeout(() => navigate(target), delay);
+  };
   const olxConnectedAccounts = useMemo(
     () =>
       (platformHealth?.olx?.accounts || []).filter(
@@ -215,9 +297,11 @@ const ReviewItemForm = ({
     () => olxConnectedAccounts.find((account) => account.country_code === selectedOlxCountryCode),
     [olxConnectedAccounts, selectedOlxCountryCode]
   );
-  const selectedOlxCountryLabel = selectedOlxAccount?.country_name
-    ? `${selectedOlxAccount.country_name} (${selectedOlxCountryCode})`
-    : selectedOlxCountryCode;
+  const selectedOlxCountryLabel = formatCountryLabel(
+    selectedOlxAccount || { country_code: selectedOlxCountryCode },
+    interfaceLanguage,
+    selectedOlxCountryCode
+  );
   const hasOlxCountrySpecificData = useMemo(() => {
     const olxOverrides = platformOverrides.olx;
     if (!olxOverrides) {
@@ -252,21 +336,143 @@ const ReviewItemForm = ({
       return defaultSelectedPlatforms;
     });
   }, [mode, platformSelectionOptions, defaultSelectedPlatforms]);
+
+  useEffect(() => {
+    setActiveRequirementPlatform((current) => {
+      if (current && selectedPlatforms.includes(current)) {
+        return current;
+      }
+      return selectedPlatforms[0] || null;
+    });
+  }, [selectedPlatforms]);
+
+  const handleDynamicRequirementsChange = useCallback(
+    (
+      platform: 'olx' | 'ebay' | 'allegro' | 'etsy',
+      nextReadiness: MarketplaceRequirementReadiness
+    ) => {
+      setDynamicRequirementReadiness((previous) => {
+        const previousReadiness = previous[platform];
+        if (
+          previousReadiness?.state === nextReadiness.state &&
+          previousReadiness?.missingCount === nextReadiness.missingCount
+        ) {
+          return previous;
+        }
+        return { ...previous, [platform]: nextReadiness };
+      });
+    },
+    []
+  );
+
+  const marketplaceReadiness = useMemo(() => {
+    const readiness: Partial<Record<Platform, MarketplaceRequirementReadiness>> = {};
+
+    for (const platform of selectedPlatforms) {
+      const base = baseMarketplaceReadiness(platform, platformOverrides, connectedPlatforms[platform]);
+      if (platform !== 'vinted') {
+        readiness[platform] = dynamicRequirementReadiness[platform] || base;
+        continue;
+      }
+
+      if (base.state === 'needs_category' || base.state === 'unavailable') {
+        readiness.vinted = base;
+        continue;
+      }
+      if (loadingMarketplaceAttributes.vinted) {
+        readiness.vinted = { state: 'checking' };
+        continue;
+      }
+      if (marketplaceAttributeErrors.vinted) {
+        readiness.vinted = { state: 'unavailable' };
+        continue;
+      }
+
+      const vintedState = marketplaceAttributes.vinted;
+      const missingCount = countMissingRequiredFields(
+        vintedState?.fields || [],
+        vintedState?.values || {}
+      );
+      readiness.vinted = {
+        state: missingCount ? 'needs_attributes' : 'ready',
+        missingCount,
+      };
+    }
+
+    return readiness;
+  }, [
+    connectedPlatforms,
+    dynamicRequirementReadiness,
+    loadingMarketplaceAttributes.vinted,
+    marketplaceAttributeErrors.vinted,
+    marketplaceAttributes.vinted,
+    platformOverrides,
+    selectedPlatforms,
+  ]);
   
   // Make sure draft_id is never lost when updating fields
   const updateField = <K extends keyof GeneratedItemData>(field: K, value: GeneratedItemData[K]) => {
     setData(prev => ({ ...prev, [field]: value, draft_id: prev.draft_id }));
   };
 
+  const handleEnhanceImage = async (image: ItemImage) => {
+    const itemId = editItemId || data.draft_id;
+    const sourceImageUrl = imageUrl(image);
+    if (!itemId || !sourceImageUrl || isEnhancingImage) {
+      return;
+    }
+
+    if (credits?.image_remaining !== null && credits?.image_remaining !== undefined && credits.image_remaining < 1) {
+      setInsufficientCreditsError({ required: 1, available: credits.image_remaining });
+      return;
+    }
+
+    const currentImageUrls = data.images.map(imageUrl).filter(Boolean);
+    setEnhancingImageId(image.id);
+
+    try {
+      const result = await enhanceItemImages(itemId, currentImageUrls, sourceImageUrl);
+      const existingByUrl = new Map(data.images.map((currentImage) => [imageUrl(currentImage), currentImage]));
+      const enhancedUrls = new Set(result.enhanced_images);
+      const nextImages = result.all_images.map((url, index) => {
+        const existingImage = existingByUrl.get(url);
+        if (existingImage) {
+          return {
+            ...existingImage,
+            enhanced: existingImage.enhanced || enhancedUrls.has(url),
+          };
+        }
+        return {
+          id: `enhanced-${itemId}-${index}`,
+          url,
+          preview: url,
+          isUploaded: true,
+          enhanced: enhancedUrls.has(url),
+        };
+      });
+
+      updateField('images', nextImages);
+      queryClient.invalidateQueries({ queryKey: ['credits'] });
+      toast({
+        title: t.ai.imageEnhancedTitle,
+        description: t.ai.imageEnhancedDescription,
+      });
+    } catch (error) {
+      toast({
+        title: t.ai.imageEnhancementErrorTitle,
+        description: error instanceof Error ? error.message : t.ai.imageEnhancementErrorDescription,
+        variant: 'destructive',
+      });
+    } finally {
+      setEnhancingImageId(null);
+    }
+  };
+
   const fieldIsRegenerating = (field: RegeneratableItemField) => regeneratingField === field;
 
   const applyRegeneratedField = (field: RegeneratableItemField, value: string) => {
     if (field === 'title') updateField('title', value);
-    if (field === 'description') updateField('description', value);
-    if (field === 'brand') updateField('brand', value);
-    if (field === 'condition') updateField('condition', value);
-    if (field === 'category') updateField('category', value);
-    if (field === 'size') updateField('size', value);
+    else updateField('description', value);
   };
 
   const regenerationContext = useMemo(
@@ -315,6 +521,12 @@ const ReviewItemForm = ({
         onRegenerated={(value) => applyRegeneratedField(field, value)}
       />
     </div>
+  );
+
+  const renderPlainFieldLabel = (htmlFor: string, label: string) => (
+    <Label htmlFor={htmlFor} className="text-sm font-medium text-neutral-300">
+      {label}
+    </Label>
   );
   
   const handlePlatformToggle = (platform: Platform) => {
@@ -383,39 +595,74 @@ const ReviewItemForm = ({
     });
   };
 
-  const handleSetVintedCatalog = async (catalogId: string | number) => {
-    updatePlatformOverride('vinted', 'catalog_id', String(catalogId));
-    setLoadingMarketplaceAttributes(prev => ({ ...prev, vinted: true }));
+  const loadVintedRequirements = useCallback(
+    async (catalogId: string | number, preserveValues: boolean) => {
+      const requirementKey = `${catalogId}:${language === 'pl' ? 'pl' : 'en'}`;
+      if (
+        loadedVintedRequirementKey.current === requirementKey ||
+        loadingVintedRequirementKey.current === requirementKey
+      ) {
+        return;
+      }
+      loadingVintedRequirementKey.current = requirementKey;
+      setLoadingMarketplaceAttributes(prev => ({ ...prev, vinted: true }));
+    setMarketplaceAttributeErrors((prev) => ({ ...prev, vinted: false }));
     setMarketplaceAttributes(prev => ({
       ...prev,
       vinted: {
         platform: 'vinted',
         category_id: catalogId,
         fields: [],
-        values: {},
+        values: preserveValues ? prev.vinted?.values || {} : {},
       },
     }));
 
     try {
-      const state = await getVintedCategoryAttributes(catalogId);
+      const state = await getVintedCategoryAttributes(catalogId, language);
       setMarketplaceAttributes(prev => ({
         ...prev,
         vinted: {
           ...state,
           category_id: state.category_id ?? catalogId,
-          values: {},
+          values: preserveValues ? prev.vinted?.values || {} : {},
         },
       }));
+      loadedVintedRequirementKey.current = requirementKey;
     } catch (error) {
+      setMarketplaceAttributeErrors((prev) => ({ ...prev, vinted: true }));
       toast({
-        title: 'Vinted attributes could not be loaded',
-        description: error instanceof Error ? error.message : 'Try again or reconnect Vinted.',
+        title: t.toast.errorTitle,
+        description: t.marketplaceRequirements.loadFailed.replace('{platform}', 'Vinted'),
         variant: 'destructive',
       });
     } finally {
+      if (loadingVintedRequirementKey.current === requirementKey) {
+        loadingVintedRequirementKey.current = null;
+      }
       setLoadingMarketplaceAttributes(prev => ({ ...prev, vinted: false }));
     }
+    },
+    [language, t.marketplaceRequirements.loadFailed, t.toast.errorTitle, toast]
+  );
+
+  const handleSetVintedCatalog = async (catalogId: string | number) => {
+    updatePlatformOverride('vinted', 'catalog_id', String(catalogId));
+    await loadVintedRequirements(catalogId, false);
   };
+
+  useEffect(() => {
+    const catalogId = platformOverrides.vinted?.catalog_id;
+    if (!selectedPlatforms.includes('vinted') || !catalogId || !connectedPlatforms.vinted) {
+      return;
+    }
+
+    const requirementKey = `${catalogId}:${language === 'pl' ? 'pl' : 'en'}`;
+    if (loadedVintedRequirementKey.current === requirementKey) {
+      return;
+    }
+
+    void loadVintedRequirements(catalogId, true);
+  }, [connectedPlatforms.vinted, language, loadVintedRequirements, platformOverrides.vinted?.catalog_id, selectedPlatforms]);
 
   const updateOlxCategoryOverride = (categoryId: string | number, categoryPath?: string) => {
     setPlatformOverrides((prev) => {
@@ -884,7 +1131,7 @@ const ReviewItemForm = ({
       params.set('dirty', dirtyPlatforms.join(','));
     }
     const query = params.toString();
-    return `/user/items/${itemId}${query ? `?${query}` : ''}`;
+    return getLocalizedPathForCurrentLanguage(`/user/items/${itemId}${query ? `?${query}` : ''}`);
   };
 
   const saveEditedItem = async () => {
@@ -905,9 +1152,7 @@ const ReviewItemForm = ({
       description: t.toast.updateLocalSuccess,
     });
 
-    setTimeout(() => {
-      navigate(buildSavedItemUrl(result.itemId, result.dirtyPlatforms));
-    }, 1200);
+    navigateAfterCompletion(buildSavedItemUrl(result.itemId, result.dirtyPlatforms), 1200);
   };
 
   const saveAndUpdateMarketplaceChanges = async () => {
@@ -917,9 +1162,7 @@ const ReviewItemForm = ({
         title: t.toast.successTitle,
         description: t.toast.saveAndUpdateNoMarketplaceChanges,
       });
-      setTimeout(() => {
-        navigate(buildSavedItemUrl(result.itemId));
-      }, 1200);
+      navigateAfterCompletion(buildSavedItemUrl(result.itemId), 1200);
       return;
     }
 
@@ -938,9 +1181,7 @@ const ReviewItemForm = ({
           title: t.toast.saveAndUpdateSuccess,
           description: t.toast.saveAndUpdateSuccessDesc.replace('{platforms}', platformNames),
         });
-        setTimeout(() => {
-          navigate(buildSavedItemUrl(result.itemId));
-        }, 1200);
+        navigateAfterCompletion(buildSavedItemUrl(result.itemId), 1200);
         return;
       }
 
@@ -953,25 +1194,21 @@ const ReviewItemForm = ({
         description: t.toast.saveAndUpdateFailedDesc.replace('{platforms}', failedNames),
         variant: 'destructive',
       });
-      setTimeout(() => {
-        navigate(buildSavedItemUrl(result.itemId, failedPlatforms));
-      }, 1600);
+      navigateAfterCompletion(buildSavedItemUrl(result.itemId, failedPlatforms), 1600);
     } catch (error) {
       toast({
         title: t.toast.saveAndUpdateMarketplaceError,
         description: error instanceof Error ? error.message : t.toast.errorDesc,
         variant: 'destructive',
       });
-      setTimeout(() => {
-        navigate(buildSavedItemUrl(result.itemId, result.dirtyPlatforms));
-      }, 1600);
+      navigateAfterCompletion(buildSavedItemUrl(result.itemId, result.dirtyPlatforms), 1600);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (regeneratingField) {
+    if (regeneratingField || isEnhancingImage) {
       return;
     }
 
@@ -982,6 +1219,31 @@ const ReviewItemForm = ({
         variant: "destructive",
       });
       return;
+    }
+
+    if (isPublishingMode) {
+      const incompletePlatform = selectedPlatforms.find((platform) => {
+        const state = marketplaceReadiness[platform]?.state;
+        return state && state !== 'ready' && state !== 'not_required';
+      });
+
+      if (incompletePlatform) {
+        setActiveRequirementPlatform(incompletePlatform);
+        window.requestAnimationFrame(() => {
+          document.getElementById('marketplace-requirements')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        });
+        toast({
+          title: t.marketplaceRequirements.completeRequirementsTitle,
+          description: t.marketplaceRequirements.completeRequirementsDescription(
+            t.platforms[incompletePlatform]
+          ),
+          variant: 'destructive',
+        });
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -997,7 +1259,7 @@ const ReviewItemForm = ({
       const platformOverridesPayload = buildPlatformOverridesPayload();
       const numericPrice = parseFloat(data.price);
       if (isNaN(numericPrice)) {
-        throw new Error('Invalid price format');
+        throw new Error(t.toast.invalidPrice);
       }
 
       const uniqueImageUrls = Array.from(new Set(data.images.map(img => img.url)));
@@ -1154,13 +1416,9 @@ const ReviewItemForm = ({
       queryClient.invalidateQueries({ queryKey: ['credits'] });
 
       if (result.uuid) {
-        setTimeout(() => {
-          navigate(`/user/items/${result.uuid}`);
-        }, 1500);
+        navigateAfterCompletion(getLocalizedPathForCurrentLanguage(`/user/items/${result.uuid}`), 1500);
       } else {
-        setTimeout(() => {
-          navigate('/user/items');
-        }, 1500);
+        navigateAfterCompletion(getLocalizedPathForCurrentLanguage('/user/items'), 1500);
       }
     } catch (error) {
       console.error('Error publishing item:', error);
@@ -1188,7 +1446,7 @@ const ReviewItemForm = ({
   };
 
   const handleSaveChanges = async () => {
-    if (regeneratingField) {
+    if (regeneratingField || isEnhancingImage) {
       return;
     }
 
@@ -1212,7 +1470,7 @@ const ReviewItemForm = ({
   };
 
   const handleSaveAndUpdateChanges = async () => {
-    if (!canSaveAndUpdateMarketplaces || regeneratingField) {
+    if (!canSaveAndUpdateMarketplaces || regeneratingField || isEnhancingImage) {
       return;
     }
 
@@ -1243,11 +1501,11 @@ const ReviewItemForm = ({
     return (
       <div className="space-y-4 border-t border-neutral-700 pt-6">
         <h3 className="text-base sm:text-lg font-medium text-neutral-300">
-          {isPublishingMode ? t.sections.publishPlatforms : 'Platform Preparation'}
+          {isPublishingMode ? t.sections.publishPlatforms : t.marketplaceRequirements.platformPreparation}
         </h3>
         {!isPublishingMode && (
           <p className="text-sm text-neutral-400">
-            Select platforms to configure category mapping and overrides for this edit session.
+            {t.marketplaceRequirements.platformPreparationDescription}
           </p>
         )}
 
@@ -1259,7 +1517,7 @@ const ReviewItemForm = ({
             const platformName =
               t.platforms[typedPlatform] || typedPlatform.charAt(0).toUpperCase() + typedPlatform.slice(1);
             const reason = !isConnected
-              ? `${platformName} is not connected yet. Connect it in platform settings before publishing.`
+              ? t.marketplaceRequirements.notConnectedReason(platformName)
               : undefined;
             const platformOption = (
               <label
@@ -1286,7 +1544,9 @@ const ReviewItemForm = ({
                   </div>
                   {!isConnected && (
                     <div className="text-xs text-neutral-400">
-                      {isPublishingMode ? 'Not connected' : 'Not connected (you can still preconfigure)'}
+                      {isPublishingMode
+                        ? t.marketplaceRequirements.notConnectedYet
+                        : t.marketplaceRequirements.notConnectedCanConfigure}
                     </div>
                   )}
                 </div>
@@ -1314,11 +1574,13 @@ const ReviewItemForm = ({
           <div className="rounded-lg border border-neutral-700 bg-neutral-900/50 p-4">
             <div className="grid gap-3 sm:grid-cols-[1fr_220px] sm:items-center">
               <div>
-                <Label className="text-sm font-medium text-neutral-200">OLX country</Label>
+                <Label className="text-sm font-medium text-neutral-200">
+                  {t.marketplaceRequirements.olxCountry}
+                </Label>
                 <p className="mt-1 text-xs text-neutral-400">
                   {olxConnectedAccounts.length > 0
-                    ? 'Used for OLX category data, required attributes, and publishing to the selected country.'
-                    : 'No OLX country connected yet. You can prepare OLX details now, but publishing requires a connected country.'}
+                    ? t.marketplaceRequirements.olxCountryConnectedInfo
+                    : t.marketplaceRequirements.olxCountryUnconnectedInfo}
                 </p>
               </div>
               {olxConnectedAccounts.length > 1 ? (
@@ -1328,13 +1590,13 @@ const ReviewItemForm = ({
                   disabled={isSubmitting}
                 >
                   <SelectTrigger className="bg-neutral-950/60 border-neutral-700 text-white">
-                    <SelectValue placeholder="Select country" />
+                    <SelectValue placeholder={t.marketplaceRequirements.selectCountry} />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
                     {olxConnectedAccounts.map((account) => (
                       <SelectItem key={account.country_code} value={account.country_code || 'PL'}>
-                        {account.country_name || account.country_code}
-                        {account.is_default ? ' (default)' : ''}
+                        {formatCountryLabel(account, interfaceLanguage, account.country_code)}
+                        {account.is_default ? ` (${t.marketplaceRequirements.defaultCountry})` : ''}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1344,13 +1606,13 @@ const ReviewItemForm = ({
                   <span>{selectedOlxCountryLabel}</span>
                   <span className="shrink-0 text-xs text-neutral-500">
                     {defaultOlxAccount?.country_code === selectedOlxCountryCode
-                      ? 'Default country'
-                      : 'Connected country'}
+                      ? t.marketplaceRequirements.defaultCountry
+                      : t.marketplaceRequirements.connectedCountry}
                   </span>
                 </div>
               ) : (
                 <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
-                  Not connected yet
+                  {t.marketplaceRequirements.notConnectedYet}
                 </div>
               )}
             </div>
@@ -1358,37 +1620,188 @@ const ReviewItemForm = ({
         )}
 
         {selectedPlatforms.length > 0 && (
-          <PlatformCategoryBooks
-            draftId={data.draft_id || editItemId}
-            selectedPlatforms={selectedPlatforms}
-            connectedPlatforms={connectedPlatforms}
-            platformOverrides={platformOverrides}
-            olxCountryCode={selectedOlxCountryCode}
-            vintedSuggestedCatalogId={initialData.vinted_category_id}
-            disabled={isSubmitting}
-            onSetOlxCategory={(categoryId, categoryPath) =>
-              updateOlxCategoryOverride(categoryId, categoryPath)
-            }
-            onSetAllegroCategory={(categoryId, marketplaceId, categoryPath) =>
-              updateAllegroCategoryOverride(categoryId, marketplaceId, categoryPath)
-            }
-            onSetEtsyCategory={(categoryId, categoryPath) =>
-              updateEtsyCategoryOverride(categoryId, categoryPath)
-            }
-            onSetVintedCatalog={(catalogId) => {
-              void handleSetVintedCatalog(catalogId);
-            }}
-          />
+          <section id="marketplace-requirements" className="space-y-4 border-t border-neutral-700 pt-6">
+            <div className="space-y-1">
+              <h3 className="text-base font-medium text-neutral-200 sm:text-lg">
+                {t.marketplaceRequirements.title}
+              </h3>
+              <p className="text-sm text-neutral-400">{t.marketplaceRequirements.description}</p>
+            </div>
+
+            <PlatformCategoryBooks
+              draftId={data.draft_id || editItemId}
+              selectedPlatforms={selectedPlatforms}
+              connectedPlatforms={connectedPlatforms}
+              platformOverrides={platformOverrides}
+              olxCountryCode={selectedOlxCountryCode}
+              vintedSuggestedCatalogId={initialData.vinted_category_id}
+              disabled={isSubmitting}
+              language={language}
+              readiness={marketplaceReadiness}
+              activePlatform={activeRequirementPlatform}
+              onActivePlatformChange={setActiveRequirementPlatform}
+              onSetOlxCategory={(categoryId, categoryPath) =>
+                updateOlxCategoryOverride(categoryId, categoryPath)
+              }
+              onSetAllegroCategory={(categoryId, marketplaceId, categoryPath) =>
+                updateAllegroCategoryOverride(categoryId, marketplaceId, categoryPath)
+              }
+              onSetEtsyCategory={(categoryId, categoryPath) =>
+                updateEtsyCategoryOverride(categoryId, categoryPath)
+              }
+              onSetVintedCatalog={(catalogId) => {
+                void handleSetVintedCatalog(catalogId);
+              }}
+            />
+
+            {selectedPlatforms.includes('olx') && (
+              <div hidden={activeRequirementPlatform !== 'olx'}>
+                <PlatformOverrideCard
+                  platform="olx"
+                  platformLabel="OLX"
+                  isConnected={connectedPlatforms.olx}
+                  isDisabled={isSubmitting}
+                  countryCode={selectedOlxCountryCode}
+                  categoryId={platformOverrides.olx?.category_id?.toString()}
+                  attributeValues={platformOverrides.olx?.attributes}
+                  onCategoryChange={() => undefined}
+                  onAttributeChange={(key, value) => updatePlatformAttribute('olx', key, value)}
+                  categoryLabel={`${t.marketplaceRequirements.category} OLX`}
+                  categoryInputMode="summary"
+                  language={language}
+                  requirementsMode
+                  onRequirementsChange={handleDynamicRequirementsChange}
+                />
+              </div>
+            )}
+
+            {selectedPlatforms.includes('vinted') && (
+              <div hidden={activeRequirementPlatform !== 'vinted'}>
+                {loadingMarketplaceAttributes.vinted && (
+                  <div className="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800/60 p-4 text-sm text-neutral-300">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t.marketplaceRequirements.loadingRequirements}
+                  </div>
+                )}
+
+                {!loadingMarketplaceAttributes.vinted && marketplaceAttributeErrors.vinted && (
+                  <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100">
+                    {t.marketplaceRequirements.loadFailed.replace('{platform}', 'Vinted')}
+                  </div>
+                )}
+
+                {!loadingMarketplaceAttributes.vinted && !marketplaceAttributeErrors.vinted &&
+                marketplaceAttributes.vinted?.fields?.length ? (
+                  <MarketplaceAttributesPanel
+                    platform="vinted"
+                    platformLabel="Vinted"
+                    state={marketplaceAttributes.vinted}
+                    language={language}
+                    disabled={isSubmitting}
+                    onValueChange={handleMarketplaceAttributeChange}
+                  />
+                ) : null}
+
+                {!loadingMarketplaceAttributes.vinted &&
+                  !marketplaceAttributeErrors.vinted &&
+                  platformOverrides.vinted?.catalog_id &&
+                  !marketplaceAttributes.vinted?.fields?.length && (
+                    <div className="rounded-lg border border-neutral-700 bg-neutral-800/60 p-4 text-sm text-neutral-400">
+                      {t.marketplaceRequirements.noAdditionalRequirements}
+                    </div>
+                  )}
+              </div>
+            )}
+
+            {selectedPlatforms.includes('ebay') && (
+              <div hidden={activeRequirementPlatform !== 'ebay'}>
+                <PlatformOverrideCard
+                  platform="ebay"
+                  platformLabel="eBay"
+                  isConnected={connectedPlatforms.ebay}
+                  isDisabled={isSubmitting}
+                  marketplaceId={platformOverrides.ebay?.marketplace_id?.toString()}
+                  categoryId={platformOverrides.ebay?.category_id?.toString() || platformOverrides.ebay?.category_path}
+                  attributeValues={platformOverrides.ebay?.attributes}
+                  onCategoryChange={(value) => updatePlatformOverride('ebay', 'category_id', value)}
+                  onAttributeChange={(key, value) => updatePlatformAttribute('ebay', key, value)}
+                  categoryLabel={t.marketplaceRequirements.ebayCategoryId}
+                  language={language}
+                  requirementsMode
+                  onRequirementsChange={handleDynamicRequirementsChange}
+                />
+              </div>
+            )}
+
+            {selectedPlatforms.includes('allegro') && (
+              <div hidden={activeRequirementPlatform !== 'allegro'}>
+                <PlatformOverrideCard
+                  platform="allegro"
+                  platformLabel="Allegro"
+                  isConnected={connectedPlatforms.allegro}
+                  isDisabled={isSubmitting}
+                  marketplaceId={platformOverrides.allegro?.marketplace_id?.toString() || 'allegro-pl'}
+                  categoryId={platformOverrides.allegro?.category_id?.toString()}
+                  attributeValues={platformOverrides.allegro?.attributes}
+                  onCategoryChange={() => undefined}
+                  onAttributeChange={(key, value) => updatePlatformAttribute('allegro', key, value)}
+                  categoryLabel={`${t.marketplaceRequirements.category} Allegro`}
+                  categoryInputMode="summary"
+                  allegroSearchPhrase={data.title}
+                  selectedAllegroProduct={
+                    platformOverrides.allegro?.product_id
+                      ? {
+                          id: platformOverrides.allegro.product_id,
+                          name: platformOverrides.allegro.product_name,
+                          imageUrl: platformOverrides.allegro.product_image_url,
+                          categoryPath:
+                            platformOverrides.allegro.product_category_path ||
+                            platformOverrides.allegro.category_path,
+                        }
+                      : null
+                  }
+                  onAllegroProductSelect={updateAllegroProductSelection}
+                  onAllegroProductClear={() => updateAllegroProductSelection(null)}
+                  language={language}
+                  requirementsMode
+                  onRequirementsChange={handleDynamicRequirementsChange}
+                />
+              </div>
+            )}
+
+            {selectedPlatforms.includes('etsy') && (
+              <div hidden={activeRequirementPlatform !== 'etsy'}>
+                <PlatformOverrideCard
+                  platform="etsy"
+                  platformLabel="Etsy"
+                  isConnected={connectedPlatforms.etsy}
+                  isDisabled={isSubmitting}
+                  categoryId={
+                    platformOverrides.etsy?.taxonomy_id?.toString() ||
+                    platformOverrides.etsy?.category_id?.toString()
+                  }
+                  attributeValues={platformOverrides.etsy?.attributes}
+                  onCategoryChange={() => undefined}
+                  onAttributeChange={(key, value) => updatePlatformAttribute('etsy', key, value)}
+                  categoryLabel={`${t.marketplaceRequirements.category} Etsy`}
+                  categoryInputMode="summary"
+                  language={language}
+                  requirementsMode
+                  onRequirementsChange={handleDynamicRequirementsChange}
+                />
+              </div>
+            )}
+          </section>
         )}
 
         {selectedPlatforms.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-base sm:text-lg font-medium text-neutral-300">
-              Platform Listing Overrides
-            </h3>
-            <p className="text-sm text-neutral-400">
-              Keep generic fields as defaults and override only where a platform needs custom wording or pricing.
-            </p>
+          <section className="space-y-3 border-t border-neutral-700 pt-6">
+            <div className="space-y-1">
+              <h3 className="text-base font-medium text-neutral-200 sm:text-lg">
+                {t.marketplaceCustomization.heading}
+              </h3>
+              <p className="text-sm text-neutral-400">{t.marketplaceCustomization.description}</p>
+            </div>
             <PlatformFieldOverridesSection
               selectedPlatforms={selectedPlatforms}
               platformOverrides={platformOverrides}
@@ -1397,148 +1810,24 @@ const ReviewItemForm = ({
                 description: data.description ?? '',
                 price: data.price ?? '',
                 currency: resolveCurrency(data.currency, language),
-                brand: data.brand ?? '',
-                condition: data.condition ?? '',
-                category: data.category ?? '',
-                size: data.size ?? '',
               }}
+              language={language}
               disabled={isSubmitting}
               onFieldChange={updatePlatformFieldOverride}
               onClearPlatformOverrides={clearPlatformFieldOverrides}
             />
-          </div>
+          </section>
         )}
-
-        <div className="space-y-4 pt-2">
-          <h3 className="text-base sm:text-lg font-medium text-neutral-300">
-            Platform Attribute Overrides
-          </h3>
-          <p className="text-sm text-neutral-400">
-            Fill required platform parameters after selecting categories in the category books.
-          </p>
-
-          <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-4 sm:space-y-0">
-            {selectedPlatforms.includes('olx') && (
-              <PlatformOverrideCard
-                platform="olx"
-                platformLabel="OLX"
-                isConnected={connectedPlatforms.olx}
-                isDisabled={isSubmitting}
-                countryCode={selectedOlxCountryCode}
-                categoryId={platformOverrides.olx?.category_id?.toString()}
-                attributeValues={platformOverrides.olx?.attributes}
-                onCategoryChange={() => undefined}
-                onAttributeChange={(key, value) => updatePlatformAttribute('olx', key, value)}
-                categoryLabel="OLX category"
-                categoryInputMode="summary"
-              />
-            )}
-
-            {selectedPlatforms.includes('vinted') && loadingMarketplaceAttributes.vinted && (
-              <div className="rounded-lg border border-neutral-700 bg-neutral-800/60 p-4 text-sm text-neutral-300">
-                Loading Vinted category attributes...
-              </div>
-            )}
-
-            {selectedPlatforms.includes('vinted') &&
-            !loadingMarketplaceAttributes.vinted &&
-            marketplaceAttributes.vinted?.fields?.length ? (
-              <MarketplaceAttributesPanel
-                platform="vinted"
-                platformLabel="Vinted"
-                state={marketplaceAttributes.vinted}
-                disabled={isSubmitting}
-                onValueChange={handleMarketplaceAttributeChange}
-              />
-            ) : null}
-
-            {selectedPlatforms.includes('vinted') &&
-              !loadingMarketplaceAttributes.vinted &&
-              platformOverrides.vinted?.catalog_id &&
-              !marketplaceAttributes.vinted?.fields?.length && (
-                <div className="rounded-lg border border-neutral-700 bg-neutral-800/60 p-4 text-sm text-neutral-400">
-                  No Vinted category-specific attributes loaded for this category yet.
-                </div>
-              )}
-
-            {selectedPlatforms.includes('ebay') && (
-              <PlatformOverrideCard
-                platform="ebay"
-                platformLabel="eBay"
-                isConnected={connectedPlatforms.ebay}
-                isDisabled={isSubmitting}
-                marketplaceId={platformOverrides.ebay?.marketplace_id?.toString()}
-                categoryId={platformOverrides.ebay?.category_id?.toString() || platformOverrides.ebay?.category_path}
-                attributeValues={platformOverrides.ebay?.attributes}
-                onCategoryChange={(value) => updatePlatformOverride('ebay', 'category_id', value)}
-                onAttributeChange={(key, value) => updatePlatformAttribute('ebay', key, value)}
-                categoryLabel={t.labels?.ebayCategoryPath || 'eBay Category ID'}
-                categoryPlaceholder="e.g., 175673"
-              />
-            )}
-
-            {selectedPlatforms.includes('allegro') && (
-              <PlatformOverrideCard
-                platform="allegro"
-                platformLabel="Allegro"
-                isConnected={connectedPlatforms.allegro}
-                isDisabled={isSubmitting}
-                marketplaceId={platformOverrides.allegro?.marketplace_id?.toString() || 'allegro-pl'}
-                categoryId={platformOverrides.allegro?.category_id?.toString()}
-                attributeValues={platformOverrides.allegro?.attributes}
-                onCategoryChange={() => undefined}
-                onAttributeChange={(key, value) => updatePlatformAttribute('allegro', key, value)}
-                categoryLabel={t.labels?.allegroCategoryId || 'Allegro Category ID'}
-                categoryPlaceholder="e.g., 175673"
-                categoryInputMode="summary"
-                allegroSearchPhrase={data.title}
-                selectedAllegroProduct={
-                  platformOverrides.allegro?.product_id
-                    ? {
-                        id: platformOverrides.allegro.product_id,
-                        name: platformOverrides.allegro.product_name,
-                        imageUrl: platformOverrides.allegro.product_image_url,
-                        categoryPath:
-                          platformOverrides.allegro.product_category_path ||
-                          platformOverrides.allegro.category_path,
-                      }
-                    : null
-                }
-                onAllegroProductSelect={updateAllegroProductSelection}
-                onAllegroProductClear={() => updateAllegroProductSelection(null)}
-              />
-            )}
-
-            {selectedPlatforms.includes('etsy') && (
-              <PlatformOverrideCard
-                platform="etsy"
-                platformLabel="Etsy"
-                isConnected={connectedPlatforms.etsy}
-                isDisabled={isSubmitting}
-                categoryId={
-                  platformOverrides.etsy?.taxonomy_id?.toString() ||
-                  platformOverrides.etsy?.category_id?.toString()
-                }
-                attributeValues={platformOverrides.etsy?.attributes}
-                onCategoryChange={() => undefined}
-                onAttributeChange={(key, value) => updatePlatformAttribute('etsy', key, value)}
-                categoryLabel="Etsy category"
-                categoryPlaceholder="Choose an Etsy category above"
-                categoryInputMode="summary"
-              />
-            )}
-          </div>
-        </div>
 
         {isPublishingMode && selectedPlatforms.length > 0 && (
           <div className="bg-gradient-to-r from-cyan-500/10 to-fuchsia-500/10 border border-cyan-500/30 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5 text-cyan-400" />
-                <span className="text-sm font-medium text-neutral-300">Publishing cost:</span>
+                <span className="text-sm font-medium text-neutral-300">{t.credits.publishingCost}</span>
               </div>
               <span className="text-lg font-bold text-cyan-400">
-                1 credit
+                {t.credits.oneCredit}
               </span>
             </div>
           </div>
@@ -1548,9 +1837,9 @@ const ReviewItemForm = ({
           <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
             <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
             <div className="text-sm">
-              <p className="text-red-400 font-medium">Not Enough Listings</p>
+              <p className="text-red-400 font-medium">{t.credits.insufficientTitle}</p>
               <p className="text-neutral-300 text-xs mt-1">
-                You have {credits?.publish_remaining} {credits?.publish_remaining === 1 ? 'listing' : 'listings'} left but need 1 listing to publish this item to {selectedPlatforms.length} {selectedPlatforms.length === 1 ? 'platform' : 'platforms'}. Upgrade your plan to continue.
+                {t.credits.insufficientDescription(credits?.publish_remaining ?? 0, selectedPlatforms.length)}
               </p>
             </div>
           </div>
@@ -1566,12 +1855,13 @@ const ReviewItemForm = ({
         <ImageUploader 
           images={data.images} 
           onChange={(images) => updateField('images', images)} 
-          isDisabled={isSubmitting}
+          isDisabled={isSubmitting || isEnhancingImage}
+          language={language}
+          onEnhanceImage={data.draft_id || editItemId ? handleEnhanceImage : undefined}
+          enhancingImageId={enhancingImageId}
         />
       </div>
 
-      {renderPlatformPreparation()}
-      
       <div className="space-y-4">
         <h3 className="text-base sm:text-lg font-medium text-neutral-300">{t.sections.itemDetails}</h3>
         
@@ -1601,46 +1891,46 @@ const ReviewItemForm = ({
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            {renderAiFieldLabel('brand', 'brand', t.labels.brand)}
+            {renderPlainFieldLabel('brand', t.labels.brand)}
             <Input
               id="brand"
               value={data.brand ?? ''}
               onChange={(e) => updateField('brand', e.target.value)}
-              disabled={isSubmitting || fieldIsRegenerating('brand')}
-              className={`h-12 text-base ${fieldIsRegenerating('brand') ? 'opacity-60' : ''}`}
+              disabled={isSubmitting}
+              className="h-12 text-base"
             />
           </div>
 
           <div className="space-y-2">
-            {renderAiFieldLabel('condition', 'condition', t.labels.condition)}
+            {renderPlainFieldLabel('condition', t.labels.condition)}
             <Input
               id="condition"
               value={data.condition ?? ''}
               onChange={(e) => updateField('condition', e.target.value)}
-              disabled={isSubmitting || fieldIsRegenerating('condition')}
-              className={`h-12 text-base ${fieldIsRegenerating('condition') ? 'opacity-60' : ''}`}
+              disabled={isSubmitting}
+              className="h-12 text-base"
             />
           </div>
 
           <div className="space-y-2">
-            {renderAiFieldLabel('category', 'category', t.labels.category)}
+            {renderPlainFieldLabel('category', t.labels.category)}
             <Input
               id="category"
               value={data.category ?? ''}
               onChange={(e) => updateField('category', e.target.value)}
-              disabled={isSubmitting || fieldIsRegenerating('category')}
-              className={`h-12 text-base ${fieldIsRegenerating('category') ? 'opacity-60' : ''}`}
+              disabled={isSubmitting}
+              className="h-12 text-base"
             />
           </div>
 
           <div className="space-y-2">
-            {renderAiFieldLabel('size', 'size', t.labels.size)}
+            {renderPlainFieldLabel('size', t.labels.size)}
             <Input
               id="size"
               value={data.size ?? ''}
               onChange={(e) => updateField('size', e.target.value)}
-              disabled={isSubmitting || fieldIsRegenerating('size')}
-              className={`h-12 text-base ${fieldIsRegenerating('size') ? 'opacity-60' : ''}`}
+              disabled={isSubmitting}
+              className="h-12 text-base"
             />
           </div>
 
@@ -1685,6 +1975,8 @@ const ReviewItemForm = ({
           </div>
         </div>
       </div>
+
+      {renderPlatformPreparation()}
       
       {/* Sticky Action Buttons - Mobile Optimized */}
       <div className="fixed bottom-0 left-0 right-0 bg-neutral-950/95 backdrop-blur-sm border-t border-neutral-800 p-4 sm:relative sm:bg-transparent sm:border-0 sm:p-0 z-50">
@@ -1692,7 +1984,7 @@ const ReviewItemForm = ({
           <BackButtonGhost
             type="button" 
             onClick={onBack} 
-            disabled={isSubmitting || !!regeneratingField}
+            disabled={isSubmitting || isEnhancingImage || !!regeneratingField}
             className="h-12 sm:h-10 w-full sm:w-auto text-base sm:text-sm"
           >
             {t.buttons.back}
@@ -1703,7 +1995,7 @@ const ReviewItemForm = ({
               <SecondaryAction
                 type="button"
                 onClick={handleSaveChanges}
-                disabled={isSubmitting || !!regeneratingField}
+                disabled={isSubmitting || isEnhancingImage || !!regeneratingField}
                 className="h-12 min-h-0 px-6 py-2 sm:h-10 text-base sm:text-sm font-semibold"
               >
                 {isSaving ? (
@@ -1721,7 +2013,7 @@ const ReviewItemForm = ({
               <SecondaryAction
                 type="button"
                 onClick={handleSaveAndUpdateChanges}
-                disabled={isSubmitting || !!regeneratingField}
+                disabled={isSubmitting || isEnhancingImage || !!regeneratingField}
                 className="h-12 min-h-0 px-6 py-2 sm:h-10 text-base sm:text-sm font-semibold"
               >
                 {isSavingAndUpdating ? (
@@ -1740,7 +2032,7 @@ const ReviewItemForm = ({
                 type="button"
                 sizeVariant="md"
                 onClick={handleSaveAndUpdateChanges}
-                disabled={isSubmitting || !!regeneratingField}
+                disabled={isSubmitting || isEnhancingImage || !!regeneratingField}
                 className="h-12 sm:h-10 w-full sm:w-auto text-base sm:text-sm font-semibold"
               >
                 {isSavingAndUpdating ? (
@@ -1760,6 +2052,7 @@ const ReviewItemForm = ({
                 sizeVariant="md"
                 disabled={
                   isSubmitting ||
+                  isEnhancingImage ||
                   !!regeneratingField ||
                   (isPublishingMode &&
                     (selectedPlatforms.length === 0 ||
@@ -1779,7 +2072,8 @@ const ReviewItemForm = ({
                   </>
                 ) : isPublishingMode && hasInsufficientPublishCredits ? (
                   <>
-                    <CreditCard className="mr-2 h-5 w-5 sm:h-4 sm:w-4" /> Insufficient Credits
+                    <CreditCard className="mr-2 h-5 w-5 sm:h-4 sm:w-4" />
+                    {t.buttons.insufficientCredits}
                   </>
                 ) : (
                   isPublishingMode ? t.buttons.publish : t.buttons.update
@@ -1800,14 +2094,16 @@ const ReviewItemForm = ({
       >
         <AlertDialogContent className="bg-neutral-900 border-amber-500/30">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Change OLX country?</AlertDialogTitle>
+            <AlertDialogTitle className="text-white">
+              {t.marketplaceRequirements.changeOlxCountryTitle}
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-neutral-300">
-              Changing OLX country clears the selected OLX category and OLX attributes for this listing.
+              {t.marketplaceRequirements.changeOlxCountryDescription}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-neutral-700 bg-neutral-800 text-neutral-200 hover:bg-neutral-700 hover:text-white">
-              Keep current country
+              {t.marketplaceRequirements.keepOlxCountry}
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <SecondaryAction
@@ -1815,7 +2111,7 @@ const ReviewItemForm = ({
                 onClick={confirmOlxCountryChange}
                 className="min-h-[44px] border-amber-400/70 bg-amber-500/15 px-5 py-2 text-amber-100 hover:bg-amber-500/25 hover:border-amber-300"
               >
-                Change country
+                {t.marketplaceRequirements.changeOlxCountry}
               </SecondaryAction>
             </AlertDialogAction>
           </AlertDialogFooter>

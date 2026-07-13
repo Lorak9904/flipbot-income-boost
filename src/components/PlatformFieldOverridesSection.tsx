@@ -14,22 +14,20 @@ import {
 import { SecondaryAction } from '@/components/ui/button-presets';
 import type { Platform, PlatformFieldOverrides, PlatformOverrides } from '@/types/item';
 import { SUPPORTED_CURRENCIES, resolveCurrency } from '@/lib/currency';
+import { reviewItemFormTranslations } from '@/utils/translations/review-item-form-translations';
 
 interface BaseListingValues {
   title: string;
   description: string;
   price: string;
   currency: string;
-  brand: string;
-  condition: string;
-  category: string;
-  size: string;
 }
 
 interface PlatformFieldOverridesSectionProps {
   selectedPlatforms: Platform[];
   platformOverrides: PlatformOverrides;
   baseValues: BaseListingValues;
+  language?: string;
   disabled?: boolean;
   onFieldChange: (platform: 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy', field: keyof PlatformFieldOverrides, value: string) => void;
   onClearPlatformOverrides: (platform: 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy') => void;
@@ -62,22 +60,28 @@ function hasFieldOverrides(overrides: PlatformFieldOverrides | undefined): boole
   });
 }
 
-function basePlaceholder(label: string, value: string): string {
+function basePlaceholder(
+  copy: (typeof reviewItemFormTranslations)['en']['marketplaceCustomization'],
+  label: string,
+  value: string
+): string {
   const trimmed = (value || '').trim();
   if (!trimmed) {
-    return `Using base ${label} (currently empty)`;
+    return copy.usingBaseEmpty(label);
   }
-  return `Using base ${label}: ${trimmed}`;
+  return copy.usingBase(label, trimmed);
 }
 
 export default function PlatformFieldOverridesSection({
   selectedPlatforms,
   platformOverrides,
   baseValues,
+  language = 'en',
   disabled = false,
   onFieldChange,
   onClearPlatformOverrides,
 }: PlatformFieldOverridesSectionProps) {
+  const copy = reviewItemFormTranslations[language === 'pl' ? 'pl' : 'en'].marketplaceCustomization;
   const enabledPlatforms = useMemo(
     () =>
       selectedPlatforms.filter(
@@ -149,10 +153,10 @@ export default function PlatformFieldOverridesSection({
         <div className="flex items-center justify-between rounded-lg border border-neutral-700 bg-neutral-800/40 px-3 py-2">
           <div>
             <p className="text-sm font-medium text-neutral-200">
-              Customize {PLATFORM_LABELS[platform]} listing fields
+              {copy.enable(PLATFORM_LABELS[platform])}
             </p>
             <p className="text-xs text-neutral-400">
-              Leave fields empty to inherit generic values.
+              {copy.description}
             </p>
           </div>
           <Switch
@@ -173,40 +177,40 @@ export default function PlatformFieldOverridesSection({
         {customEnabled && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2 sm:col-span-2">
-              <Label className="text-neutral-300 text-xs">Title override</Label>
+              <Label className="text-neutral-300 text-xs">{copy.title}</Label>
               <Input
                 value={overrides?.title || ''}
                 onChange={(event) => onFieldChange(platform, 'title', event.target.value)}
-                placeholder={basePlaceholder('title', baseValues.title)}
+                placeholder={basePlaceholder(copy, copy.title.toLowerCase(), baseValues.title)}
                 disabled={disabled}
               />
             </div>
 
             <div className="space-y-2 sm:col-span-2">
-              <Label className="text-neutral-300 text-xs">Description override</Label>
+              <Label className="text-neutral-300 text-xs">{copy.descriptionLabel}</Label>
               <Textarea
                 value={overrides?.description || ''}
                 onChange={(event) => onFieldChange(platform, 'description', event.target.value)}
-                placeholder={basePlaceholder('description', baseValues.description)}
+                placeholder={basePlaceholder(copy, copy.descriptionLabel.toLowerCase(), baseValues.description)}
                 disabled={disabled}
                 className="min-h-[110px]"
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-neutral-300 text-xs">Price override</Label>
+              <Label className="text-neutral-300 text-xs">{copy.price}</Label>
               <Input
                 type="number"
                 step="0.01"
                 value={overrides?.price?.toString() || ''}
                 onChange={(event) => onFieldChange(platform, 'price', event.target.value)}
-                placeholder={basePlaceholder('price', baseValues.price)}
+                placeholder={basePlaceholder(copy, copy.price.toLowerCase(), baseValues.price)}
                 disabled={disabled}
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-neutral-300 text-xs">Currency override</Label>
+              <Label className="text-neutral-300 text-xs">{copy.currency}</Label>
               <Select
                 value={resolveCurrency(overrides?.currency || baseValues.currency)}
                 onValueChange={(value) => onFieldChange(platform, 'currency', value)}
@@ -223,47 +227,7 @@ export default function PlatformFieldOverridesSection({
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-neutral-500">Default: {baseValues.currency}</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-neutral-300 text-xs">Brand override</Label>
-              <Input
-                value={overrides?.brand || ''}
-                onChange={(event) => onFieldChange(platform, 'brand', event.target.value)}
-                placeholder={basePlaceholder('brand', baseValues.brand)}
-                disabled={disabled}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-neutral-300 text-xs">Condition override</Label>
-              <Input
-                value={overrides?.condition || ''}
-                onChange={(event) => onFieldChange(platform, 'condition', event.target.value)}
-                placeholder={basePlaceholder('condition', baseValues.condition)}
-                disabled={disabled}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-neutral-300 text-xs">Size override</Label>
-              <Input
-                value={overrides?.size || ''}
-                onChange={(event) => onFieldChange(platform, 'size', event.target.value)}
-                placeholder={basePlaceholder('size', baseValues.size)}
-                disabled={disabled}
-              />
-            </div>
-
-            <div className="space-y-2 sm:col-span-2">
-              <Label className="text-neutral-300 text-xs">Category text override (optional hint)</Label>
-              <Input
-                value={overrides?.category || ''}
-                onChange={(event) => onFieldChange(platform, 'category', event.target.value)}
-                placeholder={basePlaceholder('category', baseValues.category)}
-                disabled={disabled}
-              />
+              <p className="text-xs text-neutral-500">{copy.defaultCurrency(baseValues.currency)}</p>
             </div>
 
             <div className="sm:col-span-2">
@@ -273,7 +237,7 @@ export default function PlatformFieldOverridesSection({
                 disabled={disabled}
                 className="w-full"
               >
-                Use Generic Values
+                {copy.reset}
               </SecondaryAction>
             </div>
           </div>

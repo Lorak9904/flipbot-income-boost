@@ -27,6 +27,8 @@ export const settingsTranslations: Translations = {
     
     // Marketplaces section
     marketplacesTitle: 'Marketplaces',
+    marketplacesDescription: 'Connect marketplace accounts to publish listings. Manage authentication and account health on the connections page.',
+    manageMarketplaces: 'Manage connected accounts',
     facebookMarketplace: 'Facebook Marketplace',
     allegro: 'Allegro',
     etsy: 'Etsy',
@@ -108,13 +110,15 @@ export const settingsTranslations: Translations = {
     
     // Marketplaces section
     marketplacesTitle: 'Platformy',
+    marketplacesDescription: 'Połącz konta platform, aby publikować ogłoszenia. Uwierzytelnianiem i stanem kont zarządzasz na stronie połączeń.',
+    manageMarketplaces: 'Zarządzaj połączonymi kontami',
     facebookMarketplace: 'Facebook Marketplace',
     allegro: 'Allegro',
     etsy: 'Etsy',
     
     // Address section
     addressTitle: 'Domyślny adres',
-    addressDescription: 'Ten adres będzie używany jako domyślny dla wszystkich ogłoszeń. Możesz go nadpisać dla każdej platformy osobno.',
+    addressDescription: 'Ten adres będzie domyślnie używany we wszystkich ogłoszeniach. Dla każdej platformy możesz ustawić inny adres.',
     addressCityLabel: 'Miasto',
     addressCityPlaceholder: 'Wprowadź miasto',
     addressPostalCodeLabel: 'Kod pocztowy',

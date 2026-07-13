@@ -40,6 +40,7 @@ export const creditsTranslations = {
     resetsIn: "Credits reset in {days} days",
     lowCreditsWarning: "Low Credits",
     lowCreditsMessage: "You have {remaining} credits remaining.",
+    needMoreCredits: "Need more credits? Upgrade your plan, or if you use Unlimited, buy an image-credit add-on in Settings.",
     
     // Transaction history
     transactionHistory: "Credit Transaction History",
@@ -58,6 +59,7 @@ export const creditsTranslations = {
     actionRefund: "Refund",
     actionUpgrade: "Plan Upgrade",
     actionReset: "Monthly Reset",
+    actionRenewal: "Subscription Renewal",
     
     // Plan names
     planStarter: "Start",
@@ -108,6 +110,16 @@ export const creditsTranslations = {
     portalManagedNotice: "Your subscription is active. Plan and billing cycle changes are managed in Stripe Billing Portal.",
     openBillingPortal: "Open Stripe Billing Portal",
     managedInStripe: "Managed in Stripe",
+    tryAgain: "Please try again later.",
+    mostPopular: "Most popular",
+    securePaymentsTitle: "Secure payments with Stripe",
+    securePaymentsDescription: "FlipIt never stores your card details on its servers.",
+    needHelp: "Need help choosing a plan? Contact us at myflipit@arrpo.com",
+    metadataPlatform: "Platform",
+    metadataDraft: "Listing ID",
+    metadataPrompt: "Prompt",
+    metadataSource: "Source",
+    balanceLabel: "Balance",
     
     // Credits health status
     healthyBalance: "Healthy balance",
@@ -173,6 +185,7 @@ export const creditsTranslations = {
     resetsIn: "Kredyty odnowią się za {days} dni",
     lowCreditsWarning: "Niski stan kredytów",
     lowCreditsMessage: "Pozostało {remaining} kredytów.",
+    needMoreCredits: "Potrzebujesz więcej kredytów? Zmień plan lub, jeśli korzystasz z planu Unlimited, kup dodatkowe kredyty na zdjęcia w Ustawieniach.",
     
     // Transaction history
     transactionHistory: "Historia transakcji kredytowych",
@@ -191,6 +204,7 @@ export const creditsTranslations = {
     actionRefund: "Zwrot",
     actionUpgrade: "Zmiana planu",
     actionReset: "Miesięczne odnowienie",
+    actionRenewal: "Odnowienie subskrypcji",
     
     // Plan names
     planStarter: "Start",
@@ -241,6 +255,16 @@ export const creditsTranslations = {
     portalManagedNotice: "Twoja subskrypcja jest aktywna. Zmiany planu i cyklu rozliczeń są zarządzane w Stripe Billing Portal.",
     openBillingPortal: "Otwórz Stripe Billing Portal",
     managedInStripe: "Zarządzane w Stripe",
+    tryAgain: "Spróbuj ponownie później.",
+    mostPopular: "Najpopularniejszy",
+    securePaymentsTitle: "Bezpieczne płatności przez Stripe",
+    securePaymentsDescription: "FlipIt nie przechowuje danych Twojej karty na swoich serwerach.",
+    needHelp: "Potrzebujesz pomocy przy wyborze planu? Napisz na myflipit@arrpo.com",
+    metadataPlatform: "Platforma",
+    metadataDraft: "ID ogłoszenia",
+    metadataPrompt: "Polecenie",
+    metadataSource: "Źródło",
+    balanceLabel: "Saldo",
     
     // Credits health status
     healthyBalance: "Dobry stan",

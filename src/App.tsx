@@ -2,7 +2,8 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom";
+import type { ReactElement } from "react";
 import { AuthProvider } from "./contexts/AuthContext";
 import { HelmetProvider } from "react-helmet-async";
 
@@ -30,12 +31,14 @@ import UserStatisticsPage from "./pages/UserStatisticsPage";
 import NotFound from "./pages/NotFound";
 import AutomatedResellingPlatformGuide from "./pages/AutomatedResellingPlatformGuide";
 import ArticlesIndex from "./pages/articles/ArticlesIndex";
+import PriceCheckerPage from "./pages/PriceCheckerPage";
 import VintedRelistingToolArticle from "./pages/articles/VintedRelistingToolArticle";
 import CrossListVintedToFacebookMarketplaceArticle from "./pages/articles/CrossListVintedToFacebookMarketplaceArticle";
 import ProductRelisterForVintedArticle from "./pages/articles/ProductRelisterForVintedArticle";
 import SellOnAllegroArticle from "./pages/articles/SellOnAllegroArticle";
 import HowToPriceItemsForEbayArticle from "./pages/articles/HowToPriceItemsForEbayArticle";
 import EbayActiveListingsVsSoldPricesArticle from "./pages/articles/EbayActiveListingsVsSoldPricesArticle";
+import HowMuchIsMyUsedItemWorthArticle from "./pages/articles/HowMuchIsMyUsedItemWorthArticle";
 import OlxCountryAccountsArticle from "./pages/articles/OlxCountryAccountsArticle";
 import EtsyListingToolArticle from "./pages/articles/EtsyListingToolArticle";
 // import FacebookCallbackPage from "./pages/FacebookCallbackPage";
@@ -44,6 +47,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicy";
 import CookiesPolicyPage from "./pages/CookiesPolicy"
 import CookieBanner from "./components/CookieBanner";
 import TawkChat from "./components/TawkChat";
+import { FirstListingCoach } from "./components/onboarding/FirstListingCoach";
 import ScrollToTop from "./components/ScrollToTop";
 import SettingsPage from "./pages/SettingsPage";
 import PlatformSettingsPage from "./pages/PlatformSettingsPage";
@@ -54,10 +58,27 @@ import { ConnectOlxButton } from "./pages/ConnectOlxButton";
 import { OlxSuccessPage } from "./pages/OlxSuccessPage";
 import ButtonShowcase from "./pages/ButtonShowcase";
 import RequireAuth from "./components/RequireAuth";
+import {
+  getLocalizedRoutePaths,
+  getRoutePath,
+  legacyLocalizedRoutes,
+  type LocalizedRouteKey,
+} from "./lib/localized-routes";
 
 
 
 const queryClient = new QueryClient();
+
+const localizedRouteElements = (key: LocalizedRouteKey, element: ReactElement) =>
+  getLocalizedRoutePaths(key).map((path) => (
+    <Route key={path} path={path} element={element} />
+  ));
+
+const LegacyLocalizedRedirect = ({ routeKey }: { routeKey: LocalizedRouteKey }) => {
+  const location = useLocation();
+  const target = getRoutePath(routeKey, 'pl');
+  return <Navigate to={`${target}${location.search}${location.hash}`} replace />;
+};
 
 const App = () => {
   return (
@@ -76,50 +97,48 @@ const App = () => {
               <Navbar />
               <main className="flex-grow">
                 <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/automated-reselling-platform-guide" element={<AutomatedResellingPlatformGuide />} />
-                  <Route path="/articles" element={<ArticlesIndex />} />
-                  <Route path="/articles/vinted-relisting-tool" element={<VintedRelistingToolArticle />} />
-                  <Route path="/articles/odswiezanie-ogloszen-vinted" element={<VintedRelistingToolArticle />} />
-                  <Route path="/articles/cross-list-vinted-to-facebook-marketplace" element={<CrossListVintedToFacebookMarketplaceArticle />} />
-                  <Route path="/articles/crosslisting-z-vinted-na-facebook-marketplace" element={<CrossListVintedToFacebookMarketplaceArticle />} />
-                  <Route path="/articles/product-relister-for-vinted" element={<ProductRelisterForVintedArticle />} />
-                  <Route path="/articles/relister-produktow-vinted" element={<ProductRelisterForVintedArticle />} />
-                  <Route path="/articles/jak-sprzedawac-na-allegro" element={<SellOnAllegroArticle />} />
-                  <Route path="/articles/how-to-sell-on-allegro" element={<SellOnAllegroArticle />} />
-                  <Route path="/articles/how-to-price-items-for-ebay" element={<HowToPriceItemsForEbayArticle />} />
-                  <Route path="/articles/jak-wycenic-przedmiot-na-ebay" element={<HowToPriceItemsForEbayArticle />} />
-                  <Route path="/articles/ebay-active-listings-vs-sold-prices" element={<EbayActiveListingsVsSoldPricesArticle />} />
-                  <Route path="/articles/aktywne-oferty-ebay-a-ceny-sprzedazy" element={<EbayActiveListingsVsSoldPricesArticle />} />
-                  <Route path="/articles/olx-listing-automation-by-country" element={<OlxCountryAccountsArticle />} />
-                  <Route path="/articles/automatyzacja-ogloszen-olx-wedlug-kraju" element={<OlxCountryAccountsArticle />} />
-                  <Route path="/articles/etsy-listing-tool" element={<EtsyListingToolArticle />} />
-                  <Route path="/articles/narzedzie-do-ogloszen-etsy" element={<EtsyListingToolArticle />} />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/reset-password" element={<ResetPasswordPage />} />
-                  <Route path="/how-it-works" element={<HowItWorksPage />} />
-                  <Route path="/success-stories" element={<SuccessStoriesPage />} />
-                  <Route path="/pricing" element={<PricingPage />} />
+                  {localizedRouteElements('home', <HomePage />)}
+                  {localizedRouteElements('guide', <AutomatedResellingPlatformGuide />)}
+                  {localizedRouteElements('articles', <ArticlesIndex />)}
+                  {localizedRouteElements('priceChecker', <PriceCheckerPage />)}
+                  {localizedRouteElements('vintedRelisting', <VintedRelistingToolArticle />)}
+                  {localizedRouteElements('crosslistVintedFacebook', <CrossListVintedToFacebookMarketplaceArticle />)}
+                  {localizedRouteElements('productRelisterVinted', <ProductRelisterForVintedArticle />)}
+                  {localizedRouteElements('sellOnAllegro', <SellOnAllegroArticle />)}
+                  {localizedRouteElements('priceForEbay', <HowToPriceItemsForEbayArticle />)}
+                  {localizedRouteElements('ebayActiveVsSold', <EbayActiveListingsVsSoldPricesArticle />)}
+                  {localizedRouteElements('usedItemValueGuide', <HowMuchIsMyUsedItemWorthArticle />)}
+                  {localizedRouteElements('olxCountryAutomation', <OlxCountryAccountsArticle />)}
+                  {localizedRouteElements('etsyListingTool', <EtsyListingToolArticle />)}
+                  {localizedRouteElements('login', <LoginPage />)}
+                  {localizedRouteElements('forgotPassword', <ForgotPasswordPage />)}
+                  {localizedRouteElements('resetPassword', <ResetPasswordPage />)}
+                  {localizedRouteElements('howItWorks', <HowItWorksPage />)}
+                  {localizedRouteElements('successStories', <SuccessStoriesPage />)}
+                  {localizedRouteElements('pricing', <PricingPage />)}
                   {/* <Route path="/features" element={<FeaturesPage />} /> */}
-                  <Route path="/faq" element={<FAQPage />} />
-                  <Route path="/get-started" element={<GetStartedPage />} />
-                  <Route path="/terms" element={<TermsPage />} />
-                  <Route path="/pl/regulamin" element={<TermsPage />} />
-                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
-                  <Route path="/pl/polityka-prywatnosci" element={<PrivacyPolicyPage />} />
-                  <Route path="/cookies" element={<CookiesPolicyPage />} />
-                  <Route path="/pl/polityka-cookies" element={<CookiesPolicyPage />} />
+                  {localizedRouteElements('faq', <FAQPage />)}
+                  {localizedRouteElements('getStarted', <GetStartedPage />)}
+                  {localizedRouteElements('terms', <TermsPage />)}
+                  {localizedRouteElements('privacy', <PrivacyPolicyPage />)}
+                  {localizedRouteElements('cookies', <CookiesPolicyPage />)}
                   <Route element={<RequireAuth />}>
-                    <Route path="/connect-accounts" element={<ConnectAccountsPage />} />
-                    <Route path="/add-item" element={<AddItemPage />} />
-                    <Route path="/user/items" element={<UserItemsPage />} />
-                    <Route path="/user/items/:uuid" element={<ItemDetailPage />} />
-                    <Route path="/user/items/:uuid/edit" element={<EditItemPage />} />
-                    <Route path="/user/statistics" element={<UserStatisticsPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/platform-settings/:platform" element={<PlatformSettingsPage />} />
+                    {localizedRouteElements('connectAccounts', <ConnectAccountsPage />)}
+                    {localizedRouteElements('addItem', <AddItemPage />)}
+                    {localizedRouteElements('userItems', <UserItemsPage />)}
+                    {localizedRouteElements('itemDetail', <ItemDetailPage />)}
+                    {localizedRouteElements('editItem', <EditItemPage />)}
+                    {localizedRouteElements('statistics', <UserStatisticsPage />)}
+                    {localizedRouteElements('settings', <SettingsPage />)}
+                    {localizedRouteElements('platformSettings', <PlatformSettingsPage />)}
                   </Route>
+                  {legacyLocalizedRoutes.map((route) => (
+                    <Route
+                      key={route.path}
+                      path={route.path}
+                      element={<LegacyLocalizedRedirect routeKey={route.key} />}
+                    />
+                  ))}
                   {/* <Route path="/olx/success" element={<OlxSuccessPage />} /> */}
                   
                   {/* Dev/Reference Pages (not linked in navigation) */}
@@ -130,6 +149,7 @@ const App = () => {
               </main>
               <Footer />
               <CookieBanner />
+              <FirstListingCoach />
               <TawkChat />
               {/* <WaitlistBadge /> */}
             </div>

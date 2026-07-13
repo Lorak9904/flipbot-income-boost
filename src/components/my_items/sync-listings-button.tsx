@@ -91,7 +91,7 @@ const translations = {
   },
   pl: {
     syncListings: 'Importuj ogłoszenia',
-    syncing: 'Importuję...',
+    syncing: 'Importowanie...',
     syncAllConnected: 'Importuj ze wszystkich połączonych kont',
     olxCountries: 'Konta OLX według kraju',
     selectPlatform: 'Wybierz platformę',
@@ -106,14 +106,14 @@ const translations = {
     syncPartial: 'Import częściowo zakończony',
     syncAllSuccess: 'Zaimportowano ze wszystkich połączonych kont',
     syncAllSummary: (succeeded: number, failed: number, skipped: number) =>
-      `${succeeded} zakończone, ${failed} nieudane, ${skipped} pominięte.`,
+      `Udało się: ${succeeded}. Błędy: ${failed}. Pominięto: ${skipped}.`,
     syncError: 'Błąd importu',
     connectFirst: 'Najpierw połącz swoje konto',
     platformNotConnected: (platform: string) => 
       `Najpierw połącz swoje konto ${platform} w ustawieniach.`,
     platformExpired: (platform: string) =>
       `Połączenie ${platform} wygasło lub jest nieprawidłowe. Połącz je ponownie przed importem.`,
-    noConnectedPlatforms: 'Brak połączonych kont dostępnych do importu.',
+    noConnectedPlatforms: 'Nie ma połączonych kont, z których można importować.',
   },
 };
 
@@ -341,7 +341,7 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
                     variant="outline"
                     size="sm"
                     disabled={isSyncing}
-                    className="bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50 text-neutral-200 hover:text-white"
+                    className="min-h-11 bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50 text-neutral-200 hover:text-white"
                   >
                     {isSyncing ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />

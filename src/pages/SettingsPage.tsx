@@ -20,12 +20,13 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Save, Store, Trash2, AlertTriangle, MapPin } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
-import { getTranslations } from '@/components/language-utils';
+import { getCurrentLanguage, getLocalizedPathForCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { settingsTranslations } from './settings-translations';
 import { CreditsBalanceCard } from '@/components/credits/CreditsBalanceCard';
 import { TransactionHistoryModal } from '@/components/credits/TransactionHistoryModal';
 import { PlanManagementDialog } from '@/components/credits/PlanManagementDialog';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import { FirstListingGuideCard } from '@/components/onboarding/FirstListingGuideCard';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -242,7 +243,7 @@ const SettingsPage = () => {
 
       // Logout and redirect
       logout();
-      navigate('/');
+      navigate(getLocalizedPathForCurrentLanguage('/'));
     } catch (e: unknown) {
       toast({
         title: t.toastErrorTitle,
@@ -256,9 +257,9 @@ const SettingsPage = () => {
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
       <SEOHead
-        title="Settings | FlipIt"
-        description="Manage your FlipIt account and marketplace connections."
-        canonicalUrl="https://myflipit.live/settings"
+        title={t.pageTitle}
+        description={t.pageDescription}
+        language={getCurrentLanguage()}
         robots="noindex, nofollow"
       />
       <AnimatedGradientBackground />
@@ -406,13 +407,17 @@ const SettingsPage = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-12 rounded-2xl bg-neutral-900/50 p-8 backdrop-blur-sm ring-1 ring-cyan-400/20">
             <h2 className="mb-4 text-xl font-semibold">{t.marketplacesTitle}</h2>
             <p className="text-neutral-300 text-sm mb-4">
-              Connect your marketplace accounts to publish listings directly. Manage your connections in the dedicated tab.
+              {t.marketplacesDescription}
             </p>
             <ManageButton
-              onClick={() => navigate('/connect-accounts')}
+              onClick={() => navigate(getLocalizedPathForCurrentLanguage('/connect-accounts'))}
             >
-              Manage Connected Accounts
+              {t.manageMarketplaces}
             </ManageButton>
+          </motion.div>
+
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-12">
+            <FirstListingGuideCard source="settings" />
           </motion.div>
 
           {/* Subscription & Credits - NEW SECTION */}

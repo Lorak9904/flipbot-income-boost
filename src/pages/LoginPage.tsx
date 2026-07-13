@@ -5,9 +5,10 @@ import { AuthButton } from '@/components/ui/button-presets';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginWithGmail from '@/components/LoginWithGmail';
 import { SEOHead } from '@/components/SEOHead';
-import { getTranslations, getCurrentLanguage } from '../components/language-utils';
+import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '../components/language-utils';
 import { loginTranslations } from './login-translations';
 import { isSafeReturnPath } from '@/lib/listing-editor/navigation';
+import { matchLocalizedRoute } from '@/lib/localized-routes';
 
 // Fade‑up motion reused across inputs / header
 const fadeUp = {
@@ -21,6 +22,11 @@ const fadeUp = {
 
 const LoginPage = () => {
   const t = getTranslations(loginTranslations);
+  const language = getCurrentLanguage();
+  const localized = useCallback(
+    (path: string) => getLocalizedPathForLanguage(path, language),
+    [language],
+  );
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -44,17 +50,17 @@ const LoginPage = () => {
     const checkoutPlan = sessionStorage.getItem('flipit_checkout_plan');
     const checkoutBilling = sessionStorage.getItem('flipit_checkout_billing') || 'monthly';
     if (checkoutPlan) {
-      return `/pricing?checkout=1&plan=${checkoutPlan}&billing=${checkoutBilling}`;
+      return localized(`/pricing?checkout=1&plan=${checkoutPlan}&billing=${checkoutBilling}`);
     }
     if (
       isSafeReturnPath(returnTo) &&
-      !returnTo.startsWith('/login') &&
+      matchLocalizedRoute(returnTo.split(/[?#]/, 1)[0])?.key !== 'login' &&
       !returnTo.startsWith('/logout')
     ) {
       return returnTo;
     }
-    return '/';
-  }, [returnTo]);
+    return localized('/');
+  }, [localized, returnTo]);
 
   // Registration password validation (matches backend)
   const validatePassword = (password: string, name: string, email: string) => {
@@ -87,8 +93,8 @@ const LoginPage = () => {
     try {
       await loginWithEmail(email, password);
       navigate(getPostAuthRedirect(), { replace: true });
-    } catch (err: any) {
-      setError(err.message || t.loginFailed);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : t.loginFailed);
       setLoading(false);
     }
   };
@@ -116,8 +122,8 @@ const LoginPage = () => {
       setPassword('');
       setName('');
       // window.location.reload();
-    } catch (err: any) {
-      setError(err.message || t.registrationFailed);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : t.registrationFailed);
     } finally {
       setLoading(false);
     }
@@ -149,9 +155,9 @@ const LoginPage = () => {
   return (
     <div className="relative min-h-screen overflow-hidden bg-neutral-950 text-white">
       <SEOHead
-        title="Login | FlipIt"
-        description="Log in to FlipIt — your marketplace automation workspace for AI crosslisting that removes manual descriptions, pricing, and category selection."
-        canonicalUrl="https://myflipit.live/login"
+        title={language === 'pl' ? 'Logowanie do FlipIt' : 'Log in to FlipIt'}
+        description={language === 'pl' ? 'Zaloguj się do FlipIt, aby przygotowywać, sprawdzać i publikować ogłoszenia na połączonych platformach.' : 'Log in to FlipIt to prepare, review, and publish listings for your connected marketplaces.'}
+        language={language}
         robots="noindex, nofollow"
       />
       <div className="pointer-events-none fixed inset-0 -z-20">
@@ -348,7 +354,7 @@ const LoginPage = () => {
                 </motion.div>
 
                 <motion.div variants={fadeUp} custom={4} className="flex items-center justify-between text-xs">
-                  <Link to="/forgot-password" className="text-neutral-400 transition-colors hover:text-cyan-400">
+                  <Link to={localized('/forgot-password')} className="text-neutral-400 transition-colors hover:text-cyan-400">
                     {t.forgotPassword}
                   </Link>
                   <button

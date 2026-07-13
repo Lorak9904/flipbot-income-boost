@@ -263,6 +263,14 @@ async function installCommonMocks(page: Page, { authenticated }: { authenticated
     });
   });
 
+  await page.route('**/api/items/duplicate-suggestions/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ count: 0, suggestions: [] }),
+    });
+  });
+
   await page.route(new RegExp(`/api/items/${TEST_ITEM_UUID}/$`), async (route) => {
     const request = route.request();
     if (request.method() === 'DELETE') {
@@ -273,6 +281,70 @@ async function installCommonMocks(page: Page, { authenticated }: { authenticated
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify(mockItemDetail),
+    });
+  });
+
+  await page.route(new RegExp(`/api/items/${TEST_ITEM_UUID}/statistics/.*`), async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        item_id: TEST_ITEM_UUID,
+        refreshed: false,
+        platforms: {
+          olx: {
+            platform: 'olx',
+            status: 'no_data',
+            metrics: { summary: [], timeseries: [], native: {} },
+          },
+          allegro: {
+            platform: 'allegro',
+            status: 'success',
+            captured_at: '2026-01-04T00:00:00Z',
+            metrics: {
+              summary: [{ key: 'views', label: 'Views', value: 12, kind: 'count' }],
+              timeseries: [],
+              native: {},
+            },
+          },
+          ebay: {
+            platform: 'ebay',
+            status: 'unsupported',
+            metrics: { summary: [], timeseries: [], native: {} },
+          },
+        },
+      }),
+    });
+  });
+
+  await page.route('**/api/statistics/platforms/*/', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        platform: 'olx',
+        supported: true,
+        summary: [
+          { key: 'views', label: 'Views', value: 12, kind: 'count' },
+          { key: 'phone_reveals', label: 'Phone reveals', value: 3, kind: 'count' },
+          { key: 'watchers', label: 'Watchers', value: 2, kind: 'count' },
+        ],
+        items: [
+          {
+            item_id: TEST_ITEM_UUID,
+            title: 'E2E Jacket',
+            platform: 'olx',
+            status: 'success',
+            listing_url: 'https://www.olx.pl/d/oferta/e2e-jacket',
+            captured_at: '2026-01-04T00:00:00Z',
+            metrics: [
+              { key: 'views', label: 'Views', value: 12, kind: 'count' },
+              { key: 'phone_reveals', label: 'Phone reveals', value: 3, kind: 'count' },
+              { key: 'watchers', label: 'Watchers', value: 2, kind: 'count' },
+            ],
+          },
+        ],
+      }),
     });
   });
 
@@ -318,6 +390,7 @@ async function installCommonMocks(page: Page, { authenticated }: { authenticated
           address_postal_code: body?.address_postal_code || '00-001',
           address_country: body?.address_country || 'Poland',
           address_street: body?.address_street || 'Marszalkowska 1',
+          first_listing_coach_state: body?.first_listing_coach_state || {},
         }),
       });
       return;
@@ -333,6 +406,7 @@ async function installCommonMocks(page: Page, { authenticated }: { authenticated
         address_postal_code: '00-001',
         address_country: 'Poland',
         address_street: 'Marszalkowska 1',
+        first_listing_coach_state: {},
       }),
     });
   });
@@ -342,16 +416,19 @@ async function installCommonMocks(page: Page, { authenticated }: { authenticated
   });
 }
 
-async function seedAuthenticatedSession(page: Page) {
+async function seedAuthenticatedSession(page: Page, { cookieConsent = true }: { cookieConsent?: boolean } = {}) {
   const token = makeJwtToken();
   await page.addInitScript(
-    ({ user, authToken }) => {
+    ({ user, authToken, cookieConsent: shouldSeedCookieConsent }) => {
       localStorage.setItem('flipit_token', authToken);
       localStorage.setItem('flipit_refresh_token', 'refresh-e2e');
       localStorage.setItem('flipit_user', JSON.stringify(user));
+      if (shouldSeedCookieConsent) {
+        localStorage.setItem('flipit_cookie_consent', 'essential');
+      }
       document.cookie = 'lang=en; path=/; max-age=31536000';
     },
-    { user: AUTH_USER, authToken: token }
+    { user: AUTH_USER, authToken: token, cookieConsent }
   );
 }
 
@@ -361,6 +438,49 @@ async function preparePage(page: Page, { authenticated }: { authenticated: boole
     await seedAuthenticatedSession(page);
   }
   return createRuntimeTracker(page);
+}
+
+async function mockNoFirstListingProgress(page: Page) {
+  await page.route('**/api/platforms/health-check/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        checked_at: '2026-01-01T00:00:00Z',
+        platforms: {
+          facebook: { stored: false, status: null },
+          olx: { stored: false, status: null },
+          vinted: { stored: false, status: null },
+          ebay: { stored: false, status: null },
+          allegro: { stored: false, status: null },
+        },
+      }),
+    });
+  });
+  await page.route('**/api/items/stats/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        total_items: 0,
+        published_items: 0,
+        draft_items: 0,
+        publish_success_rate: 0,
+      }),
+    });
+  });
+  await page.route(/\/api\/items\/\?.*$/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        items: [],
+        total: 0,
+        total_pages: 1,
+        page: 1,
+      }),
+    });
+  });
 }
 
 test('public pages render and remain runtime-clean', async ({ page }) => {
@@ -377,6 +497,61 @@ test('public pages render and remain runtime-clean', async ({ page }) => {
     await assertNoBrokenLocalImages(page);
     tracker.assertNoNewIssues(checkpoint, route);
   }
+});
+
+test('English and Polish routes expose matching runtime SEO signals', async ({ page }) => {
+  const tracker = await preparePage(page, { authenticated: false });
+  const routePairs = [
+    { en: '/', pl: '/pl' },
+    { en: '/pricing', pl: '/pl/cennik' },
+    { en: '/how-it-works', pl: '/pl/jak-to-dziala' },
+    { en: '/faq', pl: '/pl/faq' },
+    { en: '/articles', pl: '/pl/poradniki' },
+  ];
+
+  for (const pair of routePairs) {
+    const plCheckpoint = tracker.checkpoint();
+    await page.goto(pair.pl);
+    await expect(page.locator('main')).toBeVisible();
+    tracker.assertNoNewIssues(plCheckpoint, pair.pl);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      `https://myflipit.live${pair.pl}`,
+    );
+    await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
+      'href',
+      `https://myflipit.live${pair.en}`,
+    );
+    await expect(page.locator('link[rel="alternate"][hreflang="pl"]')).toHaveAttribute(
+      'href',
+      `https://myflipit.live${pair.pl}`,
+    );
+
+    const enCheckpoint = tracker.checkpoint();
+    await page.goto(pair.en);
+    await expect(page.locator('main')).toBeVisible();
+    tracker.assertNoNewIssues(enCheckpoint, pair.en);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      `https://myflipit.live${pair.en}`,
+    );
+  }
+});
+
+test('language switch preserves an in-progress add-item form', async ({ page }) => {
+  await preparePage(page, { authenticated: true });
+  await page.goto('/pl/dodaj-ogloszenie');
+
+  await page.getByLabel('Tytuł').fill('Tytuł zachowany przy zmianie języka');
+  await page.getByLabel('Oczekiwana cena').fill('125');
+  await page.getByTitle('Przełącz na angielski').click();
+
+  await expect(page).toHaveURL('/add-item');
+  await expect(page.getByLabel('Title')).toHaveValue('Tytuł zachowany przy zmianie języka');
+  await expect(page.getByLabel('Expected Price')).toHaveValue('125');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
 });
 
 test('protected route redirects to login when unauthenticated', async ({ page }) => {
@@ -431,7 +606,7 @@ test('authenticated pages render expected core sections', async ({ page }) => {
       route: '/add-item',
       assert: async () => {
         await expect(page.locator('h1')).toBeVisible();
-        await expect(page.getByText(/Upload Images/i)).toBeVisible();
+        await expect(page.getByRole('heading', { name: /^Add photos/ })).toBeVisible();
       },
     },
     {
@@ -454,6 +629,61 @@ test('authenticated pages render expected core sections', async ({ page }) => {
   }
 });
 
+test('first listing coach waits until cookie choice is complete', async ({ page }) => {
+  await installCommonMocks(page, { authenticated: true });
+  await seedAuthenticatedSession(page, { cookieConsent: false });
+
+  await page.goto('/');
+
+  await expect(page.getByText(/FlipIt uses essential storage/i)).toBeVisible();
+  await expect(page.getByRole('button', { name: /First steps|Checking/i })).toBeHidden();
+});
+
+test('first listing coach auto-opens before first marketplace connection and can be restored from settings', async ({ page }) => {
+  await installCommonMocks(page, { authenticated: true });
+  await seedAuthenticatedSession(page);
+  await mockNoFirstListingProgress(page);
+
+  await page.goto('/');
+
+  await expect(page.getByText('Choose a marketplace')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Options' }).click();
+  await page.getByRole('menuitem', { name: /Hide/i }).click();
+
+  await expect(page.getByText('First steps hidden', { exact: true })).toBeVisible();
+  await expect(page.getByText('Open them again from Settings or Tutorials.', { exact: true })).toBeVisible();
+  await expect(page.getByText('Choose a marketplace')).toBeHidden();
+
+  await page.goto('/settings');
+  await expect(page.getByRole('heading', { name: 'First steps' })).toBeVisible();
+
+  await page.getByRole('button', { name: /Continue/i }).click();
+
+  await expect(page.getByText('Choose a marketplace')).toBeVisible();
+});
+
+test('first listing coach launcher toggles and hides before marketplace redirect', async ({ page }) => {
+  await installCommonMocks(page, { authenticated: true });
+  await seedAuthenticatedSession(page);
+  await mockNoFirstListingProgress(page);
+
+  await page.goto('/');
+
+  await expect(page.getByText('Choose a marketplace')).toBeVisible();
+
+  await page.getByRole('button', { name: /First steps 0\/4/i }).click();
+  await expect(page.getByText('Choose a marketplace')).toBeHidden();
+
+  await page.getByRole('button', { name: /First steps 0\/4/i }).click();
+  await expect(page.getByText('Choose a marketplace')).toBeVisible();
+
+  await page.getByRole('link', { name: /Connect marketplace/i }).click();
+
+  await expect(page).toHaveURL('/connect-accounts');
+  await expect(page.getByText('Choose a marketplace')).toBeHidden();
+});
+
 test('user items and item detail load with mocked data', async ({ page }) => {
   const tracker = await preparePage(page, { authenticated: true });
   const listCheckpoint = tracker.checkpoint();
@@ -461,7 +691,7 @@ test('user items and item detail load with mocked data', async ({ page }) => {
   await page.goto('/user/items');
   await expect(page).toHaveURL('/user/items');
   await expect(page.getByText('E2E Jacket')).toBeVisible();
-  await expect(page.getByText('published', { exact: true })).toBeVisible();
+  await expect(page.getByText('Active', { exact: true })).toBeVisible();
   tracker.assertNoNewIssues(listCheckpoint, '/user/items');
 
   const detailCheckpoint = tracker.checkpoint();
@@ -469,9 +699,68 @@ test('user items and item detail load with mocked data', async ({ page }) => {
   await expect(page).toHaveURL(`/user/items/${TEST_ITEM_UUID}`);
   await expect(page.getByText('E2E Jacket')).toBeVisible();
   await expect(page.getByText(/Publishing Status/i)).toBeVisible();
-  await expect(page.getByRole('link', { name: /View listing on allegro/i })).toBeVisible();
+  await expect(page.getByText('Allegro').first()).toBeVisible();
+  await expect(page.getByRole('link', { name: /View live listing/i })).toBeVisible();
   await assertNoBrokenLocalImages(page);
   tracker.assertNoNewIssues(detailCheckpoint, `/user/items/${TEST_ITEM_UUID}`);
+});
+
+test('Polish listing detail and statistics use localized UI labels', async ({ page }) => {
+  const tracker = await preparePage(page, { authenticated: true });
+
+  const detailCheckpoint = tracker.checkpoint();
+  await page.goto(`/pl/moje-ogloszenia/${TEST_ITEM_UUID}`);
+  await expect(page.getByRole('heading', { name: 'Dane ogłoszenia' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Publikacja na platformach' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Otwórz ofertę/i })).toBeVisible();
+  await expect(page.getByText('Publishing status', { exact: true })).toHaveCount(0);
+  tracker.assertNoNewIssues(detailCheckpoint, `/pl/moje-ogloszenia/${TEST_ITEM_UUID}`);
+
+  const statsCheckpoint = tracker.checkpoint();
+  await page.goto('/pl/statystyki');
+  await expect(page.getByText('Wyświetlenia', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('Odsłonięcia numeru telefonu', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('Obserwujący', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('Phone reveals', { exact: true })).toHaveCount(0);
+  tracker.assertNoNewIssues(statsCheckpoint, '/pl/statystyki');
+});
+
+test('Polish credit history uses localized actions, dates, and metadata labels', async ({ page }) => {
+  await preparePage(page, { authenticated: true });
+  await page.goto('/pl/ustawienia');
+
+  await page.getByRole('button', { name: /Zobacz historię transakcji/i }).click();
+  await expect(page.getByRole('heading', { name: /Historia transakcji kredytowych/i })).toBeVisible();
+  await expect(page.getByText('Publikacja ogłoszenia', { exact: true })).toBeVisible();
+  await expect(page.getByText('Platforma:', { exact: true })).toBeVisible();
+  await expect(page.getByText('ID ogłoszenia:', { exact: true })).toBeVisible();
+  await expect(page.getByText(/^Saldo: 23/)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Zamknij' })).toBeVisible();
+  await expect(page.getByText('Publish Listing', { exact: true })).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Zamknij' }).click();
+  await page.getByRole('button', { name: 'Zmień plan' }).click();
+  await expect(page.getByRole('heading', { name: 'Zarządzaj subskrypcją' })).toBeVisible();
+  await expect(page.getByText('Bezpieczne płatności przez Stripe', { exact: true })).toBeVisible();
+  await expect(page.getByText('30 ogłoszeń miesięcznie', { exact: true })).toBeVisible();
+  await expect(page.getByText('Secure payments powered by Stripe', { exact: true })).toHaveCount(0);
+});
+
+test('core Polish authenticated pages do not overflow at mobile width', async ({ page }) => {
+  await preparePage(page, { authenticated: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+
+  for (const route of [
+    '/pl/dodaj-ogloszenie',
+    '/pl/moje-ogloszenia',
+    `/pl/moje-ogloszenia/${TEST_ITEM_UUID}`,
+    '/pl/ustawienia',
+  ]) {
+    await page.goto(route);
+    await expect(page.locator('main')).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, `Horizontal overflow on ${route}`).toBeLessThanOrEqual(1);
+  }
 });
 
 test('empty user items add button opens add page without modal', async ({ page }) => {

@@ -5,7 +5,7 @@ export const pricingTranslations = {
     heroDescription: "Pick the plan that matches your reselling volume",
     monthly: "Monthly",
     annual: "Annual",
-    savePercent: "Save 20%",
+    savePercent: "Save 20% with annual billing",
     currencyLabel: "Currency",
     
     // Pricing Cards
@@ -118,17 +118,10 @@ export const pricingTranslations = {
     faq6Question: "Is my payment information secure?",
     faq6Answer: "Yes. All payments are processed through Stripe, a PCI-compliant payment processor trusted by millions of businesses worldwide. We never store your payment information on our servers.",
     
-    // Trust Section
-    trustTitle: "Trusted by 1000+ Resellers Across Europe",
-    testimonial1: "FlipIt has saved me hours every week and doubled my profits in just 3 months!",
-    testimonial1Author: "Anna Kowalski",
-    testimonial1Location: "Warsaw, Poland",
-    testimonial2: "I went from manual listing to fully automated. Game changer for my business.",
-    testimonial2Author: "Marek Nowak",
-    testimonial2Location: "Krakow, Poland",
-    testimonial3: "The automation is incredible. I can focus on finding deals while FlipIt handles the rest.",
-    testimonial3Author: "Kasia Wiśniewska",
-    testimonial3Location: "Gdansk, Poland",
+    trustTitle: "Clear limits and control before publishing",
+    trustPoint1: "Start is free, so you can test the listing workflow before choosing a paid plan.",
+    trustPoint2: "You review destination fields and approve marketplace publication attempts yourself.",
+    trustPoint3: "Stripe processes payments. FlipIt does not store your card details on its servers.",
     
     // Final CTA
     ctaTitle: "Ready to Start Your Flipping Journey?",
@@ -146,7 +139,7 @@ export const pricingTranslations = {
     heroDescription: "Znajdź idealne rozwiązanie dla swojej skali sprzedaży",
     monthly: "Miesięcznie",
     annual: "Rocznie",
-    savePercent: "Oszczędź 20%",
+    savePercent: "Oszczędź 20% przy płatności rocznej",
     currencyLabel: "Waluta",
     
     // Pricing Cards
@@ -259,17 +252,10 @@ export const pricingTranslations = {
     faq6Question: "Czy moje dane płatności są bezpieczne?",
     faq6Answer: "Tak. Wszystkie płatności są przetwarzane przez Stripe, procesor zgodny z PCI, któremu ufają miliony firm na całym świecie. Nigdy nie przechowujemy Twoich danych płatniczych na naszych serwerach.",
     
-    // Trust Section
-    trustTitle: "Zaufało nam ponad 1000 sprzedawców w Europie",
-    testimonial1: "FlipIt oszczędza mi godziny każdego tygodnia i podwoiło moje zyski w zaledwie 3 miesiące!",
-    testimonial1Author: "Anna Kowalska",
-    testimonial1Location: "Warszawa, Polska",
-    testimonial2: "Przeszedłem od ręcznego wystawiania do pełnej automatyzacji. Przełom dla mojego biznesu.",
-    testimonial2Author: "Marek Nowak",
-    testimonial2Location: "Kraków, Polska",
-    testimonial3: "Automatyzacja jest niesamowita. Mogę skupić się na znajdowaniu okazji, podczas gdy FlipIt zajmuje się resztą.",
-    testimonial3Author: "Kasia Wiśniewska",
-    testimonial3Location: "Gdańsk, Polska",
+    trustTitle: "Jasne limity i kontrola przed publikacją",
+    trustPoint1: "Plan Start jest bezpłatny, więc możesz sprawdzić proces tworzenia ogłoszeń przed wyborem płatnego planu.",
+    trustPoint2: "To Ty sprawdzasz dane dla platform i zatwierdzasz próby publikacji.",
+    trustPoint3: "Płatności obsługuje Stripe. FlipIt nie przechowuje danych Twojej karty na swoich serwerach.",
     
     // Final CTA
     ctaTitle: "Gotowy, by zacząć flipować?",

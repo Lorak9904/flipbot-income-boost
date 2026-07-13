@@ -1,225 +1,83 @@
-
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { HeroCTA } from '@/components/ui/button-presets';
+import { CheckCircle2, ClipboardCheck, Layers3, RefreshCw } from 'lucide-react';
+
 import { SEOHead } from '@/components/SEOHead';
-import { getTranslations, getCurrentLanguage } from '../components/language-utils';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
+import { MarketingCtaBanner } from '@/components/marketing/MarketingCtaBanner';
+import { getCurrentLanguage, getLocalizedPathForLanguage, getTranslations } from '../components/language-utils';
+import { getSeoMetadata } from '@/lib/seo-metadata';
 import { successStoriesTranslations } from './successstories-translations';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
-  visible: (i = 1) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: 0.15 * i, duration: 0.6, ease: 'easeOut' },
-  }),
+  visible: (i = 1) => ({ opacity: 1, y: 0, transition: { delay: 0.12 * i, duration: 0.5 } }),
 };
 
-const pageTitle = 'Success Stories | FlipIt - Real AI Crosslisting Results';
-const pageDescription = 'See how FlipIt users profit with marketplace automation — AI crosslisting that drafts descriptions, pricing suggestions, and category mapping for OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy.';
-const keywords = [
-  'FlipIt success stories',
-  'AI crosslisting profits',
-  'automated reselling results',
-  'marketplace automation success',
-  'automation for marketplaces',
-  'ecommerce automation',
-  'OLX automation',
-  'Vinted automation',
-  'eBay automation',
-  'Allegro automation',
-  'Etsy automation',
-  'Vinted app',
-  'real user testimonials',
-  'crosslisting income proof',
-];
-
-const heroBadges = ['Real profits', 'Verified users', 'AI automation'];
-
-const testimonials = [
-  {
-    id: 1,
-    name: 'Sarah M.',
-    location: 'London, UK',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'I made over €180 in my first weekend using FlipIt! Turning one set of photos into listings across marketplaces saved me hours — and my items sold faster because I could publish everywhere quickly.',
-    highlight: '+€180 profit in one weekend',
-    rating: 5
-  },
-  {
-    id: 2,
-    name: 'Marcus K.',
-    location: 'Berlin, Germany',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'As a student, I needed extra income but had limited time. FlipIt changed everything — I can draft and publish listings across marketplaces in minutes, instead of rewriting everything by hand.',
-    highlight: '+€230 profit with minimal effort',
-    rating: 5
-  },
-  {
-    id: 3,
-    name: 'Elena R.',
-    location: 'Madrid, Spain',
-    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: "I was skeptical at first, but FlipIt actually works! In my first month, I made over €650 flipping furniture while working my regular job. The AI drafts plus the review flow save me hours every week.",
-    highlight: '+€650 extra income per month',
-    rating: 4
-  },
-  {
-    id: 4,
-    name: 'James W.',
-    location: 'Amsterdam, Netherlands',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
-    quote: 'FlipIt keeps my listings consistent across marketplaces. I can review everything in one place and publish with confidence — without the copy-paste grind.',
-    highlight: 'Saved hours every week',
-    rating: 5
-  },
-];
-
 const SuccessStoriesPage = () => {
+  const t = getTranslations(successStoriesTranslations);
+  const language = getCurrentLanguage();
+  const seo = getSeoMetadata('successStories', language);
+  const localized = (path: string) => getLocalizedPathForLanguage(path, language);
+  const workflows = [
+    { icon: Layers3, title: t.workflow1Title, description: t.workflow1Description },
+    { icon: ClipboardCheck, title: t.workflow2Title, description: t.workflow2Description },
+    { icon: RefreshCw, title: t.workflow3Title, description: t.workflow3Description },
+  ];
+  const evidence = [t.evidence1, t.evidence2, t.evidence3];
+
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
-      <SEOHead
-        title={pageTitle}
-        description={pageDescription}
-        canonicalUrl="https://myflipit.live/success-stories"
-        keywords={keywords}
-      />
-
+      <SEOHead title={seo?.title} description={seo?.description} language={language} />
       <AnimatedGradientBackground />
 
-      {/* Hero Section */}
-      <section className="relative py-16 md:py-24 text-center px-4">
-        <motion.h1
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="mx-auto mb-6 max-w-4xl text-3xl md:text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl"
-        >
-          Real Success <span className="bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent text-balance">Stories</span>
+      <section className="relative px-4 py-16 text-center md:py-24">
+        <motion.h1 initial="hidden" animate="visible" variants={fadeUp} className="mx-auto max-w-4xl text-3xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
+          {t.heroTitle} <span className="text-cyan-400">{t.heroTitleHighlight}</span>
         </motion.h1>
-        <motion.p
-          custom={2}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="mx-auto max-w-2xl text-base md:text-lg text-neutral-300 px-2"
-        >
-          See how FlipIt users are generating real profits with AI-powered crosslisting automation across multiple marketplaces.
+        <motion.p custom={2} initial="hidden" animate="visible" variants={fadeUp} className="mx-auto mt-6 max-w-3xl text-base text-neutral-300 md:text-lg">
+          {t.heroDescription}
         </motion.p>
-        <motion.div
-          custom={3}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="mx-auto mt-8 flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.4em] text-neutral-100 px-2"
-        >
-          {heroBadges.map((badge) => (
-            <span
-              key={badge}
-              className="rounded-full border border-cyan-400/40 bg-cyan-500/10 px-4 py-1 shadow-md shadow-cyan-500/20"
-            >
-              {badge}
-            </span>
-          ))}
+        <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp} className="mx-auto mt-8 flex flex-wrap justify-center gap-3 text-xs uppercase text-neutral-100">
+          {[t.badge1, t.badge2, t.badge3].map((badge) => <span key={badge} className="rounded-full border border-cyan-400/40 bg-cyan-500/10 px-4 py-1">{badge}</span>)}
         </motion.div>
       </section>
 
-      {/* Success Stories */}
-      <section className="relative py-16 md:py-24">
-        <div className="container mx-auto px-6 md:px-8">
-          <div className="grid gap-8 md:gap-12">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={testimonial.id}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                custom={index}
-                variants={fadeUp}
-                className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-neutral-900/60 p-6 md:p-8 shadow-xl shadow-fuchsia-500/10 backdrop-blur"
-              >
-                <div className="flex flex-col md:flex-row md:items-center gap-6 mb-6">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-r from-cyan-500/20 to-fuchsia-500/20 p-1 flex-shrink-0">
-                    <div className="w-full h-full rounded-full overflow-hidden">
-                      <img 
-                        src={testimonial.image} 
-                        alt={testimonial.name} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl md:text-2xl font-semibold text-white">{testimonial.name}</h3>
-                    <p className="text-neutral-400 mb-3">{testimonial.location}</p>
-                    <div className="flex gap-1">
-                      {[...Array(5)].map((_, starIndex) => (
-                        <svg 
-                          key={starIndex} 
-                          className={`w-5 h-5 ${starIndex < testimonial.rating ? 'text-yellow-400' : 'text-neutral-600'}`} 
-                          fill="currentColor" 
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                        </svg>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="md:text-right">
-                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-fuchsia-500/20 border border-cyan-400/30">
-                      <span className="text-sm font-medium text-cyan-300">
-                        {testimonial.highlight}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <blockquote className="text-lg md:text-xl text-neutral-300 leading-relaxed px-2">
-                  "{testimonial.quote}"
-                </blockquote>
-              </motion.div>
+      <section className="relative px-6 py-16 md:py-20">
+        <div className="container mx-auto max-w-6xl">
+          <div className="mx-auto mb-10 max-w-3xl text-center">
+            <h2 className="text-2xl font-bold md:text-3xl">{t.sectionTitle}</h2>
+            <p className="mt-3 text-neutral-300">{t.sectionDescription}</p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {workflows.map(({ icon: Icon, title, description }, index) => (
+              <motion.article key={title} custom={index} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="rounded-2xl border border-white/10 bg-neutral-900/60 p-6 backdrop-blur">
+                <Icon className="h-6 w-6 text-cyan-400" aria-hidden="true" />
+                <h3 className="mt-5 text-xl font-semibold">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-neutral-300">{description}</p>
+              </motion.article>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Quote Section */}
-      <section className="relative py-16 md:py-24">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeUp}
-          className="container mx-auto px-6 md:px-8"
-        >
-          <div className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-neutral-900/60 p-8 md:p-12 text-center shadow-xl shadow-fuchsia-500/10 backdrop-blur"
-          >
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-6 text-balance">
-              "FlipIt has helped users generate over <span className="bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent text-balance">€4,500</span> in collective profits during our beta testing phase."
-            </h2>
-            <p className="text-xl text-neutral-300 font-medium">— FlipIt Founder</p>
-          </div>
-        </motion.div>
+      <section className="relative px-6 py-16">
+        <div className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-neutral-900/60 p-8 backdrop-blur md:p-10">
+          <h2 className="text-2xl font-bold md:text-3xl">{t.evidenceTitle}</h2>
+          <ul className="mt-6 space-y-4">
+            {evidence.map((item) => <li key={item} className="flex items-start gap-3 text-neutral-200"><CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" aria-hidden="true" /><span>{item}</span></li>)}
+          </ul>
+          <p className="mt-8 border-t border-white/10 pt-6 text-sm leading-6 text-neutral-400">{t.note}</p>
+        </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="relative py-16 md:py-24 text-center px-4">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeUp}
-          className="container mx-auto"
-        >
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-6 px-2">
-            Ready to Write Your Success Story?
-          </h2>
-          <p className="text-lg text-neutral-300 max-w-2xl mx-auto mb-8 px-2">
-            Create an account to access FlipIt's AI-powered crosslisting automation across marketplaces.
-          </p>
-          <HeroCTA asChild className="text-lg px-8 py-6">
-            <Link to="/login?register=1">Create Account</Link>
-          </HeroCTA>
-        </motion.div>
+      <section className="relative px-6 pb-24 pt-12">
+        <MarketingCtaBanner
+          title={t.ctaTitle}
+          description={t.ctaDescription}
+          primaryAction={{ text: t.ctaButton, href: localized('/login?register=1') }}
+          secondaryAction={{ text: language === 'pl' ? 'Zobacz, jak to działa' : 'See how it works', href: localized('/how-it-works') }}
+        />
       </section>
     </div>
   );

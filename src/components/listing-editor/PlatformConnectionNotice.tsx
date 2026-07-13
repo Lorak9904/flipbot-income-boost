@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { AlertCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getLocalizedPathForCurrentLanguage } from '@/components/language-utils';
 
 interface PlatformConnectionNoticeProps {
   title: string;
@@ -32,7 +33,7 @@ export function PlatformConnectionNotice({
           size="sm"
           className="shrink-0 border-amber-200/40 bg-amber-200/10 text-amber-50 hover:bg-amber-200/20 hover:text-white"
         >
-          <Link to="/connect-accounts">
+          <Link to={getLocalizedPathForCurrentLanguage('/connect-accounts')}>
             {ctaLabel}
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>

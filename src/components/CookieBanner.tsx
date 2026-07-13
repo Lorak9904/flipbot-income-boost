@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AddItemButton } from "@/components/ui/button-presets";
 import { Button } from "@/components/ui/button";
-import { COOKIE_CONSENT_KEY, notifyOptionalCookieConsentAccepted } from "@/lib/cookie-consent";
+import {
+  COOKIE_CONSENT_KEY,
+  notifyCookieConsentChoice,
+  notifyOptionalCookieConsentAccepted,
+} from "@/lib/cookie-consent";
 import { getCurrentLanguage, getLocalizedPathForLanguage, type Language } from "./language-utils";
 
 const bannerCopy: Record<
@@ -16,16 +20,16 @@ const bannerCopy: Record<
 > = {
   en: {
     text:
-      "FlipIt uses essential storage for login, language, and security. Optional analytics and live chat help us improve the product and support users.",
+      "FlipIt stores essential browser data for sign-in, language, and security. Optional consent enables analytics, masked session recordings, and live chat.",
     learnMore: "Cookie policy",
-    accept: "Accept optional",
+    accept: "Allow optional",
     necessary: "Only necessary",
   },
   pl: {
     text:
-      "FlipIt używa niezbędnego storage do logowania, języka i bezpieczeństwa. Opcjonalna analityka i czat pomagają poprawiać produkt i szybciej wspierać użytkowników.",
+      "FlipIt zapisuje w przeglądarce dane potrzebne do logowania, wyboru języka i bezpieczeństwa. Za zgodą włączymy też analitykę, maskowane nagrania sesji i czat.",
     learnMore: "Polityka cookies",
-    accept: "Akceptuję opcjonalne",
+    accept: "Zezwól na opcjonalne",
     necessary: "Tylko niezbędne",
   },
 };
@@ -65,6 +69,7 @@ export default function CookieBanner() {
     if (choice === "accepted") {
       notifyOptionalCookieConsentAccepted();
     }
+    notifyCookieConsentChoice();
 
     setVisible(false);
   };
@@ -72,7 +77,7 @@ export default function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 rounded-2xl border border-cyan-300/20 bg-neutral-950/95 p-4 text-white shadow-2xl shadow-cyan-500/20 backdrop-blur-md">
+    <div className="fixed bottom-4 left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 rounded-lg border border-neutral-700 bg-neutral-950/95 p-4 text-white shadow-2xl backdrop-blur-md">
       <p className="text-sm leading-6 text-neutral-200">
         {copy.text}{" "}
         <Link to={cookiesPath} className="font-medium text-cyan-300 underline underline-offset-4 hover:text-cyan-200">
@@ -83,7 +88,7 @@ export default function CookieBanner() {
         <AddItemButton
           sizeVariant="md"
           onClick={() => persistChoice("accepted")}
-          className="w-full justify-center px-4 py-2 button-fluid-text !border-cyan-200 !bg-cyan-800 !text-white hover:!bg-cyan-700"
+          className="min-h-11 w-full justify-center px-4 py-2 button-fluid-text !border-cyan-200 !bg-cyan-800 !text-white hover:!bg-cyan-700"
         >
           {copy.accept}
         </AddItemButton>
@@ -91,7 +96,7 @@ export default function CookieBanner() {
           type="button"
           variant="outline"
           onClick={() => persistChoice("essential")}
-          className="w-full rounded-full border-neutral-600 bg-neutral-900/80 px-4 py-2 text-neutral-200 hover:border-neutral-400 hover:bg-neutral-800 hover:text-white"
+          className="min-h-11 w-full border-neutral-600 bg-neutral-900/80 px-4 py-2 text-neutral-200 hover:border-neutral-400 hover:bg-neutral-800 hover:text-white"
         >
           {copy.necessary}
         </Button>

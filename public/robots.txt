@@ -39,22 +39,23 @@ Allow: /
 User-agent: Applebot
 Allow: /
 
-# AI training or extended-product crawlers. These are allowed in the app-level
-# robots file, but Cloudflare AI Crawl Control may still override them live.
+# AI training or extended-product crawlers. Search and answer-grounding bots
+# remain allowed above; model-training crawlers are excluded consistently with
+# the Content-Signal preference.
 User-agent: GPTBot
-Allow: /
+Disallow: /
 
 User-agent: ClaudeBot
-Allow: /
+Disallow: /
 
 User-agent: Google-Extended
-Allow: /
+Disallow: /
 
 User-agent: meta-externalagent
-Allow: /
+Disallow: /
 
 User-agent: Applebot-Extended
-Allow: /
+Disallow: /
 
 # Default for other crawlers.
 User-agent: *

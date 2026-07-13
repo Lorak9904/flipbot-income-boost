@@ -27,22 +27,20 @@ interface ConnectPlatformModalProps {
 const platformConfig = {
   facebook: {
     showDtsg: true,
-    cookiePlaceholder: 'Paste Facebook cookies here...',
     howToConnectVideoId: null as string | null,
   },
   vinted: {
     showDtsg: false,
-    cookiePlaceholder: 'Paste Vinted cookies here...',
     howToConnectVideoId: 'GxClZgY53_k',
   },
 };
 
-const YouTubeEmbed = ({ videoId }: { videoId: string }) => (
+const YouTubeEmbed = ({ videoId, title }: { videoId: string; title: string }) => (
   <div className="relative w-full pt-[56.25%] mb-4 overflow-hidden rounded-lg">
     <iframe
       className="absolute top-0 left-0 w-full h-full rounded-lg"
       src={`https://www.youtube.com/embed/${videoId}?rel=0`}
-      title="How to connect - Video tutorial"
+      title={title}
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowFullScreen
     />
@@ -101,7 +99,7 @@ export const ConnectPlatformModal = ({
         }),
       });
       if (!response.ok) {
-        let errorMsg = 'Failed to connect manually';
+        let errorMsg = t.toastManualConnectedError;
         try {
           const errorData = await response.json();
           if (errorData.detail) errorMsg = errorData.detail;
@@ -180,7 +178,10 @@ export const ConnectPlatformModal = ({
                   </h4>
 
                   {config.howToConnectVideoId && (
-                    <YouTubeEmbed videoId={config.howToConnectVideoId} />
+                    <YouTubeEmbed
+                      videoId={config.howToConnectVideoId}
+                      title={t.videoTutorialTitle}
+                    />
                   )}
 
                   <div className="space-y-3 text-left overflow-hidden">
@@ -195,6 +196,7 @@ export const ConnectPlatformModal = ({
                             <a
                               href="https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm"
                               target="_blank"
+                              rel="noreferrer"
                               className="underline text-blue-400"
                             >
                               {t.cookieExtensionText}
@@ -248,7 +250,11 @@ export const ConnectPlatformModal = ({
           <div className="relative">
             <Textarea
               rows={4}
-              placeholder={config.cookiePlaceholder}
+              placeholder={
+                platform === 'facebook'
+                  ? t.facebookCookiePlaceholder
+                  : t.vintedCookiePlaceholder
+              }
               value={manualCookies}
               onChange={(e) => setManualCookies(e.target.value)}
               required
@@ -354,6 +360,8 @@ export const ConnectPlatformModal = ({
                                   );
                                   toast.success(t.dtsgCommandCopied);
                                 }}
+                                aria-label={t.copyDtsgCommand}
+                                title={t.copyDtsgCommand}
                                 className="mt-2 self-end text-teal-400 hover:text-teal-300 focus:outline-none"
                               >
                                 <Copy className="h-4 w-4" />
@@ -380,7 +388,7 @@ export const ConnectPlatformModal = ({
               <div className="relative">
                 <Input
                   type="text"
-                  placeholder="Paste your dtsg token here..."
+                  placeholder={t.dtsgPlaceholder}
                   value={manualDtsg}
                   onChange={(e) => setManualDtsg(e.target.value)}
                   required={config.showDtsg}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { AddItemButton } from '@/components/ui/button-presets';
@@ -26,11 +26,19 @@ import { InsufficientCreditsAlert } from '@/components/credits';
 import { parseInsufficientCreditsError, parseErrorResponse } from '@/lib/api/error-handler';
 import { SUPPORTED_CURRENCIES, resolveCurrency } from '@/lib/currency';
 import { captureActivationEvent } from '@/lib/analytics/activation';
+import {
+  LISTING_EDITOR_DRAFT_SAVE_EVENT,
+  persistListingEditorDraft,
+  persistableImages,
+  type AddItemFormSnapshot,
+} from '@/lib/listing-editor-draft';
 
 interface AddItemFormProps {
   onComplete: (generatedData: GeneratedItemDataWithVinted) => void;
   language?: string;
   initialData?: Partial<GeneratedItemDataWithVinted>;
+  initialSnapshot?: AddItemFormSnapshot;
+  shouldPersistDraft?: boolean;
 }
 
 interface SupportAction {
@@ -73,7 +81,13 @@ const buildSupportMailtoHref = (support?: SupportAction): string | undefined => 
  * backend, instead of re‑uploading binary data. This dramatically reduces
  * payload size and lets the server (or GPT‑4o Vision) fetch the images directly.
  */
-const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) => {
+const AddItemForm = ({
+  onComplete,
+  language,
+  initialData,
+  initialSnapshot,
+  shouldPersistDraft = false,
+}: AddItemFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<ItemImage[]>([]);
@@ -87,28 +101,71 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
   const queryClient = useQueryClient();
   const posthog = usePostHog();
   const t = getTranslations(addItemFormTranslations);
-  const defaultCurrency = resolveCurrency(initialData?.currency, user?.language || language || getCurrentLanguage());
+  const defaultCurrency = resolveCurrency(
+    initialSnapshot?.currency || initialData?.currency,
+    user?.language || language || getCurrentLanguage()
+  );
 
   const {
     register,
     handleSubmit,
+    reset,
     setValue,
     watch,
     formState: { errors },
   } = useForm<ItemFormData>({
     defaultValues: {
-      title: initialData?.title || '',
-      expected_price: initialData?.price || '',
+      title: initialSnapshot?.title || initialData?.title || '',
+      expected_price: initialSnapshot?.expectedPrice || initialData?.price || '',
       currency: defaultCurrency,
     },
   });
   const selectedCurrency = watch('currency') || defaultCurrency;
 
   useEffect(() => {
+    if (initialSnapshot) {
+      setImages(initialSnapshot.images);
+      setGenerateEnhancedImage(initialSnapshot.generateEnhancedImage);
+      reset({
+        title: initialSnapshot.title,
+        expected_price: initialSnapshot.expectedPrice,
+        currency: resolveCurrency(initialSnapshot.currency, user?.language || language || getCurrentLanguage()),
+      });
+      return;
+    }
+
     if (initialData?.images && initialData.images.length > 0) {
       setImages(initialData.images);
     }
-  }, [initialData]);
+  }, [initialData, initialSnapshot, language, reset, user?.language]);
+
+  const persistDraft = useCallback(() => {
+    if (!shouldPersistDraft) {
+      return;
+    }
+
+    persistListingEditorDraft(user?.id, {
+      version: 1,
+      kind: 'add',
+      data: {
+        title: watch('title') || '',
+        expectedPrice: watch('expected_price') || '',
+        currency: selectedCurrency,
+        images: persistableImages(images),
+        generateEnhancedImage,
+      },
+    });
+  }, [generateEnhancedImage, images, selectedCurrency, shouldPersistDraft, user?.id, watch]);
+
+  useEffect(() => {
+    if (!shouldPersistDraft) {
+      return;
+    }
+
+    persistDraft();
+    window.addEventListener(LISTING_EDITOR_DRAFT_SAVE_EVENT, persistDraft);
+    return () => window.removeEventListener(LISTING_EDITOR_DRAFT_SAVE_EVENT, persistDraft);
+  }, [persistDraft, shouldPersistDraft]);
 
   const onSubmit = async (data: ItemFormData) => {
     if (images.length === 0) {
@@ -283,7 +340,12 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
         <h3 className="text-lg font-medium mb-4 text-neutral-300">
           {t.sections.uploadImages} <span className="text-red-500">*</span>
         </h3>
-        <ImageUploader images={images} onChange={setImages} isDisabled={isSubmitting} />
+        <ImageUploader
+          images={images}
+          onChange={setImages}
+          isDisabled={isSubmitting}
+          language={language || user?.language}
+        />
         <p className="text-sm text-slate-400 mt-2">
           {t.toast.noImagesDesc}
         </p>
@@ -299,7 +361,7 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
         <div className="space-y-4">
           <div>
             <Label htmlFor="title" className="text-neutral-300">
-              {t.labels.title} <span className="text-slate-500 text-xs">(optional)</span>
+              {t.labels.title} <span className="text-slate-500 text-xs">({t.labels.optional})</span>
             </Label>
             <Input 
               id="title" 
@@ -312,7 +374,7 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_160px]">
             <div>
               <Label htmlFor="expected_price" className="text-neutral-300">
-                {t.labels.expectedPrice} <span className="text-slate-500 text-xs">(optional)</span>
+                {t.labels.expectedPrice} <span className="text-slate-500 text-xs">({t.labels.optional})</span>
               </Label>
               <Input
                 id="expected_price"
@@ -351,14 +413,14 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
           <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-700">
             <div className="flex-1">
               <Label htmlFor="enhance-toggle" className="text-neutral-300 cursor-pointer flex items-center gap-2">
-                🎨 Generate AI-Enhanced Thumbnail
+                {t.imageEnhancement.label}
                 <span className="text-xs font-normal text-cyan-400 flex items-center gap-1">
                   <CreditCard className="h-3 w-3" />
-                  {generateEnhancedImage ? '1 credit' : 'Free'}
+                  {generateEnhancedImage ? t.imageEnhancement.oneCredit : t.imageEnhancement.free}
                 </span>
               </Label>
               <p className="text-xs text-slate-400 mt-1">
-                Create a professional product thumbnail with improved background and lighting
+                {t.imageEnhancement.description}
               </p>
             </div>
             <Switch
@@ -380,9 +442,9 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
             <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
               <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
-                <p className="text-red-400 font-medium">No AI Photo Credits Left</p>
+                <p className="text-red-400 font-medium">{t.imageEnhancement.unavailableTitle}</p>
                 <p className="text-neutral-300 text-xs mt-1">
-                  You have {credits.image_remaining} AI photo enhancements remaining. Upgrade your plan or buy add-on image credits in Settings to continue.
+                  {t.imageEnhancement.unavailableDescription(credits.image_remaining)}
                 </p>
               </div>
             </div>
@@ -406,7 +468,7 @@ const AddItemForm = ({ onComplete, language, initialData }: AddItemFormProps) =>
           </>
         ) : generateEnhancedImage && credits && credits.image_remaining !== null && credits.image_remaining < 1 ? (
           <>
-            <CreditCard className="mr-2 h-4 w-4" /> No Image Credits
+            <CreditCard className="mr-2 h-4 w-4" /> {t.buttons.noImageCredits}
           </>
         ) : (
           t.buttons.continue

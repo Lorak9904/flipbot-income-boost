@@ -26,20 +26,30 @@ interface RawItem {
   platforms?: Platform[];
 }
 
-function toImages(images: unknown[] | undefined): ItemImage[] {
-  const urls = (images || [])
-    .map((img: unknown) => resolveItemImageUrl(img))
-    .filter((url: string | null): url is string => Boolean(url));
+function toImages(images: unknown[] | undefined, enhancedUrls: Set<string>): ItemImage[] {
+  return (images || []).flatMap((image: unknown, index) => {
+    const url = resolveItemImageUrl(image);
+    if (!url) return [];
 
-  return urls.map((url, index) => ({
-    id: `existing-${index}`,
-    url,
-    isUploaded: true,
-  }));
+    const imageMetadata = image && typeof image === 'object'
+      ? image as Record<string, unknown>
+      : null;
+    return [{
+      id: `existing-${index}`,
+      url,
+      isUploaded: true,
+      enhanced: imageMetadata?.enhanced === true || enhancedUrls.has(url),
+    }];
+  });
 }
 
 export function toReviewFormData(item: RawItem): GeneratedItemDataWithVinted {
   const analysis = item.analysis && typeof item.analysis === 'object' ? item.analysis : {};
+  const enhancedImageUrls = new Set(
+    Array.isArray(analysis.ai_enhanced_image_urls)
+      ? analysis.ai_enhanced_image_urls.filter((url): url is string => typeof url === 'string')
+      : []
+  );
   const platformOverrides =
     item.platform_listing_overrides && typeof item.platform_listing_overrides === 'object'
       ? item.platform_listing_overrides
@@ -92,14 +102,15 @@ export function toReviewFormData(item: RawItem): GeneratedItemDataWithVinted {
     },
     platform_listing_overrides: platformOverrides,
     marketplace_attributes: marketplaceAttributes,
-    images: toImages(item.images),
+    images: toImages(item.images, enhancedImageUrls),
     brand_id: analysis.brand_id as number | undefined,
     brand_title: analysis.brand_title as string | undefined,
-    brand_confidence: analysis.brand_confidence as number | undefined,
+    brand_confidence: analysis.brand_confidence as string | undefined,
+    brand_match_reason: analysis.brand_match_reason as string | undefined,
     model_id: analysis.model_id as number | undefined,
     package_size_id: analysis.package_size_id as number | undefined,
     package_size: analysis.package_size as string | undefined,
-    enhanced_images: analysis.enhanced_images as string[] | undefined,
+    enhanced_images: Array.from(enhancedImageUrls),
   };
 }
 
