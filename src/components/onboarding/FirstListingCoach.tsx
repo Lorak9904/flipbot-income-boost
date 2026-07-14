@@ -28,7 +28,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Progress } from '@/components/ui/progress';
-import { ToastAction } from '@/components/ui/toast';
+import { NotificationAction } from '@/components/ui/notification-action';
 import { getLocalizedPathForCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -421,9 +421,9 @@ export function FirstListingCoach() {
       title: t.hiddenToastTitle,
       description: t.hiddenToastBody,
       action: (
-        <ToastAction altText={t.settingsToastAction} onClick={() => navigate(getLocalizedPathForCurrentLanguage('/settings'))}>
+        <NotificationAction altText={t.settingsToastAction} onClick={() => navigate(getLocalizedPathForCurrentLanguage('/settings'))}>
           {t.settingsToastAction}
-        </ToastAction>
+        </NotificationAction>
       ),
     });
   };

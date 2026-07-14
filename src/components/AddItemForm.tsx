@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ToastAction } from '@/components/ui/toast';
+import { NotificationAction } from '@/components/ui/notification-action';
 import { ItemFormData, ItemImage, GeneratedItemDataWithVinted } from '@/types/item';
 import ImageUploader from './ImageUploader';
 import { Loader2, CreditCard, AlertCircle } from 'lucide-react';
@@ -318,14 +318,14 @@ const AddItemForm = ({
         description: error instanceof Error && error.message ? error.message : t.toast.errorDesc,
         variant: 'destructive',
         action: supportHref ? (
-          <ToastAction
+          <NotificationAction
             altText={supportLabel}
             onClick={() => {
               window.location.href = supportHref;
             }}
           >
             {supportLabel}
-          </ToastAction>
+          </NotificationAction>
         ) : undefined,
       });
     } finally {

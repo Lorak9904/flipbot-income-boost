@@ -16,7 +16,7 @@ import {
 import { UserItem, ItemStats, Platform, ItemStatus } from '@/types/item';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ToastAction } from '@/components/ui/toast';
+import { NotificationAction } from '@/components/ui/notification-action';
 import { PaginationButton, AddItemButton } from '@/components/ui/button-presets';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -389,12 +389,12 @@ const UserItemsPage = () => {
         title: t.duplicateSuggestions.mergedTitle,
         description: t.duplicateSuggestions.mergedDescription,
         action: (
-          <ToastAction
+          <NotificationAction
             altText={t.duplicateSuggestions.undoButton}
             onClick={() => void handleUnmergeDuplicates([mergeResult.merged_item_id])}
           >
             {t.duplicateSuggestions.undoButton}
-          </ToastAction>
+          </NotificationAction>
         ),
       });
     } catch (err) {
@@ -472,12 +472,12 @@ const UserItemsPage = () => {
         ),
         action:
           mergedItemIds.length > 0 ? (
-            <ToastAction
+            <NotificationAction
               altText={t.duplicateSuggestions.undoButton}
               onClick={() => void handleUnmergeDuplicates(mergedItemIds)}
             >
               {t.duplicateSuggestions.undoButton}
-            </ToastAction>
+            </NotificationAction>
           ) : undefined,
       });
     } catch (err) {

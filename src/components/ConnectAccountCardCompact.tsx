@@ -34,7 +34,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notifications';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCurrentLanguage, getLocalizedPathForCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { connectCardTranslations } from './connect-card-translations';
@@ -50,7 +50,7 @@ interface ConnectAccountCardProps {
   platform: 'facebook' | 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy';
   platformName: string;
   logoSrc: string;
-  onConnected?: () => void;
+  onConnected?: () => void | Promise<void>;
   isConnected: boolean;
   sessionStatus?: 'valid' | 'expired' | 'invalid' | null;
   invalidReason?: string | null;
@@ -188,7 +188,7 @@ const ConnectAccountCard = ({
       window.location.href = data.auth_url;
     } catch (error) {
       console.error('Failed to get eBay connect URL:', error);
-      toast.error(tr('toastConnectedError', { platform: 'eBay' }));
+      notify.error(tr('toastConnectedError', { platform: 'eBay' }));
       setIsConnectingOauth(false);
     }
   };
@@ -208,7 +208,7 @@ const ConnectAccountCard = ({
       window.location.href = data.auth_url;
     } catch (error) {
       console.error('Failed to get OLX connect URL:', error);
-      toast.error(tr('toastConnectedError', { platform: 'OLX' }));
+      notify.error(tr('toastConnectedError', { platform: 'OLX' }));
       setIsConnectingOauth(false);
     }
   };
@@ -227,7 +227,7 @@ const ConnectAccountCard = ({
       window.location.href = data.auth_url;
     } catch (error) {
       console.error('Failed to get Allegro connect URL:', error);
-      toast.error(tr('toastConnectedError', { platform: 'Allegro' }));
+      notify.error(tr('toastConnectedError', { platform: 'Allegro' }));
       setIsConnectingOauth(false);
     }
   };
@@ -241,7 +241,7 @@ const ConnectAccountCard = ({
     }
 
     if (integrationPending) {
-      toast.info(pendingMessage || t.integrationPendingToast);
+      notify.info(pendingMessage || t.integrationPendingToast);
       return;
     }
 
@@ -251,7 +251,7 @@ const ConnectAccountCard = ({
       window.location.href = data.auth_url;
     } catch (error) {
       console.error('Failed to get Etsy connect URL:', error);
-      toast.error(error instanceof Error && error.message ? error.message : t.toastEtsyConnectError);
+      notify.error(error instanceof Error && error.message ? error.message : t.toastEtsyConnectError);
       setIsConnectingOauth(false);
     }
   };
@@ -285,14 +285,14 @@ const ConnectAccountCard = ({
       if (platform !== 'olx' || !countryCode || connectedOlxAccounts.length <= 1) {
         setIsConnected(false);
       }
-      toast.success(
+      notify.success(
         countryCode
           ? t.toastDisconnectedSuccess.replace('{platform}', `OLX ${countryCode.toUpperCase()}`)
           : tr('toastDisconnectedSuccess', { platform: platformName })
       );
       if (onConnected) onConnected();
     } catch (error) {
-      toast.error(t.toastDisconnectedError);
+      notify.error(t.toastDisconnectedError);
     }
   };
 
@@ -318,22 +318,43 @@ const ConnectAccountCard = ({
         },
       });
 
-      if (response.ok) {
-        toast.success(t.vintedRefreshSuccess);
-        if (onConnected) onConnected();
+      const refreshResult = await response.json().catch(() => null);
+
+      if (response.ok && refreshResult?.connected && refreshResult?.status === 'valid') {
+        const statusResponse = await fetch('/api/vinted/status/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const statusResult = await statusResponse.json().catch(() => null);
+
+        if (statusResponse.ok && statusResult?.connected && statusResult?.status === 'valid') {
+          setIsConnected(true);
+          await onConnected?.();
+          notify.success(t.vintedRefreshSuccess);
+          return;
+        }
+
+        await onConnected?.();
+        if (statusResponse.status === 401 || statusResponse.status === 403 || statusResult?.status === 'invalid') {
+          notify.error(t.vintedRefreshInvalid);
+          setShowConnectModal(true);
+          return;
+        }
+
+        notify.error(t.vintedRefreshFailed);
         return;
       }
 
       if (response.status === 401 || response.status === 403) {
-        toast.error(t.vintedRefreshInvalid);
+        await onConnected?.();
+        notify.error(t.vintedRefreshInvalid);
         setShowConnectModal(true);
         return;
       }
 
-      toast.error(t.vintedRefreshFailed);
+      notify.error(t.vintedRefreshFailed);
     } catch (error) {
       console.error('Failed to refresh Vinted cookies:', error);
-      toast.error(t.vintedRefreshFailed);
+      notify.error(t.vintedRefreshFailed);
     } finally {
       setIsRefreshingVinted(false);
     }

@@ -4,7 +4,7 @@ import { AddItemButton, SecondaryAction, ManageButton, DeleteButton } from '@/co
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Check, AlertCircle, Loader2, X, Copy, Info, Clipboard, ArrowRight, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notifications';
 import { useAuth } from '@/contexts/AuthContext';
 import { getTranslations } from '@/components/language-utils';
 import { connectCardTranslations } from './connect-card-translations';
@@ -116,7 +116,7 @@ const ConnectAccountCard = ({
 
   const handleConnect = async () => {
     if (!user) {
-      toast.error(t.authRequiredToast);
+      notify.error(t.authRequiredToast);
       return;
     }
 
@@ -142,7 +142,7 @@ const ConnectAccountCard = ({
       
       setIsConnected(true);
       setStatus('connected');
-      toast.success(tr('toastConnectedSuccess', { platform: platformName }));
+      notify.success(tr('toastConnectedSuccess', { platform: platformName }));
       
       if (onConnected) {
         onConnected();
@@ -150,7 +150,7 @@ const ConnectAccountCard = ({
     } catch (error) {
       console.error(`Error connecting to ${platformName}:`, error);
       setStatus('error');
-      toast.error(tr('toastConnectedError', { platform: platformName }));
+      notify.error(tr('toastConnectedError', { platform: platformName }));
     }
   };
 
@@ -240,10 +240,10 @@ const ConnectAccountCard = ({
                       if (!response.ok) throw new Error('Failed to disconnect');
                       setIsConnected(false);
                       setStatus('idle');
-                      toast.success(tr('toastDisconnectedSuccess', { platform: platformName }));
+                      notify.success(tr('toastDisconnectedSuccess', { platform: platformName }));
                       if (onConnected) onConnected();
                     } catch (error) {
-                      toast.error(t.toastDisconnectedError);
+                      notify.error(t.toastDisconnectedError);
                     }
                   }}
                 >
@@ -284,13 +284,13 @@ const ConnectAccountCard = ({
                   }
                   setIsConnected(true);
                   setStatus('connected');
-                  toast.success(tr('toastManualConnectedSuccess', { platform: platformName }));
+                  notify.success(tr('toastManualConnectedSuccess', { platform: platformName }));
                   setShowManual(false);
                   setManualCookies("");
                   if (onConnected) onConnected();
                 } catch (error: any) {
                   setStatus('error');
-                  toast.error(error.message || t.toastManualConnectedError);
+                  notify.error(error.message || t.toastManualConnectedError);
                 }
               }}
               className="space-y-6 overflow-hidden"
@@ -460,7 +460,7 @@ const ConnectAccountCard = ({
                                 type="button"
                                 onClick={() => {
                                   navigator.clipboard.writeText('require("DTSG").getToken()');
-                                  toast.success(t.dtsgCommandCopied);
+                                  notify.success(t.dtsgCommandCopied);
                                 }}
                                 className="mt-2 self-end text-teal-400 hover:text-teal-300 focus:outline-none"
                               >

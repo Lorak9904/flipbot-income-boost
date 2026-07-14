@@ -1,5 +1,4 @@
-﻿import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+﻿import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom";
@@ -87,7 +86,6 @@ const App = () => {
         <AuthProvider>
           <TooltipProvider>
             <Toaster />
-            <Sonner />
             <BrowserRouter basename="/">
             <ScrollToTop />
             <PostHogUserSync />

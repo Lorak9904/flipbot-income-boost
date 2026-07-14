@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { usePostHog } from '@posthog/react';
 import { SEOHead } from '@/components/SEOHead';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getCurrentLanguage, getLocalizedPathForCurrentLanguage, getTranslations } from '@/components/language-utils';
 import { connectAccountsTranslations } from './connect-accounts-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
@@ -61,7 +61,6 @@ const ConnectAccountsPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const queryClient = useQueryClient();
   const posthog = usePostHog();
   const t = getTranslations(connectAccountsTranslations);
 
@@ -245,9 +244,8 @@ const ConnectAccountsPage = () => {
     posthog,
   ]);
 
-  const handleAccountConnected = () => {
-    // Ensure page status syncs with backend
-    queryClient.invalidateQueries({ queryKey: ['connected-platforms'] });
+  const handleAccountConnected = async () => {
+    await refetch();
   };
 
   if (isLoading || !connectedPlatforms) {

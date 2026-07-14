@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Loader2, Copy, Info, Clipboard, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notifications';
 import { getTranslations } from '@/components/language-utils';
 import { connectCardTranslations } from './connect-card-translations';
 
@@ -108,13 +108,13 @@ export const ConnectPlatformModal = ({
         }
         throw new Error(errorMsg);
       }
-      toast.success(tr('toastManualConnectedSuccess', { platform: platformName }));
+      notify.success(tr('toastManualConnectedSuccess', { platform: platformName }));
       setManualCookies('');
       setManualDtsg('');
       onSuccess();
       onClose();
     } catch (error: unknown) {
-      toast.error(error instanceof Error ? error.message : t.toastManualConnectedError);
+      notify.error(error instanceof Error ? error.message : t.toastManualConnectedError);
     } finally {
       setStatus('idle');
     }
@@ -358,7 +358,7 @@ export const ConnectPlatformModal = ({
                                   navigator.clipboard.writeText(
                                     'require("DTSG").getToken()'
                                   );
-                                  toast.success(t.dtsgCommandCopied);
+                                  notify.success(t.dtsgCommandCopied);
                                 }}
                                 aria-label={t.copyDtsgCommand}
                                 title={t.copyDtsgCommand}
