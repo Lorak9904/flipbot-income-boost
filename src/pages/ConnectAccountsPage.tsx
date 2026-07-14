@@ -13,7 +13,7 @@ import { getCurrentLanguage, getLocalizedPathForCurrentLanguage, getTranslations
 import { connectAccountsTranslations } from './connect-accounts-translations';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { PLATFORM_LOGOS } from '@/lib/platform-logos';
-import type { PlatformHealthInfo } from '@/lib/api/platform-health';
+import { fetchPlatformHealth, type PlatformHealthInfo } from '@/lib/api/platform-health';
 import { captureActivationEvent } from '@/lib/analytics/activation';
 
 const fadeUp = {
@@ -66,23 +66,7 @@ const ConnectAccountsPage = () => {
   const t = getTranslations(connectAccountsTranslations);
 
   const fetchConnectedPlatforms = async (): Promise<ConnectedPlatformsState> => {
-    const token = localStorage.getItem('flipit_token');
-    const response = await fetch("/api/platforms/health-check/", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('unauthorized');
-      }
-      throw new Error("Failed to fetch platform health");
-    }
-
-    const data = (await response.json()) as PlatformHealthCheckPayload;
+    const data = (await fetchPlatformHealth()) as PlatformHealthCheckPayload;
     const platforms = data?.platforms || {};
     const vintedInfo = platforms.vinted || {};
     const olxInfo = platforms.olx || {};

@@ -6,6 +6,7 @@
  */
 
 import { getLocalizedPath, getPathLanguage } from '@/lib/localized-routes';
+import { waitForMarketplaceImport, type QueuedImportResponse } from '@/lib/api/import-jobs';
 
 // Base URL for API calls
 const API_BASE = '/api';
@@ -32,14 +33,9 @@ export interface EbaySyncSummary {
   total_fetched: number;
 }
 
-export interface EbaySyncResponse {
-  success: boolean;
-  message: string;
+export interface EbaySyncResponse extends QueuedImportResponse {
   summary?: EbaySyncSummary;
   code?: string;
-  error?: string;
-  action_required?: string;
-  action_key?: string;
   detail?: string;
 }
 
@@ -157,7 +153,14 @@ export async function syncEbayListings(): Promise<EbaySyncResponse> {
     throw new Error(data.message || data.detail || `Failed to sync eBay listings: ${response.statusText}`);
   }
 
-  return data;
+  return waitForMarketplaceImport(data, {
+    platformLabel: 'eBay',
+    onActionRequired: (payload) => {
+      if (payload.error === 'ebay_reconnect_required' || payload.action_key === 'reconnect_ebay') {
+        handleEbayTokenExpired();
+      }
+    },
+  });
 }
 
 /**

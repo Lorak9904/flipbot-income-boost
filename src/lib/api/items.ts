@@ -140,6 +140,9 @@ const withSuggestionItemUuid = (item: Omit<DuplicateSuggestionItem, 'uuid'> & { 
   uuid: item.id || item.uuid || '',
 });
 
+const itemsRequests = new Map<string, Promise<UserItemsListResponse>>();
+let statsRequest: { token: string; promise: Promise<ItemStats> } | null = null;
+
 /**
  * Fetch user's items with optional filtering and pagination
  */
@@ -157,57 +160,69 @@ export async function fetchUserItems(params: FetchItemsParams = {}): Promise<Use
   if (params.platform) searchParams.set('platform', params.platform);
 
   const url = `${API_BASE}/items/?${searchParams.toString()}`;
-  
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
+  const requestKey = `${token}:${url}`;
+  const existingRequest = itemsRequests.get(requestKey);
+  if (existingRequest) return existingRequest;
 
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Authentication required');
+  const request = (async () => {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Authentication required');
+      }
+      throw new Error(`Failed to fetch items: ${response.statusText}`);
     }
-    throw new Error(`Failed to fetch items: ${response.statusText}`);
+
+    const data = (await response.json()) as RawUserItemsResponse;
+    const rawItems = Array.isArray(data.items) ? data.items.filter(isRawUserItem) : [];
+
+    const items = rawItems.map((item) => {
+      const transformed = withUuid(item);
+      if (!transformed.uuid) {
+        console.warn('Item missing UUID:', item);
+      }
+      return transformed;
+    });
+
+    const defaultPage = params.page ?? 1;
+    const defaultPageSize = params.page_size ?? 10;
+    const total =
+      typeof data.total === 'number'
+        ? data.total
+        : typeof data.count === 'number'
+          ? data.count
+          : items.length;
+    const page = typeof data.page === 'number' ? data.page : defaultPage;
+    const pageSize = typeof data.page_size === 'number' ? data.page_size : defaultPageSize;
+    const totalPages =
+      typeof data.total_pages === 'number'
+        ? data.total_pages
+        : Math.max(1, Math.ceil(total / Math.max(pageSize, 1)));
+
+    console.log('Fetched items:', items.length, 'items');
+
+    return {
+      items,
+      total,
+      page,
+      page_size: pageSize,
+      total_pages: totalPages,
+    };
+  })();
+
+  itemsRequests.set(requestKey, request);
+  try {
+    return await request;
+  } finally {
+    if (itemsRequests.get(requestKey) === request) itemsRequests.delete(requestKey);
   }
-
-  const data = (await response.json()) as RawUserItemsResponse;
-  const rawItems = Array.isArray(data.items) ? data.items.filter(isRawUserItem) : [];
-
-  const items = rawItems.map((item) => {
-    const transformed = withUuid(item);
-    if (!transformed.uuid) {
-      console.warn('Item missing UUID:', item);
-    }
-    return transformed;
-  });
-
-  const defaultPage = params.page ?? 1;
-  const defaultPageSize = params.page_size ?? 10;
-  const total =
-    typeof data.total === 'number'
-      ? data.total
-      : typeof data.count === 'number'
-        ? data.count
-        : items.length;
-  const page = typeof data.page === 'number' ? data.page : defaultPage;
-  const pageSize = typeof data.page_size === 'number' ? data.page_size : defaultPageSize;
-  const totalPages =
-    typeof data.total_pages === 'number'
-      ? data.total_pages
-      : Math.max(1, Math.ceil(total / Math.max(pageSize, 1)));
-
-  console.log('Fetched items:', items.length, 'items');
-
-  return {
-    items,
-    total,
-    page,
-    page_size: pageSize,
-    total_pages: totalPages,
-  };
 }
 
 /**
@@ -469,22 +484,33 @@ export async function fetchItemStats(): Promise<ItemStats> {
     throw new Error('No authentication token found');
   }
 
-  const response = await fetch(`${API_BASE}/items/stats/`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
+  if (statsRequest?.token === token) return statsRequest.promise;
 
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Authentication required');
+  const promise = (async () => {
+    const response = await fetch(`${API_BASE}/items/stats/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Authentication required');
+      }
+      throw new Error(`Failed to fetch stats: ${response.statusText}`);
     }
-    throw new Error(`Failed to fetch stats: ${response.statusText}`);
-  }
 
-  return response.json();
+    return response.json();
+  })();
+
+  statsRequest = { token, promise };
+  try {
+    return await promise;
+  } finally {
+    if (statsRequest?.promise === promise) statsRequest = null;
+  }
 }
 
 /**

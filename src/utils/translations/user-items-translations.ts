@@ -102,15 +102,15 @@ export const userItemsTranslations = {
     },
     duplicateSuggestions: {
       title: "Possible duplicates",
-      summary: "Review similar listings before combining them.",
+      summary: "Review similar listings and dismiss incorrect matches.",
       countLabel: (count: number) => `${count} ${count === 1 ? 'suggestion' : 'suggestions'}`,
       reviewButton: "Review duplicates",
       dialogTitle: "Review possible duplicates",
-      dialogDescription: "Choose which listing details to keep. FlipIt will combine marketplace links and unique photos.",
+      dialogDescription: "Compare possible matches. Reviewing them does not change your listings.",
       closeButton: "Close",
       recommendedLabel: "Recommended",
-      selectedLabel: "Details kept",
-      chooseDetailsLabel: "Choose the listing whose details should remain",
+      selectedLabel: "Selected for comparison",
+      chooseDetailsLabel: "Compare these listings",
       untitledListing: "Untitled listing",
       noDescription: "No description",
       photoCount: (count: number) => `${count} ${count === 1 ? 'photo' : 'photos'}`,
@@ -121,9 +121,10 @@ export const userItemsTranslations = {
       bulkMergeButton: "Merge without conflicts ({count})",
       bulkMergingButton: "Merging...",
       conflictLabel: (count: number) => `${count} ${count === 1 ? 'difference' : 'differences'}`,
-      conflictSummary: "The selected listing's details will remain. Unique photos from both listings will be kept.",
+      conflictSummary: "These details differ between the listings.",
       noConflictSummary: "These listings have no conflicting details.",
-      remoteListingsUnchanged: "This only combines records in FlipIt. Marketplace listings are not deleted or edited.",
+      remoteListingsUnchanged: "This is a review only. Nothing in FlipIt or on a marketplace will be changed.",
+      mergeDisabledNotice: "Merging is temporarily disabled. You can compare the listings or mark the pair as not a duplicate.",
       reasonsLabel: "Why these may match",
       differencesLabel: "Differences",
       reasonLabels: {
@@ -289,7 +290,7 @@ export const userItemsTranslations = {
     },
     duplicateSuggestions: {
       title: "Możliwe duplikaty",
-      summary: "Sprawdź podobne ogłoszenia przed ich połączeniem.",
+      summary: "Porównaj podobne ogłoszenia i odrzuć błędne sugestie.",
       countLabel: (count: number) => {
         if (count === 1) return "1 sugestia";
         if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14)) {
@@ -299,11 +300,11 @@ export const userItemsTranslations = {
       },
       reviewButton: "Sprawdź duplikaty",
       dialogTitle: "Sprawdź możliwe duplikaty",
-      dialogDescription: "Wybierz dane ogłoszenia, które mają zostać. FlipIt połączy odnośniki do platform i unikalne zdjęcia.",
+      dialogDescription: "Porównaj możliwe dopasowania. Samo sprawdzenie niczego nie zmienia.",
       closeButton: "Zamknij",
       recommendedLabel: "Rekomendowane",
-      selectedLabel: "Te dane zostają",
-      chooseDetailsLabel: "Wybierz ogłoszenie, którego dane mają zostać",
+      selectedLabel: "Wybrane do porównania",
+      chooseDetailsLabel: "Porównaj te ogłoszenia",
       untitledListing: "Ogłoszenie bez tytułu",
       noDescription: "Brak opisu",
       photoCount: (count: number) => {
@@ -326,9 +327,10 @@ export const userItemsTranslations = {
         }
         return `${count} różnic`;
       },
-      conflictSummary: "Zostaną dane wybranego ogłoszenia. Zachowamy unikalne zdjęcia z obu ogłoszeń.",
+      conflictSummary: "Te dane różnią się między ogłoszeniami.",
       noConflictSummary: "Te ogłoszenia nie mają sprzecznych danych.",
-      remoteListingsUnchanged: "Łączymy tylko dane w FlipIt. Ogłoszenia na platformach nie zostaną usunięte ani zmienione.",
+      remoteListingsUnchanged: "To tylko podgląd. Nic nie zmieni się w FlipIt ani na platformach sprzedażowych.",
+      mergeDisabledNotice: "Scalanie jest tymczasowo wyłączone. Możesz porównać ogłoszenia albo oznaczyć parę jako niebędącą duplikatem.",
       reasonsLabel: "Dlaczego mogą być duplikatami",
       differencesLabel: "Różnice",
       reasonLabels: {

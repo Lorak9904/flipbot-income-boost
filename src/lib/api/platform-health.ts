@@ -47,6 +47,9 @@ export interface PlatformHealthResponse {
 }
 
 const HEALTH_URL = '/api/platforms/health-check/';
+const HEALTH_CACHE_TTL_MS = 15_000;
+let cachedHealth: { token: string; expiresAt: number; value: PlatformHealthResponse } | null = null;
+let healthRequest: { token: string; promise: Promise<PlatformHealthResponse> } | null = null;
 
 export async function fetchPlatformHealth(): Promise<PlatformHealthResponse> {
   const token = localStorage.getItem('flipit_token');
@@ -54,26 +57,44 @@ export async function fetchPlatformHealth(): Promise<PlatformHealthResponse> {
     throw new Error('No authentication token found');
   }
 
-  const response = await fetch(HEALTH_URL, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Authentication required');
-    }
-    throw new Error(`Failed to fetch platform health: ${response.statusText}`);
+  if (cachedHealth?.token === token && cachedHealth.expiresAt > Date.now()) {
+    return cachedHealth.value;
+  }
+  if (healthRequest?.token === token) {
+    return healthRequest.promise;
   }
 
-  const data = await response.json();
-  return {
-    checked_at: data?.checked_at,
-    platforms: data?.platforms || {},
-  };
+  const promise = (async () => {
+    const response = await fetch(HEALTH_URL, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Authentication required');
+      }
+      throw new Error(`Failed to fetch platform health: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const value = {
+      checked_at: data?.checked_at,
+      platforms: data?.platforms || {},
+    };
+    cachedHealth = { token, expiresAt: Date.now() + HEALTH_CACHE_TTL_MS, value };
+    return value;
+  })();
+
+  healthRequest = { token, promise };
+  try {
+    return await promise;
+  } finally {
+    if (healthRequest?.promise === promise) healthRequest = null;
+  }
 }
 
 export function toPlatformConnectedMap(

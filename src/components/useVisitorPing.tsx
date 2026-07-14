@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-const AUTH_PING_MIN_INTERVAL_MS = 60_000;
-const AUTH_LAST_PING_KEY = "flipit_auth_last_ping_at";
+const AUTH_HEARTBEAT_INTERVAL_MS = 5 * 60_000;
+const AUTH_LAST_HEARTBEAT_KEY = "flipit_auth_last_heartbeat_at";
 
 function pingVisitor(path: string) {
   const visitorId = localStorage.getItem("visitor_id");
@@ -19,26 +19,27 @@ function pingVisitor(path: string) {
   });
 }
 
-function getLastAuthPingAt(): number {
-  const raw = localStorage.getItem(AUTH_LAST_PING_KEY);
+function getLastAuthHeartbeatAt(): number {
+  const raw = localStorage.getItem(AUTH_LAST_HEARTBEAT_KEY);
   const parsed = Number(raw || "0");
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function shouldThrottleAuthPing(): boolean {
-  const lastPing = getLastAuthPingAt();
+function shouldThrottleAuthHeartbeat(): boolean {
+  const lastPing = getLastAuthHeartbeatAt();
   const now = Date.now();
-  return now - lastPing < AUTH_PING_MIN_INTERVAL_MS;
+  return now - lastPing < AUTH_HEARTBEAT_INTERVAL_MS;
 }
 
-function pingAuthenticated(path: string, trigger: "route" | "click" | "heartbeat") {
+function pingAuthenticated(path: string, trigger: "route" | "heartbeat") {
   const token = localStorage.getItem("flipit_token");
   if (!token) return;
 
-  if (shouldThrottleAuthPing()) return;
-
   const now = Date.now();
-  localStorage.setItem(AUTH_LAST_PING_KEY, String(now));
+  if (trigger === "heartbeat") {
+    if (document.visibilityState !== "visible" || shouldThrottleAuthHeartbeat()) return;
+    localStorage.setItem(AUTH_LAST_HEARTBEAT_KEY, String(now));
+  }
 
   fetch("/api/auth/ping/", {
     method: "POST",
@@ -47,7 +48,7 @@ function pingAuthenticated(path: string, trigger: "route" | "click" | "heartbeat
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
-      event_type: "page_view",
+      event_type: trigger === "heartbeat" ? "heartbeat" : "page_view",
       path,
       metadata: {
         trigger,
@@ -61,32 +62,18 @@ export default function VisitorPing() {
   const location = useLocation();
 
   useEffect(() => {
-    // Ping on route change
-    pingVisitor(location.pathname);
-    pingAuthenticated(location.pathname, "route");
-
-    // Handler for <a> clicks
-    const handleAnchorClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const anchor = target.closest("a");
-      if (anchor && anchor.href) {
-        // Only ping for internal links
-        const url = new URL(anchor.href, window.location.origin);
-        if (url.origin === window.location.origin) {
-          pingVisitor(url.pathname);
-          pingAuthenticated(url.pathname, "click");
-        }
-      }
-    };
+    // Anonymous visitors update consent analytics; signed-in users update activity instead.
+    if (localStorage.getItem("flipit_token")) {
+      pingAuthenticated(location.pathname, "route");
+    } else {
+      pingVisitor(location.pathname);
+    }
 
     const heartbeat = window.setInterval(() => {
       pingAuthenticated(location.pathname, "heartbeat");
-    }, AUTH_PING_MIN_INTERVAL_MS);
-
-    document.addEventListener("click", handleAnchorClick);
+    }, AUTH_HEARTBEAT_INTERVAL_MS);
 
     return () => {
-      document.removeEventListener("click", handleAnchorClick);
       window.clearInterval(heartbeat);
     };
   }, [location.pathname]);

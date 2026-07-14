@@ -5,6 +5,7 @@
  */
 
 import type { MarketplaceAttributeState } from '@/types/item';
+import { waitForMarketplaceImport, type QueuedImportResponse } from '@/lib/api/import-jobs';
 
 const API_BASE = '/api';
 
@@ -16,13 +17,8 @@ export interface VintedSyncSummary {
   total_fetched: number;
 }
 
-export interface VintedSyncResponse {
-  success: boolean;
-  message: string;
+export interface VintedSyncResponse extends QueuedImportResponse {
   summary?: VintedSyncSummary;
-  error?: string;
-  action_required?: string | null;
-  status?: string;
   status_code?: number;
 }
 
@@ -75,7 +71,7 @@ export async function syncVintedListings(): Promise<VintedSyncResponse> {
     throw new Error(data.message || `Failed to sync Vinted listings: ${response.statusText}`);
   }
 
-  return data;
+  return waitForMarketplaceImport(data, { platformLabel: 'Vinted' });
 }
 
 export async function getVintedCategories(options?: {

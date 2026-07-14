@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { getTranslations } from '@/components/language-utils';
 import { connectAccountsTranslations } from '@/pages/connect-accounts-translations';
+import { fetchPlatformHealth } from '@/lib/api/platform-health';
 
 const HEALTH_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6 hours
 const NOTIFY_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -45,9 +46,6 @@ export default function SessionHealthCheck() {
 
   useEffect(() => {
     if (isLoading || !isAuthenticated) return;
-
-    const token = localStorage.getItem('flipit_token');
-    if (!token) return;
 
     const now = Date.now();
     const lastCheck = Number(localStorage.getItem(LAST_CHECK_KEY) || 0);
@@ -112,19 +110,7 @@ export default function SessionHealthCheck() {
 
     const runHealthCheck = async () => {
       try {
-        const response = await fetch('/api/platforms/health-check/', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          return;
-        }
-
-        const data = (await response.json()) as HealthCheckResponse;
+        const data = (await fetchPlatformHealth()) as HealthCheckResponse;
         const platforms = data.platforms || {};
 
         notifyPlatform('olx', platforms.olx);

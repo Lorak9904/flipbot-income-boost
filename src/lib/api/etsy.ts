@@ -1,3 +1,5 @@
+import { waitForMarketplaceImport, type QueuedImportResponse } from '@/lib/api/import-jobs';
+
 const API_BASE = '/api';
 const ETSY_TREE_CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -40,12 +42,8 @@ export interface EtsySyncSummary {
   total_fetched: number;
 }
 
-export interface EtsySyncResponse {
-  success: boolean;
-  message: string;
+export interface EtsySyncResponse extends QueuedImportResponse {
   summary?: EtsySyncSummary;
-  error?: string;
-  action_required?: string;
   detail?: string;
 }
 
@@ -171,7 +169,7 @@ export async function syncEtsyListings(): Promise<EtsySyncResponse> {
     throw new Error(data.message || data.detail || `Failed to sync Etsy listings: ${response.status}`);
   }
 
-  return data;
+  return waitForMarketplaceImport(data, { platformLabel: 'Etsy' });
 }
 
 export async function getEtsyShippingProfiles(): Promise<{

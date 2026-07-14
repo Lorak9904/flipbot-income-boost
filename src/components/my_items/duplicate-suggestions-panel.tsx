@@ -44,6 +44,7 @@ interface DuplicateSuggestionsCopy {
   conflictSummary: string;
   noConflictSummary: string;
   remoteListingsUnchanged: string;
+  mergeDisabledNotice: string;
   reasonsLabel: string;
   differencesLabel: string;
   reasonLabels: Record<string, string>;
@@ -60,6 +61,9 @@ interface DuplicateSuggestionsPanelProps {
   onDismiss: (suggestion: DuplicateSuggestion) => void;
   onBulkMerge: (suggestions: DuplicateSuggestion[]) => void;
 }
+
+// Keep comparison and dismissal available while merge behavior is paused.
+const DUPLICATE_MERGE_ENABLED = false;
 
 function PlatformBadges({ platforms }: { platforms: string[] }) {
   if (!platforms.length) return null;
@@ -79,11 +83,13 @@ function ListingChoice({
   item,
   selected,
   recommended,
+  selectionEnabled,
   copy,
 }: {
   item: DuplicateSuggestionItem;
   selected: boolean;
   recommended: boolean;
+  selectionEnabled: boolean;
   copy: DuplicateSuggestionsCopy;
 }) {
   const title = item.title || copy.untitledListing;
@@ -93,13 +99,15 @@ function ListingChoice({
   return (
     <div className="min-w-0 flex-1">
       <div className="mb-3 flex items-start gap-3">
-        <RadioGroupItem
-          value={item.uuid}
-          aria-label={title}
-          className="mt-1 shrink-0 border-neutral-500 text-cyan-400"
-        />
+        {selectionEnabled && (
+          <RadioGroupItem
+            value={item.uuid}
+            aria-label={title}
+            className="mt-1 shrink-0 border-neutral-500 text-cyan-400"
+          />
+        )}
         <div className="min-w-0 flex-1">
-          <div className="mb-2 flex flex-wrap gap-1.5">
+          {selectionEnabled && <div className="mb-2 flex flex-wrap gap-1.5">
             {recommended && (
               <Badge className="border-cyan-500/40 bg-cyan-500/10 text-cyan-200">
                 {copy.recommendedLabel}
@@ -111,7 +119,7 @@ function ListingChoice({
                 {copy.selectedLabel}
               </Badge>
             )}
-          </div>
+          </div>}
           <h3 className="line-clamp-2 text-sm font-semibold text-white">{title}</h3>
           <p className="mt-1 line-clamp-3 text-sm leading-5 text-neutral-400">
             {item.description || copy.noDescription}
@@ -258,7 +266,7 @@ export function DuplicateSuggestionsPanel({
           <div className="overflow-y-auto px-5 pb-5">
             <div className="sticky top-0 z-10 flex flex-col gap-3 border-b border-neutral-800 bg-neutral-900 py-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="max-w-2xl text-xs leading-5 text-neutral-400">{copy.remoteListingsUnchanged}</p>
-              {conflictFreeSuggestions.length > 1 && (
+              {DUPLICATE_MERGE_ENABLED && conflictFreeSuggestions.length > 1 && (
                 <Button
                   type="button"
                   size="sm"
@@ -276,6 +284,7 @@ export function DuplicateSuggestionsPanel({
                     : copy.bulkMergeButton.replace('{count}', conflictFreeSuggestions.length.toString())}
                 </Button>
               )}
+              {!DUPLICATE_MERGE_ENABLED && <p className="text-xs text-amber-200">{copy.mergeDisabledNotice}</p>}
             </div>
 
             <div className="divide-y divide-neutral-800">
@@ -303,39 +312,42 @@ export function DuplicateSuggestionsPanel({
 
                     <RadioGroup
                       value={selectedPrimaryId}
+                      disabled={!DUPLICATE_MERGE_ENABLED}
                       onValueChange={(value) =>
                         setSelectedPrimaryIds((current) => ({ ...current, [suggestion.key]: value }))
                       }
                       className="grid gap-3 md:grid-cols-2"
                     >
-                      <label
-                        className={`flex cursor-pointer rounded-lg border p-3 transition-colors ${
-                          selectedPrimaryId === suggestion.primary_item.uuid
+                      <div
+                        className={`flex rounded-lg border p-3 transition-colors ${
+                          DUPLICATE_MERGE_ENABLED && selectedPrimaryId === suggestion.primary_item.uuid
                             ? 'border-cyan-500/60 bg-cyan-500/5'
-                            : 'border-neutral-800 bg-neutral-950/40 hover:border-neutral-700'
+                            : 'border-neutral-800 bg-neutral-950/40'
                         }`}
                       >
                         <ListingChoice
                           item={suggestion.primary_item}
                           selected={selectedPrimaryId === suggestion.primary_item.uuid}
                           recommended
+                          selectionEnabled={DUPLICATE_MERGE_ENABLED}
                           copy={copy}
                         />
-                      </label>
-                      <label
-                        className={`flex cursor-pointer rounded-lg border p-3 transition-colors ${
-                          selectedPrimaryId === suggestion.duplicate_item.uuid
+                      </div>
+                      <div
+                        className={`flex rounded-lg border p-3 transition-colors ${
+                          DUPLICATE_MERGE_ENABLED && selectedPrimaryId === suggestion.duplicate_item.uuid
                             ? 'border-cyan-500/60 bg-cyan-500/5'
-                            : 'border-neutral-800 bg-neutral-950/40 hover:border-neutral-700'
+                            : 'border-neutral-800 bg-neutral-950/40'
                         }`}
                       >
                         <ListingChoice
                           item={suggestion.duplicate_item}
                           selected={selectedPrimaryId === suggestion.duplicate_item.uuid}
                           recommended={false}
+                          selectionEnabled={DUPLICATE_MERGE_ENABLED}
                           copy={copy}
                         />
-                      </label>
+                      </div>
                     </RadioGroup>
 
                     <div className="mt-4">
@@ -373,7 +385,7 @@ export function DuplicateSuggestionsPanel({
                           )}
                           {isDismissing ? copy.dismissingButton : copy.dismissButton}
                         </Button>
-                        <Button
+                        {DUPLICATE_MERGE_ENABLED && <Button
                           type="button"
                           onClick={() => onMerge(suggestion, selectedPrimaryId)}
                           disabled={isMerging || isDismissing || bulkMerging}
@@ -385,7 +397,7 @@ export function DuplicateSuggestionsPanel({
                             <GitMerge className="mr-2 h-4 w-4" />
                           )}
                           {isMerging ? copy.mergingButton : copy.mergeButton}
-                        </Button>
+                        </Button>}
                       </div>
                     </div>
                   </section>

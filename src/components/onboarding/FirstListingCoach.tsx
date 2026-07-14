@@ -239,26 +239,36 @@ export function FirstListingCoach() {
     staleTime: 60 * 1000,
   });
 
+  const savedState = profileQuery.data?.first_listing_coach_state || {};
+  const coachState = optimisticState || savedState;
+  const shouldLoadCoachData =
+    isAuthenticated &&
+    isWorkspaceRoute &&
+    hasAnsweredCookieBanner &&
+    profileQuery.isSuccess &&
+    coachState.status !== 'dismissed' &&
+    coachState.status !== 'completed';
+
   const healthQuery = useQuery({
     queryKey: ['first-listing-coach-platform-health'],
     queryFn: fetchPlatformHealth,
-    enabled: isAuthenticated && isWorkspaceRoute,
-    staleTime: 60 * 1000,
+    enabled: shouldLoadCoachData,
+    staleTime: 5 * 60 * 1000,
     retry: false,
   });
 
   const statsQuery = useQuery({
     queryKey: ['first-listing-coach-item-stats'],
     queryFn: fetchItemStats,
-    enabled: isAuthenticated && isWorkspaceRoute,
-    staleTime: 60 * 1000,
+    enabled: shouldLoadCoachData,
+    staleTime: 5 * 60 * 1000,
   });
 
   const itemsQuery = useQuery({
     queryKey: ['first-listing-coach-items'],
-    queryFn: () => fetchUserItems({ page: 1, page_size: 20 }),
-    enabled: isAuthenticated && isWorkspaceRoute,
-    staleTime: 60 * 1000,
+    queryFn: () => fetchUserItems({ page: 1, page_size: 10 }),
+    enabled: shouldLoadCoachData,
+    staleTime: 5 * 60 * 1000,
   });
 
   useEffect(() => {
@@ -273,8 +283,6 @@ export function FirstListingCoach() {
     },
   });
 
-  const savedState = profileQuery.data?.first_listing_coach_state || {};
-  const coachState = optimisticState || savedState;
   const connectedPlatforms = toPlatformConnectedMap(healthQuery.data?.platforms);
   const hasConnectedMarketplace = Object.values(connectedPlatforms).some(Boolean);
   const hasOlxConnected = connectedPlatforms.olx;

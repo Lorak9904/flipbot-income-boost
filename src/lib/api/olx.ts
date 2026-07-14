@@ -5,6 +5,7 @@
  */
 
 import { getLocalizedPath, getPathLanguage } from '@/lib/localized-routes';
+import { waitForMarketplaceImport, type QueuedImportResponse } from '@/lib/api/import-jobs';
 
 // Base URL for API calls
 // Update this if your backend is hosted elsewhere
@@ -61,12 +62,8 @@ export interface OlxSyncSummary {
   total_fetched: number;
 }
 
-export interface OlxSyncResponse {
-  success: boolean;
-  message: string;
+export interface OlxSyncResponse extends QueuedImportResponse {
   summary?: OlxSyncSummary;
-  error?: string;
-  action_required?: string;
 }
 
 export interface OlxCategoryNode {
@@ -250,7 +247,14 @@ export async function syncOlxListings(countryCode?: string): Promise<OlxSyncResp
     throw new Error(data.message || `Failed to sync OLX listings: ${response.statusText}`);
   }
 
-  return data;
+  return waitForMarketplaceImport(data, {
+    platformLabel: 'OLX',
+    onActionRequired: (payload) => {
+      if (payload.error === 'olx_token_expired' || payload.action_required === 'reconnect_olx') {
+        handleOlxTokenExpired();
+      }
+    },
+  });
 }
 
 export async function getOlxCategoryTree(params?: {

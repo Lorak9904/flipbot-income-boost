@@ -76,6 +76,8 @@ const translations = {
     syncSuccess: 'Import completed',
     syncSuccessDescription: (inserted: number, updated: number) => 
       `Imported ${inserted} new listings, updated ${updated} existing ones.`,
+    syncPartialDescription: (inserted: number, updated: number, errors: number) =>
+      `Imported ${inserted} new listings, updated ${updated} existing ones. ${errors} listings could not be imported.`,
     syncSuccessNoNew: 'All imported listings are already in FlipIt.',
     syncPartial: 'Import partially completed',
     syncAllSuccess: 'All connected accounts imported',
@@ -102,6 +104,8 @@ const translations = {
     syncSuccess: 'Import zakończony',
     syncSuccessDescription: (inserted: number, updated: number) => 
       `Zaimportowano ${inserted} nowych ogłoszeń, zaktualizowano ${updated} istniejących.`,
+    syncPartialDescription: (inserted: number, updated: number, errors: number) =>
+      `Zaimportowano ${inserted} nowych ogłoszeń, zaktualizowano ${updated} istniejących. Nie udało się zaimportować: ${errors}.`,
     syncSuccessNoNew: 'Wszystkie zaimportowane ogłoszenia są już w FlipIt.',
     syncPartial: 'Import częściowo zakończony',
     syncAllSuccess: 'Zaimportowano ze wszystkich połączonych kont',
@@ -215,9 +219,16 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
 
       // Show success toast with summary
       if (response.success && response.summary) {
-        const { inserted, updated } = response.summary;
+        const { inserted, updated, errors = 0 } = response.summary;
+        const hasImportErrors = errors > 0 || response.status === 'partial_success';
         
-        if (inserted === 0 && updated === 0) {
+        if (hasImportErrors) {
+          toast({
+            title: t.syncPartial,
+            description: t.syncPartialDescription(inserted, updated, errors),
+            variant: 'destructive',
+          });
+        } else if (inserted === 0 && updated === 0) {
           toast({
             title: t.syncSuccess,
             description: t.syncSuccessNoNew,
