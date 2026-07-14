@@ -71,6 +71,7 @@ function localizedFieldLabel(
     status_id: labels.condition,
     size_id: labels.size,
     color_id: labels.color,
+    isbn: labels.isbn,
   };
   return labelsByCode[field.native_code] || field.label;
 }
@@ -229,10 +230,15 @@ export default function MarketplaceAttributesPanel({
 
   const requiredFields = fields.filter((field) => field.required);
   const recommendedFields = fields.filter(
-    (field) => !field.required && field.metadata?.aspect_usage === 'RECOMMENDED'
+    (field) =>
+      !field.required &&
+      (field.metadata?.aspect_usage === 'RECOMMENDED' || field.metadata?.recommended === true)
   );
   const optionalFields = fields.filter(
-    (field) => !field.required && field.metadata?.aspect_usage !== 'RECOMMENDED'
+    (field) =>
+      !field.required &&
+      field.metadata?.aspect_usage !== 'RECOMMENDED' &&
+      field.metadata?.recommended !== true
   );
 
   return (

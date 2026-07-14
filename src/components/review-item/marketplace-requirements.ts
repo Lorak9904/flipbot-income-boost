@@ -19,6 +19,24 @@ export interface MarketplaceRequirementReadiness {
   missingCount?: number;
 }
 
+const VINTED_STATUS_BY_CONDITION: Record<string, number> = {
+  new_with_tags: 6,
+  new: 1,
+  new_without_tags: 1,
+  like_new: 2,
+  excellent: 2,
+  very_good: 2,
+  good: 3,
+  fair: 4,
+  satisfactory: 4,
+  poor: 4,
+};
+
+export function vintedStatusIdForCondition(condition?: string): number | undefined {
+  const normalized = String(condition || '').trim().toLowerCase().replace(/\s+/g, '_');
+  return VINTED_STATUS_BY_CONDITION[normalized];
+}
+
 export function hasRequirementValue(
   value: MarketplaceAttributeValue | PlatformDynamicAttributeValue | undefined | null
 ): boolean {

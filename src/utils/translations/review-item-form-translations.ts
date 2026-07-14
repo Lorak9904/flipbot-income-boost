@@ -41,7 +41,7 @@ export const reviewItemFormTranslations = {
     // Section Headers
     sections: {
       images: "Images",
-      itemDetails: "Listing details",
+      itemDetails: "Listing content and base price",
       productAttributes: "Product Attributes",
       platformOverrides: "Platform Overrides",
       publishPlatforms: "Publish to Platforms",
@@ -59,6 +59,8 @@ export const reviewItemFormTranslations = {
       notConnectedReason: (platform: string) => `${platform} is not connected yet. Connect it before publishing.`,
       completeRequirementsTitle: "Complete marketplace requirements",
       completeRequirementsDescription: (platform: string) => `Complete ${platform} requirements before publishing.`,
+      missingFieldsDescription: (platform: string, fields: string[]) =>
+        `${platform} still requires: ${fields.join(', ')}.`,
       olxCountry: "OLX country",
       olxCountryConnectedInfo: "Used to load OLX categories, required details, and publish to the selected country.",
       olxCountryUnconnectedInfo: "No OLX country is connected yet. You can prepare the listing, but publishing requires a connected country.",
@@ -79,6 +81,8 @@ export const reviewItemFormTranslations = {
       chooseCategoryFirst: "Choose a category above to load the required details.",
       noAdditionalRequirements: "This marketplace has no additional details for this category.",
       categorySpecificDetails: "These details apply only to {platform}.",
+      baseProductDetails: "Suggestions for marketplace fields",
+      baseProductDetailsDescription: "Optional. FlipIt uses these values only when a marketplace does not provide its own field. Marketplace selections above always take priority.",
       requiredBy: "Required by {platform}",
       vintedBrandSelectionHint: "Select the brand used by Vinted. Your listing's default brand stays unchanged. “Unbranded” is a Vinted option; choose “Custom” only when Vinted provides it for this category.",
       fieldLabels: {
@@ -87,6 +91,7 @@ export const reviewItemFormTranslations = {
         condition: "Condition",
         size: "Size",
         color: "Color",
+        isbn: "ISBN",
       },
       required: "Required",
       requiredFields: (count: number) => `Required details (${count})`,
@@ -258,7 +263,7 @@ export const reviewItemFormTranslations = {
     // Nagłówki sekcji
     sections: {
       images: "Zdjęcia",
-      itemDetails: "Dane ogłoszenia",
+      itemDetails: "Treść ogłoszenia i cena bazowa",
       productAttributes: "Atrybuty produktu",
       platformOverrides: "Nadpisania platform",
       publishPlatforms: "Wybierz platformy do publikacji",
@@ -276,6 +281,8 @@ export const reviewItemFormTranslations = {
       notConnectedReason: (platform: string) => `${platform} nie jest jeszcze połączone. Połącz konto przed publikacją.`,
       completeRequirementsTitle: "Uzupełnij wymagania platformy",
       completeRequirementsDescription: (platform: string) => `Uzupełnij wymagania platformy ${platform} przed publikacją.`,
+      missingFieldsDescription: (platform: string, fields: string[]) =>
+        `Uzupełnij wymagane dane dla ${platform}: ${fields.join(', ')}.`,
       olxCountry: "Kraj OLX",
       olxCountryConnectedInfo: "Służy do wczytania kategorii OLX, wymaganych danych i publikacji w wybranym kraju.",
       olxCountryUnconnectedInfo: "Nie połączono jeszcze żadnego kraju OLX. Możesz przygotować ogłoszenie, ale publikacja wymaga połączonego kraju.",
@@ -296,6 +303,8 @@ export const reviewItemFormTranslations = {
       chooseCategoryFirst: "Wybierz kategorię powyżej, aby wczytać wymagane dane.",
       noAdditionalRequirements: "Ta platforma nie wymaga dodatkowych danych dla tej kategorii.",
       categorySpecificDetails: "Te dane dotyczą tylko {platform}.",
+      baseProductDetails: "Podpowiedzi dla platform",
+      baseProductDetailsDescription: "Opcjonalne. FlipIt użyje tych wartości tylko wtedy, gdy platforma nie udostępnia własnego pola. Wartości wybrane powyżej dla platformy zawsze mają pierwszeństwo.",
       requiredBy: "Wymagane przez {platform}",
       vintedBrandSelectionHint: "Wybierz markę używaną przez Vinted. Domyślna marka ogłoszenia pozostaje bez zmian. „Bez marki” to opcja Vinted; wybierz „Custom” tylko wtedy, gdy Vinted udostępnia ją dla tej kategorii.",
       fieldLabels: {
@@ -304,6 +313,7 @@ export const reviewItemFormTranslations = {
         condition: "Stan",
         size: "Rozmiar",
         color: "Kolor",
+        isbn: "ISBN",
       },
       required: "Wymagane",
       requiredFields: (count: number) => `Wymagane dane (${count})`,

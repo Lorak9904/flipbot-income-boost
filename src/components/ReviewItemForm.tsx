@@ -65,7 +65,9 @@ import { enhanceItemImages, syncPlatformListings, type RegeneratableItemField } 
 import {
   baseMarketplaceReadiness,
   countMissingRequiredFields,
+  hasRequirementValue,
   type MarketplaceRequirementReadiness,
+  vintedStatusIdForCondition,
 } from '@/components/review-item/marketplace-requirements';
 import { AiFieldRegenerationControl } from '@/components/listing-editor/AiFieldRegenerationControl';
 import {
@@ -566,6 +568,22 @@ const ReviewItemForm = ({
     });
   };
 
+  const focusMarketplaceRequirement = (platform: Platform, fieldKey?: string) => {
+    setActiveRequirementPlatform(platform);
+    window.requestAnimationFrame(() => {
+      document.getElementById('marketplace-requirements')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+      if (fieldKey) {
+        window.requestAnimationFrame(() => {
+          const fieldId = `${platform}-attr-${fieldKey.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+          document.getElementById(fieldId)?.focus();
+        });
+      }
+    });
+  };
+
   const updatePlatformOverride = (
     platform: 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy',
     field: string,
@@ -621,11 +639,30 @@ const ReviewItemForm = ({
       const state = await getVintedCategoryAttributes(catalogId, language);
       setMarketplaceAttributes(prev => ({
         ...prev,
-        vinted: {
-          ...state,
-          category_id: state.category_id ?? catalogId,
-          values: preserveValues ? prev.vinted?.values || {} : {},
-        },
+        vinted: (() => {
+          const values = preserveValues ? { ...(prev.vinted?.values || {}) } : {};
+          const conditionField = state.fields.find((field) => field.native_code === 'status_id');
+          const suggestedStatusId = vintedStatusIdForCondition(data.condition);
+
+          if (
+            conditionField &&
+            !hasRequirementValue(values[conditionField.key]) &&
+            suggestedStatusId !== undefined &&
+            conditionField.options?.some((option) => Number(option.value) === suggestedStatusId)
+          ) {
+            values[conditionField.key] = {
+              native_code: conditionField.native_code,
+              native_id: conditionField.native_id,
+              value_id: suggestedStatusId,
+            };
+          }
+
+          return {
+            ...state,
+            category_id: state.category_id ?? catalogId,
+            values,
+          };
+        })(),
       }));
       loadedVintedRequirementKey.current = requirementKey;
     } catch (error) {
@@ -642,7 +679,7 @@ const ReviewItemForm = ({
       setLoadingMarketplaceAttributes(prev => ({ ...prev, vinted: false }));
     }
     },
-    [language, t.marketplaceRequirements.loadFailed, t.toast.errorTitle, toast]
+    [data.condition, language, t.marketplaceRequirements.loadFailed, t.toast.errorTitle, toast]
   );
 
   const handleSetVintedCatalog = async (catalogId: string | number) => {
@@ -1228,13 +1265,15 @@ const ReviewItemForm = ({
       });
 
       if (incompletePlatform) {
-        setActiveRequirementPlatform(incompletePlatform);
-        window.requestAnimationFrame(() => {
-          document.getElementById('marketplace-requirements')?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
-          });
-        });
+        const firstMissingVintedField =
+          incompletePlatform === 'vinted'
+            ? marketplaceAttributes.vinted?.fields.find(
+                (field) =>
+                  field.required &&
+                  !hasRequirementValue(marketplaceAttributes.vinted?.values[field.key])
+              )
+            : undefined;
+        focusMarketplaceRequirement(incompletePlatform, firstMissingVintedField?.key);
         toast({
           title: t.marketplaceRequirements.completeRequirementsTitle,
           description: t.marketplaceRequirements.completeRequirementsDescription(
@@ -1338,7 +1377,27 @@ const ReviewItemForm = ({
           return;
         }
 
+        const missingAttributes = error?.data?.missing_attributes as
+          | Record<string, { missing?: Array<{ key?: string; label?: string }> }>
+          | undefined;
+        const missingPlatform = selectedPlatforms.find(
+          (platform) => (missingAttributes?.[platform]?.missing?.length || 0) > 0
+        );
+        let missingAttributesMessage: string | undefined;
+        if (missingPlatform) {
+          const missingFields = missingAttributes?.[missingPlatform]?.missing || [];
+          focusMarketplaceRequirement(missingPlatform, missingFields[0]?.key);
+          const labels = missingFields
+            .map((field) => field.label || field.key)
+            .filter((label): label is string => Boolean(label));
+          missingAttributesMessage = t.marketplaceRequirements.missingFieldsDescription(
+            t.platforms[missingPlatform],
+            labels
+          );
+        }
+
         const errorMessage =
+          missingAttributesMessage ||
           error?.data?.detail ||
           error?.data?.error ||
           'Failed to publish item';
@@ -1492,6 +1551,64 @@ const ReviewItemForm = ({
       setSubmitIntent(null);
     }
   };
+
+  const renderBaseProductDetails = () => (
+    <details className="rounded-lg border border-neutral-700 bg-neutral-900/40">
+      <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-neutral-300 hover:text-white">
+        {t.marketplaceRequirements.baseProductDetails}
+      </summary>
+      <div className="space-y-4 border-t border-neutral-800 px-4 py-4">
+        <p className="text-xs leading-relaxed text-neutral-400">
+          {t.marketplaceRequirements.baseProductDetailsDescription}
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            {renderPlainFieldLabel('brand', t.labels.brand)}
+            <Input
+              id="brand"
+              value={data.brand ?? ''}
+              onChange={(event) => updateField('brand', event.target.value)}
+              disabled={isSubmitting}
+              className="h-11 text-base"
+            />
+          </div>
+
+          <div className="space-y-2">
+            {renderPlainFieldLabel('condition', t.labels.condition)}
+            <Input
+              id="condition"
+              value={data.condition ?? ''}
+              onChange={(event) => updateField('condition', event.target.value)}
+              disabled={isSubmitting}
+              className="h-11 text-base"
+            />
+          </div>
+
+          <div className="space-y-2">
+            {renderPlainFieldLabel('category', t.labels.category)}
+            <Input
+              id="category"
+              value={data.category ?? ''}
+              onChange={(event) => updateField('category', event.target.value)}
+              disabled={isSubmitting}
+              className="h-11 text-base"
+            />
+          </div>
+
+          <div className="space-y-2">
+            {renderPlainFieldLabel('size', t.labels.size)}
+            <Input
+              id="size"
+              value={data.size ?? ''}
+              onChange={(event) => updateField('size', event.target.value)}
+              disabled={isSubmitting}
+              className="h-11 text-base"
+            />
+          </div>
+        </div>
+      </div>
+    </details>
+  );
 
   const renderPlatformPreparation = () => {
     if (!showPlatformPreparation) {
@@ -1791,6 +1908,8 @@ const ReviewItemForm = ({
                 />
               </div>
             )}
+
+            {renderBaseProductDetails()}
           </section>
         )}
 
@@ -1889,54 +2008,9 @@ const ReviewItemForm = ({
           />
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            {renderPlainFieldLabel('brand', t.labels.brand)}
-            <Input
-              id="brand"
-              value={data.brand ?? ''}
-              onChange={(e) => updateField('brand', e.target.value)}
-              disabled={isSubmitting}
-              className="h-12 text-base"
-            />
-          </div>
-
-          <div className="space-y-2">
-            {renderPlainFieldLabel('condition', t.labels.condition)}
-            <Input
-              id="condition"
-              value={data.condition ?? ''}
-              onChange={(e) => updateField('condition', e.target.value)}
-              disabled={isSubmitting}
-              className="h-12 text-base"
-            />
-          </div>
-
-          <div className="space-y-2">
-            {renderPlainFieldLabel('category', t.labels.category)}
-            <Input
-              id="category"
-              value={data.category ?? ''}
-              onChange={(e) => updateField('category', e.target.value)}
-              disabled={isSubmitting}
-              className="h-12 text-base"
-            />
-          </div>
-
-          <div className="space-y-2">
-            {renderPlainFieldLabel('size', t.labels.size)}
-            <Input
-              id="size"
-              value={data.size ?? ''}
-              onChange={(e) => updateField('size', e.target.value)}
-              disabled={isSubmitting}
-              className="h-12 text-base"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="price" className="text-sm font-medium text-neutral-300">{t.labels.price}</Label>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_140px]">
+        <div className="space-y-2">
+          <Label htmlFor="price" className="text-sm font-medium text-neutral-300">{t.labels.price}</Label>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_140px]">
               <Input
                 id="price"
                 type="number"
@@ -1963,16 +2037,15 @@ const ReviewItemForm = ({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            {data.priceRange.min && data.priceRange.max && (
-              <p className="text-xs text-slate-500 mt-1">
-                {t.helper.priceRange
-                  .replace('{min}', data.priceRange.min)
-                  .replace('{max}', data.priceRange.max)
-                  .replace('{currency}', resolveCurrency(data.currency, language))}
-              </p>
-            )}
           </div>
+          {data.priceRange.min && data.priceRange.max && (
+            <p className="text-xs text-slate-500 mt-1">
+              {t.helper.priceRange
+                .replace('{min}', data.priceRange.min)
+                .replace('{max}', data.priceRange.max)
+                .replace('{currency}', resolveCurrency(data.currency, language))}
+            </p>
+          )}
         </div>
       </div>
 
