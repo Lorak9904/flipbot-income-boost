@@ -47,7 +47,7 @@ const ProductRelisterForVintedArticle = () => {
       '@id': canonicalUrl,
     },
     datePublished: '2026-01-06',
-    dateModified: '2026-07-13',
+    dateModified: '2026-07-15',
     keywords,
   };
 

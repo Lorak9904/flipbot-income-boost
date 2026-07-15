@@ -2,6 +2,13 @@
   "en": {
     "sections": [
       {
+        "heading": "What is a Vinted relister?",
+        "bodyParagraphs": [
+          "A Vinted relister helps you prepare a fresh Vinted listing from product details and photos you already have. It should create a draft, flag missing Vinted fields, and leave the final category, condition, price, and publication decision to you.",
+          "Use it when an older item needs a clearer listing or when you are moving the same product from another marketplace. The useful part is not copying everything blindly; it is turning one set of product facts into a Vinted-ready draft you can check before it goes live."
+        ]
+      },
+      {
         "heading": "Can you move a listing from eBay, OLX, or Facebook Marketplace to Vinted?",
         "bodyParagraphs": [
           "Yes, but treat it as a new Vinted draft rather than a blind copy. Reuse facts you already know about the item, then match them to Vinted's category, brand, condition, size, color, price, and parcel fields.",
@@ -76,6 +83,13 @@
   },
   "pl": {
     "sections": [
+      {
+        "heading": "Czym jest narzędzie do ponownego wystawiania na Vinted?",
+        "bodyParagraphs": [
+          "Takie narzędzie pomaga przygotować nowy szkic oferty Vinted na podstawie zdjęć i danych produktu, które już masz. Powinno wskazać brakujące pola Vinted, ale decyzję o kategorii, stanie, cenie i publikacji zostawić Tobie.",
+          "Ma sens, gdy chcesz odświeżyć starszą ofertę albo przenieść ten sam produkt z innego marketplace'u. Nie chodzi o bezmyślne kopiowanie danych, tylko o przygotowanie szkicu Vinted, który sprawdzisz przed wystawieniem."
+        ]
+      },
       {
         "heading": "Czy można przenieść ogłoszenie z OLX, eBay lub Facebook Marketplace na Vinted?",
         "bodyParagraphs": [
