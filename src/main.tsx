@@ -26,6 +26,7 @@ const buildPostHogOptions = (): Partial<PostHogConfig> => {
 
   return {
     api_host: POSTHOG_HOST,
+    ui_host: 'https://eu.posthog.com',
     defaults: '2026-01-30',
     capture_pageview: 'history_change',
     capture_pageleave: true,

@@ -1,14 +1,35 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 
 const AUTH_HEARTBEAT_INTERVAL_MS = 5 * 60_000;
 const AUTH_LAST_HEARTBEAT_KEY = "flipit_auth_last_heartbeat_at";
+const APP_SESSION_ID = uuidv4();
+let hasObservedInitialRoute = false;
+
+function observeAppRoute(path: string) {
+  const navigationType = hasObservedInitialRoute ? "route" : "initial";
+  hasObservedInitialRoute = true;
+
+  void fetch("/api/observability/app-route/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "omit",
+    cache: "no-store",
+    keepalive: true,
+    body: JSON.stringify({
+      session_id: APP_SESSION_ID,
+      path,
+      navigation_type: navigationType,
+    }),
+  }).catch(() => undefined);
+}
 
 function pingVisitor(path: string) {
   const visitorId = localStorage.getItem("visitor_id");
   if (!visitorId) return;
 
-  fetch("/api/cookies/visitor/ping/", {
+  void fetch("/api/cookies/visitor/ping/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -16,7 +37,7 @@ function pingVisitor(path: string) {
       path,
       ts: Date.now()
     }),
-  });
+  }).catch(() => undefined);
 }
 
 function getLastAuthHeartbeatAt(): number {
@@ -41,7 +62,7 @@ function pingAuthenticated(path: string, trigger: "route" | "heartbeat") {
     localStorage.setItem(AUTH_LAST_HEARTBEAT_KEY, String(now));
   }
 
-  fetch("/api/auth/ping/", {
+  void fetch("/api/auth/ping/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -55,14 +76,16 @@ function pingAuthenticated(path: string, trigger: "route" | "heartbeat") {
         ts: now,
       },
     }),
-  });
+  }).catch(() => undefined);
 }
 
 export default function VisitorPing() {
   const location = useLocation();
 
   useEffect(() => {
-    // Anonymous visitors update consent analytics; signed-in users update activity instead.
+    observeAppRoute(location.pathname);
+
+    // Preserve consent analytics and authenticated activity as secondary signals.
     if (localStorage.getItem("flipit_token")) {
       pingAuthenticated(location.pathname, "route");
     } else {
