@@ -1,4 +1,4 @@
-Last updated: 10 July 2026
+Last updated: 21 July 2026
 
 This Privacy Policy explains how FlipIt handles personal data when you visit the website, create an account, connect marketplaces, prepare listings, use AI-assisted features, contact support, or pay for a plan.
 
@@ -18,7 +18,7 @@ Depending on how you use FlipIt, we may process:
 - listing data, such as item titles, descriptions, categories, attributes, prices, photos, image URLs, marketplace drafts, import data, publishing status, and error messages;
 - billing data, such as selected plan, credits, checkout status, payment provider references, invoice details, tax or currency data, and support records;
 - support and communication data, such as email messages, forms, feedback, and live chat messages;
-- observability and analytics data, such as page views, clicks, UI events, approximate technical data, product workflow events, errors, and masked session recordings when optional analytics features are enabled;
+- observability and analytics data, such as page views, clicks, UI events, approximate technical data, product workflow events, errors, and masked session recordings;
 - cookie and local storage data, described in the Cookie Policy.
 
 ## 3. Why we process data
@@ -40,8 +40,8 @@ We process data to:
 For users in the European Economic Area, we rely on the legal bases that match the purpose:
 
 - contract performance when we provide the FlipIt account, marketplace tools, listing workflows, support, and billing features;
-- legitimate interests when we keep the service secure, debug product issues, prevent abuse, improve workflows, and maintain business records;
-- consent when consent is required for non-essential cookies, persistent analytics identifiers, masked session recordings, live chat tools, or optional communications;
+- legitimate interests when we keep the service secure, debug product issues, prevent abuse, improve workflows, use memory-only masked session recordings for product observability, and maintain business records;
+- consent when consent is required for non-essential cookies, persistent analytics identifiers, live chat tools, or optional communications;
 - legal obligation when we must keep records, respond to lawful requests, handle tax/accounting duties, or comply with applicable law.
 
 ## 5. AI-assisted processing
@@ -95,7 +95,7 @@ FlipIt is intended for people who can lawfully run marketplace selling activity 
 
 ## 12. Cookies and analytics
 
-FlipIt uses cookies, local storage, and similar technologies for login, language, consent, security, visitor pings, product observability, analytics, and live chat. Basic product observability may run without persistent analytics cookies or persistent PostHog browser storage. The Cookie Policy explains these technologies in more detail.
+FlipIt uses cookies, local storage, and similar technologies for login, language, consent, security, visitor pings, product observability, analytics, and live chat. Product observability, including masked session recordings, may run in memory without persistent analytics cookies or persistent PostHog browser storage. The Cookie Policy explains these technologies in more detail.
 
 ## 13. Changes
 

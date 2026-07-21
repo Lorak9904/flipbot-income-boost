@@ -1,4 +1,4 @@
-Ostatnia aktualizacja: 10 lipca 2026
+Ostatnia aktualizacja: 21 lipca 2026
 
 Ta Polityka prywatności wyjaśnia, jak FlipIt przetwarza dane osobowe, gdy odwiedzasz stronę, zakładasz konto, łączysz marketplace'y, przygotowujesz ogłoszenia, korzystasz z funkcji AI, kontaktujesz się ze wsparciem albo opłacasz plan.
 
@@ -18,7 +18,7 @@ W zależności od sposobu korzystania z FlipIt możemy przetwarzać:
 - dane ogłoszeń, takie jak tytuły, opisy, kategorie, atrybuty, ceny, zdjęcia, adresy URL zdjęć, szkice ofert, dane importu, status publikacji i komunikaty błędów;
 - dane rozliczeniowe, takie jak wybrany plan, kredyty, status checkoutu, identyfikatory u operatora płatności, dane faktury, dane podatkowe/walutowe i historia wsparcia;
 - dane kontaktowe i wsparcia, takie jak wiadomości e-mail, formularze, opinie i wiadomości z czatu;
-- dane obserwowalności i analityczne, takie jak odsłony, kliknięcia, zdarzenia w interfejsie, przybliżone dane techniczne, zdarzenia workflow produktu, błędy i maskowane nagrania sesji, gdy opcjonalne funkcje analityczne są włączone;
+- dane obserwowalności i analityczne, takie jak odsłony, kliknięcia, zdarzenia w interfejsie, przybliżone dane techniczne, zdarzenia workflow produktu, błędy i maskowane nagrania sesji;
 - dane cookies i local storage opisane w Polityce cookies.
 
 ## 3. Po co przetwarzamy dane
@@ -40,8 +40,8 @@ Dane przetwarzamy, aby:
 Dla użytkowników z Europejskiego Obszaru Gospodarczego podstawy prawne zależą od celu przetwarzania:
 
 - wykonanie umowy, gdy udostępniamy konto FlipIt, narzędzia marketplace, workflow ogłoszeń, wsparcie i rozliczenia;
-- prawnie uzasadniony interes, gdy zabezpieczamy usługę, diagnozujemy błędy, zapobiegamy nadużyciom, poprawiamy workflow i prowadzimy dokumentację biznesową;
-- zgoda, gdy jest wymagana dla opcjonalnych cookies, trwałych identyfikatorów analitycznych, maskowanych nagrań sesji, czatu lub opcjonalnej komunikacji;
+- prawnie uzasadniony interes, gdy zabezpieczamy usługę, diagnozujemy błędy, zapobiegamy nadużyciom, poprawiamy workflow, używamy działających w pamięci maskowanych nagrań sesji do obserwowalności produktu i prowadzimy dokumentację biznesową;
+- zgoda, gdy jest wymagana dla opcjonalnych cookies, trwałych identyfikatorów analitycznych, czatu lub opcjonalnej komunikacji;
 - obowiązek prawny, gdy musimy prowadzić dokumentację, odpowiedzieć na zgodne z prawem żądanie, obsłużyć podatki/księgowość albo wykonać obowiązujące przepisy.
 
 ## 5. Przetwarzanie z użyciem AI
@@ -95,7 +95,7 @@ FlipIt jest przeznaczony dla osób, które mogą zgodnie z prawem prowadzić spr
 
 ## 12. Cookies i analityka
 
-FlipIt korzysta z cookies, local storage i podobnych technologii do logowania, języka, zgody, bezpieczeństwa, pingów odwiedzającego, obserwowalności produktu, analityki i czatu. Podstawowa obserwowalność produktu może działać bez trwałych cookies analitycznych i bez trwałego storage PostHog w przeglądarce. Szczegóły opisuje Polityka cookies.
+FlipIt korzysta z cookies, local storage i podobnych technologii do logowania, języka, zgody, bezpieczeństwa, pingów odwiedzającego, obserwowalności produktu, analityki i czatu. Obserwowalność produktu, w tym maskowane nagrania sesji, może działać w pamięci bez trwałych cookies analitycznych i bez trwałego storage PostHog w przeglądarce. Szczegóły opisuje Polityka cookies.
 
 ## 13. Zmiany
 

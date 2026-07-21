@@ -1,4 +1,4 @@
-Ostatnia aktualizacja: 10 lipca 2026
+Ostatnia aktualizacja: 21 lipca 2026
 
 Ta Polityka cookies wyjaśnia, jak FlipIt korzysta z cookies, local storage i podobnych technologii na myflipit.live.
 
@@ -22,9 +22,9 @@ Blokowanie niezbędnego storage może sprawić, że część FlipIt nie będzie 
 
 ## 3. Obserwowalność produktu i analityka
 
-FlipIt używa PostHog EU do podstawowej obserwowalności produktu, jeżeli analityka jest skonfigurowana. Pomaga nam to sprawdzać, czy ważne strony, rejestracja, workflow ogłoszeń i akcje w produkcie działają poprawnie. Przed akceptacją opcjonalnych technologii PostHog działa z pamięcią tymczasową, więc nie zapisuje cookies PostHog ani trwałego storage PostHog w przeglądarce.
+FlipIt używa PostHog EU do obserwowalności produktu, jeżeli analityka jest skonfigurowana. Pomaga nam to sprawdzać, czy ważne strony, rejestracja, workflow ogłoszeń i akcje w produkcie działają poprawnie. Przed akceptacją opcjonalnych technologii oraz po ich odrzuceniu PostHog działa z pamięcią tymczasową, więc nie zapisuje cookies PostHog ani trwałego storage PostHog w przeglądarce.
 
-Po zaakceptowaniu opcjonalnych technologii FlipIt może włączyć trwały storage analityczny i maskowane nagrania sesji, aby analizować użycie produktu, odsłony, kliknięcia, błędy i jakość workflow. Pola formularzy powinny być maskowane.
+Podstawowe zdarzenia obserwowalności i maskowane nagrania sesji mogą działać w tym trybie pamięciowym niezależnie od wyboru dotyczącego opcjonalnych cookies. Pola formularzy są skonfigurowane jako maskowane. Po zaakceptowaniu opcjonalnych technologii FlipIt może dodatkowo włączyć trwały storage analityczny i identyfikatory.
 
 Analityka pomaga poprawiać produkt, diagnozować niejasne przepływy i rozumieć, które części aplikacji są przydatne. Nie używamy cookies analitycznych do zewnętrznej reklamy.
 
@@ -44,7 +44,7 @@ Te technologie są kontrolowane przez zewnętrznego dostawcę. Obowiązują wted
 
 Cookies i local storage możesz kontrolować w ustawieniach przeglądarki. W każdej chwili możesz usunąć dane zapisane dla myflipit.live. Jeżeli usuniesz zapis zgody, baner może pojawić się ponownie.
 
-Możesz uniknąć opcjonalnych cookies analitycznych, trwałych identyfikatorów PostHog, maskowanych nagrań sesji i cookies czatu, nie akceptując opcjonalnych cookies. Podstawowe zdarzenia obserwowalności produktu mogą nadal być przetwarzane bez trwałego storage PostHog w przeglądarce. Część podstawowych funkcji aplikacji nadal może używać storage, bo jest potrzebny do logowania, języka, bezpieczeństwa i działań wywołanych przez użytkownika.
+Możesz uniknąć opcjonalnych cookies analitycznych, trwałych identyfikatorów PostHog i cookies czatu, nie akceptując opcjonalnych cookies. Odrzucenie opcjonalnych cookies nie wyłącza obserwowalności produktu ani maskowanych nagrań sesji działających w pamięci bez trwałego storage PostHog w przeglądarce. Część podstawowych funkcji aplikacji nadal może używać storage, bo jest potrzebny do logowania, języka, bezpieczeństwa i działań wywołanych przez użytkownika.
 
 ## 7. Brak cookies reklamowych
 

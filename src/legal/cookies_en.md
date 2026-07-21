@@ -1,4 +1,4 @@
-Last updated: 10 July 2026
+Last updated: 21 July 2026
 
 This Cookie Policy explains how FlipIt uses cookies, local storage, and similar technologies on myflipit.live.
 
@@ -22,9 +22,9 @@ Blocking essential storage may stop parts of FlipIt from working.
 
 ## 3. Product observability and analytics
 
-FlipIt uses PostHog EU for basic product observability when analytics is configured. This helps us see whether important pages, signup flows, listing workflows, and product actions are working. Before non-essential consent is accepted, PostHog is configured with in-memory persistence so it does not store PostHog cookies or persistent PostHog local/session storage on your browser.
+FlipIt uses PostHog EU for product observability when analytics is configured. This helps us see whether important pages, signup flows, listing workflows, and product actions are working. Before non-essential consent is accepted, and when it is refused, PostHog uses in-memory persistence so it does not store PostHog cookies or persistent PostHog local/session storage on your browser.
 
-When non-essential consent is accepted, FlipIt may enable persistent analytics storage and masked session recordings to understand product usage, page views, clicks, errors, and workflow quality. Input fields should be masked.
+Basic observability events and masked session recordings may run in this memory-only mode regardless of the optional cookie choice. Input fields are configured to be masked. When non-essential consent is accepted, FlipIt may also enable persistent analytics storage and identifiers.
 
 We use analytics to improve the product, debug confusing flows, and understand which parts of the app are useful. We do not use analytics cookies for third-party advertising.
 
@@ -44,7 +44,7 @@ Those technologies are controlled by the third-party provider. Their own cookie 
 
 You can manage cookies and local storage through your browser settings. You can delete stored data for myflipit.live at any time. If you delete consent storage, the banner may appear again.
 
-You can avoid optional analytics cookies, persistent PostHog identifiers, masked session recordings, and chat cookies by not accepting non-essential cookies. Basic product observability events may still be processed without persistent PostHog browser storage. Some essential app functions may still use storage because they are needed for login, language, security, and requested workflows.
+You can avoid optional analytics cookies, persistent PostHog identifiers, and chat cookies by not accepting non-essential cookies. Refusing optional cookies does not disable memory-only product observability or masked session recordings, which run without persistent PostHog browser storage. Some essential app functions may still use storage because they are needed for login, language, security, and requested workflows.
 
 ## 7. No advertising cookies
 

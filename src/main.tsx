@@ -4,7 +4,6 @@ import { StrictMode } from 'react'
 import './index.css'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { PostHogProvider } from '@posthog/react'
-import posthog from 'posthog-js'
 import { COOKIE_CONSENT_EVENT, hasOptionalCookieConsent } from './lib/cookie-consent.ts'
 import type { PostHogConfig } from 'posthog-js'
 
@@ -33,7 +32,7 @@ const buildPostHogOptions = (): Partial<PostHogConfig> => {
     autocapture: true,
     capture_exceptions: true,
     persistence: hasOptionalConsent ? 'localStorage+cookie' : 'memory',
-    disable_session_recording: !hasOptionalConsent,
+    disable_session_recording: false,
     session_recording: {
       maskAllInputs: true,
     },
@@ -69,11 +68,6 @@ renderApp();
 
 const handleOptionalCookieConsentAccepted = () => {
   renderApp();
-  if (POSTHOG_KEY) {
-    window.requestAnimationFrame(() => {
-      posthog.startSessionRecording();
-    });
-  }
 };
 
 window.addEventListener(COOKIE_CONSENT_EVENT, handleOptionalCookieConsentAccepted);
