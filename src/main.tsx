@@ -6,6 +6,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import { PostHogProvider } from '@posthog/react'
 import { COOKIE_CONSENT_EVENT, hasOptionalCookieConsent } from './lib/cookie-consent.ts'
 import type { PostHogConfig } from 'posthog-js'
+import { sanitizePostHogEvent } from './lib/analytics/route-privacy.ts'
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const POSTHOG_KEY = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
@@ -31,6 +32,7 @@ const buildPostHogOptions = (): Partial<PostHogConfig> => {
     capture_pageleave: true,
     autocapture: true,
     capture_exceptions: true,
+    before_send: sanitizePostHogEvent,
     persistence: hasOptionalConsent ? 'localStorage+cookie' : 'memory',
     disable_session_recording: false,
     session_recording: {

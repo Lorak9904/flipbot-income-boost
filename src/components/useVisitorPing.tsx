@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import { normalizeAnalyticsPath } from "@/lib/analytics/route-privacy";
 
 const AUTH_HEARTBEAT_INTERVAL_MS = 5 * 60_000;
 const AUTH_LAST_HEARTBEAT_KEY = "flipit_auth_last_heartbeat_at";
@@ -8,6 +9,7 @@ const APP_SESSION_ID = uuidv4();
 let hasObservedInitialRoute = false;
 
 function observeAppRoute(path: string) {
+  const analyticsPath = normalizeAnalyticsPath(path);
   const navigationType = hasObservedInitialRoute ? "route" : "initial";
   hasObservedInitialRoute = true;
 
@@ -19,7 +21,7 @@ function observeAppRoute(path: string) {
     keepalive: true,
     body: JSON.stringify({
       session_id: APP_SESSION_ID,
-      path,
+      path: analyticsPath,
       navigation_type: navigationType,
     }),
   }).catch(() => undefined);
@@ -34,7 +36,7 @@ function pingVisitor(path: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       visitor_id: visitorId,
-      path,
+      path: normalizeAnalyticsPath(path),
       ts: Date.now()
     }),
   }).catch(() => undefined);
@@ -70,7 +72,7 @@ function pingAuthenticated(path: string, trigger: "route" | "heartbeat") {
     },
     body: JSON.stringify({
       event_type: trigger === "heartbeat" ? "heartbeat" : "page_view",
-      path,
+      path: normalizeAnalyticsPath(path),
       metadata: {
         trigger,
         ts: now,

@@ -41,7 +41,7 @@ const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error ? error.message : fallback;
 
 const SettingsPage = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const t = getTranslations(settingsTranslations);
@@ -127,6 +127,13 @@ const SettingsPage = () => {
         const data = await response.json();
         throw new Error(data.detail || 'Failed to update profile');
       }
+
+      const updatedProfile = await response.json();
+      updateUser({
+        name: updatedProfile.name,
+        email: updatedProfile.email,
+        language: updatedProfile.language,
+      });
 
       toast({ 
         title: t.toastSettingsSavedTitle, 

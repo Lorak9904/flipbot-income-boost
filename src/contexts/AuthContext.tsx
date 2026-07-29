@@ -20,6 +20,7 @@ type AuthContextType = {
   loginWithEmail: (email: string, password: string) => Promise<void>;
   registerWithEmail: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
+  updateUser: (updates: Partial<User>) => void;
   setUserAndTokens: (userData: User, token: string, refreshToken: string) => void;
 };
 
@@ -318,6 +319,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("flipit_refresh_token");
   };
 
+  const updateUser = (updates: Partial<User>) => {
+    setUser((currentUser) => {
+      if (!currentUser) return currentUser;
+      const updatedUser = { ...currentUser, ...updates };
+      localStorage.setItem('flipit_user', JSON.stringify(updatedUser));
+      return updatedUser;
+    });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -330,6 +340,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loginWithEmail,
         registerWithEmail,
         logout,
+        updateUser,
         setUserAndTokens, // ← Add this
       }}
     >
