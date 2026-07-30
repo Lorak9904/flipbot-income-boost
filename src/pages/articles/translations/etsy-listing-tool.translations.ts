@@ -131,7 +131,7 @@ export const etsyListingToolTranslations: Translations = {
     section5Para1:
       'Sprawdź kategorię, wymagane atrybuty, cenę, liczbę sztuk, zdjęcia, profil wysyłki, zasady zwrotów, czas przygotowania i informacje o wykonawcy. Etsy używa tych pól, żeby aktywować ofertę.',
     section5Para2:
-      'Ten krok chroni sklep. FlipIt może szybciej przygotować szkic, ale sprzedawca powinien potwierdzić, że produkt jest opisany dokładnie i zgodnie z zasadami Etsy.',
+      'Sprzedawca powinien potwierdzić, że szkic dokładnie opisuje produkt i spełnia aktualne wymagania Etsy, zanim użyje operacji na połączonym koncie.',
 
     section6Title: 'Czego FlipIt nie obiecuje',
     section6Para1:

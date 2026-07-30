@@ -52,6 +52,7 @@ test('owned public copy does not contain known inflated claims', () => {
     /relist faster/i,
     /odświeżać szybciej/i,
     /prepare the draft faster/i,
+    /szybciej przygotować szkic/i,
     /start fast, scale safely/i,
     /szybki start, bez chaosu/i,
   ];
