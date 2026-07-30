@@ -11,8 +11,6 @@ ARG VITE_PUBLIC_POSTHOG_HOST
 COPY package.json package-lock.json ./
 RUN npm ci
 
-RUN npm install -g serve
-
 COPY . .
 
 RUN npm run build

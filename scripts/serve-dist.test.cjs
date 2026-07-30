@@ -2,6 +2,7 @@
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const net = require('node:net');
 const path = require('node:path');
 const { after, before, test } = require('node:test');
 
@@ -30,6 +31,21 @@ after(async () => {
 async function request(urlPath) {
   const response = await fetch(`${baseUrl}${urlPath}`);
   return { response, body: await response.text() };
+}
+
+function rawRequest(payload) {
+  return new Promise((resolve, reject) => {
+    const socket = net.createConnection(server.address().port, '127.0.0.1');
+    let response = '';
+
+    socket.setEncoding('utf8');
+    socket.once('error', reject);
+    socket.on('data', (chunk) => {
+      response += chunk;
+    });
+    socket.once('end', () => resolve(response));
+    socket.once('connect', () => socket.end(payload));
+  });
 }
 
 function assertPublicPage(body, { title, canonical, language, alternate }) {
@@ -120,4 +136,13 @@ test('uses a noindex 404 shell for unknown client paths but not missing assets',
   assert.equal(missingAsset.response.status, 404);
   assert.equal(missingAsset.body, 'Not Found');
   assert.doesNotMatch(missingAsset.body, /<html/i);
+});
+
+test('rejects malformed request targets without crashing the server', async () => {
+  const malformed = await rawRequest('GET //[ HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n');
+  assert.match(malformed, /^HTTP\/1\.1 400 Bad Request/m);
+
+  const healthy = await request('/pricing');
+  assert.equal(healthy.response.status, 200);
+  assert.match(healthy.body, /<link rel="canonical" href="https:\/\/myflipit\.live\/pricing"/);
 });

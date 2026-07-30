@@ -122,7 +122,13 @@ function createDistServer({ distDir = DEFAULT_DIST_DIR } = {}) {
       return;
     }
 
-    const requestUrl = new URL(request.url || '/', 'http://localhost');
+    let requestUrl;
+    try {
+      requestUrl = new URL(request.url || '/', 'http://localhost');
+    } catch {
+      sendText(request, response, 400, 'Bad Request');
+      return;
+    }
     const urlPath = safeRequestPath(requestUrl.pathname);
     if (!urlPath) {
       sendText(request, response, 400, 'Bad Request');
@@ -149,12 +155,36 @@ function createDistServer({ distDir = DEFAULT_DIST_DIR } = {}) {
   });
 }
 
+function installShutdownHandlers(server, { timeoutMs = 10_000 } = {}) {
+  let shuttingDown = false;
+
+  const shutdown = () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+
+    const forceExit = setTimeout(() => {
+      server.closeAllConnections?.();
+      process.exit(1);
+    }, timeoutMs);
+    forceExit.unref();
+
+    server.close((error) => {
+      clearTimeout(forceExit);
+      process.exitCode = error ? 1 : 0;
+    });
+  };
+
+  process.once('SIGTERM', shutdown);
+  process.once('SIGINT', shutdown);
+}
+
 if (require.main === module) {
   const port = Number.parseInt(process.env.PORT || String(DEFAULT_PORT), 10);
   const server = createDistServer();
   server.listen(port, '0.0.0.0', () => {
-    console.log(`Serving ${DEFAULT_DIST_DIR} on port ${port}`);
+    console.log(`Serving ${DEFAULT_DIST_DIR} on port ${server.address().port}`);
   });
+  installShutdownHandlers(server);
 }
 
-module.exports = { createDistServer, isAppRoute };
+module.exports = { createDistServer, installShutdownHandlers, isAppRoute };
