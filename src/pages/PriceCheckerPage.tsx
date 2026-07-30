@@ -5,15 +5,26 @@ import { Link } from 'react-router-dom';
 
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { getCurrentLanguage, getTranslations } from '@/components/language-utils';
-import { PriceCheckResults } from '@/components/price-checker/PriceCheckResults';
+import { PriceCheckResults, type PriceCheckResultCopy } from '@/components/price-checker/PriceCheckResults';
 import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { createPriceCheck, uploadPriceCheckImage, type PriceCheckResult } from '@/lib/api/price-checks';
+import {
+  createPriceCheck,
+  PriceCheckRequestError,
+  uploadPriceCheckImage,
+  type PriceCheckFailureType,
+  type PriceCheckResult,
+} from '@/lib/api/price-checks';
 import { EBAY_PRICE_CHECK_MARKETS, IMAGE_SEARCH_MARKETS } from '@/lib/price-checker';
 import { getRoutePath } from '@/lib/localized-routes';
+import {
+  priceCheckCompletedProperties,
+  priceCheckFailedProperties,
+  priceCheckStartedProperties,
+} from '@/lib/analytics/price-checker';
 import { priceCheckerTranslations } from './price-checker-translations';
 
 type SearchMode = 'keyword' | 'image';
@@ -21,14 +32,38 @@ type SearchMode = 'keyword' | 'image';
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
+const BROWSER_MARKETS: Record<string, string> = {
+  AU: 'EBAY_AU',
+  AT: 'EBAY_AT',
+  BE: 'EBAY_BE',
+  CA: 'EBAY_CA',
+  CH: 'EBAY_CH',
+  DE: 'EBAY_DE',
+  ES: 'EBAY_ES',
+  FR: 'EBAY_FR',
+  GB: 'EBAY_GB',
+  IE: 'EBAY_IE',
+  IT: 'EBAY_IT',
+  NL: 'EBAY_NL',
+  US: 'EBAY_US',
+};
+
+const defaultMarketplace = (language: 'en' | 'pl') => {
+  if (language === 'pl') return 'EBAY_PL';
+  const region = navigator.language.split('-')[1]?.toUpperCase();
+  return (region && BROWSER_MARKETS[region]) || 'EBAY_US';
+};
+
 export default function PriceCheckerPage() {
   const t = getTranslations(priceCheckerTranslations);
   const language = getCurrentLanguage();
   const posthog = usePostHog();
   const inputRef = useRef<HTMLInputElement>(null);
+  const submittingRef = useRef(false);
+  const temporaryPhotoFallbackRef = useRef(false);
   const [mode, setMode] = useState<SearchMode>('keyword');
   const [query, setQuery] = useState('');
-  const [marketplace, setMarketplace] = useState(language === 'pl' ? 'EBAY_PL' : 'EBAY_US');
+  const [marketplace, setMarketplace] = useState(() => defaultMarketplace(language));
   const [condition, setCondition] = useState('ANY');
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -52,6 +87,75 @@ export default function PriceCheckerPage() {
     setResult(null);
     if (nextMode === 'image' && !IMAGE_SEARCH_MARKETS.has(marketplace)) {
       setMarketplace(language === 'pl' ? 'EBAY_DE' : 'EBAY_US');
+      temporaryPhotoFallbackRef.current = true;
+    } else if (nextMode === 'keyword' && temporaryPhotoFallbackRef.current) {
+      setMarketplace(language === 'pl' ? 'EBAY_PL' : defaultMarketplace(language));
+      temporaryPhotoFallbackRef.current = false;
+    }
+  };
+
+  const errorCopy = (failureType: PriceCheckFailureType) => {
+    if (failureType === 'timeout') return t.timeoutError;
+    if (failureType === 'rate_limited') return t.rateLimitError;
+    if (failureType === 'invalid_request') return t.invalidRequestError;
+    if (failureType === 'upload_failed') return t.uploadError;
+    if (failureType === 'network') return t.networkError;
+    return t.providerError;
+  };
+
+  const runPriceCheck = async ({ nextMode = mode, nextImage = image }: { nextMode?: SearchMode; nextImage?: File | null } = {}) => {
+    if (submittingRef.current) return;
+
+    const trimmedQuery = query.trim();
+    if (nextMode === 'keyword' && trimmedQuery.length < 3) {
+      setError(t.keywordHint);
+      return;
+    }
+    if (nextMode === 'image' && !nextImage) {
+      setError(t.imageHint);
+      return;
+    }
+
+    submittingRef.current = true;
+    setIsSubmitting(true);
+    setError('');
+    setResult(null);
+    posthog?.capture('public_price_check_started', priceCheckStartedProperties(nextMode, marketplace));
+
+    try {
+      const uploaded = nextMode === 'image' && nextImage ? await uploadPriceCheckImage(nextImage) : null;
+      const nextResult = await createPriceCheck({
+        provider: 'ebay',
+        marketplace_id: marketplace,
+        search_mode: nextMode,
+        query: nextMode === 'keyword' ? trimmedQuery : undefined,
+        condition: condition === 'ANY' ? '' : condition,
+        limit: 12,
+        images: uploaded
+          ? [{
+              key: uploaded.key,
+              filename: uploaded.filename,
+              content_type: uploaded.content_type,
+              size: uploaded.size,
+            }]
+          : undefined,
+      });
+      setResult(nextResult);
+      setSelectedIds(new Set(nextResult.sampled_items.map((item) => item.provider_item_id)));
+      posthog?.capture(
+        'public_price_check_completed',
+        priceCheckCompletedProperties(nextMode, marketplace, nextResult.status, nextResult.sample_count),
+      );
+    } catch (requestError) {
+      const failureType = requestError instanceof PriceCheckRequestError ? requestError.failureType : 'network';
+      setError(errorCopy(failureType));
+      posthog?.capture(
+        'public_price_check_failed',
+        priceCheckFailedProperties(nextMode, marketplace, failureType),
+      );
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -66,60 +170,12 @@ export default function PriceCheckerPage() {
     setImage(file);
     setPreviewUrl(URL.createObjectURL(file));
     setResult(null);
+    void runPriceCheck({ nextMode: 'image', nextImage: file });
   };
 
-  const submit = async (event: React.FormEvent) => {
+  const submit = (event: React.FormEvent) => {
     event.preventDefault();
-    setError('');
-    setResult(null);
-
-    if (mode === 'keyword' && query.trim().length < 3) {
-      setError(t.keywordHint);
-      return;
-    }
-    if (mode === 'image' && !image) {
-      setError(t.imageHint);
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const uploaded = mode === 'image' && image ? await uploadPriceCheckImage(image) : null;
-      const nextResult = await createPriceCheck({
-        provider: 'ebay',
-        marketplace_id: marketplace,
-        search_mode: mode,
-        query: mode === 'keyword' ? query.trim() : undefined,
-        condition: condition === 'ANY' ? '' : condition,
-        limit: 12,
-        images: uploaded
-          ? [{
-              key: uploaded.key,
-              filename: uploaded.filename,
-              content_type: uploaded.content_type,
-              size: uploaded.size,
-            }]
-          : undefined,
-      });
-      setResult(nextResult);
-      setSelectedIds(new Set(nextResult.sampled_items.map((item) => item.provider_item_id)));
-      posthog?.capture('public_price_check_completed', {
-        source: 'price_checker',
-        mode,
-        marketplace_id: marketplace,
-        sample_count: nextResult.sample_count,
-        status: nextResult.status,
-      });
-    } catch (requestError) {
-      setError(requestError instanceof Error && requestError.message ? requestError.message : t.genericError);
-      posthog?.capture('public_price_check_failed', {
-        source: 'price_checker',
-        mode,
-        marketplace_id: marketplace,
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    void runPriceCheck();
   };
 
   const toggleComparable = (providerItemId: string) => {
@@ -248,7 +304,11 @@ export default function PriceCheckerPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="price-check-market">{t.marketLabel}</Label>
-                <Select value={marketplace} onValueChange={setMarketplace}>
+                <Select value={marketplace} onValueChange={(value) => {
+                  if (!value) return;
+                  temporaryPhotoFallbackRef.current = false;
+                  setMarketplace(value);
+                }}>
                   <SelectTrigger id="price-check-market" className="min-h-12 border-neutral-700 bg-neutral-900 text-white">
                     <SelectValue />
                   </SelectTrigger>
@@ -301,7 +361,7 @@ export default function PriceCheckerPage() {
               result={result}
               selectedIds={selectedIds}
               language={language}
-              copy={t}
+              copy={t as unknown as PriceCheckResultCopy}
               onToggle={(item) => toggleComparable(item.provider_item_id)}
             />
           )}

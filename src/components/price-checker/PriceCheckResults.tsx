@@ -3,17 +3,19 @@ import { ExternalLink, Info, PackageSearch } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { PriceCheckComparable, PriceCheckResult } from '@/lib/api/price-checks';
-import { calculateSelectedPriceStats, formatPrice } from '@/lib/price-checker';
+import { calculateSelectedPriceStats, EBAY_PRICE_CHECK_MARKETS, formatPrice } from '@/lib/price-checker';
 
-interface ResultCopy {
+export interface PriceCheckResultCopy {
   resultsTitle: string;
   resultsSubtitle: string;
   medianLabel: string;
+  averageLabel: string;
   rangeLabel: string;
-  selectedLabel: string;
-  deliveredLabel: string;
-  deliveredCoverage: string;
+  basedOn: string;
+  sourceMarket: string;
   lowSelection: string;
+  refineTitle: string;
+  refineBody: string;
   comparableTitle: string;
   includeListing: string;
   excludeListing: string;
@@ -27,12 +29,19 @@ interface PriceCheckResultsProps {
   result: PriceCheckResult;
   selectedIds: Set<string>;
   language: 'en' | 'pl';
-  copy: ResultCopy;
+  copy: PriceCheckResultCopy;
   onToggle: (item: PriceCheckComparable) => void;
 }
 
 export function PriceCheckResults({ result, selectedIds, language, copy, onToggle }: PriceCheckResultsProps) {
   const stats = calculateSelectedPriceStats(result.sampled_items, selectedIds);
+  const allSelected = stats.count === result.sampled_items.length;
+  const apiLow = typeof result.typical_low_price === 'string' ? Number(result.typical_low_price) : null;
+  const apiHigh = typeof result.typical_high_price === 'string' ? Number(result.typical_high_price) : null;
+  const typicalLow = allSelected && apiLow !== null && Number.isFinite(apiLow) ? apiLow : stats.typicalLow;
+  const typicalHigh = allSelected && apiHigh !== null && Number.isFinite(apiHigh) ? apiHigh : stats.typicalHigh;
+  const sourceMarket = EBAY_PRICE_CHECK_MARKETS.find((market) => market.id === result.marketplace_id);
+  const sourceMarketName = sourceMarket?.[language] || result.marketplace_id;
 
   return (
     <section className="mt-10 space-y-6" aria-live="polite">
@@ -41,26 +50,35 @@ export function PriceCheckResults({ result, selectedIds, language, copy, onToggl
         <p className="mt-2 max-w-3xl text-sm leading-6 text-neutral-300">{copy.resultsSubtitle}</p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="rounded-lg border border-cyan-400/30 bg-cyan-400/10 p-5 sm:p-6">
+        <div className="text-sm font-medium text-cyan-100">{copy.rangeLabel}</div>
+        <div className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          {formatPrice(typicalLow, stats.currency, language)} – {formatPrice(typicalHigh, stats.currency, language)}
+        </div>
+        <div className="mt-3 text-sm text-neutral-300">
+          {copy.basedOn.replace('{count}', String(stats.count))} · {copy.sourceMarket}: {sourceMarketName}
+        </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
         <ResultMetric label={copy.medianLabel} value={formatPrice(stats.median, stats.currency, language)} />
         <ResultMetric
-          label={copy.rangeLabel}
-          value={`${formatPrice(stats.typicalLow, stats.currency, language)} – ${formatPrice(stats.typicalHigh, stats.currency, language)}`}
-        />
-        <ResultMetric label={copy.selectedLabel} value={`${stats.count}/${result.sampled_items.length}`} />
-        <ResultMetric
-          label={copy.deliveredLabel}
-          value={formatPrice(stats.deliveredMedian, stats.currency, language)}
-          detail={stats.deliveredCount ? `${stats.deliveredCount} ${copy.deliveredCoverage}` : undefined}
+          label={copy.averageLabel}
+          value={formatPrice(stats.average, stats.currency, language)}
         />
       </div>
 
-      {stats.count < 3 && (
+      {stats.count < 5 && (
         <div className="flex items-start gap-2 rounded-md border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
           <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{copy.lowSelection}</span>
         </div>
       )}
+
+      <div className="border-t border-neutral-800 pt-6">
+        <h3 className="text-lg font-semibold text-white">{copy.refineTitle}</h3>
+        <p className="mt-1 text-sm text-neutral-400">{copy.refineBody}</p>
+      </div>
 
       <div className="flex items-center gap-2">
         <img src="/platform-logos/ebay-bag.svg" alt="eBay" className="h-6 w-6 object-contain" />
@@ -122,12 +140,11 @@ export function PriceCheckResults({ result, selectedIds, language, copy, onToggl
   );
 }
 
-function ResultMetric({ label, value, detail }: { label: string; value: string; detail?: string }) {
+function ResultMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-neutral-800 bg-neutral-950/70 p-4">
       <div className="text-xs font-medium text-neutral-400">{label}</div>
       <div className="mt-1 text-xl font-semibold text-white">{value}</div>
-      {detail && <div className="mt-1 text-xs text-neutral-500">{detail}</div>}
     </div>
   );
 }

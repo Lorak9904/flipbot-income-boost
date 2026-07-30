@@ -23,10 +23,9 @@ export interface SelectedPriceStats {
   count: number;
   currency: string;
   median: number | null;
+  average: number | null;
   typicalLow: number | null;
   typicalHigh: number | null;
-  deliveredMedian: number | null;
-  deliveredCount: number;
 }
 
 const percentile = (values: number[], fraction: number): number => {
@@ -48,20 +47,13 @@ export const calculateSelectedPriceStats = (
     .map((item) => Number(item.price))
     .filter(Number.isFinite)
     .sort((a, b) => a - b);
-  const delivered = selected
-    .filter((item) => !currency || item.currency === currency)
-    .map((item) => Number(item.delivered_price))
-    .filter(Number.isFinite)
-    .sort((a, b) => a - b);
-
   return {
     count: prices.length,
     currency,
     median: prices.length ? percentile(prices, 0.5) : null,
+    average: prices.length ? prices.reduce((total, price) => total + price, 0) / prices.length : null,
     typicalLow: prices.length ? percentile(prices, 0.25) : null,
     typicalHigh: prices.length ? percentile(prices, 0.75) : null,
-    deliveredMedian: delivered.length ? percentile(delivered, 0.5) : null,
-    deliveredCount: delivered.length,
   };
 };
 
