@@ -868,6 +868,75 @@ test('user items and item detail load with mocked data', async ({ page }) => {
   tracker.assertNoNewIssues(detailCheckpoint, `/user/items/${TEST_ITEM_UUID}`);
 });
 
+test('authenticated user items preserves the shared visual foundation', async ({ page }, testInfo) => {
+  const tracker = await preparePage(page, { authenticated: true });
+  await page.addInitScript(({ userId }) => {
+    sessionStorage.setItem(`flipit_first_listing_coach_minimized:${userId}`, 'true');
+    sessionStorage.setItem(`flipit_first_listing_coach_intro:${userId}`, 'true');
+  }, { userId: AUTH_USER.id });
+  const viewports = [
+    { name: 'desktop', width: 1440, height: 1024, screenshot: true },
+    { name: 'desktop-boundary', width: 1280, height: 1024, screenshot: false },
+    { name: 'mobile', width: 390, height: 844, screenshot: true },
+  ] as const;
+
+  for (const viewport of viewports) {
+    const checkpoint = tracker.checkpoint();
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto('/user/items');
+    await disableAnimations(page);
+
+    await expect(page).toHaveURL('/user/items');
+    await expect(page.getByText('E2E Jacket')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Refresh statuses', exact: true })).toBeVisible();
+    const navigationToggle = page.getByRole('button', { name: 'Toggle navigation' });
+    if (viewport.width >= 1280) {
+      await expect(navigationToggle).toBeHidden();
+    } else {
+      await expect(navigationToggle).toBeVisible();
+    }
+
+    const foundation = await page.evaluate(() => {
+      const background = document.querySelector('.bg-marketing-radial');
+      const backgroundStyle = background ? getComputedStyle(background) : null;
+      const navigationContainer = document.querySelector('nav > .container');
+      const navigationBounds = navigationContainer?.getBoundingClientRect();
+      const visibleNavigationGroups = navigationContainer
+        ? Array.from(navigationContainer.children)
+            .filter((element) => getComputedStyle(element).display !== 'none')
+            .map((element) => element.getBoundingClientRect())
+        : [];
+      return {
+        viewportWidth: document.documentElement.clientWidth,
+        contentWidth: document.documentElement.scrollWidth,
+        backgroundImage: backgroundStyle?.backgroundImage || '',
+        animationName: backgroundStyle?.animationName || '',
+        navigationWithinContainer: Boolean(navigationBounds) && visibleNavigationGroups.every(
+          (bounds) => bounds.left >= navigationBounds.left - 1 && bounds.right <= navigationBounds.right + 1
+        ),
+        navigationGroupsOverlap: visibleNavigationGroups.some((bounds, index) => {
+          const nextBounds = visibleNavigationGroups[index + 1];
+          return Boolean(nextBounds && bounds.right > nextBounds.left + 1);
+        }),
+      };
+    });
+
+    expect(foundation.contentWidth).toBeLessThanOrEqual(foundation.viewportWidth);
+    expect(foundation.backgroundImage).toContain('radial-gradient');
+    expect(foundation.animationName).toBe('none');
+    expect(foundation.navigationWithinContainer).toBe(true);
+    expect(foundation.navigationGroupsOverlap).toBe(false);
+    tracker.assertNoNewIssues(checkpoint, `/user/items (${viewport.name})`);
+
+    if (viewport.screenshot) {
+      await page.screenshot({
+        path: testInfo.outputPath(`authenticated-user-items-${viewport.name}.png`),
+        fullPage: false,
+      });
+    }
+  }
+});
+
 test('Polish listing detail and statistics use localized UI labels', async ({ page }) => {
   const tracker = await preparePage(page, { authenticated: true });
 

@@ -80,7 +80,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden xl:flex items-center gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -139,7 +139,7 @@ const Navbar = () => {
         </div>
 
         {/* Right side: Credits + Language toggle + Auth/User */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden xl:flex items-center gap-2">
           {/* Credits Widget - Only for authenticated users */}
           {isAuthenticated && credits && (
             <TooltipProvider>
@@ -216,7 +216,7 @@ const Navbar = () => {
 
         {/* Mobile menu button - Enhanced styling */}
         <button
-          className="md:hidden p-2 rounded-lg hover:bg-neutral-800/50 transition-colors backdrop-blur-sm"
+          className="p-2 rounded-lg hover:bg-neutral-800/50 transition-colors backdrop-blur-sm xl:hidden"
           onClick={() => setIsOpen((v) => !v)}
           aria-label={t.toggleMenu}
         >
@@ -232,7 +232,7 @@ const Navbar = () => {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="md:hidden bg-neutral-950/98 backdrop-blur-md border-t border-white/5"
+            className="border-t border-white/5 bg-neutral-950/98 backdrop-blur-md xl:hidden"
           >
             <div className="flex flex-col gap-2 px-4 py-4">
               {/* Mobile Credits Widget */}

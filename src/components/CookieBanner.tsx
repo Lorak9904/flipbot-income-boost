@@ -69,7 +69,7 @@ export default function CookieBanner() {
         <AddItemButton
           sizeVariant="md"
           onClick={() => persistChoice("accepted")}
-          className="h-9 min-h-0 w-full justify-center px-3 py-1.5 text-xs !border-cyan-200 !bg-cyan-800 !text-white hover:!bg-cyan-700"
+          className="min-h-11 w-full justify-center px-3 py-2 text-xs !border-cyan-200 !bg-cyan-800 !text-white hover:!bg-cyan-700 sm:h-9 sm:min-h-0 sm:py-1.5"
         >
           {copy.accept}
         </AddItemButton>
@@ -77,7 +77,7 @@ export default function CookieBanner() {
           type="button"
           variant="outline"
           onClick={() => persistChoice("essential")}
-          className="h-9 min-h-0 w-full border-neutral-600 bg-neutral-900/80 px-3 py-1.5 text-xs text-neutral-200 hover:border-neutral-400 hover:bg-neutral-800 hover:text-white"
+          className="min-h-11 w-full border-neutral-600 bg-neutral-900/80 px-3 py-2 text-xs text-neutral-200 hover:border-neutral-400 hover:bg-neutral-800 hover:text-white sm:h-9 sm:min-h-0 sm:py-1.5"
         >
           {copy.necessary}
         </Button>
