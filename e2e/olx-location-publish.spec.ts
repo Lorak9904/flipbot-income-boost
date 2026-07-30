@@ -195,7 +195,7 @@ async function prepareOlxEditor(page: Page) {
           {
             key: 'delivery',
             label: 'Delivery package',
-            required: true,
+            required: categoryId !== '100',
             type: 'multi_select',
             options: [
               { value: 'courier', label: 'Courier' },
@@ -210,10 +210,15 @@ async function prepareOlxEditor(page: Page) {
   await page.route('**/api/olx/locations/cities/**', (route) => {
     const url = new URL(route.request().url());
     if (url.pathname.includes('/districts/')) {
+      const cityHasDistricts = url.pathname.includes('/cities/10/');
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ city_id: 10, count: 1, results: [{ id: 20, name: 'Old Town' }] }),
+        body: JSON.stringify({
+          city_id: cityHasDistricts ? 10 : 11,
+          count: cityHasDistricts ? 1 : 0,
+          results: cityHasDistricts ? [{ id: 20, name: 'Old Town' }] : [],
+        }),
       });
     }
     return route.fulfill({
@@ -247,9 +252,17 @@ test('OLX city, district, and delivery reach publish payload and reset with city
   await cityInput.fill('War');
   await expect(page.getByRole('listbox')).toBeVisible();
   await page.getByRole('option', { name: 'Warsaw' }).click();
+  await expect(districtSelect).toBeEnabled();
+  await expect(districtSelect).toHaveAttribute('aria-required', 'true');
+  await page.getByText('Optional details (1)').click();
+  await page.getByRole('checkbox', { name: 'Courier' }).click();
+  await expect(page.getByRole('button', { name: /OLX 1 required/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Publish Item' }).click();
+  await expect.poll(() => publishPayloads.length).toBe(0);
+  await expect(page.getByText('OLX still requires: OLX district.')).toBeVisible();
+
   await districtSelect.click();
   await page.getByRole('option', { name: 'Old Town' }).click();
-  await page.getByRole('checkbox', { name: 'Courier' }).click();
 
   await page.getByRole('button', { name: 'Publish Item' }).click();
   await expect.poll(() => publishPayloads.length).toBe(1);
@@ -271,6 +284,12 @@ test('OLX city, district, and delivery reach publish payload and reset with city
   await categoryDialog.getByRole('button', { name: /Coats/ }).click();
 
   await expect(page.getByRole('checkbox', { name: 'Courier' })).not.toBeChecked();
+  const olxReadiness = page.locator('button[aria-pressed="true"]').filter({ hasText: /^OLX/ });
+  await expect(olxReadiness).toContainText('Checking');
+  for (let sample = 0; sample < 8; sample += 1) {
+    expect(await olxReadiness.textContent()).not.toContain('Ready');
+    await page.waitForTimeout(50);
+  }
   await expect(page.getByRole('button', { name: /OLX 1 required/ })).toBeVisible();
   await page.getByRole('button', { name: 'Publish Item' }).click();
   await expect.poll(() => publishPayloads.length).toBe(1);
@@ -292,7 +311,27 @@ test('OLX city, district, and delivery reach publish payload and reset with city
   await expect(districtSelect).toBeDisabled();
   await page.getByRole('button', { name: 'Publish Item' }).click();
   await expect.poll(() => publishPayloads.length).toBe(2);
-  await expect(page.getByText('OLX still requires: OLX city, OLX district.')).toBeVisible();
+  await expect(page.getByText('OLX still requires: OLX city.')).toBeVisible();
+
+  await page.getByRole('option', { name: 'Wroclaw' }).click();
+  await expect(districtSelect).toBeDisabled();
+  await expect(districtSelect).toHaveAttribute('aria-required', 'false');
+  await expect(page.getByRole('button', { name: /OLX Ready/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Publish Item' }).click();
+  await expect.poll(() => publishPayloads.length).toBe(3);
+  expect(publishPayloads[2]).toMatchObject({
+    platform_listing_overrides: {
+      olx: {
+        category_id: 200,
+        location: { city_id: 11, city_name: 'Wroclaw' },
+        ad_delivery: { delivery_package_ids: ['parcel-locker'] },
+      },
+    },
+  });
+  const cityOnlyLocation = (
+    publishPayloads[2].platform_listing_overrides as { olx: { location: Record<string, unknown> } }
+  ).olx.location;
+  expect(cityOnlyLocation).not.toHaveProperty('district_id');
 
   const countrySelect = page
     .getByText('OLX country', { exact: true })

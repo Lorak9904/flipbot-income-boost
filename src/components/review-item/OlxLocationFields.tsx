@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
@@ -13,15 +13,33 @@ interface Props {
   language?: string;
   value?: NonNullable<PlatformOverrides['olx']>['location'];
   onChange: (value: NonNullable<PlatformOverrides['olx']>['location']) => void;
+  onDistrictRequirementChange: (state: OlxDistrictRequirementState) => void;
 }
 
-export default function OlxLocationFields({ countryCode, disabled, language, value, onChange }: Props) {
+export type OlxDistrictRequirementState =
+  | 'idle'
+  | 'loading'
+  | 'required'
+  | 'not_required'
+  | 'unavailable';
+
+export default function OlxLocationFields({
+  countryCode,
+  disabled,
+  language,
+  value,
+  onChange,
+  onDistrictRequirementChange,
+}: Props) {
   const isPolish = language === 'pl';
   const [query, setQuery] = useState(value?.city_name || '');
   const [cities, setCities] = useState<OlxLocationOption[]>([]);
   const [districts, setDistricts] = useState<OlxLocationOption[]>([]);
   const [loadingCities, setLoadingCities] = useState(false);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [districtLoadFailed, setDistrictLoadFailed] = useState(false);
+  const locationValueRef = useRef(value);
+  locationValueRef.current = value;
   const cityId = value?.city_id ? String(value.city_id) : '';
   const cityListboxId = 'olx-city-options';
   const cityRequiredMessageId = 'olx-city-required';
@@ -49,24 +67,53 @@ export default function OlxLocationFields({ countryCode, disabled, language, val
   useEffect(() => {
     if (!cityId) {
       setDistricts([]);
+      setLoadingDistricts(false);
+      setDistrictLoadFailed(false);
+      onDistrictRequirementChange('idle');
       return;
     }
     const controller = new AbortController();
+    setDistricts([]);
     setLoadingDistricts(true);
+    setDistrictLoadFailed(false);
+    onDistrictRequirementChange('loading');
     void getOlxCityDistricts({ cityId, countryCode, signal: controller.signal })
-      .then((payload) => setDistricts(payload.results))
+      .then((payload) => {
+        if (controller.signal.aborted) return;
+        const results = payload.results || [];
+        setDistricts(results);
+        const currentLocation = locationValueRef.current;
+        if (
+          currentLocation?.district_id &&
+          String(currentLocation.city_id) === cityId &&
+          !results.some(
+            (district) => String(district.id) === String(currentLocation.district_id)
+          )
+        ) {
+          onChange({
+            city_id: currentLocation.city_id,
+            city_name: currentLocation.city_name,
+          });
+        }
+        onDistrictRequirementChange(results.length > 0 ? 'required' : 'not_required');
+      })
       .catch(() => {
-        if (!controller.signal.aborted) setDistricts([]);
+        if (!controller.signal.aborted) {
+          setDistricts([]);
+          setDistrictLoadFailed(true);
+          onDistrictRequirementChange('unavailable');
+        }
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoadingDistricts(false);
       });
     return () => controller.abort();
-  }, [cityId, countryCode]);
+  }, [cityId, countryCode, onChange, onDistrictRequirementChange]);
 
   const chooseCity = (city: OlxLocationOption) => {
     setQuery(city.name);
     setCities([]);
+    onDistrictRequirementChange('loading');
     onChange({ city_id: city.id, city_name: city.name });
   };
 
@@ -89,7 +136,10 @@ export default function OlxLocationFields({ countryCode, disabled, language, val
             placeholder={isPolish ? 'Wpisz co najmniej 2 znaki' : 'Type at least 2 characters'}
             onChange={(event) => {
               setQuery(event.target.value);
-              if (cityId) onChange(undefined);
+              if (cityId) {
+                onDistrictRequirementChange('idle');
+                onChange(undefined);
+              }
             }}
           />
           {loadingCities && <Loader2 className="absolute right-3 top-2.5 h-4 w-4 animate-spin text-neutral-400" />}
@@ -121,8 +171,12 @@ export default function OlxLocationFields({ countryCode, disabled, language, val
         >
           <SelectTrigger
             id="olx-district"
-            aria-required="true"
-            aria-describedby={cityId && !value?.district_id ? districtRequiredMessageId : undefined}
+            aria-required={districts.length > 0}
+            aria-describedby={
+              districts.length > 0 && !value?.district_id
+                ? districtRequiredMessageId
+                : undefined
+            }
           >
             <SelectValue placeholder={loadingDistricts ? (isPolish ? 'Wczytywanie…' : 'Loading…') : districts.length ? (isPolish ? 'Wybierz dzielnicę' : 'Select district') : (isPolish ? 'Brak dzielnic' : 'No districts')} />
           </SelectTrigger>
@@ -130,7 +184,8 @@ export default function OlxLocationFields({ countryCode, disabled, language, val
             {districts.map((district) => <SelectItem key={district.id} value={String(district.id)}>{district.name}</SelectItem>)}
           </SelectContent>
         </Select>
-        {cityId && !loadingDistricts && !value?.district_id && <p id={districtRequiredMessageId} className="text-xs text-amber-300">{isPolish ? 'Dzielnica jest wymagana dla tego miasta.' : 'A district is required for this city.'}</p>}
+        {districts.length > 0 && !value?.district_id && <p id={districtRequiredMessageId} className="text-xs text-amber-300">{isPolish ? 'Dzielnica jest wymagana dla tego miasta.' : 'A district is required for this city.'}</p>}
+        {districtLoadFailed && <p className="text-xs text-red-300">{isPolish ? 'Nie udało się sprawdzić dzielnic OLX. Spróbuj ponownie.' : 'Could not check OLX districts. Try again.'}</p>}
       </div>
     </div>
   );

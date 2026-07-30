@@ -7,7 +7,7 @@
  * Task 2: Per-Platform Override Editor UI
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -159,6 +159,7 @@ const PlatformOverrideCard = ({
   
   // Dynamic attributes fetched from backend
   const [attributes, setAttributes] = useState<PlatformAttributeField[]>([]);
+  const [attributesCategoryId, setAttributesCategoryId] = useState<string>();
   const [isLoadingAttributes, setIsLoadingAttributes] = useState(false);
   const [attributeError, setAttributeError] = useState<string | null>(null);
   const [productSearchPhrase, setProductSearchPhrase] = useState(allegroSearchPhrase || '');
@@ -168,6 +169,9 @@ const PlatformOverrideCard = ({
   
   // Debounce timer for category ID changes
   const [debouncedCategoryId, setDebouncedCategoryId] = useState(categoryId);
+  const currentCategoryIdRef = useRef(categoryId);
+  const attributeRequestIdRef = useRef(0);
+  currentCategoryIdRef.current = categoryId;
 
   const selectedScalar = (value: PlatformDynamicAttributeValue | undefined): string => {
     if (value === undefined || value === null) {
@@ -238,15 +242,20 @@ const PlatformOverrideCard = ({
   
   // Fetch attributes when category ID changes
   const fetchAttributes = useCallback(async () => {
+    const requestId = ++attributeRequestIdRef.current;
     if (!debouncedCategoryId || !isCustomizing) {
       setAttributes([]);
+      setAttributesCategoryId(undefined);
       setAttributeError(null);
+      setIsLoadingAttributes(false);
       return;
     }
 
     if (!isConnected) {
       setAttributes([]);
+      setAttributesCategoryId(undefined);
       setAttributeError(null);
+      setIsLoadingAttributes(false);
       return;
     }
     
@@ -259,13 +268,32 @@ const PlatformOverrideCard = ({
         debouncedCategoryId,
         { marketplaceId, countryCode, language }
       );
+      if (
+        requestId !== attributeRequestIdRef.current ||
+        String(currentCategoryIdRef.current ?? '') !== String(debouncedCategoryId)
+      ) {
+        return;
+      }
       setAttributes(response.fields || response.required_fields || []);
+      setAttributesCategoryId(String(debouncedCategoryId));
     } catch (err) {
+      if (
+        requestId !== attributeRequestIdRef.current ||
+        String(currentCategoryIdRef.current ?? '') !== String(debouncedCategoryId)
+      ) {
+        return;
+      }
       console.error(`Failed to fetch ${platform} attributes:`, err);
       setAttributeError(err instanceof Error ? err.message : 'load_failed');
       setAttributes([]);
+      setAttributesCategoryId(String(debouncedCategoryId));
     } finally {
-      setIsLoadingAttributes(false);
+      if (
+        requestId === attributeRequestIdRef.current &&
+        String(currentCategoryIdRef.current ?? '') === String(debouncedCategoryId)
+      ) {
+        setIsLoadingAttributes(false);
+      }
     }
   }, [debouncedCategoryId, platform, isCustomizing, marketplaceId, countryCode, language, isConnected]);
   
@@ -328,11 +356,19 @@ const PlatformOverrideCard = ({
       onRequirementsChange(platform, { state: 'unavailable' });
       return;
     }
+    if (String(debouncedCategoryId ?? '') !== String(categoryId ?? '')) {
+      onRequirementsChange(platform, { state: 'checking' });
+      return;
+    }
     if (!debouncedCategoryId) {
       onRequirementsChange(platform, { state: 'needs_category' });
       return;
     }
     if (isLoadingAttributes) {
+      onRequirementsChange(platform, { state: 'checking' });
+      return;
+    }
+    if (attributesCategoryId !== String(debouncedCategoryId)) {
       onRequirementsChange(platform, { state: 'checking' });
       return;
     }
@@ -348,7 +384,9 @@ const PlatformOverrideCard = ({
     });
   }, [
     attributeError,
+    attributesCategoryId,
     attributeValues,
+    categoryId,
     debouncedCategoryId,
     isConnected,
     isLoadingAttributes,

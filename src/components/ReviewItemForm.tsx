@@ -41,7 +41,9 @@ import MarketplaceAttributesPanel from './MarketplaceAttributesPanel';
 import PlatformOverrideCard from './PlatformOverrideCard';
 import PlatformCategoryBooks from './PlatformCategoryBooks';
 import PlatformFieldOverridesSection from './PlatformFieldOverridesSection';
-import OlxLocationFields from './review-item/OlxLocationFields';
+import OlxLocationFields, {
+  type OlxDistrictRequirementState,
+} from './review-item/OlxLocationFields';
 import { Loader2, CreditCard, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getLocalizedPathForCurrentLanguage } from './language-utils';
@@ -263,6 +265,8 @@ const ReviewItemForm = ({
       etsy: overrides.etsy ? { ...overrides.etsy } : undefined,
     };
   });
+  const [olxDistrictRequirement, setOlxDistrictRequirement] =
+    useState<OlxDistrictRequirementState>('idle');
   const [pendingOlxCountryCode, setPendingOlxCountryCode] = useState<string | null>(null);
 
   const persistDraft = useCallback(() => {
@@ -409,13 +413,32 @@ const ReviewItemForm = ({
     []
   );
 
+  const handleOlxLocationChange = useCallback(
+    (location: NonNullable<PlatformOverrides['olx']>['location']) => {
+      setPlatformOverrides((previous) => ({
+        ...previous,
+        olx: { ...(previous.olx || {}), location },
+      }));
+    },
+    []
+  );
+
   const missingOlxLocationFields = useMemo(() => {
     const location = platformOverrides.olx?.location;
     return [
       !location?.city_id ? t.marketplaceRequirements.olxCity : null,
-      !location?.district_id ? t.marketplaceRequirements.olxDistrict : null,
+      location?.city_id &&
+      olxDistrictRequirement === 'required' &&
+      !location.district_id
+        ? t.marketplaceRequirements.olxDistrict
+        : null,
     ].filter((field): field is string => Boolean(field));
-  }, [platformOverrides.olx?.location, t.marketplaceRequirements.olxCity, t.marketplaceRequirements.olxDistrict]);
+  }, [
+    olxDistrictRequirement,
+    platformOverrides.olx?.location,
+    t.marketplaceRequirements.olxCity,
+    t.marketplaceRequirements.olxDistrict,
+  ]);
 
   const marketplaceReadiness = useMemo(() => {
     const readiness: Partial<Record<Platform, MarketplaceRequirementReadiness>> = {};
@@ -431,6 +454,17 @@ const ReviewItemForm = ({
         const dynamic = dynamicRequirementReadiness.olx;
         if (dynamic?.state === 'unavailable') {
           readiness.olx = dynamic;
+          continue;
+        }
+        if (olxDistrictRequirement === 'unavailable') {
+          readiness.olx = { state: 'unavailable' };
+          continue;
+        }
+        if (
+          platformOverrides.olx?.location?.city_id &&
+          (olxDistrictRequirement === 'idle' || olxDistrictRequirement === 'loading')
+        ) {
+          readiness.olx = { state: 'checking' };
           continue;
         }
 
@@ -479,6 +513,7 @@ const ReviewItemForm = ({
     marketplaceAttributeErrors.vinted,
     marketplaceAttributes.vinted,
     missingOlxLocationFields,
+    olxDistrictRequirement,
     platformOverrides,
     selectedPlatforms,
   ]);
@@ -1913,10 +1948,8 @@ const ReviewItemForm = ({
             disabled={isSubmitting || olxConnectedAccounts.length === 0}
             language={language}
             value={platformOverrides.olx?.location}
-            onChange={(location) => setPlatformOverrides((previous) => ({
-              ...previous,
-              olx: { ...(previous.olx || {}), location },
-            }))}
+            onDistrictRequirementChange={setOlxDistrictRequirement}
+            onChange={handleOlxLocationChange}
           />
         )}
 
