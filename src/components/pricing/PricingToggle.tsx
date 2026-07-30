@@ -1,5 +1,3 @@
-import { motion } from 'framer-motion';
-
 interface PricingToggleProps {
   billingCycle: 'monthly' | 'annual';
   onChange: (cycle: 'monthly' | 'annual') => void;
@@ -16,31 +14,37 @@ export const PricingToggle = ({
   savingsLabel 
 }: PricingToggleProps) => {
   return (
-    <div className="flex flex-col items-center justify-center gap-2">
-      <div className="relative w-80 bg-neutral-800 rounded-full p-1">
-        <motion.div
-          className="absolute top-1 h-10 w-[calc(50%-4px)] bg-gradient-to-r from-cyan-500 to-fuchsia-500 rounded-full"
-          initial={false}
-          animate={{
-            x: billingCycle === 'monthly' ? 0 : 'calc(100% + 8px)',
-          }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+    <div className="flex w-full max-w-xs flex-col items-center justify-center gap-2">
+      <div
+        className="relative w-full rounded-lg border border-white/10 bg-neutral-900 p-1"
+        role="group"
+        aria-label={`${monthlyLabel} / ${annualLabel}`}
+      >
+        <div
+          className={`absolute left-1 top-1 h-10 w-[calc(50%-4px)] rounded-md bg-cyan-500 transition-transform duration-200 motion-reduce:transition-none ${
+            billingCycle === 'annual' ? 'translate-x-full' : 'translate-x-0'
+          }`}
+          aria-hidden="true"
         />
         
         <div className="relative z-10 grid grid-cols-2 gap-2">
           <button
             onClick={() => onChange('monthly')}
-            className="h-10 flex items-center justify-center text-sm font-medium transition-colors"
+            type="button"
+            aria-pressed={billingCycle === 'monthly'}
+            className="flex h-10 items-center justify-center rounded-md text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
           >
-            <span className={billingCycle === 'monthly' ? 'text-white' : 'text-neutral-400'}>
+            <span className={billingCycle === 'monthly' ? 'text-neutral-950' : 'text-neutral-400'}>
               {monthlyLabel}
             </span>
           </button>
           <button
             onClick={() => onChange('annual')}
-            className="h-10 flex flex-col items-center justify-center text-sm font-medium transition-colors"
+            type="button"
+            aria-pressed={billingCycle === 'annual'}
+            className="flex h-10 items-center justify-center rounded-md text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
           >
-            <span className={billingCycle === 'annual' ? 'text-white' : 'text-neutral-400'}>
+            <span className={billingCycle === 'annual' ? 'text-neutral-950' : 'text-neutral-400'}>
               {annualLabel}
             </span>
           </button>

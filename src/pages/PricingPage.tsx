@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
 import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from '../components/language-utils';
@@ -44,15 +43,6 @@ declare global {
     };
   }
 }
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i = 1) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: 0.15 * i, duration: 0.6, ease: 'easeOut' },
-  }),
-};
 
 const PricingPage = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
@@ -295,7 +285,7 @@ const PricingPage = () => {
   ];
 
   return (
-    <div className="relative min-h-screen text-white overflow-hidden">
+    <div className="relative min-h-screen overflow-x-clip text-white">
       <SEOHead
         title={pageTitle}
         description={pageDescription}
@@ -306,25 +296,18 @@ const PricingPage = () => {
       
       <AnimatedGradientBackground />
 
-      {/* Hero Section */}
-      <section className="relative isolate overflow-hidden min-h-[50vh] flex items-center justify-center py-24">
-        <div className="container mx-auto px-8">
-          <div className="flex flex-col items-center text-center w-full max-w-3xl mx-auto">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              className="space-y-8"
-            >
-              <h1 className="fluid-text-xl font-extrabold tracking-tight leading-tight text-balance">
+      <section className="relative isolate flex items-center justify-center border-b border-white/5 py-14 sm:py-16 lg:py-20">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="mx-auto flex w-full max-w-3xl flex-col items-center text-center">
+            <div className="space-y-5">
+              <h1 className="text-balance text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
                 {t.heroTitle}
               </h1>
-              <p className="max-w-2xl text-lg/relaxed text-neutral-300 mx-auto">
+              <p className="mx-auto max-w-2xl text-base leading-7 text-neutral-300 sm:text-lg">
                 {t.heroDescription}
               </p>
               
-              <div className="flex flex-col items-center gap-5 pt-4">
+              <div className="flex flex-col items-center gap-4 pt-3">
                 <PricingToggle
                   billingCycle={billingCycle}
                   onChange={setBillingCycle}
@@ -338,15 +321,15 @@ const PricingPage = () => {
                   label={t.currencyLabel || 'Currency'}
                 />
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Pricing Cards Section */}
-      <section className="relative py-24">
-        <div className="container mx-auto px-8 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
+      <section className="relative py-16 md:py-20">
+        <div className="container relative z-10 mx-auto px-4 sm:px-6">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
             {pricingPlans.map((plan, index) => (
               <PricingCard
                 key={plan.name}
@@ -364,12 +347,12 @@ const PricingPage = () => {
       {/* FAQ Section */}
       <PricingFAQ title={t.faqTitle} faqs={faqs} />
 
-      <section className="relative py-16">
-        <div className="container mx-auto max-w-5xl px-8">
+      <section className="relative border-t border-white/5 py-16 md:py-20">
+        <div className="container mx-auto max-w-5xl px-4 sm:px-6">
           <h2 className="text-center text-2xl font-bold md:text-3xl">{t.trustTitle}</h2>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {[t.trustPoint1, t.trustPoint2, t.trustPoint3].map((point) => (
-              <div key={point} className="rounded-xl border border-white/10 bg-neutral-900/60 p-5 text-sm leading-6 text-neutral-200 backdrop-blur">
+              <div key={point} className="rounded-lg border border-white/10 bg-neutral-950/70 p-5 text-sm leading-6 text-neutral-200">
                 {point}
               </div>
             ))}
@@ -378,15 +361,9 @@ const PricingPage = () => {
       </section>
 
       {/* Final CTA Section */}
-      <section className="relative py-16">
-        <div className="container mx-auto px-8 relative z-10 flex flex-col items-center justify-center">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            className="w-full"
-          >
+      <section className="relative py-16 md:py-20">
+        <div className="container relative z-10 mx-auto flex flex-col items-center justify-center px-4 sm:px-6">
+          <div className="w-full">
             <MarketingCtaBanner
               title={t.ctaTitle}
               description={t.ctaDescription}
@@ -397,7 +374,7 @@ const PricingPage = () => {
               }}
               footer={t.ctaSubtext}
             />
-          </motion.div>
+          </div>
         </div>
       </section>
 

@@ -151,6 +151,7 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'marketing-radial': 'radial-gradient(circle at 18% 16%, rgba(124, 58, 237, 0.16) 0, transparent 36%), radial-gradient(circle at 84% 28%, rgba(6, 182, 212, 0.12) 0, transparent 34%), linear-gradient(135deg, #09090b 0%, #080d12 58%, #071114 100%)',
 				'gradient-card': 'linear-gradient(225deg, #FFE29F 0%, #FFA99F 48%, #FF719A 100%)',
 				'gradient-primary': 'linear-gradient(to right, #0EA5E9, #38BDF8)',
 				'gradient-secondary': 'linear-gradient(to right, #0EA5E9, #8B5CF6)',

@@ -6,17 +6,17 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:scale-[1.02] active:scale-[0.98]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-gradient-primary text-primary-foreground shadow-md hover:shadow-lg",
+        default: "bg-cyan-500 text-neutral-950 shadow-sm hover:bg-cyan-400 active:bg-cyan-600",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:
-          "bg-gradient-secondary text-secondary-foreground shadow-md hover:shadow-lg",
+          "border border-cyan-400/60 bg-transparent text-cyan-200 hover:border-cyan-300 hover:bg-cyan-400/10 hover:text-white",
         accent: 
           "bg-gradient-accent text-white shadow-md hover:shadow-lg",
         success:
@@ -44,16 +44,6 @@ const buttonVariants = cva(
       size: "default",
       rounded: "default",
     },
-    compoundVariants: [
-      {
-        variant: "default",
-        className: "bg-gradient-primary",
-      },
-      {
-        variant: "secondary",
-        className: "bg-gradient-secondary",
-      }
-    ],
   }
 )
 

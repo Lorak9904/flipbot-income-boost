@@ -34,21 +34,12 @@ export const MarketingCtaBanner = ({
 }: MarketingCtaBannerProps) => {
   return (
     <div
-      className={`relative mx-auto w-full ${maxWidthClassName} overflow-hidden rounded-3xl border border-cyan-300/20 bg-neutral-950/85 p-6 text-center shadow-2xl shadow-cyan-500/10 backdrop-blur md:p-8 md:text-left ${className}`}
+      className={`relative mx-auto w-full ${maxWidthClassName} overflow-hidden rounded-xl border border-white/10 bg-neutral-950/90 p-6 text-center shadow-lg md:p-8 md:text-left ${className}`}
     >
       <div
-        className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/80 to-transparent"
+        className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/55 to-transparent"
         aria-hidden="true"
       />
-      <div
-        className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute -bottom-28 left-10 h-56 w-56 rounded-full bg-fuchsia-400/10 blur-3xl"
-        aria-hidden="true"
-      />
-
       <div className="relative grid gap-7 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
         <div>
           {eyebrow && (

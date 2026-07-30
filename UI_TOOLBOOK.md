@@ -1,7 +1,7 @@
 # 🎨 FlipIt Frontend UI Toolbook
 
-**Version**: 1.0  
-**Last Updated**: January 6, 2026  
+**Version**: 1.1
+**Last Updated**: July 30, 2026
 **Purpose**: This document defines the UI characteristics, design patterns, and coding standards for all frontend elements in FlipIt. Use this as your source of truth when creating new components or modifying existing ones.
 
 ---
@@ -26,18 +26,18 @@ FlipIt's UI personality is defined by these core principles:
 ### Visual Personality
 - **Density**: Balanced – not cramped, not wasteful. Breathing room matters.
 - **Tone**: Professional yet friendly – we're a productivity tool, not a game.
-- **Shape**: Rounded and approachable – `rounded-lg` is default, `rounded-full` for pills/badges.
-- **Contrast**: Bold gradients for primary actions, subtle for surfaces.
+- **Shape**: Compact and approachable – `rounded-lg` is the default for buttons and product surfaces; reserve pills for badges and segmented status controls.
+- **Contrast**: Solid cyan primary actions, outlined secondary actions, and restrained blue/violet accents on near-black surfaces.
 - **Motion**: Subtle and purposeful – quick transitions (200-300ms), no gratuitous animations.
 
 ### Interaction Philosophy
-- **Micro-interactions**: Buttons scale on hover/active (`hover:scale-[1.02]`, `active:scale-[0.98]`)
+- **Micro-interactions**: Prefer stable color and border changes. Do not scale standard buttons or cards on hover.
 - **Feedback**: Immediate visual response to all interactions
 - **Accessibility-first**: Every element must be keyboard-navigable with visible focus rings
 - **Mobile-responsive**: Touch targets ≥44px, simplified layouts on small screens
 
 ### Color Usage
-- **Gradients for CTA**: Primary actions use `bg-gradient-primary` (teal gradient)
+- **Primary actions**: Use solid cyan with near-black text (`bg-cyan-500 text-neutral-950`)
 - **Semantic colors**: `destructive` for delete/danger, `success` for confirmations
 - **Neutral surfaces**: Cards, inputs, and backgrounds use HSL semantic tokens
 - **Never hardcode**: Use Tailwind color classes or CSS variables only
@@ -77,7 +77,7 @@ flipbot-gray         // #8E9196
 flipbot-lightgray    // #F1F1F1
 ```
 
-**Gradient Classes** (predefined in Tailwind config):
+**Supporting Gradient Classes** (predefined in Tailwind config; do not use for standard CTAs):
 ```typescript
 bg-gradient-primary   // Linear: teal to light teal
 bg-gradient-secondary // Linear: teal to purple
@@ -87,7 +87,7 @@ bg-gradient-success   // Linear: green to light green
 
 **Token Usage Rules**:
 - ✅ Always use semantic tokens (`bg-background`, `text-foreground`)
-- ✅ Use brand colors sparingly (hero sections, logos, special CTAs)
+- ✅ Use brand colors sparingly (logos, focus states, small accents)
 - ❌ Never hardcode hex values in components
 - ❌ Never create one-off color values without adding to config
 
@@ -151,15 +151,15 @@ p-12  // 3rem    (48px)
 ```typescript
 rounded-sm  // calc(var(--radius) - 4px) = 0.75rem
 rounded-md  // calc(var(--radius) - 2px) = 0.875rem  ← Default for buttons/inputs
-rounded-lg  // var(--radius) = 1rem                  ← Default for cards
+  rounded-lg  // var(--radius) = 1rem                  ← Default for buttons/cards
 rounded-full // Full pill shape (badges, avatars)
 rounded-xl  // 1.25rem
 rounded-2xl // 1.5rem
 ```
 
 **Radius Rules**:
-- **Cards/Panels**: `rounded-lg`
-- **Buttons/Inputs**: `rounded-md`
+- **Cards/Panels**: `rounded-lg`; use `rounded-xl` only for large, standalone workspace frames
+- **Buttons/Inputs**: `rounded-md` or `rounded-lg`
 - **Badges/Pills**: `rounded-full`
 - **Modal corners**: `sm:rounded-lg` (flat on mobile)
 
@@ -177,7 +177,7 @@ shadow-2xl // Hero elements
 
 **Shadow Rules**:
 - **Cards**: `shadow-sm` default, `hover:shadow-lg` on interactive cards
-- **Buttons**: `shadow-md`, `hover:shadow-lg` on gradient buttons
+- **Buttons**: `shadow-sm` on primary actions; no generic glow
 - **Modals**: `shadow-lg`
 - **Dropdowns**: `shadow-md`
 
@@ -206,8 +206,8 @@ ease-out            // Standard easing
 
 **Animation Rules**:
 - Default transitions: `transition-all duration-200 ease-out`
-- Hover effects: `hover:scale-[1.02]` (buttons), `hover:opacity-90`
-- Active states: `active:scale-[0.98]`
+- Hover effects: use `transition-colors` for background, text, and border changes
+- Active states: use a slightly darker solid color without layout movement
 - **Motion preferences**: Respect `prefers-reduced-motion` (use Tailwind's `motion-reduce:` prefix)
 - ❌ No animations longer than 500ms for UI feedback
 - ❌ No continuous animations except loading states
@@ -226,10 +226,10 @@ This section defines **consistent characteristics** for each UI element type. Fo
 
 **Variants**:
 ```typescript
-default    // bg-gradient-primary (teal gradient) – primary CTA
+default    // solid cyan – primary CTA
 destructive // bg-destructive – delete, cancel, danger
 outline    // border + bg-background – secondary action
-secondary  // bg-gradient-secondary (teal-to-purple) – special CTAs
+secondary  // cyan outline – secondary action
 accent     // bg-gradient-accent (orange) – promotional
 success    // bg-gradient-success (green) – confirmations
 ghost      // Transparent, hover:bg-accent – tertiary/icon actions
@@ -247,8 +247,8 @@ icon    // h-10 w-10       – Icon-only square
 
 **States & Behavior**:
 - **Default**: Base variant styling
-- **Hover**: `hover:scale-[1.02] hover:shadow-lg` (gradient variants)
-- **Active**: `active:scale-[0.98]`
+- **Hover**: stable background/border color change
+- **Active**: darker solid color for primary actions
 - **Focus**: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`
 - **Disabled**: `disabled:pointer-events-none disabled:opacity-50`
 - **Loading**: Add `<Loader2 className="animate-spin" />` icon, disable button
@@ -265,14 +265,14 @@ icon    // h-10 w-10       – Icon-only square
 - Destructive actions: "Delete Item" (explicit), not "OK"
 
 **Do's**:
-- ✅ Use gradient variants for primary actions
+- ✅ Use solid cyan for primary actions and outline styling for secondary actions
 - ✅ Provide visual hierarchy (primary → outline → ghost)
 - ✅ Include loading states for async actions
 - ✅ Use `asChild` prop to render as `<Link>` if needed
 
 **Don'ts**:
 - ❌ Never disable without explaining why (use tooltip)
-- ❌ Don't overuse gradients (max 1-2 gradient buttons per view)
+- ❌ Don't add gradients, glow, blur, or scale to standard buttons
 - ❌ Don't use generic labels like "Submit" or "OK" without context
 
 ---
@@ -545,11 +545,11 @@ icon    // h-10 w-10       – Icon-only square
 
 ---
 
-### 7. Feedback (Toasts, Alerts, Notifications)
+### 7. Feedback (Sonner Toasts, Alerts, Notifications)
 
-**Components**: `toast.tsx`, `toaster.tsx`, `alert.tsx`, `use-toast.ts`
+**Components**: `src/components/ui/sonner.tsx`, `alert.tsx`; application code may use the compatibility `useToast` hook while migrations to Sonner continue.
 
-**Toast Usage** (via `useToast` hook):
+**Toast Usage**:
 ```tsx
 const { toast } = useToast();
 
@@ -560,15 +560,12 @@ toast({
 });
 ```
 
-**Toast Variants**:
-- **default**: Info/success (no special styling)
-- **destructive**: Errors (`bg-destructive text-destructive-foreground`)
-
 **Toast Behavior**:
-- **Position**: Bottom-right (desktop), bottom-center (mobile)
-- **Duration**: 5000ms default (use `duration` prop to override)
-- **Dismissible**: Auto-dismisses or manual close (X button)
-- **Stacking**: Max 3 visible, oldest auto-dismissed
+- **Renderer**: the single global Sonner `<Toaster />` in `App.tsx`
+- **Position**: Top-right (desktop), top-center (mobile)
+- **Duration**: 6000ms default
+- **Dismissible**: Auto-dismiss or close button; pause while the page is hidden
+- **Stacking**: Maximum 2 visible toasts
 
 **Alert Component** (for inline notices):
 ```tsx
@@ -698,7 +695,7 @@ className="transition-all duration-200 ease-out"
 ```
 
 **Hover Effects**:
-- **Buttons**: `hover:scale-[1.02]` + `hover:shadow-lg`
+- **Buttons**: stable `transition-colors` with a clear hover color or border change
 - **Cards**: `hover:shadow-lg`
 - **Links**: `hover:text-primary` or `hover:underline`
 
@@ -856,7 +853,7 @@ STRICT REQUIREMENTS:
    - Touch targets: Minimum 44px (h-11) for buttons on mobile
 9. **Motion**:
    - Transitions: transition-all duration-200 ease-out (or duration-300)
-   - Hover effects: hover:scale-[1.02] for buttons, hover:shadow-lg for cards
+   - Hover effects: color/border changes for buttons; shadow changes only for truly elevated interactive cards
    - Respect reduced motion: motion-reduce:transition-none
 10. **Code Quality**:
     - TypeScript: Fully typed props, use React.FC or React.forwardRef

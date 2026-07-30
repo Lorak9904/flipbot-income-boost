@@ -22,11 +22,7 @@ import { ArrowRight, Save, Trash2, Settings, Download, ArrowLeft, Check } from '
  * Used in: HomePage, HowItWorksPage, PricingPage, GetStartedPage, SuccessStoriesPage, NotFound
  * Example: "Get Started Now", "Join Waitlist", "Start Free Trial"
  * 
- * UX Improvements:
- * - Added white border for better separation from gradient background
- * - Enhanced shadow with blur and spread for depth
- * - Hover state includes scale transform and intensified glow
- * - Ring offset creates clear focus state for accessibility
+ * Solid cyan primary action with a stable hover state and visible focus ring.
  */
 export const HeroCTA = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = '', children, ...props }, ref) => (
@@ -34,16 +30,12 @@ export const HeroCTA = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       size="lg"
       className={`
-        bg-cyan-500
-hover:bg-cyan-400
-active:bg-cyan-600
-text-black font-bold button-fluid-text leading-[1.2]
-rounded-full px-4 sm:px-6 md:px-8 lg:px-10 py-2.5 sm:py-3 md:py-4 lg:py-6
-w-full sm:w-auto
-min-w-0 flex-shrink min-h-[52px]
-text-balance
-shadow-md
-transition-colors duration-150
+        bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600
+        text-neutral-950 font-bold button-fluid-text leading-[1.2]
+        rounded-full px-4 sm:px-6 md:px-8 lg:px-10 py-2.5 sm:py-3 md:py-4 lg:py-6
+        w-full sm:w-auto min-w-0 flex-shrink min-h-[52px]
+        text-balance shadow-sm transition-colors duration-150
+        focus-visible:ring-cyan-300 focus-visible:ring-offset-neutral-950
 
         ${className}`}
       {...props}
@@ -119,11 +111,7 @@ GhostIconButton.displayName = 'GhostIconButton';
  * Used in: HomePage, FAQPage, SettingsPage
  * Example: "How it works", "Read the Playbook", "Manage Connected Accounts"
  * 
- * UX Improvements:
- * - Added backdrop blur for glass morphism effect
- * - Stronger background opacity for better contrast
- * - Enhanced glow on hover with dual shadow
- * - Brighter text and border for visibility
+ * Restrained outlined companion to the primary CTA.
  */
 export const SecondaryAction = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = '', children, ...props }, ref) => (
@@ -133,13 +121,10 @@ export const SecondaryAction = React.forwardRef<HTMLButtonElement, ButtonProps>(
       size="lg"
       className={`rounded-full border-2 border-cyan-400/70 text-cyan-200 button-fluid-text leading-[1.2] bg-cyan-950/30 backdrop-blur-sm
  px-4 sm:px-6 md:px-8 lg:px-10 py-2.5 sm:py-3 md:py-4 lg:py-6
- w-full sm:w-auto
- min-w-0 flex-shrink min-h-[52px]
- text-balance
- hover:bg-cyan-500/20 hover:border-cyan-300 hover:text-white
- hover:shadow-[0_0_30px_rgba(6,182,212,0.4),0_0_10px_rgba(6,182,212,0.2)]
- transition-all duration-300 hover:scale-[1.02]
- focus-visible:ring-4 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
+ w-full sm:w-auto min-w-0 flex-shrink min-h-[52px] text-balance
+ hover:bg-cyan-400/10 hover:border-cyan-300 hover:text-white
+ transition-colors duration-150
+ focus-visible:ring-cyan-300 focus-visible:ring-offset-neutral-950
  ${className}`}
       {...props}
     >

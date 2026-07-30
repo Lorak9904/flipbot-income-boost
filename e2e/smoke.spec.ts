@@ -949,23 +949,22 @@ test('empty user items add button opens add page without modal', async ({ page }
   expect(new URL(page.url()).searchParams.has('modal')).toBe(false);
 });
 
-test('pricing page preserves gradient accent styling', async ({ page }) => {
+test('pricing page uses solid primary and restrained accent styling', async ({ page }) => {
   const tracker = await preparePage(page, { authenticated: false });
   const checkpoint = tracker.checkpoint();
 
   await page.goto('/pricing');
   await expect(page).toHaveURL('/pricing');
 
-  const gradientPrices = page.locator(
-    '.bg-gradient-to-r.from-cyan-400.to-fuchsia-400.bg-clip-text.text-transparent'
-  );
-  await expect(gradientPrices.first()).toBeVisible();
-  expect(await gradientPrices.count()).toBeGreaterThan(1);
-
-  const hasComputedGradient = await gradientPrices.first().evaluate((element) =>
-    getComputedStyle(element).backgroundImage.includes('gradient')
-  );
-  expect(hasComputedGradient).toBeTruthy();
+  const featuredCard = page.locator('[data-pricing-card-index="1"]');
+  const paidPrice = featuredCard.locator('.text-4xl');
+  const primaryCta = page.getByRole('button', { name: 'Start Plus', exact: true });
+  await expect(featuredCard).toBeVisible();
+  await expect(paidPrice).toBeVisible();
+  await expect(primaryCta).toBeVisible();
+  await expect(paidPrice).toHaveCSS('background-image', 'none');
+  await expect(primaryCta).toHaveCSS('background-color', 'rgb(6, 182, 212)');
+  await expect(primaryCta).toHaveCSS('transform', 'none');
   tracker.assertNoNewIssues(checkpoint, '/pricing');
 });
 
