@@ -28,7 +28,7 @@ export const articlesIndexTranslations: Translations = {
     article3Badge: 'Preparation',
 
     article4Title: 'How to Sell on Allegro',
-    article4Description: 'A step-by-step Allegro selling guide for power sellers: setup, offer creation, pricing, and automation.',
+    article4Description: 'A step-by-step Allegro guide covering account setup, offer creation, pricing, and a review-first draft workflow.',
     article4Badge: 'Allegro',
 
     article5Title: 'How to Price Items for eBay',
@@ -44,7 +44,7 @@ export const articlesIndexTranslations: Translations = {
     article7Badge: 'OLX countries',
 
     article8Title: 'Etsy Listing Tool',
-    article8Description: 'Prepare Etsy drafts through the official API beta workflow when FlipIt OAuth is configured, then review shop-specific fields.',
+    article8Description: 'Etsy draft creation is a beta FlipIt operation and does not require a shop connection. Connected provider actions use Etsy’s official API and require configured FlipIt OAuth.',
     article8Badge: 'Etsy',
     article9Title: 'How Much Is My Used Item Worth?',
     article9Description: 'A practical guide to pricing used phones, laptops, furniture, jewellery and other second-hand items with stronger comparisons.',
@@ -87,7 +87,7 @@ export const articlesIndexTranslations: Translations = {
     article3Badge: 'Przygotowanie',
 
     article4Title: 'Jak sprzedawać na Allegro',
-    article4Description: 'Poradnik dla power sellerów: start, tworzenie ofert, ceny i automatyzacja sprzedaży na Allegro.',
+    article4Description: 'Poradnik o konfiguracji konta Allegro, tworzeniu ofert, cenach i przygotowaniu szkicu do sprawdzenia.',
     article4Badge: 'Allegro',
 
     article5Title: 'Jak wycenić przedmiot na eBay',
@@ -103,7 +103,7 @@ export const articlesIndexTranslations: Translations = {
     article7Badge: 'Kraje OLX',
 
     article8Title: 'Narzędzie do ofert Etsy',
-    article8Description: 'Przygotuj szkic Etsy w workflow beta przez oficjalne API, gdy OAuth FlipIt jest skonfigurowany, i sprawdź pola sklepu.',
+    article8Description: 'Tworzenie szkicu Etsy to funkcja FlipIt w wersji beta, która nie wymaga połączenia sklepu. Operacje na połączonym koncie używają oficjalnego API Etsy i wymagają konfiguracji OAuth FlipIt.',
     article8Badge: 'Etsy',
     article9Title: 'Ile wart jest używany przedmiot?',
     article9Description: 'Praktyczny poradnik wyceny używanych telefonów, laptopów, mebli, biżuterii i innych rzeczy na podstawie lepszych porównań.',
@@ -111,7 +111,7 @@ export const articlesIndexTranslations: Translations = {
     
     // CTA
     ctaTitle: 'Gotowy na automatyzację sprzedaży?',
-    ctaDescription: 'FlipIt przygotowuje szkice do sprawdzenia. Typ połączenia i dostępne operacje zależą od platformy, a żaden workflow nie ma certyfikacji produkcyjnej.',
+    ctaDescription: 'FlipIt przygotowuje szkice do sprawdzenia. Typ połączenia i dostępne operacje zależą od platformy, a żaden proces nie ma certyfikacji produkcyjnej.',
     ctaButtonText: 'Zacznij za darmo',
     
     // Pillar guide link

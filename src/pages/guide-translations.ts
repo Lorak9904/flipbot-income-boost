@@ -3,12 +3,12 @@ import { Translations } from '../components/language-utils';
 
 export const guideTranslations: Translations = {
   en: {
-    pageTitle: 'Automated Reselling Platform Playbook: Crosslist Faster with myflipit.live',
+    pageTitle: 'Automated Reselling Platform Playbook | myflipit.live',
     pageDescription: 'See how FlipIt prepares marketplace-specific drafts, where official APIs are used, and which session-based or unavailable actions still require manual work.',
     guideLabel: 'Automated Reselling Platform Guide',
     heroTitle: 'Automated Reselling Platform',
     heroTitleHighlight: 'Playbook:',
-    heroTitleEnd: 'Crosslist Faster with',
+    heroTitleEnd: 'A Review-first Workflow with',
     heroTitleBrand: 'myflipit.live',
     heroDescription: 'Start with photos and product facts, prepare a draft, and review the fields required by each marketplace. Availability varies by provider and connection type.',
     heroBadge1: 'AI crosslisting automation',
@@ -74,12 +74,12 @@ export const guideTranslations: Translations = {
     ctaHowItWorksLink: 'how it works guide'
   },
   pl: {
-    pageTitle: 'Przewodnik po automatycznej sprzedaży: wystawiaj szybciej z myflipit.live',
+    pageTitle: 'Przewodnik po przygotowaniu ofert marketplace | myflipit.live',
     pageDescription: 'Zobacz, jak FlipIt przygotowuje szkice, które integracje używają oficjalnych API i gdzie połączenia sesyjne lub niedostępne operacje wymagają pracy ręcznej.',
     guideLabel: 'Przewodnik po automatycznej sprzedaży',
     heroTitle: 'Automatyczna sprzedaż online',
     heroTitleHighlight: 'Przewodnik:',
-    heroTitleEnd: 'Wystawiaj szybciej z',
+    heroTitleEnd: 'Przygotuj szkic z',
     heroTitleBrand: 'myflipit.live',
     heroDescription: 'Zacznij od zdjęć i danych produktu, przygotuj szkic, a potem sprawdź pola wymagane przez wybraną platformę. Dostępność zależy od dostawcy i typu połączenia.',
     heroBadge1: 'Automatyzacja crosslistingu',
@@ -98,7 +98,7 @@ export const guideTranslations: Translations = {
     section2Para2: 'Z FlipIt masz pełną kontrolę nad publikacją — system wyręcza Cię tylko w powtarzalnych zadaniach. Publikacja działa asynchronicznie, a wyniki (sukces/błąd) widzisz dla każdej platformy.',
     section3Title: 'Poznaj myflipit.live: Twój asystent crosslistingu',
     section3Para1: 'myflipit.live wykorzystuje podane dane i zdjęcia do przygotowania tytułu, opisu i sugestii kategorii. Przed użyciem potwierdź wszystkie fakty i pola wymagane przez platformę.',
-    section3Para2: 'Platforma zapisuje wyniki publikacji dla każdej platformy, dzięki czemu szybko widzisz, co się udało, co wymaga poprawek i co warto ponowić. Zobacz, jak działa w przewodniku',
+    section3Para2: 'Platforma zapisuje wyniki operacji dla każdej integracji, dzięki czemu widzisz, co się udało, co wymaga poprawek i co można ponowić. Zobacz, jak działa w przewodniku',
     section3LinkText: 'jak to działa',
     stepsTitle: 'Proces z kontrolą w 4 krokach',
     step1Title: 'Połącz swoje konta',
@@ -115,7 +115,7 @@ export const guideTranslations: Translations = {
     whoBenefitsText1: 'To proces dla sprzedawców, którzy często przygotowują podobne dane produktu i chcą sprawdzać szkice dla różnych platform w jednym miejscu.',
     whoBenefitsText2: 'Przetestuj go na własnych produktach i oceń, czy ogranicza ponowne wpisywanie bez ukrywania ograniczeń integracji.',
     roadmapHighlights: 'Pomysły na roadmapie (jeszcze niedostępne)',
-    futureTitle: 'Co dalej: rozszerzanie workflow',
+    futureTitle: 'Co dalej: rozwój procesu',
     futureDescription: 'FlipIt stawia na automatyzację z Twoją akceptacją. Oto kilka pomysłów, które możemy rozważyć w przyszłości:',
     futurePoint1: 'Alerty okazji (w przyszłości): powiadomienia o ofertach pasujących do Twoich filtrów.',
     futurePoint2: 'Szablony negocjacji (w przyszłości): szybsze szkice wiadomości przy zakupie.',
@@ -131,7 +131,7 @@ export const guideTranslations: Translations = {
     faq4Answer: 'Proces zaczyna się od zdjęć i szkicu, ale każdy produkt nadal wymaga kontroli faktów, pól platformy i dostępnej operacji.',
     // Related tutorials section
     relatedTutorialsTitle: 'Powiązane poradniki',
-    relatedTutorialsDesc: 'Zagłęb się w konkretne workflow automatyzacji:',
+    relatedTutorialsDesc: 'Poznaj konkretne procesy przygotowania ofert:',
     relatedTutorial1: 'Narzędzie do odświeżania Vinted',
     relatedTutorial2: 'Crosslisting z Vinted na Facebook Marketplace',
     relatedTutorial3: 'Relister produktów dla Vinted',

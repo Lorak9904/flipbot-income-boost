@@ -4,12 +4,12 @@ export const productRelisterTranslations: Translations = {
   en: {
     // SEO
     pageTitle: 'Product Relister for Vinted: Move and Refresh Listings | FlipIt',
-    pageDescription: 'Prepare a Vinted draft from eBay, OLX, Facebook Marketplace, or existing photos. Check required fields and duplicates before publishing.',
+    pageDescription: 'Prepare a Vinted draft from your own photos or product details you enter manually. Check required fields and duplicates before completing the action in Vinted.',
     
     // Hero
     heroLabel: 'Vinted Listing Management',
     heroTitle: 'Product Relister for Vinted',
-    heroTitleHighlight: '— Relist and Refresh Faster',
+    heroTitleHighlight: '— prepare a reviewed draft',
     heroSubtitle: 'Turn existing product details into a Vinted draft, then check the category, required fields, photos, and price before completing publication in Vinted.',
     heroBadge1: 'Relisting drafts',
     heroBadge2: 'Review before publishing',
@@ -34,7 +34,7 @@ export const productRelisterTranslations: Translations = {
     faq3Answer: 'No. Vinted uses an experimental session-based connection rather than an official API. Publishing, updating, and deleting Vinted listings are currently unavailable in FlipIt.',
     
     // CTA
-    ctaTitle: 'Prepare Vinted listings faster',
+    ctaTitle: 'Prepare a Vinted draft',
     ctaDescription: 'Upload photos once, review the draft, then complete the Vinted action manually or adapt the draft for another marketplace workflow.',
     ctaButtonText: 'Start with FlipIt',
     ctaFooterText: 'Already using FlipIt?',
@@ -43,7 +43,7 @@ export const productRelisterTranslations: Translations = {
   pl: {
     // SEO
     pageTitle: 'Jak przenieść lub odświeżyć ogłoszenie na Vinted | FlipIt',
-    pageDescription: 'Przygotuj szkic Vinted na podstawie oferty z OLX, eBay, Facebook Marketplace albo własnych zdjęć. Sprawdź wymagane dane przed publikacją.',
+    pageDescription: 'Przygotuj szkic Vinted z własnych zdjęć lub ręcznie podanych danych produktu. Sprawdź wymagane pola i duplikaty, a operację dokończ w Vinted.',
     
     // Hero
     heroLabel: 'Przenoszenie i odświeżanie ofert Vinted',
@@ -73,7 +73,7 @@ export const productRelisterTranslations: Translations = {
     faq3Answer: 'Nie. Vinted korzysta z eksperymentalnego połączenia sesyjnego, a nie oficjalnego API. Publikacja, aktualizacja i usuwanie ofert Vinted są obecnie niedostępne w FlipIt.',
     
     // CTA
-    ctaTitle: 'Przygotuj ogłoszenia Vinted szybciej',
+    ctaTitle: 'Przygotuj szkic Vinted',
     ctaDescription: 'Dodaj zdjęcia raz, sprawdź szkic, a następnie wykonaj operację ręcznie w Vinted albo dopasuj szkic do innej integracji.',
     ctaButtonText: 'Zacznij z FlipIt',
     ctaFooterText: 'Już używasz FlipIt?',

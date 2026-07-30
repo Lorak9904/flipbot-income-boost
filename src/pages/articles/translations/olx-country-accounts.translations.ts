@@ -158,7 +158,7 @@ export const olxCountryAccountsTranslations: Translations = {
       'Jeszcze nie. Czechy / Czech Republic nie są obecnie obsługiwane przez integrację OLX w FlipIt.',
     faq6Question: 'Czy FlipIt publikuje ogłoszenia OLX automatycznie?',
     faq6Answer:
-      'Nie. FlipIt przygotowuje szkic i dane wymagane przez marketplace, ale każdą operację sprawdzasz i zatwierdzasz. Workflow przez oficjalne API jest eksperymentalny i nie ma certyfikacji produkcyjnej.',
+      'Nie. FlipIt przygotowuje szkic i dane wymagane przez marketplace, ale każdą operację sprawdzasz i zatwierdzasz. Proces przez oficjalne API jest eksperymentalny i nie ma certyfikacji produkcyjnej.',
 
     ctaTitle: 'Przygotuj ogłoszenia OLX dla kraju, w którym sprzedajesz',
     ctaDescription:

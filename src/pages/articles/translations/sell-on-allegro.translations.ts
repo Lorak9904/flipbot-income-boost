@@ -3,48 +3,48 @@ import { Translations } from '@/components/language-utils';
 export const sellOnAllegroTranslations: Translations = {
   en: {
     // SEO
-    pageTitle: 'How to Sell on Allegro - Power Seller Guide | FlipIt',
+    pageTitle: 'How to Sell on Allegro - Listing Workflow Guide | FlipIt',
     pageDescription: 'Start selling on Allegro with a repeatable workflow: account setup, offer creation, pricing basics, and automation tips. FlipIt helps you prepare drafts and publish with approval.',
 
     // Hero
     heroLabel: 'Allegro Selling Guide',
     heroTitle: 'How to Sell on Allegro',
-    heroTitleHighlight: '- start & automate',
-    heroSubtitle: 'Built for power sellers listing 10-100 items per month. Learn how to start, create strong offers, and automate the repetitive parts while staying in control.',
-    heroBadge1: 'Start fast, scale safely',
+    heroTitleHighlight: '- setup and listing review',
+    heroSubtitle: 'Learn how to set up an account, prepare an offer, review required fields, and keep control of each Allegro action.',
+    heroBadge1: 'Account setup checklist',
     heroBadge2: 'Review-first publishing',
-    heroBadge3: 'Multi-marketplace workflow',
+    heroBadge3: 'Marketplace-specific review',
 
     // Highlights
     highlightsTitle: 'What you will build',
     highlight1: 'A clean start checklist for Allegro setup.',
-    highlight2: 'A repeatable listing workflow you can scale.',
-    highlight3: 'Automation that keeps you in full control.',
+    highlight2: 'A repeatable listing checklist.',
+    highlight3: 'Seller approval for each action.',
 
     // Sections
-    section1Title: 'Who Allegro is best for',
-    section1Para1: 'Allegro works well for power sellers who list consistently and want access to a large buyer base. If you sell used clothing, electronics, or home items, the platform can scale your reach quickly.',
-    section1Para2: 'The key to success is a repeatable workflow - not one-off listings. That is what keeps quality high as your volume grows.',
+    section1Title: 'What an Allegro offer needs',
+    section1Para1: 'An Allegro offer needs the right account setup, category, product details, price, delivery terms, and seller review. The exact requirements depend on the item and account.',
+    section1Para2: 'Use a repeatable checklist, but confirm the facts and settings for every individual offer.',
 
     section2Title: 'Start step by step: account, verification, sales settings',
     section2Para1: 'Begin with the right account type, complete verification, and set your sales conditions (returns, complaints, and delivery). These settings affect buyer trust and how your offers are displayed.',
-    section2Para2: 'Treat this as your foundation: once it is correct, every new listing becomes faster to publish.',
+    section2Para2: 'Treat this as your foundation and reuse only the settings that remain accurate for the next offer.',
 
-    section3Title: 'Create offers that convert',
-    section3Para1: 'Great photos, a clear title, and complete attributes are the difference between clicks and silence. Capture key details once: brand, size, model, condition, and category.',
-    section3Para2: 'Keep descriptions concise and structured so buyers can scan quickly. Consistency across offers builds trust.',
+    section3Title: 'Create complete offers',
+    section3Para1: 'Use clear photos, a factual title, and complete attributes. Capture key details such as brand, size, model, condition, and category.',
+    section3Para2: 'Keep descriptions concise and structured, and make sure the same product facts remain consistent across fields.',
 
-    section4Title: 'Pricing and fees: keep margins healthy',
+    section4Title: 'Pricing and fees',
     section4Para1: 'Allegro charges commission by category. Before listing, estimate your margin after fees and shipping so you do not underprice.',
-    section4Para2: 'A stable pricing rule beats guessing - especially when you list dozens of items per month.',
+    section4Para2: 'Document your pricing rule, then verify the category fees, shipping, and item condition for each offer.',
 
-    section5Title: 'Automation for power sellers',
+    section5Title: 'A repeatable draft process',
     section5Para1: 'Create one master listing, then adapt it to Allegro and other marketplaces. Batch work in small sets to keep quality high and reduce fatigue.',
-    section5Para2: 'This workflow removes repetitive data entry and lets you focus on sourcing and sales instead of copy-paste.',
+    section5Para2: 'A shared draft can reduce repeated entry, but every Allegro field still needs review.',
 
     section6Title: 'How FlipIt helps you sell on Allegro',
-    section6Para1: 'FlipIt prepares Allegro drafts through the official API: descriptions, price suggestions, categories, and required attributes based on your images.',
-    section6Para2: 'The Allegro workflow is beta and not production-certified. Review and approve each action, then check the provider result stored for the item.',
+    section6Para1: 'FlipIt creates draft descriptions, price suggestions, categories, and required-attribute suggestions from your item data. These are FlipIt draft operations, not operations performed by the Allegro API.',
+    section6Para2: 'After seller approval, connected Allegro actions use the official API beta workflow, which is not production-certified. Check the provider result stored for the item.',
 
     section7Title: 'What FlipIt does not do',
     section7Para1: 'FlipIt does not manage orders, inventory, payments, or buyer messages. It is a listing automation platform, not an ERP.',
@@ -57,8 +57,8 @@ export const sellOnAllegroTranslations: Translations = {
     relatedLink3: 'Automated Reselling Platform Guide',
 
     // FAQ
-    faq1Question: 'Is Allegro good for power sellers?',
-    faq1Answer: 'Results depend on demand, pricing, offer quality, account eligibility, and Allegro rules. FlipIt does not guarantee sales or ranking.',
+    faq1Question: 'Who is this Allegro guide for?',
+    faq1Answer: 'It is for sellers who want a checklist for account setup, offer fields, pricing, review, and the current FlipIt integration boundaries.',
     faq2Question: 'Does FlipIt auto-publish on Allegro?',
     faq2Answer: 'No. You review and approve each action. Allegro uses an official API beta workflow that is not production-certified.',
     faq3Question: 'Which marketplaces does FlipIt support?',
@@ -67,7 +67,7 @@ export const sellOnAllegroTranslations: Translations = {
     faq4Answer: 'Not yet. FlipIt focuses on listing creation, enrichment, and publishing.',
 
     // CTA
-    ctaTitle: 'Ready to list faster on Allegro?',
+    ctaTitle: 'Ready to prepare an Allegro draft?',
     ctaDescription: 'Prepare an Allegro draft, review the required fields, and use the official API beta workflow with seller approval.',
     ctaButtonText: 'Try FlipIt Free',
     ctaFooterText: 'Already have an account?',
@@ -75,52 +75,52 @@ export const sellOnAllegroTranslations: Translations = {
   },
   pl: {
     // SEO
-    pageTitle: 'Jak sprzedawać na Allegro - poradnik dla power sellerów | FlipIt',
+    pageTitle: 'Jak sprzedawać na Allegro - poradnik tworzenia ofert | FlipIt',
     pageDescription: 'Jak zacząć sprzedaż na Allegro: konto, ustawienia sprzedaży, tworzenie ofert, podstawy cen oraz automatyzacja. FlipIt pomaga przygotować szkice i publikować po akceptacji.',
 
     // Hero
     heroLabel: 'Poradnik sprzedaży na Allegro',
     heroTitle: 'Jak sprzedawać na Allegro',
-    heroTitleHighlight: '- start i automatyzacja',
-    heroSubtitle: 'Dla sprzedawców 10-100 ofert miesięcznie. Zobacz jak wystartować, budować dobre oferty i zautomatyzować powtarzalną pracę z pełną kontrolą.',
-    heroBadge1: 'Szybki start, bez chaosu',
+    heroTitleHighlight: '- konfiguracja i kontrola oferty',
+    heroSubtitle: 'Sprawdź, jak skonfigurować konto, przygotować ofertę, uzupełnić wymagane pola i zachować kontrolę nad każdą operacją Allegro.',
+    heroBadge1: 'Checklista konfiguracji konta',
     heroBadge2: 'Publikacja po akceptacji',
-    heroBadge3: 'Workflow multi-platform',
+    heroBadge3: 'Kontrola danych platformy',
 
     // Highlights
     highlightsTitle: 'Co wypracujesz w tym poradniku',
     highlight1: 'Checklistę startową dla Allegro.',
     highlight2: 'Powtarzalny proces tworzenia ofert.',
-    highlight3: 'Automatyzację, która zostawia Ci kontrolę.',
+    highlight3: 'Akceptację sprzedawcy przed każdą operacją.',
 
     // Sections
-    section1Title: 'Dla kogo Allegro jest najlepsze',
-    section1Para1: 'Allegro sprawdza się u power sellerów, którzy regularnie wystawiają przedmioty i chcą dużego zasięgu. Jeśli sprzedajesz odzież używaną, elektronikę albo rzeczy do domu, platforma daje szybki dostęp do kupujących.',
-    section1Para2: 'Kluczem jest powtarzalny proces - nie jednorazowe aukcje. To on utrzymuje jakość przy rosnącym wolumenie.',
+    section1Title: 'Czego wymaga oferta Allegro',
+    section1Para1: 'Oferta Allegro wymaga właściwej konfiguracji konta, kategorii, danych produktu, ceny, warunków dostawy i kontroli sprzedawcy. Dokładne wymagania zależą od produktu i konta.',
+    section1Para2: 'Korzystaj z powtarzalnej checklisty, ale dla każdej oferty osobno potwierdź dane i ustawienia.',
 
     section2Title: 'Start krok po kroku: konto, weryfikacja, ustawienia sprzedaży',
     section2Para1: 'Zacznij od właściwego typu konta, przejdź weryfikację i ustaw warunki sprzedaży (zwroty, reklamacje, dostawy). Te ustawienia wpływają na zaufanie kupujących i widoczność ofert.',
-    section2Para2: 'Potraktuj to jako fundament - gdy jest gotowy, każda kolejna oferta powstaje szybciej.',
+    section2Para2: 'Potraktuj to jako podstawę i wykorzystuj ponownie tylko te ustawienia, które pozostają poprawne dla kolejnej oferty.',
 
-    section3Title: 'Jak tworzyć oferty, które sprzedają',
-    section3Para1: 'Dobre zdjęcia, jasny tytuł i kompletne parametry decydują o kliknięciach. Zbieraj kluczowe dane raz: marka, rozmiar, model, stan, kategoria.',
-    section3Para2: 'Opis trzymaj krótki i uporządkowany - kupujący skanują treści, nie czytają ich od deski do deski.',
+    section3Title: 'Jak przygotować kompletną ofertę',
+    section3Para1: 'Użyj czytelnych zdjęć, rzeczowego tytułu i kompletnych parametrów. Zbierz dane takie jak marka, rozmiar, model, stan i kategoria.',
+    section3Para2: 'Opis powinien być krótki i uporządkowany, a fakty o produkcie spójne we wszystkich polach.',
 
-    section4Title: 'Ceny i opłaty: pilnuj marży',
+    section4Title: 'Ceny i opłaty',
     section4Para1: 'Allegro pobiera prowizje zależnie od kategorii. Zanim wystawisz, policz marżę po opłatach i dostawie.',
-    section4Para2: 'Stała zasada wyceny działa lepiej niż zgadywanie - zwłaszcza przy dziesiątkach ofert miesięcznie.',
+    section4Para2: 'Zapisz własną zasadę wyceny, a dla każdej oferty sprawdź opłaty kategorii, dostawę i stan produktu.',
 
-    section5Title: 'Automatyzacja dla power sellerów',
+    section5Title: 'Powtarzalny proces przygotowania szkicu',
     section5Para1: 'Twórz jedno "master" ogłoszenie, a potem adaptuj je do Allegro i innych marketplace\'ow. Pracuj w batchach po kilka sztuk, żeby utrzymać jakość.',
-    section5Para2: 'Taki workflow usuwa powtarzalne wpisywanie danych i pozwala skupić się na sourcingu i sprzedaży.',
+    section5Para2: 'Wspólny szkic może ograniczyć powtarzalne wpisywanie, ale każde pole Allegro nadal wymaga sprawdzenia.',
 
     section6Title: 'Jak FlipIt pomaga sprzedawać na Allegro',
-    section6Para1: 'FlipIt przygotowuje szkice Allegro przez oficjalne API: opisy, sugestie cen, kategorie i wymagane atrybuty na podstawie zdjęć.',
-    section6Para2: 'Workflow Allegro ma status beta i nie ma certyfikacji produkcyjnej. Sprawdzasz i zatwierdzasz każdą operację, a wynik dostawcy jest zapisany przy ofercie.',
+    section6Para1: 'FlipIt tworzy szkic opisu, sugestie ceny, kategorii i wymaganych atrybutów na podstawie danych produktu. Są to operacje FlipIt na szkicu, a nie operacje wykonywane przez API Allegro.',
+    section6Para2: 'Po akceptacji sprzedawcy operacje na połączonym koncie Allegro korzystają z oficjalnego API w wersji beta, bez certyfikacji produkcyjnej. Wynik dostawcy jest zapisany przy ofercie.',
 
     section7Title: 'Czego FlipIt nie robi',
     section7Para1: 'FlipIt nie zarządza zamówieniami, stanem magazynu, płatnościami ani wiadomościami od kupujących. To narzędzie do automatyzacji ofert, nie ERP.',
-    section7Para2: 'Sukces publikacji zależy od marketplace\'u i w niektórych przypadkach może wymagać ręcznych kroków weryfikacji.',
+    section7Para2: 'Wynik operacji zależy od marketplace\'u i w niektórych przypadkach może wymagać ręcznych kroków weryfikacji.',
 
     // Related
     relatedLinksTitle: 'Powiązane poradniki',
@@ -129,18 +129,18 @@ export const sellOnAllegroTranslations: Translations = {
     relatedLink3: 'Przewodnik po automatycznej platformie sprzedaży',
 
     // FAQ
-    faq1Question: 'Czy Allegro jest dobre dla power sellerów?',
-    faq1Answer: 'Wynik zależy od popytu, ceny, jakości oferty, uprawnień konta i zasad Allegro. FlipIt nie gwarantuje sprzedaży ani pozycji.',
+    faq1Question: 'Dla kogo jest ten poradnik Allegro?',
+    faq1Answer: 'Dla sprzedawców, którzy potrzebują checklisty konfiguracji konta, pól oferty, ceny, kontroli i aktualnych ograniczeń integracji FlipIt.',
     faq2Question: 'Czy FlipIt automatycznie publikuje na Allegro?',
     faq2Answer: 'Nie. Każdą operację sprawdzasz i zatwierdzasz. Allegro korzysta z oficjalnego API w wersji beta bez certyfikacji produkcyjnej.',
     faq3Question: 'Jakie marketplace\'y obsługuje FlipIt?',
-    faq3Answer: 'FlipIt obsługuje workflow ofert dla OLX, Vinted, Facebook Marketplace, eBay, Allegro i Etsy. Dostępność oraz kroki weryfikacji mogą zależeć od konta i platformy.',
+    faq3Answer: 'FlipIt obsługuje procesy tworzenia ofert dla OLX, Vinted, Facebook Marketplace, eBay, Allegro i Etsy. Dostępność oraz kroki weryfikacji mogą zależeć od konta i platformy.',
     faq4Question: 'Czy FlipIt obsłuży zamówienia lub magazyn?',
     faq4Answer: 'Na ten moment nie. FlipIt skupia się na tworzeniu, wzbogacaniu i publikowaniu ofert.',
 
     // CTA
-    ctaTitle: 'Chcesz sprzedawać na Allegro szybciej?',
-    ctaDescription: 'Przygotuj szkic Allegro, sprawdź wymagane pola i użyj workflow beta przez oficjalne API z akceptacją sprzedawcy.',
+    ctaTitle: 'Chcesz przygotować szkic Allegro?',
+    ctaDescription: 'Przygotuj szkic, sprawdź wymagane pola i po akceptacji użyj procesu przez oficjalne API w wersji beta.',
     ctaButtonText: 'Wypróbuj FlipIt za darmo',
     ctaFooterText: 'Masz już konto?',
     ctaFooterLinkText: 'Zaloguj się tutaj',

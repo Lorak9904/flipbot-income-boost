@@ -9,7 +9,7 @@ export const vintedRelistingToolTranslations: Translations = {
     // Hero
     heroLabel: 'Vinted Relisting Guide',
     heroTitle: 'Vinted Relisting Tool',
-    heroTitleHighlight: '— Relist Faster',
+    heroTitleHighlight: '— prepare a reviewed draft',
     heroSubtitle: 'Reuse the facts and photos you already have, prepare a clearer draft, and review every required detail before publishing again.',
     heroBadge1: 'Review the old listing',
     heroBadge2: 'Avoid active duplicates',
@@ -59,7 +59,7 @@ export const vintedRelistingToolTranslations: Translations = {
     faq4Answer: 'No tool can guarantee account safety or compliance. FlipIt keeps publication under your control and shows required fields, but you remain responsible for the listing and the current marketplace rules.',
     
     // CTA
-    ctaTitle: 'Ready to relist faster?',
+    ctaTitle: 'Ready to prepare a Vinted draft?',
     ctaDescription: 'Prepare a clearer Vinted draft from the information you already have, then check every required detail before publishing.',
     ctaButtonText: 'Try FlipIt Free',
     ctaFooterText: 'Already have an account?',
@@ -73,7 +73,7 @@ export const vintedRelistingToolTranslations: Translations = {
     // Hero
     heroLabel: 'Poradnik odświeżania na Vinted',
     heroTitle: 'Narzędzie do odświeżania na Vinted',
-    heroTitleHighlight: '— wystawiaj szybciej',
+    heroTitleHighlight: '— przygotuj szkic do sprawdzenia',
     heroSubtitle: 'Wykorzystaj pewne dane i własne zdjęcia, przygotuj czytelniejszy szkic, a przed publikacją sprawdź wszystkie wymagane pola.',
     heroBadge1: 'Sprawdź stare ogłoszenie',
     heroBadge2: 'Unikaj aktywnych duplikatów',
@@ -123,7 +123,7 @@ export const vintedRelistingToolTranslations: Translations = {
     faq4Answer: 'Żadne narzędzie nie może zagwarantować bezpieczeństwa konta ani zgodności z regulaminem. FlipIt pozostawia publikację pod Twoją kontrolą i pokazuje wymagane pola, ale odpowiadasz za treść oferty i aktualne zasady platformy.',
     
     // CTA
-    ctaTitle: 'Gotowy odświeżać szybciej?',
+    ctaTitle: 'Chcesz przygotować szkic Vinted?',
     ctaDescription: 'Przygotuj czytelniejszy szkic Vinted na podstawie zapisanych danych, a przed publikacją sprawdź każde wymagane pole.',
     ctaButtonText: 'Wypróbuj FlipIt za darmo',
     ctaFooterText: 'Masz już konto?',

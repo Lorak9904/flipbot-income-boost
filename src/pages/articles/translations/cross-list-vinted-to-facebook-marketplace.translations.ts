@@ -3,7 +3,7 @@ import { Translations } from '@/components/language-utils';
 export const crossListVintedFbTranslations: Translations = {
   en: {
     // SEO
-    pageTitle: 'Move a Vinted Draft to Facebook Marketplace | FlipIt',
+    pageTitle: 'How to Cross-list Vinted to Facebook Marketplace Manually | FlipIt',
     pageDescription: 'Prepare Facebook Marketplace copy from your Vinted item, then complete publication manually. FlipIt does not currently publish to Facebook.',
     
     // Hero
@@ -36,7 +36,7 @@ export const crossListVintedFbTranslations: Translations = {
     
     section4Title: 'What FlipIt supports today',
     section4Para1: 'FlipIt can prepare a shared product draft and help you review destination-specific copy. The Vinted and Facebook connections are session-based, not official marketplace APIs.',
-    section4Para2: 'Facebook publishing is experimental and currently unavailable. Vinted publishing, updating, and deleting are also unavailable. This guide therefore describes draft preparation followed by manual publication.',
+    section4Para2: 'The Facebook session connection is experimental, but its publishing capability is unavailable. Vinted publishing, updating, and deleting are also unavailable. This guide therefore describes draft preparation followed by manual publication.',
     
     section5Title: 'Common Crosslisting Pitfalls to Avoid',
     section5Para1: 'The same item can remain active in two places after it sells. Mark it sold or remove it manually from every marketplace where it is listed.',
@@ -71,7 +71,7 @@ export const crossListVintedFbTranslations: Translations = {
   },
   pl: {
     // SEO
-    pageTitle: 'Crosslisting z Vinted na Facebook Marketplace — poradnik | FlipIt',
+    pageTitle: 'Jak ręcznie zrobić crosslisting z Vinted na Facebook Marketplace | FlipIt',
     pageDescription: 'Przygotuj dane z Vinted do ogłoszenia na Facebook Marketplace, a publikację wykonaj ręcznie. FlipIt obecnie nie publikuje na Facebooku.',
     
     // Hero
@@ -104,7 +104,7 @@ export const crossListVintedFbTranslations: Translations = {
     
     section4Title: 'Co FlipIt obsługuje dzisiaj',
     section4Para1: 'FlipIt może przygotować wspólny szkic produktu i pomóc sprawdzić treść dla platformy docelowej. Połączenia z Vinted i Facebookiem są oparte na sesji, a nie na oficjalnych API tych platform.',
-    section4Para2: 'Publikacja na Facebooku ma status eksperymentalny i jest obecnie niedostępna. Na Vinted niedostępne są publikacja, aktualizacja i usuwanie. Ten poradnik dotyczy więc przygotowania szkicu i ręcznej publikacji.',
+    section4Para2: 'Połączenie sesyjne z Facebookiem ma status eksperymentalny, ale sama publikacja jest niedostępna. Na Vinted niedostępne są publikacja, aktualizacja i usuwanie. Ten poradnik dotyczy więc przygotowania szkicu i ręcznej publikacji.',
     
     section5Title: 'Typowe pułapki crosslistingu, których warto unikać',
     section5Para1: 'Po sprzedaży ten sam produkt może nadal być aktywny w drugim miejscu. Oznacz go jako sprzedany lub usuń ręcznie z każdej platformy.',

@@ -1,7 +1,7 @@
 {
   "home": {
-    "en": { "title": "AI Crosslisting for Marketplace Sellers | FlipIt", "description": "Create marketplace-ready listing drafts from product photos, review every detail, and publish faster to supported selling platforms with FlipIt." },
-    "pl": { "title": "Crosslisting i ogłoszenia z AI dla sprzedawców | FlipIt", "description": "Twórz ze zdjęć gotowe szkice ogłoszeń, sprawdzaj wszystkie dane i szybciej publikuj oferty na obsługiwanych platformach z FlipIt." }
+    "en": { "title": "AI Crosslisting for Marketplace Sellers | FlipIt", "description": "Create marketplace-specific listing drafts from product photos, review every detail, and use the actions currently available for each provider." },
+    "pl": { "title": "Crosslisting i ogłoszenia z AI dla sprzedawców | FlipIt", "description": "Twórz ze zdjęć szkice dopasowane do platform, sprawdzaj wszystkie dane i korzystaj z operacji dostępnych dla danego dostawcy." }
   },
   "guide": {
     "en": { "title": "Marketplace Automation Guide for Resellers | FlipIt", "description": "A practical guide to AI-assisted listing drafts, crosslisting, category mapping, pricing, and seller-approved marketplace workflows." },
@@ -25,8 +25,8 @@
   },
   "crosslistVintedFacebook": {
     "type": "article",
-    "en": { "title": "Move a Vinted Draft to Facebook Marketplace | FlipIt", "description": "Adapt Vinted item details for Facebook Marketplace, then publish manually. FlipIt does not currently publish to Facebook." },
-    "pl": { "title": "Szkic z Vinted na Facebook Marketplace | FlipIt", "description": "Dopasuj dane produktu z Vinted do Facebook Marketplace, a potem opublikuj ręcznie. FlipIt obecnie nie publikuje na Facebooku." }
+    "en": { "title": "How to Cross-list Vinted to Facebook Marketplace Manually | FlipIt", "description": "Adapt Vinted item details for Facebook Marketplace, then publish manually. FlipIt does not currently publish to Facebook." },
+    "pl": { "title": "Jak ręcznie zrobić crosslisting z Vinted na Facebook Marketplace | FlipIt", "description": "Dopasuj dane produktu z Vinted do Facebook Marketplace, a potem opublikuj ręcznie. FlipIt obecnie nie publikuje na Facebooku." }
   },
   "productRelisterVinted": {
     "type": "article",

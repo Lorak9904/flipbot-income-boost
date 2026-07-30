@@ -32,7 +32,7 @@ export const howItWorksTranslations: Translations = {
     step2Title: 'Wgraj przedmiot',
     step2Description: 'Dodaj zdjęcie, a AI przygotuje opisy, zaproponuje ceny i dobierze odpowiednie kategorie.',
     step3Title: 'Użyj dostępnej operacji',
-    step3Description: 'Zatwierdź szkic i publikuj tylko tam, gdzie pozwalają na to obecne możliwości integracji. Publikacja na Facebooku oraz publikacja, aktualizacja i usuwanie na Vinted są dziś niedostępne. Żaden workflow nie ma certyfikacji produkcyjnej.',
+    step3Description: 'Zatwierdź szkic i publikuj tylko tam, gdzie pozwalają na to obecne możliwości integracji. Publikacja na Facebooku oraz publikacja, aktualizacja i usuwanie na Vinted są dziś niedostępne. Żaden proces nie ma certyfikacji produkcyjnej.',
     futureTitle: 'Roadmapa (jeszcze niedostępne)',
     futureSubtitle: 'Rozważamy kilka kolejnych kroków — ale FlipIt stawia na automatyzację z Twoją akceptacją.',
     futurePoint1: 'Alerty okazji: monitorowanie marketplace’ów według Twoich filtrów (w przyszłości).',

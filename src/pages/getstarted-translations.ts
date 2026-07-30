@@ -43,7 +43,7 @@ export const getStartedTranslations: Translations = {
     benefit3Title: 'Pełna kontrola',
     benefit3Description: 'Zatwierdzasz każdą publikację. FlipIt automatyzuje powtarzalne kroki, a decyzja należy do Ciebie.',
     benefit4Title: 'Czytelny status możliwości',
-    benefit4Description: 'Żaden workflow marketplace nie ma certyfikacji produkcyjnej. Etsy jest też niedostępne, gdy aplikacja OAuth nie została skonfigurowana.',
+    benefit4Description: 'Żaden proces integracji nie ma certyfikacji produkcyjnej. Etsy jest też niedostępne, gdy aplikacja OAuth nie została skonfigurowana.',
     finalCtaTitle: 'Chcesz przygotować pierwszy szkic?',
     finalCtaButton: 'Utwórz konto',
   },

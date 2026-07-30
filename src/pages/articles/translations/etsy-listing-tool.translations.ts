@@ -48,7 +48,7 @@ export const etsyListingToolTranslations: Translations = {
     section5Para1:
       'Check the category, required attributes, price, quantity, photos, shipping profile, return policy, readiness or processing settings, and maker details. Etsy uses these fields to decide whether the listing can become active.',
     section5Para2:
-      'This review step protects the shop. FlipIt can prepare the draft faster, but the seller should confirm that the product is accurate and allowed under Etsy rules.',
+      'The seller should confirm that the draft describes the product accurately and meets the current Etsy requirements before using a connected provider action.',
 
     section6Title: 'What FlipIt does not promise',
     section6Para1:
@@ -89,7 +89,7 @@ export const etsyListingToolTranslations: Translations = {
     pageDescription:
       'Przygotuj szkice ofert Etsy w FlipIt: tytuł, opis, kategoria, atrybuty, cena, profil wysyłki i kontrola przed publikacją.',
 
-    heroLabel: 'Workflow ofert Etsy',
+    heroLabel: 'Proces tworzenia ofert Etsy',
     heroTitle: 'Narzędzie do ofert Etsy',
     heroTitleHighlight: 'dla szkiców do sprawdzenia',
     heroSubtitle:
@@ -149,7 +149,7 @@ export const etsyListingToolTranslations: Translations = {
       'Nie. W FlipIt Etsy działa jako integracja sklepu. Lokalizacja wpływa na ustawienia Etsy, np. walutę, profile wysyłki, czas przygotowania, zwroty, podatki i wymogi prawne, ale nie ma podziału na endpointy krajowe jak w OLX.',
     faq2Question: 'Czy FlipIt importuje moje obecne oferty Etsy?',
     faq2Answer:
-      'Gdy aplikacja OAuth Etsy jest skonfigurowana, a połączenie sklepu pozostaje ważne, workflow beta może importować aktywne oferty. W innym przypadku operacje Etsy są niedostępne.',
+      'Gdy aplikacja OAuth Etsy jest skonfigurowana, a połączenie sklepu pozostaje ważne, proces w wersji beta może importować aktywne oferty. W innym przypadku operacje Etsy są niedostępne.',
     faq3Question: 'Czy FlipIt publikuje na Etsy automatycznie?',
     faq3Answer:
       'Nie. FlipIt przygotowuje szkic i wymagane dane, ale przed publikacją sprawdzasz i zatwierdzasz ofertę.',
