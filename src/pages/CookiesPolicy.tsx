@@ -5,13 +5,13 @@ import cookiesPl from '@/legal/cookies_pl.md?raw';
 export default function CookiesPolicyPage() {
   return (
     <LegalDocumentPage
+      dateModified="2026-07-21"
       documents={{
         en: {
           title: 'Cookie Policy',
           eyebrow: 'Cookies',
           description:
             'How FlipIt uses cookies, local storage, analytics, live chat tools, login providers, payment providers, and marketplace services.',
-          lastUpdatedLabel: 'Last updated: 28 June 2026',
           canonicalPath: '/cookies',
           alternatePath: '/pl/polityka-cookies',
           alternateLabel: 'Czytaj po polsku',
@@ -28,7 +28,6 @@ export default function CookiesPolicyPage() {
           eyebrow: 'Cookies',
           description:
             'Jak FlipIt używa cookies, local storage, analityki, czatu, logowania, płatności i usług marketplace.',
-          lastUpdatedLabel: 'Ostatnia aktualizacja: 28 czerwca 2026',
           canonicalPath: '/pl/polityka-cookies',
           alternatePath: '/cookies',
           alternateLabel: 'Read in English',

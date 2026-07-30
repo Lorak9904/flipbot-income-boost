@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { SEOHead } from '@/components/SEOHead';
@@ -11,7 +11,6 @@ export interface LegalDocumentCopy {
   title: string;
   eyebrow: string;
   description: string;
-  lastUpdatedLabel: string;
   canonicalPath: string;
   alternatePath: string;
   alternateLabel: string;
@@ -21,44 +20,54 @@ export interface LegalDocumentCopy {
 
 interface LegalDocumentPageProps {
   documents: Record<Language, LegalDocumentCopy>;
+  dateModified: string;
 }
 
-const markdownComponents = {
-  h2: ({ node: _node, ...props }: any) => (
+const lastUpdatedPrefixes: Record<Language, string> = {
+  en: 'Last updated',
+  pl: 'Ostatnia aktualizacja',
+};
+
+const markdownComponents: Components = {
+  h2: ({ node: _node, ...props }) => (
     <h2
       className="mt-10 scroll-m-24 text-2xl font-semibold tracking-tight text-white"
       {...props}
     />
   ),
-  h3: ({ node: _node, ...props }: any) => (
+  h3: ({ node: _node, ...props }) => (
     <h3 className="mt-8 text-xl font-semibold tracking-tight text-neutral-100" {...props} />
   ),
-  p: ({ node: _node, ...props }: any) => <p className="mt-4 leading-8 text-neutral-300" {...props} />,
-  ul: ({ node: _node, ...props }: any) => (
+  p: ({ node: _node, ...props }) => <p className="mt-4 leading-8 text-neutral-300" {...props} />,
+  ul: ({ node: _node, ...props }) => (
     <ul className="mt-4 list-disc space-y-3 pl-6 text-neutral-300" {...props} />
   ),
-  ol: ({ node: _node, ...props }: any) => (
+  ol: ({ node: _node, ...props }) => (
     <ol className="mt-4 list-decimal space-y-3 pl-6 text-neutral-300" {...props} />
   ),
-  li: ({ node: _node, ...props }: any) => <li className="leading-7 marker:text-cyan-300" {...props} />,
-  a: ({ node: _node, ...props }: any) => (
+  li: ({ node: _node, ...props }) => <li className="leading-7 marker:text-cyan-300" {...props} />,
+  a: ({ node: _node, ...props }) => (
     <a
       className="font-medium text-cyan-300 underline decoration-cyan-300/40 underline-offset-4 transition hover:text-cyan-200"
       {...props}
     />
   ),
-  code: ({ node: _node, ...props }: any) => (
+  code: ({ node: _node, ...props }) => (
     <code
       className="rounded-md border border-white/10 bg-neutral-950/80 px-1.5 py-0.5 text-sm text-cyan-100"
       {...props}
     />
   ),
-  strong: ({ node: _node, ...props }: any) => <strong className="font-semibold text-white" {...props} />,
+  strong: ({ node: _node, ...props }) => <strong className="font-semibold text-white" {...props} />,
 };
 
-export function LegalDocumentPage({ documents }: LegalDocumentPageProps) {
+export function LegalDocumentPage({ documents, dateModified }: LegalDocumentPageProps) {
   const language = getCurrentLanguage();
   const copy = documents[language] ?? documents.en;
+  const formattedModifiedDate = new Intl.DateTimeFormat(language === 'pl' ? 'pl-PL' : 'en-GB', {
+    dateStyle: 'long',
+    timeZone: 'UTC',
+  }).format(new Date(`${dateModified}T00:00:00Z`));
   const canonicalUrl = `${SITE_URL}${copy.canonicalPath}`;
   const alternateUrls = [
     { hrefLang: 'en', href: `${SITE_URL}${documents.en.canonicalPath}` },
@@ -73,7 +82,7 @@ export function LegalDocumentPage({ documents }: LegalDocumentPageProps) {
     description: copy.description,
     url: canonicalUrl,
     inLanguage: language,
-    dateModified: '2026-06-28',
+    dateModified,
     isPartOf: {
       '@type': 'WebSite',
       name: 'FlipIt',
@@ -106,7 +115,7 @@ export function LegalDocumentPage({ documents }: LegalDocumentPageProps) {
             {copy.description}
           </p>
           <div className="mt-6 flex flex-col gap-3 text-sm text-neutral-400 sm:flex-row sm:items-center">
-            <span>{copy.lastUpdatedLabel}</span>
+            <span>{lastUpdatedPrefixes[language]}: {formattedModifiedDate}</span>
             <span className="hidden text-neutral-600 sm:inline" aria-hidden="true">
               /
             </span>

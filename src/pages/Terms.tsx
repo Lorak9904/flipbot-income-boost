@@ -5,13 +5,13 @@ import termsPl from '@/legal/terms_pl.md?raw';
 export default function TermsPage() {
   return (
     <LegalDocumentPage
+      dateModified="2026-06-28"
       documents={{
         en: {
           title: 'Terms of Service',
           eyebrow: 'Legal',
           description:
             'The rules for using FlipIt, including accounts, marketplace connections, AI-assisted drafts, publishing responsibility, billing, and support.',
-          lastUpdatedLabel: 'Last updated: 28 June 2026',
           canonicalPath: '/terms',
           alternatePath: '/pl/regulamin',
           alternateLabel: 'Czytaj po polsku',
@@ -28,7 +28,6 @@ export default function TermsPage() {
           eyebrow: 'Dokumenty prawne',
           description:
             'Zasady korzystania z FlipIt: konto, połączenia z marketplace, szkice AI, odpowiedzialność za publikację, rozliczenia i wsparcie.',
-          lastUpdatedLabel: 'Ostatnia aktualizacja: 28 czerwca 2026',
           canonicalPath: '/pl/regulamin',
           alternatePath: '/terms',
           alternateLabel: 'Read in English',

@@ -5,13 +5,13 @@ import privacyPl from '@/legal/privacy_pl.md?raw';
 export default function PrivacyPolicyPage() {
   return (
     <LegalDocumentPage
+      dateModified="2026-07-21"
       documents={{
         en: {
           title: 'Privacy Policy',
           eyebrow: 'Privacy',
           description:
             'How FlipIt handles account data, marketplace connections, listing content, AI-assisted processing, payments, analytics, cookies, and user rights.',
-          lastUpdatedLabel: 'Last updated: 28 June 2026',
           canonicalPath: '/privacy',
           alternatePath: '/pl/polityka-prywatnosci',
           alternateLabel: 'Czytaj po polsku',
@@ -28,7 +28,6 @@ export default function PrivacyPolicyPage() {
           eyebrow: 'Prywatność',
           description:
             'Jak FlipIt przetwarza dane konta, połączenia z marketplace, treści ogłoszeń, AI, płatności, analitykę, cookies i prawa użytkownika.',
-          lastUpdatedLabel: 'Ostatnia aktualizacja: 28 czerwca 2026',
           canonicalPath: '/pl/polityka-prywatnosci',
           alternatePath: '/privacy',
           alternateLabel: 'Read in English',
