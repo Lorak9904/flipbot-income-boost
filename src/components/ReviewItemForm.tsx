@@ -1843,6 +1843,7 @@ const ReviewItemForm = ({
 
         {selectedPlatforms.includes('olx') && (
           <OlxLocationFields
+            key={selectedOlxCountryCode}
             countryCode={selectedOlxCountryCode}
             disabled={isSubmitting || olxConnectedAccounts.length === 0}
             language={language}
