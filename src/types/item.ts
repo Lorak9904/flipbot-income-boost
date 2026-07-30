@@ -194,7 +194,14 @@ export interface PlatformOverrides {
 export type ItemStatus = 'draft' | 'active' | 'inactive' | 'sold' | 'expired' | 'removed' | 'blocked';
 export type ItemStatusGroup = 'live' | 'drafts' | 'needs_attention' | 'sold_ended';
 
-export interface PlatformPublishResult {
+export interface PublishRecoveryResult {
+  reason?: string;
+  detail?: string;
+  error_code?: string;
+  action_required?: string;
+}
+
+export interface PlatformPublishResult extends PublishRecoveryResult {
   platform: Platform;
   status: 'pending' | 'success' | 'removed' | 'error';
   status_code?: number;
@@ -205,6 +212,8 @@ export interface PlatformPublishResult {
   action_required?: string;
   retryable?: boolean;
   response?: {
+    reason?: string;
+    detail?: string;
     error_code?: string;
     action_required?: string;
     retryable?: boolean;
@@ -220,6 +229,12 @@ export interface PlatformPublishResult {
   post_id?: string;
   error_message?: string;
   published_at?: string;
+}
+
+export interface PublishItemResult extends PublishRecoveryResult {
+  uuid?: string;
+  platforms?: Partial<Record<Platform, string>>;
+  platform_details?: Partial<Record<Platform, PlatformPublishResult>>;
 }
 
 export interface PlatformLifecycleStatus {

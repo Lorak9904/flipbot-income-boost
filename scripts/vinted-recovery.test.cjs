@@ -107,6 +107,15 @@ test('early publish 403 uses canonical recovery metadata and warning notificatio
   assert.match(source, /notify\.warning\(t\.toast\.vintedVerificationTitle/);
 });
 
+test('publish form navigates only when the canonical envelope has a successful platform', () => {
+  const source = read('src/components/ReviewItemForm.tsx');
+  const navigationGate = source.indexOf('if (successfulPlatforms.length > 0) {', source.indexOf('queryClient.invalidateQueries'));
+  const navigation = source.indexOf('navigateAfterCompletion(', navigationGate);
+
+  assert.ok(navigationGate >= 0);
+  assert.ok(navigation > navigationGate);
+});
+
 test('listing recovery retry targets only Vinted and uses review-and-retry copy', () => {
   const panel = read('src/components/listing-detail/ListingDetailSections.tsx');
   const translations = read('src/utils/translations/item-detail-translations.ts');

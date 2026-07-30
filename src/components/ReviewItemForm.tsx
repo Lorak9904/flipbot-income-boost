@@ -9,7 +9,8 @@ import {
   Platform, 
   PlatformDynamicAttributeValue,
   PlatformFieldOverrides,
-  PlatformOverrides
+  PlatformOverrides,
+  PublishItemResult,
 } from '@/types/item';
 import { useToast } from '@/hooks/use-toast';
 import { AddItemButton, BackButtonGhost, SecondaryAction } from '@/components/ui/button-presets';
@@ -1479,24 +1480,7 @@ const ReviewItemForm = ({
         throw new Error(errorMessage);
       }
 
-      const result = (await response.json()) as {
-        uuid?: string;
-        platforms?: Record<string, string>;
-        platform_details?: Record<
-          string,
-          {
-            status?: string;
-            status_code?: number;
-            message?: string;
-            external_id?: string;
-            listing_url?: string;
-            error_code?: string;
-            action_required?: string;
-            retryable?: boolean;
-            response?: Record<string, unknown>;
-          }
-        >;
-      };
+      const result = (await response.json()) as PublishItemResult;
       const successfulPlatforms: Platform[] = [];
 
       if (result.platforms) {
@@ -1554,10 +1538,12 @@ const ReviewItemForm = ({
 
       queryClient.invalidateQueries({ queryKey: ['credits'] });
 
-      if (result.uuid) {
-        navigateAfterCompletion(getLocalizedPathForCurrentLanguage(`/user/items/${result.uuid}`), 1500);
-      } else {
-        navigateAfterCompletion(getLocalizedPathForCurrentLanguage('/user/items'), 1500);
+      if (successfulPlatforms.length > 0) {
+        if (result.uuid) {
+          navigateAfterCompletion(getLocalizedPathForCurrentLanguage(`/user/items/${result.uuid}`), 1500);
+        } else {
+          navigateAfterCompletion(getLocalizedPathForCurrentLanguage('/user/items'), 1500);
+        }
       }
     } catch (error) {
       console.error('Error publishing item:', error);
