@@ -97,6 +97,7 @@ const translations = {
     noConnectedPlatforms: 'No connected accounts available for import.',
     capabilityUnavailable: (platform: string) => `Listing import is not available for ${platform}.`,
     capabilityLoadFailed: 'Marketplace availability could not be checked. Try again.',
+    healthCheckFailed: 'Connection status could not be checked. Try again before importing.',
   },
   pl: {
     syncListings: 'Importuj ogłoszenia',
@@ -127,6 +128,7 @@ const translations = {
     noConnectedPlatforms: 'Nie ma połączonych kont, z których można importować.',
     capabilityUnavailable: (platform: string) => `Import ogłoszeń z ${platform} nie jest dostępny.`,
     capabilityLoadFailed: 'Nie udało się sprawdzić dostępności platform. Spróbuj ponownie.',
+    healthCheckFailed: 'Nie udało się sprawdzić stanu połączenia. Spróbuj ponownie przed importem.',
   },
 };
 
@@ -227,6 +229,14 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
 
     try {
       const health = await getPlatformHealth();
+      if (!health) {
+        toast({
+          title: t.syncError,
+          description: t.healthCheckFailed,
+          variant: 'destructive',
+        });
+        return;
+      }
       if (!canUseMarketplaceCapability(capabilities, platform, 'import')) {
         toast({
           title: t.unavailable,
@@ -237,7 +247,7 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
         });
         return;
       }
-      if (health && !isPlatformConnected(platform, health)) {
+      if (!isPlatformConnected(platform, health)) {
         toast({
           title: t.connectFirst,
           description: platformUnavailableReason(platform) || t.platformNotConnected(platform.toUpperCase()),

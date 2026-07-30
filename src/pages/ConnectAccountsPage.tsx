@@ -15,6 +15,7 @@ import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackgro
 import { PLATFORM_LOGOS } from '@/lib/platform-logos';
 import { fetchPlatformHealth, type PlatformHealthInfo } from '@/lib/api/platform-health';
 import { captureActivationEvent } from '@/lib/analytics/activation';
+import { platformCapabilitiesQueryOptions } from '@/lib/api/platform-capabilities';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -114,6 +115,10 @@ const ConnectAccountsPage = () => {
     refetchOnWindowFocus: true,
     retry: 1,
   });
+  const {
+    data: capabilityResponse,
+    isError: capabilitiesFailed,
+  } = useQuery(platformCapabilitiesQueryOptions());
 
   useEffect(() => {
     const token = localStorage.getItem('flipit_token');
@@ -314,6 +319,8 @@ const ConnectAccountsPage = () => {
               isConnected={!!connectedPlatforms?.facebook}
               sessionStatus={connectedPlatforms?.facebook_session_status}
               onConnected={handleAccountConnected}
+              capabilitySet={capabilityResponse?.marketplaces.facebook}
+              capabilitiesFailed={capabilitiesFailed}
             />
             <ConnectAccountCard
               key="olx-card"
@@ -326,6 +333,8 @@ const ConnectAccountsPage = () => {
               olxAccounts={connectedPlatforms?.olx_accounts || []}
               olxCountries={connectedPlatforms?.olx_countries || []}
               onConnected={handleAccountConnected}
+              capabilitySet={capabilityResponse?.marketplaces.olx}
+              capabilitiesFailed={capabilitiesFailed}
             />
             <ConnectAccountCard
               key="vinted-card"
@@ -336,6 +345,8 @@ const ConnectAccountsPage = () => {
               onConnected={handleAccountConnected}
               sessionStatus={connectedPlatforms?.vinted_session_status}
               invalidReason={connectedPlatforms?.vinted_invalid_reason}
+              capabilitySet={capabilityResponse?.marketplaces.vinted}
+              capabilitiesFailed={capabilitiesFailed}
             />
             <ConnectAccountCard
               key="ebay-card"
@@ -346,6 +357,8 @@ const ConnectAccountsPage = () => {
               sessionStatus={connectedPlatforms?.ebay_session_status}
               invalidReason={connectedPlatforms?.ebay_invalid_reason}
               onConnected={handleAccountConnected}
+              capabilitySet={capabilityResponse?.marketplaces.ebay}
+              capabilitiesFailed={capabilitiesFailed}
             />
             <ConnectAccountCard
               key="allegro-card"
@@ -356,6 +369,8 @@ const ConnectAccountsPage = () => {
               sessionStatus={connectedPlatforms?.allegro_session_status}
               invalidReason={connectedPlatforms?.allegro_invalid_reason}
               onConnected={handleAccountConnected}
+              capabilitySet={capabilityResponse?.marketplaces.allegro}
+              capabilitiesFailed={capabilitiesFailed}
             />
             <ConnectAccountCard
               key="etsy-card"
@@ -369,6 +384,8 @@ const ConnectAccountsPage = () => {
               actionKey={connectedPlatforms?.etsy_action_key}
               pendingMessage={connectedPlatforms?.etsy_message}
               onConnected={handleAccountConnected}
+              capabilitySet={capabilityResponse?.marketplaces.etsy}
+              capabilitiesFailed={capabilitiesFailed}
             />
           </div>
 

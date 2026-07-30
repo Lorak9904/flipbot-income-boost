@@ -82,12 +82,22 @@ import {
   type ReviewItemFormSnapshot,
 } from '@/lib/listing-editor-draft';
 import { formatCountryLabel } from '@/lib/country-label';
+import { Badge } from '@/components/ui/badge';
+import {
+  canUseMarketplaceCapability,
+  getMarketplaceCapability,
+  type MarketplaceCapabilities,
+} from '@/lib/api/platform-capabilities';
+import { capabilityStatusLabel, getPlatformCapabilityCopy } from './platform-capability-translations';
+import { ALL_PLATFORMS } from '@/lib/platforms';
 
 interface ReviewItemFormProps {
   initialData: GeneratedItemDataWithVinted;
   mode: ReviewItemFormMode;
   connectedPlatforms: Record<Platform, boolean>;
   platformHealth?: PlatformHealthResponse['platforms'] | null;
+  capabilities?: MarketplaceCapabilities | null;
+  capabilitiesFailed?: boolean;
   onBack: () => void;
   language?: string;
   editItemId?: string;
@@ -102,8 +112,6 @@ const formatAllegroProductCategoryPath = (product: AllegroProductSearchResult): 
   return path || product.category?.id || '';
 };
 
-const MARKETPLACE_UPDATE_PLATFORMS: Platform[] = ['olx', 'ebay', 'allegro', 'etsy'];
-
 const imageUrl = (image: ItemImage): string => image.url || image.preview || '';
 
 const ReviewItemForm = ({
@@ -111,6 +119,8 @@ const ReviewItemForm = ({
   mode,
   connectedPlatforms,
   platformHealth,
+  capabilities,
+  capabilitiesFailed = false,
   onBack,
   language,
   editItemId,
@@ -143,6 +153,7 @@ const ReviewItemForm = ({
   const { data: credits } = useCredits();
   const queryClient = useQueryClient();
   const t = reviewItemFormTranslations[interfaceLanguage];
+  const capabilityCopy = getPlatformCapabilityCopy(interfaceLanguage);
 
   const platformSelectionOptions = useMemo(
     () =>
@@ -150,8 +161,9 @@ const ReviewItemForm = ({
         mode,
         connectedPlatforms,
         publishedPlatforms,
+        capabilities,
       }),
-    [mode, connectedPlatforms, publishedPlatforms]
+    [mode, connectedPlatforms, publishedPlatforms, capabilities]
   );
   const defaultSelectedPlatforms = useMemo(
     () => {
@@ -166,6 +178,24 @@ const ReviewItemForm = ({
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(
     () => initialSnapshot?.selectedPlatforms || defaultSelectedPlatforms
   );
+  const capabilitySelectionInitialized = useRef(!!initialSnapshot || !!capabilities);
+
+  useEffect(() => {
+    if (!capabilities || capabilitySelectionInitialized.current) {
+      return;
+    }
+    setSelectedPlatforms(defaultSelectedPlatforms);
+    capabilitySelectionInitialized.current = true;
+  }, [capabilities, defaultSelectedPlatforms]);
+
+  useEffect(() => {
+    if (!capabilities || !isPublishingMode) {
+      return;
+    }
+    setSelectedPlatforms((current) =>
+      current.filter((platform) => canUseMarketplaceCapability(capabilities, platform, 'publish'))
+    );
+  }, [capabilities, isPublishingMode]);
 
   const requiredPublishCredits = isPublishingMode && selectedPlatforms.length > 0 ? 1 : 0;
   const hasInsufficientPublishCredits =
@@ -175,8 +205,12 @@ const ReviewItemForm = ({
     credits.publish_remaining !== null &&
     credits.publish_remaining < requiredPublishCredits;
   const publishedMarketplaceUpdatePlatforms = useMemo(
-    () => MARKETPLACE_UPDATE_PLATFORMS.filter((platform) => publishedPlatforms.includes(platform)),
-    [publishedPlatforms]
+    () => ALL_PLATFORMS.filter(
+      (platform) =>
+        publishedPlatforms.includes(platform) &&
+        canUseMarketplaceCapability(capabilities, platform, 'update')
+    ),
+    [capabilities, publishedPlatforms]
   );
   const canSaveAndUpdateMarketplaces = !!editItemId && publishedMarketplaceUpdatePlatforms.length > 0;
   const saveAndUpdateLabel =
@@ -186,7 +220,9 @@ const ReviewItemForm = ({
           t.platforms[publishedMarketplaceUpdatePlatforms[0]]
         )
       : t.buttons.saveAndUpdateMarketplaces;
-  const showPlatformPreparation = platformSelectionOptions.length > 0;
+  const showPlatformPreparation =
+    platformSelectionOptions.length > 0 ||
+    (isPublishingMode && (capabilitiesFailed || !!capabilities));
   const isSaving = isSubmitting && submitIntent === 'save';
   const isSavingAndUpdating = isSubmitting && submitIntent === 'saveAndUpdate';
   const isPublishing = isSubmitting && submitIntent === 'publish';
@@ -1204,12 +1240,23 @@ const ReviewItemForm = ({
     }
 
     try {
-      const updateResponse = await syncPlatformListings(result.itemId, result.dirtyPlatforms);
-      const failedPlatforms = result.dirtyPlatforms.filter(
+      const updatePlatforms = result.dirtyPlatforms.filter((platform) =>
+        canUseMarketplaceCapability(capabilities, platform, 'update')
+      );
+      if (updatePlatforms.length === 0) {
+        toast({
+          title: t.toast.successTitle,
+          description: t.toast.saveAndUpdateNoMarketplaceChanges,
+        });
+        navigateAfterCompletion(buildSavedItemUrl(result.itemId), 1200);
+        return;
+      }
+      const updateResponse = await syncPlatformListings(result.itemId, updatePlatforms);
+      const failedPlatforms = updatePlatforms.filter(
         (platform) => updateResponse.results?.[platform]?.status !== 'success'
       );
-      const succeededCount = result.dirtyPlatforms.length - failedPlatforms.length;
-      const platformNames = result.dirtyPlatforms
+      const succeededCount = updatePlatforms.length - failedPlatforms.length;
+      const platformNames = updatePlatforms
         .map((platform) => t.platforms[platform])
         .join(', ');
 
@@ -1627,12 +1674,19 @@ const ReviewItemForm = ({
         )}
 
         <div className="space-y-3">
+          {isPublishingMode && capabilitiesFailed && (
+            <p className="text-sm text-amber-300">{capabilityCopy.loadFailed}</p>
+          )}
+          {isPublishingMode && !capabilitiesFailed && capabilities && platformSelectionOptions.length === 0 && (
+            <p className="text-sm text-neutral-400">{capabilityCopy.unavailable}</p>
+          )}
           {platformSelectionOptions.map((typedPlatform) => {
             const isConnected = connectedPlatforms[typedPlatform];
             const isDisabled = isSubmitting || (isPublishingMode && !isConnected);
             const isSelected = selectedPlatforms.includes(typedPlatform);
             const platformName =
               t.platforms[typedPlatform] || typedPlatform.charAt(0).toUpperCase() + typedPlatform.slice(1);
+            const publishCapability = getMarketplaceCapability(capabilities, typedPlatform, 'publish');
             const reason = !isConnected
               ? t.marketplaceRequirements.notConnectedReason(platformName)
               : undefined;
@@ -1658,6 +1712,11 @@ const ReviewItemForm = ({
                 <div className="flex-1">
                   <div className="font-medium text-base text-white">
                     {platformName}
+                    {publishCapability && (
+                      <Badge className="ml-2 border-neutral-600 bg-neutral-800 text-neutral-300">
+                        {capabilityStatusLabel(interfaceLanguage, publishCapability.status)}
+                      </Badge>
+                    )}
                   </div>
                   {!isConnected && (
                     <div className="text-xs text-neutral-400">

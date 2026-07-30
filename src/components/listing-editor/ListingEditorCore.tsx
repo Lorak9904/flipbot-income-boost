@@ -7,6 +7,7 @@ import AddItemForm from '@/components/AddItemForm';
 import ReviewItemForm from '@/components/ReviewItemForm';
 import { PlatformConnectionNotice } from '@/components/listing-editor/PlatformConnectionNotice';
 import type { AddItemFormSnapshot, ReviewItemFormSnapshot } from '@/lib/listing-editor-draft';
+import type { MarketplaceCapabilities } from '@/lib/api/platform-capabilities';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -30,6 +31,8 @@ interface ListingEditorCoreProps {
   reviewMode: ReviewItemFormMode;
   connectedPlatforms: Record<Platform, boolean>;
   platformHealth?: PlatformHealthResponse['platforms'] | null;
+  capabilities?: MarketplaceCapabilities | null;
+  capabilitiesFailed?: boolean;
   showNoPlatformConnectionNotice: boolean;
   platformConnectionNotice: {
     title: string;
@@ -59,6 +62,8 @@ export function ListingEditorCore({
   reviewMode,
   connectedPlatforms,
   platformHealth,
+  capabilities,
+  capabilitiesFailed,
   showNoPlatformConnectionNotice,
   platformConnectionNotice,
   onComplete,
@@ -117,6 +122,8 @@ export function ListingEditorCore({
                   mode={reviewMode}
                   connectedPlatforms={connectedPlatforms}
                   platformHealth={platformHealth}
+                  capabilities={capabilities}
+                  capabilitiesFailed={capabilitiesFailed}
                   onBack={onBack}
                   language={language}
                   editItemId={editItemId}

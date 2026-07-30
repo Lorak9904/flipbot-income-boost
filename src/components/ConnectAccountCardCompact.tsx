@@ -45,6 +45,14 @@ import { getAllegroConnectUrl } from '@/lib/api/allegro';
 import { getEtsyConnectUrl } from '@/lib/api/etsy';
 import type { OlxCountry, OlxMarketplaceAccount } from '@/lib/api/olx';
 import { formatCountryLabel } from '@/lib/country-label';
+import { Badge } from '@/components/ui/badge';
+import type { MarketplaceCapabilitySet } from '@/lib/api/platform-capabilities';
+import {
+  capabilityReasonLabel,
+  capabilityStatusLabel,
+  getPlatformCapabilityCopy,
+  integrationMethodLabel,
+} from './platform-capability-translations';
 
 interface ConnectAccountCardProps {
   platform: 'facebook' | 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy';
@@ -59,6 +67,8 @@ interface ConnectAccountCardProps {
   pendingMessage?: string | null;
   olxCountries?: OlxCountry[];
   olxAccounts?: OlxMarketplaceAccount[];
+  capabilitySet?: MarketplaceCapabilitySet;
+  capabilitiesFailed?: boolean;
 }
 
 type ConnectionStatus = 'connected' | 'not-connected' | 'expired' | 'invalid' | 'pending';
@@ -128,6 +138,8 @@ const ConnectAccountCard = ({
   pendingMessage,
   olxCountries = [],
   olxAccounts = [],
+  capabilitySet,
+  capabilitiesFailed = false,
 }: ConnectAccountCardProps) => {
   const [isConnected, setIsConnected] = useState(initialConnected);
   const [showConnectModal, setShowConnectModal] = useState(false);
@@ -138,6 +150,12 @@ const ConnectAccountCard = ({
   const language = getCurrentLanguage();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const capabilityCopy = getPlatformCapabilityCopy(language);
+  const connectionCapability = capabilitySet?.capabilities.connection;
+  const canConnect = connectionCapability?.available === true;
+  const capabilityReason = capabilitiesFailed
+    ? capabilityCopy.loadFailed
+    : capabilityReasonLabel(language, connectionCapability?.reason_code ?? null);
 
   // Keep internal state in sync with prop updates
   useEffect(() => {
@@ -258,6 +276,10 @@ const ConnectAccountCard = ({
 
   // Handle platform-specific connection
   const handleConnect = () => {
+    if (!canConnect) {
+      notify.info(capabilityReason || capabilityCopy.unavailable);
+      return;
+    }
     if (platform === 'ebay') {
       handleEbayConnect();
     } else if (platform === 'olx') {
@@ -381,7 +403,7 @@ const ConnectAccountCard = ({
   // Require authentication
   if (!user) {
     return (
-      <Card className="h-[140px] border border-slate-700/80 bg-slate-800/60">
+        <Card className="h-[168px] border border-slate-700/80 bg-slate-800/60">
         <CardContent className="p-4 h-full flex items-center justify-center">
           <p className="text-sm text-red-400 text-center">
             {tr('authRequiredMessage', { platform: platformName })}
@@ -398,7 +420,7 @@ const ConnectAccountCard = ({
         transition={{ type: 'spring', stiffness: 300 }}
         className="w-full"
       >
-        <Card className="h-[140px] overflow-hidden border border-slate-700/80 bg-slate-800/60 hover:border-slate-600/80 transition-colors">
+        <Card className="h-[168px] overflow-hidden border border-slate-700/80 bg-slate-800/60 hover:border-slate-600/80 transition-colors">
           <CardContent className="p-4 h-full flex flex-col">
             {/* Top Row: Logo, Name, Status */}
             <div className="flex items-center justify-between gap-3">
@@ -414,9 +436,24 @@ const ConnectAccountCard = ({
                   <h3 className="font-semibold text-base text-white truncate">
                     {platformName}
                   </h3>
+                  {capabilitySet && (
+                    <div className="mt-1 flex min-w-0 items-center gap-1.5">
+                      <Badge className="border-slate-600 bg-slate-800 px-1.5 py-0 text-[10px] text-slate-300">
+                        {capabilityStatusLabel(language, capabilitySet.overall_status)}
+                      </Badge>
+                      <span className="truncate text-[10px] text-slate-400">
+                        {integrationMethodLabel(language, capabilitySet.integration_method)}
+                      </span>
+                    </div>
+                  )}
                   {platform === 'olx' && olxAccountSummary && (
                     <p className="text-xs text-slate-400 truncate">
                       {olxAccountSummary}
+                    </p>
+                  )}
+                  {!canConnect && capabilityReason && (
+                    <p className="mt-1 truncate text-[10px] text-amber-300" title={capabilityReason}>
+                      {capabilityReason}
                     </p>
                   )}
                 </div>
@@ -453,7 +490,7 @@ const ConnectAccountCard = ({
                     size="sm"
                     className="px-3 py-2 text-xs"
                     onClick={handleVintedRefresh}
-                    disabled={isRefreshingVinted}
+                    disabled={!canConnect || isRefreshingVinted}
                   >
                     {isRefreshingVinted ? (
                       <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
@@ -477,7 +514,8 @@ const ConnectAccountCard = ({
                   size="sm"
                   className="px-3 py-2 text-xs text-teal-200"
                   onClick={handleConnect}
-                  disabled={isConnectingOauth && OAUTH_PLATFORMS.includes(platform)}
+                  disabled={!canConnect || (isConnectingOauth && OAUTH_PLATFORMS.includes(platform))}
+                  title={!canConnect ? capabilityReason || capabilityCopy.unavailable : undefined}
                 >
                   {isConnectingOauth && OAUTH_PLATFORMS.includes(platform) ? (
                     <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
@@ -519,7 +557,7 @@ const ConnectAccountCard = ({
                       <DropdownMenuItem
                         className="text-slate-200 hover:text-white hover:bg-slate-700 cursor-pointer"
                         onClick={handleConnect}
-                        disabled={isConnectingOauth && OAUTH_PLATFORMS.includes(platform)}
+                        disabled={!canConnect || (isConnectingOauth && OAUTH_PLATFORMS.includes(platform))}
                       >
                         <LinkIcon className="w-4 h-4 mr-2" />
                         {platform === 'olx' ? t.connectOlxCountry : t.reconnectButton}
@@ -566,7 +604,7 @@ const ConnectAccountCard = ({
                     <DropdownMenuItem
                       className="text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 cursor-pointer"
                       onClick={handleConnect}
-                      disabled={isConnectingOauth && OAUTH_PLATFORMS.includes(platform)}
+                      disabled={!canConnect || (isConnectingOauth && OAUTH_PLATFORMS.includes(platform))}
                     >
                       <LinkIcon className="w-4 h-4 mr-2" />
                       {integrationPending ? t.integrationPendingButton : t.connectButton}

@@ -17,6 +17,8 @@ import {
 import type { ReviewItemFormMode } from '@/components/review-item-form-mode';
 import { getPublishedPlatforms, toReviewFormData } from '@/lib/items/review-form-adapter';
 import { ListingEditorCore } from '@/components/listing-editor/ListingEditorCore';
+import { useQuery } from '@tanstack/react-query';
+import { platformCapabilitiesQueryOptions } from '@/lib/api/platform-capabilities';
 import {
   clearListingEditorDraft,
   persistListingEditorDraft,
@@ -32,6 +34,13 @@ const AddItemPage = () => {
   const { toast } = useToast();
   const language = getCurrentLanguage();
   const t = getTranslations(addItemTranslations);
+  const {
+    data: capabilityResponse,
+    isError: capabilitiesFailed,
+  } = useQuery({
+    ...platformCapabilitiesQueryOptions(),
+    enabled: isAuthenticated,
+  });
   const [step, setStep] = useState<'add' | 'review'>('add');
   const [generatedData, setGeneratedData] = useState<GeneratedItemDataWithVinted | null>(null);
   const [addItemSnapshot, setAddItemSnapshot] = useState<AddItemFormSnapshot | undefined>();
@@ -261,6 +270,8 @@ const AddItemPage = () => {
       reviewMode={reviewMode}
       connectedPlatforms={connectedPlatforms}
       platformHealth={platformHealth}
+      capabilities={capabilityResponse?.marketplaces}
+      capabilitiesFailed={capabilitiesFailed}
       showNoPlatformConnectionNotice={showNoPlatformConnectionNotice}
       platformConnectionNotice={t.platformConnectionNotice}
       onComplete={handleComplete}

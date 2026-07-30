@@ -11,6 +11,57 @@ const AUTH_USER = {
   language: 'en',
 };
 
+const CAPABILITY_OPERATIONS = [
+  'connection',
+  'connection_health',
+  'import',
+  'draft_creation',
+  'metadata',
+  'image_handling',
+  'publish',
+  'update',
+  'delete',
+  'sold_state_sync',
+  'inventory_order_sync',
+  'error_recovery',
+  'disconnect',
+  'sandbox_testing',
+  'production_verification',
+] as const;
+
+function capabilitySet(
+  integrationMethod: 'official_api' | 'session_based',
+  overallStatus: 'beta' | 'experimental',
+  unavailable: string[] = []
+) {
+  return {
+    integration_method: integrationMethod,
+    overall_status: overallStatus,
+    capabilities: Object.fromEntries(
+      CAPABILITY_OPERATIONS.map((operation) => [
+        operation,
+        unavailable.includes(operation)
+          ? { status: 'unavailable', available: false, reason_code: 'operation_not_implemented' }
+          : { status: overallStatus, available: true, reason_code: 'implemented_not_certified' },
+      ])
+    ),
+  };
+}
+
+const mockMarketplaceCapabilities = {
+  version: 1,
+  statuses: ['certified', 'beta', 'experimental', 'unavailable'],
+  operations: CAPABILITY_OPERATIONS,
+  marketplaces: {
+    allegro: capabilitySet('official_api', 'beta', ['import']),
+    ebay: capabilitySet('official_api', 'beta'),
+    etsy: capabilitySet('official_api', 'beta'),
+    olx: capabilitySet('official_api', 'experimental'),
+    vinted: capabilitySet('session_based', 'experimental', ['publish', 'update', 'delete']),
+    facebook: capabilitySet('session_based', 'experimental', ['publish', 'update', 'delete', 'import']),
+  },
+};
+
 const mockItemsResponse = {
   items: [
     {
@@ -200,6 +251,14 @@ async function installCommonMocks(page: Page, { authenticated }: { authenticated
           allegro: { stored: true, status: 'valid', reason: null },
         },
       }),
+    });
+  });
+
+  await page.route('**/api/platforms/capabilities/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(mockMarketplaceCapabilities),
     });
   });
 
@@ -627,6 +686,106 @@ test('authenticated pages render expected core sections', async ({ page }) => {
     await assertNoBrokenLocalImages(page);
     tracker.assertNoNewIssues(checkpoint, entry.route);
   }
+});
+
+test('marketplace capabilities gate writes and explain integration maturity', async ({ page }) => {
+  await preparePage(page, { authenticated: true });
+
+  await page.goto('/connect-accounts');
+  await expect(page.getByText('Official marketplace API').first()).toBeVisible();
+  await expect(page.getByText('Session-based connection').first()).toBeVisible();
+  await expect(page.getByText('Experimental').first()).toBeVisible();
+
+  await page.goto(`/add-item?edit=${TEST_ITEM_UUID}&mode=republish`);
+  await expect(page.getByRole('checkbox', { name: 'OLX Experimental' })).toBeVisible();
+  await expect(page.getByText('Experimental').first()).toBeVisible();
+  await expect(page.getByRole('checkbox', { name: /Vinted/ })).toHaveCount(0);
+
+  await page.goto('/user/items');
+  await page.getByRole('button', { name: 'Import listings' }).click();
+  await expect(page.getByRole('menuitem').filter({ hasText: 'Etsy' })).toBeEnabled();
+  await expect(page.getByRole('menuitem').filter({ hasText: 'eBay' })).toBeEnabled();
+});
+
+test('single-platform import stops when connection health cannot be loaded', async ({ page }) => {
+  await preparePage(page, { authenticated: true });
+  await page.route('**/api/platforms/health-check/**', async (route) => {
+    await route.fulfill({ status: 503, contentType: 'application/json', body: '{"detail":"unavailable"}' });
+  });
+
+  let ebayImportRequests = 0;
+  await page.route('**/api/ebay/sync/**', async (route) => {
+    ebayImportRequests += 1;
+    await route.fulfill({ status: 500, contentType: 'application/json', body: '{}' });
+  });
+
+  await page.goto('/user/items');
+  await page.getByRole('button', { name: 'Import listings' }).click();
+  const ebayItem = page.getByRole('menuitem').filter({ hasText: 'eBay' });
+  await expect(ebayItem).toBeEnabled();
+  await ebayItem.click();
+  await expect(page.getByText('Connection status could not be checked. Try again before importing.')).toBeVisible();
+  expect(ebayImportRequests).toBe(0);
+});
+
+test('marketplace capabilities filter update and delete targets', async ({ page }) => {
+  await preparePage(page, { authenticated: true });
+  const itemWithRestrictedMarketplace = {
+    ...mockItemDetail,
+    publish_results: [
+      ...mockItemDetail.publish_results,
+      { platform: 'vinted', status: 'success', external_id: 'vinted-e2e-1' },
+    ],
+    platform_sync_status: {
+      allegro: { dirty: true },
+      vinted: { dirty: true },
+    },
+  };
+  await page.route(new RegExp(`/api/items/${TEST_ITEM_UUID}/$`), async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(itemWithRestrictedMarketplace),
+    });
+  });
+
+  let removalPlatforms: string[] | undefined;
+  await page.route(`**/api/items/${TEST_ITEM_UUID}/remove-from-marketplaces/`, async (route) => {
+    removalPlatforms = (route.request().postDataJSON() as { platforms?: string[] }).platforms;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ results: { allegro: { status: 'removed' } } }),
+    });
+  });
+
+  await page.goto(`/user/items/${TEST_ITEM_UUID}`);
+  await page.getByRole('button', { name: 'Listing actions' }).last().click();
+  await expect(page.getByRole('menuitem', { name: /Publish changes to Allegro/ })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: /Publish changes to Vinted/ })).toHaveCount(0);
+  await page.getByRole('menuitem', { name: 'Remove from marketplaces' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Remove from marketplaces' });
+  await expect(dialog.getByText('Manual removal is still required on: Vinted.')).toBeVisible();
+  await dialog.getByRole('button', { name: 'Remove from marketplaces' }).click();
+  await expect.poll(() => removalPlatforms).toEqual(['allegro']);
+});
+
+test('capability API failure is visible and fails closed for marketplace writes', async ({ page }) => {
+  await preparePage(page, { authenticated: true });
+  await page.route('**/api/platforms/capabilities/**', async (route) => {
+    await route.fulfill({ status: 503, contentType: 'application/json', body: '{"detail":"unavailable"}' });
+  });
+
+  await page.goto('/connect-accounts');
+  await expect(page.getByText('Marketplace availability could not be checked. Try again.').first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Connect' }).first()).toBeDisabled();
+
+  await page.goto(`/add-item?edit=${TEST_ITEM_UUID}&mode=republish`);
+  await expect(page.getByText('Marketplace availability could not be checked. Try again.')).toBeVisible();
+  await expect(page.getByRole('checkbox', { name: /OLX/ })).toHaveCount(0);
+
+  await page.goto(`/user/items/${TEST_ITEM_UUID}`);
+  await expect(page.getByRole('button', { name: /Edit listing|Manage listing/ })).toBeEnabled();
 });
 
 test('first listing coach waits until cookie choice is complete', async ({ page }) => {
