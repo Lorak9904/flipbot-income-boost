@@ -35,7 +35,7 @@ const VintedRelistingToolArticle = () => {
       name: 'FlipIt',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://myflipit.live/placeholder.svg',
+        url: 'https://myflipit.live/flipit-social-preview.png',
       },
     },
     mainEntityOfPage: {

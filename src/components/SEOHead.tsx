@@ -23,7 +23,7 @@ export function SEOHead({
   description = 'FlipIt turns your product photos into marketplace-ready listings with AI. Review, edit, and publish faster - always with your approval.',
   canonicalUrl = SITE_URL,
   alternateUrls = [],
-  ogImage = '/placeholder.svg',
+  ogImage = '/flipit-social-preview.png',
   type = 'website',
   keywords,
   structuredData,
