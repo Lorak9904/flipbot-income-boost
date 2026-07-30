@@ -102,6 +102,19 @@ export interface OlxCategorySearchResponse {
   source?: 'local' | 'remote';
 }
 
+export interface OlxLocationOption {
+  id: number;
+  name: string;
+  normalized_name?: string;
+  city_id?: number;
+}
+
+export interface OlxLocationResponse {
+  count: number;
+  results: OlxLocationOption[];
+  country_code: string;
+}
+
 function getAuthHeaders(): HeadersInit {
   const token = localStorage.getItem('flipit_token');
   if (!token) {
@@ -351,5 +364,39 @@ export async function searchOlxCategories(params: {
     throw new Error(errorData.detail || errorData.message || `Failed to search OLX categories: ${response.status}`);
   }
 
+  return response.json();
+}
+
+export async function searchOlxCities(params: {
+  query: string;
+  countryCode: string;
+  signal?: AbortSignal;
+}): Promise<OlxLocationResponse> {
+  const query = new URLSearchParams({ q: params.query.trim(), country: params.countryCode });
+  const response = await fetch(`${API_BASE}/olx/locations/cities/?${query.toString()}`, {
+    headers: getAuthHeaders(),
+    signal: params.signal,
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || errorData.message || 'Failed to search OLX cities');
+  }
+  return response.json();
+}
+
+export async function getOlxCityDistricts(params: {
+  cityId: string | number;
+  countryCode: string;
+  signal?: AbortSignal;
+}): Promise<OlxLocationResponse & { city_id: number }> {
+  const query = new URLSearchParams({ country: params.countryCode });
+  const response = await fetch(
+    `${API_BASE}/olx/locations/cities/${encodeURIComponent(String(params.cityId))}/districts/?${query.toString()}`,
+    { headers: getAuthHeaders(), signal: params.signal }
+  );
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || errorData.message || 'Failed to load OLX districts');
+  }
   return response.json();
 }

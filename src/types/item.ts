@@ -138,6 +138,15 @@ export interface PlatformOverrides {
     category_path?: string;
     /** Dynamic attribute values (key -> value) fetched from platform metadata */
     attributes?: Record<string, PlatformDynamicAttributeValue>;
+    location?: {
+      city_id?: number | string;
+      district_id?: number | string;
+      city_name?: string;
+      district_name?: string;
+    };
+    ad_delivery?: {
+      delivery_package_ids?: Array<string | number>;
+    };
     /** Optional per-platform listing field overrides */
     field_overrides?: PlatformFieldOverrides;
   };

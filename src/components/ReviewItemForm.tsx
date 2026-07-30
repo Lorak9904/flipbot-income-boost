@@ -41,6 +41,7 @@ import MarketplaceAttributesPanel from './MarketplaceAttributesPanel';
 import PlatformOverrideCard from './PlatformOverrideCard';
 import PlatformCategoryBooks from './PlatformCategoryBooks';
 import PlatformFieldOverridesSection from './PlatformFieldOverridesSection';
+import OlxLocationFields from './review-item/OlxLocationFields';
 import { Loader2, CreditCard, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getLocalizedPathForCurrentLanguage } from './language-utils';
@@ -357,8 +358,10 @@ const ReviewItemForm = ({
     const hasAttributes = Boolean(
       olxOverrides.attributes && Object.keys(olxOverrides.attributes).length > 0
     );
+    const hasLocation = Boolean(olxOverrides.location?.city_id);
+    const hasDelivery = Boolean(olxOverrides.ad_delivery?.delivery_package_ids?.length);
 
-    return hasCategory || hasCategoryPath || hasAttributes;
+    return hasCategory || hasCategoryPath || hasAttributes || hasLocation || hasDelivery;
   }, [platformOverrides.olx]);
   
   // Keep selected platforms aligned with available options and mode defaults.
@@ -785,6 +788,8 @@ const ReviewItemForm = ({
         delete nextOlxOverrides.category_id;
         delete nextOlxOverrides.category_path;
         delete nextOlxOverrides.attributes;
+        delete nextOlxOverrides.location;
+        delete nextOlxOverrides.ad_delivery;
       }
 
       return {
@@ -998,15 +1003,25 @@ const ReviewItemForm = ({
       const existing = prev[platform] || {};
       const existingAttrs =
         ((existing as Record<string, unknown>).attributes as Record<string, PlatformDynamicAttributeValue>) || {};
+      const nextOverride: Record<string, unknown> = {
+        ...existing,
+        attributes: {
+          ...existingAttrs,
+          [key]: value,
+        },
+      };
+      if (platform === 'olx' && key === 'delivery') {
+        const raw = typeof value === 'object' && !Array.isArray(value)
+          ? value.values ?? value.value_ids ?? value.value
+          : value;
+        const packageIds = (Array.isArray(raw) ? raw : [raw])
+          .filter((entry): entry is string | number => entry !== undefined && entry !== null && String(entry).trim() !== '')
+          .map(String);
+        nextOverride.ad_delivery = { delivery_package_ids: packageIds };
+      }
       return {
         ...prev,
-        [platform]: {
-          ...existing,
-          attributes: {
-            ...existingAttrs,
-            [key]: value,
-          },
-        },
+        [platform]: nextOverride,
       };
     });
   };
@@ -1024,6 +1039,8 @@ const ReviewItemForm = ({
     const olxCategoryPath = platformOverrides.olx?.category_path;
     const olxAttrs = platformOverrides.olx?.attributes;
     const olxFieldOverrides = platformOverrides.olx?.field_overrides;
+    const olxLocation = platformOverrides.olx?.location;
+    const olxDelivery = platformOverrides.olx?.ad_delivery;
     const explicitOlxCountry = platformOverrides.olx?.country_code || platformOverrides.olx?.country;
     const olxCountry =
       explicitOlxCountry ||
@@ -1032,6 +1049,8 @@ const ReviewItemForm = ({
         (olxCategory !== undefined && olxCategory !== null && String(olxCategory).trim() !== '') ||
         (olxCategoryPath && String(olxCategoryPath).trim()) ||
         (olxAttrs && Object.keys(olxAttrs).length > 0) ||
+        Boolean(olxLocation?.city_id) ||
+        Boolean(olxDelivery?.delivery_package_ids?.length) ||
         (olxFieldOverrides && Object.keys(olxFieldOverrides).length > 0)) {
       const parsed = Number(olxCategory);
       overrides.olx = {};
@@ -1046,6 +1065,14 @@ const ReviewItemForm = ({
       }
       if (olxAttrs && Object.keys(olxAttrs).length > 0) {
         overrides.olx.attributes = olxAttrs;
+      }
+      if (olxLocation?.city_id) {
+        overrides.olx.location = { ...olxLocation };
+      }
+      if (olxDelivery?.delivery_package_ids?.length) {
+        overrides.olx.ad_delivery = {
+          delivery_package_ids: [...olxDelivery.delivery_package_ids],
+        };
       }
       if (olxFieldOverrides && Object.keys(olxFieldOverrides).length > 0) {
         overrides.olx.field_overrides = olxFieldOverrides;
@@ -1812,6 +1839,19 @@ const ReviewItemForm = ({
               )}
             </div>
           </div>
+        )}
+
+        {selectedPlatforms.includes('olx') && (
+          <OlxLocationFields
+            countryCode={selectedOlxCountryCode}
+            disabled={isSubmitting || olxConnectedAccounts.length === 0}
+            language={language}
+            value={platformOverrides.olx?.location}
+            onChange={(location) => setPlatformOverrides((previous) => ({
+              ...previous,
+              olx: { ...(previous.olx || {}), location },
+            }))}
+          />
         )}
 
         {selectedPlatforms.length > 0 && (

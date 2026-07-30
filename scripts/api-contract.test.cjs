@@ -67,3 +67,20 @@ test('legacy toast compatibility remains backed by Sonner', () => {
   assert.match(read('src/hooks/use-toast.ts'), /@\/lib\/notifications/);
   assert.match(read('src/lib/notifications.tsx'), /from 'sonner'/);
 });
+
+test('OLX editor-generated publish payload preserves provider selections', () => {
+  const form = read('src/components/ReviewItemForm.tsx');
+  const api = read('src/lib/api/olx.ts');
+  const types = read('src/types/item.ts');
+  const locationFields = read('src/components/review-item/OlxLocationFields.tsx');
+
+  assert.match(api, /\/olx\/locations\/cities\//);
+  assert.match(api, /\/districts\//);
+  assert.match(types, /location\?:\s*\{/);
+  assert.match(types, /ad_delivery\?:\s*\{/);
+  assert.match(form, /overrides\.olx\.location\s*=\s*\{\s*\.\.\.olxLocation\s*\}/);
+  assert.match(form, /overrides\.olx\.ad_delivery\s*=/);
+  assert.match(form, /delivery_package_ids:\s*\[\.\.\.olxDelivery\.delivery_package_ids\]/);
+  assert.match(locationFields, /A district is required for this city\./);
+  assert.doesNotMatch(locationFields, /connect-accounts/);
+});
