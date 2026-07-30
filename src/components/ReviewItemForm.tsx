@@ -340,9 +340,17 @@ const ReviewItemForm = ({
     [defaultOlxAccount?.country_code, platformOverrides.olx?.country, platformOverrides.olx?.country_code]
   );
   const selectedOlxAccount = useMemo(
-    () => olxConnectedAccounts.find((account) => account.country_code === selectedOlxCountryCode),
+    () =>
+      olxConnectedAccounts.find(
+        (account) => String(account.country_code).toUpperCase() === selectedOlxCountryCode
+      ),
     [olxConnectedAccounts, selectedOlxCountryCode]
   );
+  const shouldSelectOlxCountry =
+    olxConnectedAccounts.length > 1 ||
+    (olxConnectedAccounts.length === 1 && !selectedOlxAccount);
+  const isDefaultOlxCountry =
+    String(defaultOlxAccount?.country_code).toUpperCase() === selectedOlxCountryCode;
   const selectedOlxCountryLabel = formatCountryLabel(
     selectedOlxAccount || { country_code: selectedOlxCountryCode },
     interfaceLanguage,
@@ -828,6 +836,7 @@ const ReviewItemForm = ({
       };
 
       if (categoryChanged) {
+        nextOlxOverrides._replace = true;
         delete nextOlxOverrides.attributes;
         delete nextOlxOverrides.ad_delivery;
       }
@@ -864,6 +873,7 @@ const ReviewItemForm = ({
       };
 
       if (previousCountry && previousCountry !== nextCountry) {
+        nextOlxOverrides._replace = true;
         delete nextOlxOverrides.category_id;
         delete nextOlxOverrides.category_path;
         delete nextOlxOverrides.attributes;
@@ -1120,19 +1130,26 @@ const ReviewItemForm = ({
     const olxFieldOverrides = platformOverrides.olx?.field_overrides;
     const olxLocation = platformOverrides.olx?.location;
     const olxDelivery = platformOverrides.olx?.ad_delivery;
+    const replaceOlxOverrides = platformOverrides.olx?._replace === true;
     const explicitOlxCountry = platformOverrides.olx?.country_code || platformOverrides.olx?.country;
     const olxCountry =
       explicitOlxCountry ||
       (selectedPlatforms.includes('olx') && olxConnectedAccounts.length > 0 ? selectedOlxCountryCode : '');
-    if ((olxCountry && String(olxCountry).trim()) ||
-        (olxCategory !== undefined && olxCategory !== null && String(olxCategory).trim() !== '') ||
-        (olxCategoryPath && String(olxCategoryPath).trim()) ||
-        (olxAttrs && Object.keys(olxAttrs).length > 0) ||
-        Boolean(olxLocation?.city_id) ||
-        Boolean(olxDelivery?.delivery_package_ids?.length) ||
-        (olxFieldOverrides && Object.keys(olxFieldOverrides).length > 0)) {
+    if (
+      replaceOlxOverrides ||
+      (olxCountry && String(olxCountry).trim()) ||
+      (olxCategory !== undefined && olxCategory !== null && String(olxCategory).trim() !== '') ||
+      (olxCategoryPath && String(olxCategoryPath).trim()) ||
+      (olxAttrs && Object.keys(olxAttrs).length > 0) ||
+      Boolean(olxLocation?.city_id) ||
+      Boolean(olxDelivery?.delivery_package_ids?.length) ||
+      (olxFieldOverrides && Object.keys(olxFieldOverrides).length > 0)
+    ) {
       const parsed = Number(olxCategory);
       overrides.olx = {};
+      if (replaceOlxOverrides) {
+        overrides.olx._replace = true;
+      }
       if (olxCountry && String(olxCountry).trim()) {
         overrides.olx.country_code = String(olxCountry).trim().toUpperCase();
       }
@@ -1905,18 +1922,28 @@ const ReviewItemForm = ({
                     : t.marketplaceRequirements.olxCountryUnconnectedInfo}
                 </p>
               </div>
-              {olxConnectedAccounts.length > 1 ? (
+              {shouldSelectOlxCountry ? (
                 <Select
-                  value={selectedOlxCountryCode}
+                  value={
+                    selectedOlxAccount?.country_code
+                      ? String(selectedOlxAccount.country_code).toUpperCase()
+                      : undefined
+                  }
                   onValueChange={updateOlxCountryOverride}
                   disabled={isSubmitting}
                 >
-                  <SelectTrigger className="bg-neutral-950/60 border-neutral-700 text-white">
+                  <SelectTrigger
+                    aria-label={t.marketplaceRequirements.olxCountry}
+                    className="bg-neutral-950/60 border-neutral-700 text-white"
+                  >
                     <SelectValue placeholder={t.marketplaceRequirements.selectCountry} />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
                     {olxConnectedAccounts.map((account) => (
-                      <SelectItem key={account.country_code} value={account.country_code || 'PL'}>
+                      <SelectItem
+                        key={account.country_code}
+                        value={String(account.country_code || 'PL').toUpperCase()}
+                      >
                         {formatCountryLabel(account, interfaceLanguage, account.country_code)}
                         {account.is_default ? ` (${t.marketplaceRequirements.defaultCountry})` : ''}
                       </SelectItem>
@@ -1927,7 +1954,7 @@ const ReviewItemForm = ({
                 <div className="flex items-center justify-between gap-3 rounded-md border border-neutral-700 bg-neutral-950/60 px-3 py-2 text-sm text-neutral-200">
                   <span>{selectedOlxCountryLabel}</span>
                   <span className="shrink-0 text-xs text-neutral-500">
-                    {defaultOlxAccount?.country_code === selectedOlxCountryCode
+                    {isDefaultOlxCountry
                       ? t.marketplaceRequirements.defaultCountry
                       : t.marketplaceRequirements.connectedCountry}
                   </span>

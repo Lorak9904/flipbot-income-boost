@@ -3,6 +3,7 @@ import { Loader2 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getOlxCityDistricts, searchOlxCities, type OlxLocationOption } from '@/lib/api/olx';
 import type { PlatformOverrides } from '@/types/item';
@@ -38,24 +39,44 @@ export default function OlxLocationFields({
   const [loadingCities, setLoadingCities] = useState(false);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [districtLoadFailed, setDistrictLoadFailed] = useState(false);
+  const [districtRetryKey, setDistrictRetryKey] = useState(0);
+  const [activeCityIndex, setActiveCityIndex] = useState(-1);
+  const citySearchRequestIdRef = useRef(0);
   const locationValueRef = useRef(value);
   locationValueRef.current = value;
   const cityId = value?.city_id ? String(value.city_id) : '';
   const cityListboxId = 'olx-city-options';
   const cityRequiredMessageId = 'olx-city-required';
   const districtRequiredMessageId = 'olx-district-required';
+  const activeCity = activeCityIndex >= 0 ? cities[activeCityIndex] : undefined;
 
   useEffect(() => {
-    if (query.trim().length < 2 || query === value?.city_name) return;
+    if (query.trim().length < 2 || query === value?.city_name) {
+      citySearchRequestIdRef.current += 1;
+      setCities([]);
+      setActiveCityIndex(-1);
+      return;
+    }
+    const requestId = ++citySearchRequestIdRef.current;
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
+      if (citySearchRequestIdRef.current !== requestId) return;
       setLoadingCities(true);
       try {
-        setCities((await searchOlxCities({ query, countryCode, signal: controller.signal })).results);
+        const results = (
+          await searchOlxCities({ query, countryCode, signal: controller.signal })
+        ).results;
+        if (controller.signal.aborted || citySearchRequestIdRef.current !== requestId) return;
+        setCities(results);
+        setActiveCityIndex(-1);
       } catch (error) {
-        if (!controller.signal.aborted) setCities([]);
+        if (!controller.signal.aborted && citySearchRequestIdRef.current === requestId) {
+          setCities([]);
+        }
       } finally {
-        if (!controller.signal.aborted) setLoadingCities(false);
+        if (!controller.signal.aborted && citySearchRequestIdRef.current === requestId) {
+          setLoadingCities(false);
+        }
       }
     }, 250);
     return () => {
@@ -108,11 +129,13 @@ export default function OlxLocationFields({
         if (!controller.signal.aborted) setLoadingDistricts(false);
       });
     return () => controller.abort();
-  }, [cityId, countryCode, onChange, onDistrictRequirementChange]);
+  }, [cityId, countryCode, districtRetryKey, onChange, onDistrictRequirementChange]);
 
   const chooseCity = (city: OlxLocationOption) => {
+    citySearchRequestIdRef.current += 1;
     setQuery(city.name);
     setCities([]);
+    setActiveCityIndex(-1);
     onDistrictRequirementChange('loading');
     onChange({ city_id: city.id, city_name: city.name });
   };
@@ -129,16 +152,54 @@ export default function OlxLocationFields({
             aria-controls={cityListboxId}
             aria-expanded={cities.length > 0}
             aria-haspopup="listbox"
+            aria-activedescendant={activeCity ? `olx-city-option-${activeCity.id}` : undefined}
             aria-required="true"
             aria-describedby={!cityId ? cityRequiredMessageId : undefined}
             value={query}
             disabled={disabled}
             placeholder={isPolish ? 'Wpisz co najmniej 2 znaki' : 'Type at least 2 characters'}
             onChange={(event) => {
+              citySearchRequestIdRef.current += 1;
               setQuery(event.target.value);
+              setCities([]);
+              setLoadingCities(false);
+              setActiveCityIndex(-1);
               if (cityId) {
                 onDistrictRequirementChange('idle');
                 onChange(undefined);
+              }
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                event.preventDefault();
+                citySearchRequestIdRef.current += 1;
+                setCities([]);
+                setLoadingCities(false);
+                setActiveCityIndex(-1);
+                return;
+              }
+
+              if (cities.length === 0) return;
+
+              if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                setActiveCityIndex((current) =>
+                  current >= cities.length - 1 ? 0 : current + 1
+                );
+                return;
+              }
+
+              if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                setActiveCityIndex((current) =>
+                  current <= 0 ? cities.length - 1 : current - 1
+                );
+                return;
+              }
+
+              if (event.key === 'Enter' && activeCity) {
+                event.preventDefault();
+                chooseCity(activeCity);
               }
             }}
           />
@@ -151,8 +212,18 @@ export default function OlxLocationFields({
         )}
         {cities.length > 0 && (
           <div id={cityListboxId} role="listbox" className="max-h-44 overflow-y-auto rounded-md border border-neutral-700 bg-neutral-950 p-1">
-            {cities.map((city) => (
-              <button key={city.id} type="button" role="option" aria-selected={String(city.id) === cityId} className="block w-full rounded px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-800" onClick={() => chooseCity(city)}>
+            {cities.map((city, index) => (
+              <button
+                id={`olx-city-option-${city.id}`}
+                key={city.id}
+                type="button"
+                role="option"
+                tabIndex={-1}
+                aria-selected={index === activeCityIndex}
+                className="block w-full rounded px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-800 aria-selected:bg-neutral-800"
+                onMouseEnter={() => setActiveCityIndex(index)}
+                onClick={() => chooseCity(city)}
+              >
                 {city.name}
               </button>
             ))}
@@ -185,7 +256,25 @@ export default function OlxLocationFields({
           </SelectContent>
         </Select>
         {districts.length > 0 && !value?.district_id && <p id={districtRequiredMessageId} className="text-xs text-amber-300">{isPolish ? 'Dzielnica jest wymagana dla tego miasta.' : 'A district is required for this city.'}</p>}
-        {districtLoadFailed && <p className="text-xs text-red-300">{isPolish ? 'Nie udało się sprawdzić dzielnic OLX. Spróbuj ponownie.' : 'Could not check OLX districts. Try again.'}</p>}
+        {districtLoadFailed && (
+          <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-red-300">
+            <span>
+              {isPolish
+                ? 'Nie udało się sprawdzić dzielnic OLX.'
+                : 'Could not check OLX districts.'}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-11 border-red-400/50 bg-transparent px-3 text-xs text-red-200 hover:bg-red-500/10 hover:text-red-100"
+              disabled={disabled || loadingDistricts}
+              onClick={() => setDistrictRetryKey((current) => current + 1)}
+            >
+              {isPolish ? 'Spróbuj ponownie' : 'Try again'}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

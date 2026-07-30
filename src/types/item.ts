@@ -132,6 +132,8 @@ export interface AllegroProductParameterSnapshot {
 
 export interface PlatformOverrides {
   olx?: {
+    /** OLX-only write marker: replace this block; the backend strips the marker before storage. */
+    _replace?: true;
     country_code?: string;
     country?: string;
     category_id?: number | string;

@@ -78,9 +78,16 @@ test('OLX editor-generated publish payload preserves provider selections', () =>
   assert.match(api, /\/districts\//);
   assert.match(types, /location\?:\s*\{/);
   assert.match(types, /ad_delivery\?:\s*\{/);
+  assert.match(types, /_replace\?:\s*true;/);
+  assert.match(form, /nextOlxOverrides\._replace\s*=\s*true;/);
+  assert.match(form, /platformOverrides\.olx\?\._replace\s*===\s*true/);
+  assert.match(form, /overrides\.olx\._replace\s*=\s*true;/);
   assert.match(form, /overrides\.olx\.location\s*=\s*\{\s*\.\.\.olxLocation\s*\}/);
   assert.match(form, /overrides\.olx\.ad_delivery\s*=/);
   assert.match(form, /delivery_package_ids:\s*\[\.\.\.olxDelivery\.delivery_package_ids\]/);
   assert.match(locationFields, /A district is required for this city\./);
+  assert.match(locationFields, /aria-activedescendant/);
+  assert.match(locationFields, /setDistrictRetryKey/);
+  assert.match(locationFields, /Try again/);
   assert.doesNotMatch(locationFields, /connect-accounts/);
 });
