@@ -9,6 +9,11 @@ import {
   normalizeBillingCurrency,
 } from "@/lib/billing-pricing";
 import { getCurrentLanguage, getLocalizedPathForLanguage } from "./language-utils";
+import {
+  AuthApiError,
+  buildGoogleLoginPayload,
+  getAuthErrorCode,
+} from '@/lib/legal-acceptance';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -19,9 +24,33 @@ const fadeUp = {
   }),
 };
 
-export default function LoginWithGmail() {
+type LoginWithGmailProps = {
+  signupMode?: boolean;
+  legalAccepted?: boolean;
+  onAuthError?: (error: unknown) => void;
+};
+
+export default function LoginWithGmail({
+  signupMode = false,
+  legalAccepted = false,
+  onAuthError,
+}: LoginWithGmailProps) {
   const { setUserAndTokens } = useAuth();
   const navigate = useNavigate();
+
+  if (signupMode && !legalAccepted) {
+    return (
+      <motion.div variants={fadeUp} custom={6} className="mt-6 flex flex-col items-center gap-3">
+        <button
+          type="button"
+          disabled
+          className="h-10 w-full max-w-[370px] cursor-not-allowed rounded-full border border-neutral-600 bg-neutral-800 text-sm font-medium text-neutral-500"
+        >
+          {getCurrentLanguage() === 'pl' ? 'Kontynuuj z Google' : 'Continue with Google'}
+        </button>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div variants={fadeUp} custom={6} className="mt-6 flex flex-col items-center gap-3">
@@ -38,9 +67,10 @@ export default function LoginWithGmail() {
           if (!credential) return;
 
           try {
-            const response = await axios.post(`/api/auth/login/google`, {
-              credential,
-            });
+            const response = await axios.post(
+              `/api/auth/login/google`,
+              buildGoogleLoginPayload(credential, signupMode),
+            );
 
             const { token, refresh_token, userData } = response.data;
             setUserAndTokens(userData, token, refresh_token);
@@ -61,10 +91,12 @@ export default function LoginWithGmail() {
             }
             window.location.reload();
           } catch (err) {
-            console.error("Google login error", err);
+            const payload = axios.isAxiosError(err) ? err.response?.data : null;
+            const code = getAuthErrorCode(payload);
+            onAuthError?.(new AuthApiError(code || 'google_login_failed'));
           }
         }}
-        onError={() => console.log("Google login failed")}
+        onError={() => onAuthError?.(new AuthApiError('google_login_failed'))}
       />
     </motion.div>
   );

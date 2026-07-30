@@ -29,7 +29,12 @@ export const loginTranslations: Translations = {
     passwordTooCommon: 'Password is too common',
     passwordNumericOnly: 'Password cannot be entirely numeric',
     loginFailed: 'Failed to log in',
-    registrationFailed: 'Registration failed.'
+    registrationFailed: 'Registration failed.',
+    termsLink: 'Terms',
+    privacyLink: 'Privacy Policy',
+    legalAcceptanceRequired: 'Accept the Terms and acknowledge the Privacy Policy to create an account.',
+    legalVersionOutdated: 'The legal documents were updated. Review and accept the current versions to continue.',
+    googleLoginFailed: 'Google sign-in failed. Please try again.',
   },
   pl: {
     pageAccess: 'Dostęp do FlipIt',
@@ -59,6 +64,11 @@ export const loginTranslations: Translations = {
     passwordTooCommon: 'Hasło jest zbyt powszechne',
     passwordNumericOnly: 'Hasło nie może składać się wyłącznie z cyfr',
     loginFailed: 'Nie udało się zalogować',
-    registrationFailed: 'Nie udało się zarejestrować.'
+    registrationFailed: 'Nie udało się zarejestrować.',
+    termsLink: 'Regulamin',
+    privacyLink: 'Polityką prywatności',
+    legalAcceptanceRequired: 'Zaakceptuj Regulamin i potwierdź zapoznanie się z Polityką prywatności, aby utworzyć konto.',
+    legalVersionOutdated: 'Dokumenty prawne zostały zaktualizowane. Zapoznaj się z bieżącymi wersjami i zaakceptuj je, aby kontynuować.',
+    googleLoginFailed: 'Logowanie przez Google nie powiodło się. Spróbuj ponownie.',
   }
 };

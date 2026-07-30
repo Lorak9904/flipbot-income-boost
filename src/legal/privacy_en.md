@@ -95,7 +95,7 @@ FlipIt is intended for people who can lawfully run marketplace selling activity 
 
 ## 12. Cookies and analytics
 
-FlipIt uses cookies, local storage, and similar technologies for login, language, consent, security, visitor pings, product observability, analytics, and live chat. Product observability, including masked session recordings, may run in memory without persistent analytics cookies or persistent PostHog browser storage. The Cookie Policy explains these technologies in more detail.
+FlipIt uses cookies, local storage, and similar technologies for login, language, consent, security, visitor pings, product observability, analytics, and live chat. Browser product analytics and masked session recordings start only after optional consent. The Cookie Policy explains these technologies in more detail.
 
 ## 13. Changes
 

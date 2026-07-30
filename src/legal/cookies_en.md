@@ -22,7 +22,7 @@ Blocking essential storage may stop parts of FlipIt from working.
 
 ## 3. Product observability and analytics
 
-FlipIt uses PostHog EU for product observability when analytics is configured. This helps us see whether important pages, signup flows, listing workflows, and product actions are working. Before non-essential consent is accepted, and when it is refused, PostHog uses in-memory persistence so it does not store PostHog cookies or persistent PostHog local/session storage on your browser.
+FlipIt uses PostHog EU for product observability when analytics is configured and you accept optional technologies. This helps us see whether important pages, signup flows, listing workflows, and product actions are working. PostHog is not initialized in your browser before that choice or when optional technologies are refused.
 
 Basic observability events and masked session recordings may run in this memory-only mode regardless of the optional cookie choice. Input fields are configured to be masked. When non-essential consent is accepted, FlipIt may also enable persistent analytics storage and identifiers.
 
@@ -44,7 +44,7 @@ Those technologies are controlled by the third-party provider. Their own cookie 
 
 You can manage cookies and local storage through your browser settings. You can delete stored data for myflipit.live at any time. If you delete consent storage, the banner may appear again.
 
-You can avoid optional analytics cookies, persistent PostHog identifiers, and chat cookies by not accepting non-essential cookies. Refusing optional cookies does not disable memory-only product observability or masked session recordings, which run without persistent PostHog browser storage. Some essential app functions may still use storage because they are needed for login, language, security, and requested workflows.
+You can avoid optional analytics, PostHog identifiers, session recordings, and chat cookies by not accepting non-essential cookies. Some essential app functions may still use storage because they are needed for login, language, security, and requested workflows.
 
 ## 7. No advertising cookies
 

@@ -22,7 +22,7 @@ Blokowanie niezbędnego storage może sprawić, że część FlipIt nie będzie 
 
 ## 3. Obserwowalność produktu i analityka
 
-FlipIt używa PostHog EU do obserwowalności produktu, jeżeli analityka jest skonfigurowana. Pomaga nam to sprawdzać, czy ważne strony, rejestracja, workflow ogłoszeń i akcje w produkcie działają poprawnie. Przed akceptacją opcjonalnych technologii oraz po ich odrzuceniu PostHog działa z pamięcią tymczasową, więc nie zapisuje cookies PostHog ani trwałego storage PostHog w przeglądarce.
+FlipIt używa PostHog EU do obserwowalności produktu, jeżeli analityka jest skonfigurowana i zaakceptujesz opcjonalne technologie. Pomaga nam to sprawdzać, czy ważne strony, rejestracja, workflow ogłoszeń i akcje w produkcie działają poprawnie. PostHog nie jest uruchamiany w Twojej przeglądarce przed tym wyborem ani po odrzuceniu opcjonalnych technologii.
 
 Podstawowe zdarzenia obserwowalności i maskowane nagrania sesji mogą działać w tym trybie pamięciowym niezależnie od wyboru dotyczącego opcjonalnych cookies. Pola formularzy są skonfigurowane jako maskowane. Po zaakceptowaniu opcjonalnych technologii FlipIt może dodatkowo włączyć trwały storage analityczny i identyfikatory.
 
@@ -44,7 +44,7 @@ Te technologie są kontrolowane przez zewnętrznego dostawcę. Obowiązują wted
 
 Cookies i local storage możesz kontrolować w ustawieniach przeglądarki. W każdej chwili możesz usunąć dane zapisane dla myflipit.live. Jeżeli usuniesz zapis zgody, baner może pojawić się ponownie.
 
-Możesz uniknąć opcjonalnych cookies analitycznych, trwałych identyfikatorów PostHog i cookies czatu, nie akceptując opcjonalnych cookies. Odrzucenie opcjonalnych cookies nie wyłącza obserwowalności produktu ani maskowanych nagrań sesji działających w pamięci bez trwałego storage PostHog w przeglądarce. Część podstawowych funkcji aplikacji nadal może używać storage, bo jest potrzebny do logowania, języka, bezpieczeństwa i działań wywołanych przez użytkownika.
+Możesz uniknąć opcjonalnej analityki, identyfikatorów PostHog, nagrań sesji i cookies czatu, nie akceptując opcjonalnych cookies. Część podstawowych funkcji aplikacji nadal może używać storage, bo jest potrzebny do logowania, języka, bezpieczeństwa i działań wywołanych przez użytkownika.
 
 ## 7. Brak cookies reklamowych
 

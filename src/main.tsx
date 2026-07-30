@@ -22,8 +22,6 @@ const root = createRoot(document.getElementById('root')!);
 document.getElementById('seo-prerender')?.remove();
 
 const buildPostHogOptions = (): Partial<PostHogConfig> => {
-  const hasOptionalConsent = hasOptionalCookieConsent();
-
   return {
     api_host: POSTHOG_HOST,
     ui_host: 'https://eu.posthog.com',
@@ -33,7 +31,7 @@ const buildPostHogOptions = (): Partial<PostHogConfig> => {
     autocapture: true,
     capture_exceptions: true,
     before_send: sanitizePostHogEvent,
-    persistence: hasOptionalConsent ? 'localStorage+cookie' : 'memory',
+    persistence: 'localStorage+cookie',
     disable_session_recording: false,
     session_recording: {
       maskAllInputs: true,
@@ -42,7 +40,7 @@ const buildPostHogOptions = (): Partial<PostHogConfig> => {
 };
 
 const renderApp = () => {
-  if (POSTHOG_KEY) {
+  if (POSTHOG_KEY && hasOptionalCookieConsent()) {
     root.render(
       <StrictMode>
         <PostHogProvider apiKey={POSTHOG_KEY} options={buildPostHogOptions()}>

@@ -1,5 +1,10 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { googleLogout } from '@react-oauth/google'; // <-- Add this import
+import {
+  AuthApiError,
+  currentLegalAcceptance,
+  getAuthErrorCode,
+} from '@/lib/legal-acceptance';
 
 export type User = {
   id: string;
@@ -292,12 +297,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name }),
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+          legal_acceptance: currentLegalAcceptance(),
+        }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Registration failed");
+        const errorData = await response.json().catch(() => null);
+        const code = getAuthErrorCode(errorData);
+        throw new AuthApiError(code || 'registration_failed');
       }
 
       // Do NOT set user or token after registration

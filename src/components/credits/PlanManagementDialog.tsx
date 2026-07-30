@@ -39,6 +39,7 @@ import {
   getInitialBillingCurrency,
   persistBillingCurrency,
 } from '@/lib/billing-pricing';
+import { CheckoutDisclosure } from '@/components/billing/CheckoutDisclosure';
 
 interface PlanManagementDialogProps {
   open: boolean;
@@ -483,6 +484,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
                   {t.addonPack100 || 'Buy +100 credits'}
                 </Button>
               </div>
+              <CheckoutDisclosure variant="one-time" />
             </div>
           )}
           
@@ -516,6 +518,13 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
                 : t.confirmDowngradeMessage
               }
             </AlertDialogDescription>
+            {confirmDialog.action === 'upgrade' && confirmDialog.targetPlan && (
+              <CheckoutDisclosure
+                variant="subscription"
+                price={getDisplayedPrice(plans.find(p => p.id === confirmDialog.targetPlan) || plans[0])}
+                period={billingCycle === 'monthly' ? t.perMonth : (t.perYear || 'per year')}
+              />
+            )}
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>

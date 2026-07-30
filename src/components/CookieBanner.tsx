@@ -20,14 +20,14 @@ const bannerCopy: Record<
 > = {
   en: {
     text:
-      "FlipIt uses essential browser data for sign-in, language, and security. Cookie-free product observability, including masked session replay, may run without optional consent. Optional consent enables persistent analytics and live chat.",
+      "FlipIt uses essential browser data for sign-in, language, and security. Optional consent enables product analytics, masked session replay, and live chat.",
     learnMore: "Cookie policy",
     accept: "Allow optional",
     necessary: "Only necessary",
   },
   pl: {
     text:
-      "FlipIt używa niezbędnych danych przeglądarki do logowania, wyboru języka i bezpieczeństwa. Obserwowalność produktu bez cookies, w tym maskowane nagrania sesji, może działać bez opcjonalnej zgody. Opcjonalna zgoda włącza trwałą analitykę i czat.",
+      "FlipIt używa niezbędnych danych przeglądarki do logowania, wyboru języka i bezpieczeństwa. Opcjonalna zgoda włącza analitykę produktu, maskowane nagrania sesji i czat.",
     learnMore: "Polityka cookies",
     accept: "Zezwól na opcjonalne",
     necessary: "Tylko niezbędne",

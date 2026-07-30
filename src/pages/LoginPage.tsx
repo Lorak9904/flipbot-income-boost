@@ -9,6 +9,7 @@ import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from
 import { loginTranslations } from './login-translations';
 import { isSafeReturnPath } from '@/lib/listing-editor/navigation';
 import { matchLocalizedRoute } from '@/lib/localized-routes';
+import { AuthApiError } from '@/lib/legal-acceptance';
 
 // Fade‑up motion reused across inputs / header
 const fadeUp = {
@@ -44,6 +45,7 @@ const LoginPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [registerSuccess, setRegisterSuccess] = useState<string | null>(null);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+  const [legalAccepted, setLegalAccepted] = useState(false);
   const returnTo = new URLSearchParams(location.search).get('returnTo');
 
   const getPostAuthRedirect = useCallback(() => {
@@ -109,6 +111,10 @@ const LoginPage = () => {
       setError(t.allFieldsRequired);
       return;
     }
+    if (!legalAccepted) {
+      setError(t.legalAcceptanceRequired);
+      return;
+    }
     if (errors.length > 0) {
       setPasswordErrors(errors);
       return;
@@ -123,10 +129,19 @@ const LoginPage = () => {
       setName('');
       // window.location.reload();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t.registrationFailed);
+      setError(getRegistrationErrorMessage(err));
     } finally {
       setLoading(false);
     }
+  };
+
+  const getRegistrationErrorMessage = (err: unknown) => {
+    if (err instanceof AuthApiError) {
+      if (err.code === 'legal_acceptance_required') return t.legalAcceptanceRequired;
+      if (err.code === 'legal_version_outdated') return t.legalVersionOutdated;
+      if (err.code === 'google_login_failed') return t.googleLoginFailed;
+    }
+    return t.registrationFailed;
   };
 
   useEffect(() => {
@@ -149,6 +164,7 @@ const LoginPage = () => {
       setIsSignUp(true);
     } else {
       setIsSignUp(false);
+      setLegalAccepted(false);
     }
   }, [location.search]);
 
@@ -293,6 +309,26 @@ const LoginPage = () => {
                   ))}
                 </ul>
               )}
+              <motion.label variants={fadeUp} custom={5} className="flex items-start gap-3 text-sm leading-5 text-neutral-300">
+                <input
+                  type="checkbox"
+                  checked={legalAccepted}
+                  onChange={(event) => setLegalAccepted(event.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-neutral-600 bg-neutral-800 accent-cyan-500"
+                  aria-describedby="registration-legal-copy"
+                />
+                <span id="registration-legal-copy">
+                  {language === 'pl' ? 'Akceptuję ' : 'I accept the '}
+                  <Link to={localized('/terms')} target="_blank" className="text-cyan-300 underline underline-offset-2">
+                    {t.termsLink}
+                  </Link>
+                  {language === 'pl' ? ' i potwierdzam zapoznanie się z ' : ' and acknowledge the '}
+                  <Link to={localized('/privacy')} target="_blank" className="text-cyan-300 underline underline-offset-2">
+                    {t.privacyLink}
+                  </Link>
+                  .
+                </span>
+              </motion.label>
               <motion.div variants={fadeUp} custom={5} className="flex items-center justify-between text-xs">
                 <button
                   type="button"
@@ -305,7 +341,7 @@ const LoginPage = () => {
               <motion.div variants={fadeUp} custom={6}>
                 <AuthButton
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !legalAccepted}
                 >
                   {loading ? t.creatingAccountButton : t.createAccountButton}
                 </AuthButton>
@@ -316,7 +352,11 @@ const LoginPage = () => {
                 <span className="px-6 text-xs text-neutral-400">{t.orDivider}</span>
                 <hr className="flex-1 border-t border-neutral-700" />
               </div>
-              <LoginWithGmail />
+              <LoginWithGmail
+                signupMode
+                legalAccepted={legalAccepted}
+                onAuthError={(authError) => setError(getRegistrationErrorMessage(authError))}
+              />
             </form>
           ) : (
             <>

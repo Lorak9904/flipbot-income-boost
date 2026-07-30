@@ -95,7 +95,7 @@ FlipIt jest przeznaczony dla osób, które mogą zgodnie z prawem prowadzić spr
 
 ## 12. Cookies i analityka
 
-FlipIt korzysta z cookies, local storage i podobnych technologii do logowania, języka, zgody, bezpieczeństwa, pingów odwiedzającego, obserwowalności produktu, analityki i czatu. Obserwowalność produktu, w tym maskowane nagrania sesji, może działać w pamięci bez trwałych cookies analitycznych i bez trwałego storage PostHog w przeglądarce. Szczegóły opisuje Polityka cookies.
+FlipIt korzysta z cookies, local storage i podobnych technologii do logowania, języka, zgody, bezpieczeństwa, pingów odwiedzającego, obserwowalności produktu, analityki i czatu. Analityka produktu w przeglądarce i maskowane nagrania sesji rozpoczynają się dopiero po opcjonalnej zgodzie. Szczegóły opisuje Polityka cookies.
 
 ## 13. Zmiany
 
