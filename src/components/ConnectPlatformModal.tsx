@@ -15,6 +15,7 @@ import { motion } from 'framer-motion';
 import { notify } from '@/lib/notifications';
 import { getTranslations } from '@/components/language-utils';
 import { connectCardTranslations } from './connect-card-translations';
+import { isVintedVerificationRequired } from '@/lib/vinted-publish-result';
 
 interface ConnectPlatformModalProps {
   platform: 'facebook' | 'vinted';  // Only cookie-based platforms use this modal.
@@ -100,11 +101,25 @@ export const ConnectPlatformModal = ({
       });
       if (!response.ok) {
         let errorMsg = t.toastManualConnectedError;
+        let errorData: unknown = null;
         try {
-          const errorData = await response.json();
-          if (errorData.detail) errorMsg = errorData.detail;
+          errorData = await response.json();
+          if (
+            typeof errorData === 'object' &&
+            errorData !== null &&
+            'detail' in errorData &&
+            typeof errorData.detail === 'string'
+          ) {
+            errorMsg = errorData.detail;
+          }
         } catch {
           // Keep the default message when the response body is not JSON.
+        }
+        if (platform === 'vinted' && isVintedVerificationRequired(errorData)) {
+          notify.warning(t.vintedVerificationRequired, {
+            description: errorMsg,
+          });
+          return;
         }
         throw new Error(errorMsg);
       }

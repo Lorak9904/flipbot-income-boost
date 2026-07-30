@@ -234,7 +234,10 @@ const ConnectAccountsPage = () => {
       const toastConfig = reconnectToastMap[reconnect];
       if (toastConfig) {
         if (reconnect === 'vinted') {
-          notify.warning(toastConfig.title, {
+          const notifyReconnect = requestedReason === 'verification_required'
+            ? notify.warning
+            : notify.error;
+          notifyReconnect(toastConfig.title, {
             description: message || toastConfig.description,
           });
         } else {
