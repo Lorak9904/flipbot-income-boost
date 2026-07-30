@@ -40,7 +40,7 @@ Dane przetwarzamy, aby:
 Dla użytkowników z Europejskiego Obszaru Gospodarczego podstawy prawne zależą od celu przetwarzania:
 
 - wykonanie umowy, gdy udostępniamy konto FlipIt, narzędzia marketplace, workflow ogłoszeń, wsparcie i rozliczenia;
-- prawnie uzasadniony interes, gdy zabezpieczamy usługę, diagnozujemy błędy, zapobiegamy nadużyciom, poprawiamy workflow, używamy działających w pamięci maskowanych nagrań sesji do obserwowalności produktu i prowadzimy dokumentację biznesową;
+- prawnie uzasadniony interes, gdy zabezpieczamy usługę, diagnozujemy błędy po stronie serwera, zapobiegamy nadużyciom, poprawiamy workflow na podstawie niezbędnych sygnałów operacyjnych i prowadzimy dokumentację biznesową;
 - zgoda, gdy jest wymagana dla opcjonalnych cookies, trwałych identyfikatorów analitycznych, czatu lub opcjonalnej komunikacji;
 - obowiązek prawny, gdy musimy prowadzić dokumentację, odpowiedzieć na zgodne z prawem żądanie, obsłużyć podatki/księgowość albo wykonać obowiązujące przepisy.
 

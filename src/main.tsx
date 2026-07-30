@@ -3,14 +3,8 @@ import App from './App.tsx'
 import { StrictMode } from 'react'
 import './index.css'
 import { GoogleOAuthProvider } from '@react-oauth/google'
-import { PostHogProvider } from '@posthog/react'
-import { COOKIE_CONSENT_EVENT, hasOptionalCookieConsent } from './lib/cookie-consent.ts'
-import type { PostHogConfig } from 'posthog-js'
-import { sanitizePostHogEvent } from './lib/analytics/route-privacy.ts'
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-const POSTHOG_KEY = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
-const POSTHOG_HOST = import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://eu.i.posthog.com';
 
 const app = (
   <GoogleOAuthProvider clientId={CLIENT_ID}>
@@ -21,53 +15,8 @@ const app = (
 const root = createRoot(document.getElementById('root')!);
 document.getElementById('seo-prerender')?.remove();
 
-const buildPostHogOptions = (): Partial<PostHogConfig> => {
-  return {
-    api_host: POSTHOG_HOST,
-    ui_host: 'https://eu.posthog.com',
-    defaults: '2026-01-30',
-    capture_pageview: 'history_change',
-    capture_pageleave: true,
-    autocapture: true,
-    capture_exceptions: true,
-    before_send: sanitizePostHogEvent,
-    persistence: 'localStorage+cookie',
-    disable_session_recording: false,
-    session_recording: {
-      maskAllInputs: true,
-    },
-  };
-};
-
-const renderApp = () => {
-  if (POSTHOG_KEY && hasOptionalCookieConsent()) {
-    root.render(
-      <StrictMode>
-        <PostHogProvider apiKey={POSTHOG_KEY} options={buildPostHogOptions()}>
-          {app}
-        </PostHogProvider>
-      </StrictMode>
-    );
-    return;
-  }
-
-  if (import.meta.env.DEV) {
-    if (!POSTHOG_KEY) {
-      console.warn('PostHog disabled: set VITE_PUBLIC_POSTHOG_KEY to enable analytics.');
-    }
-  }
-
-  root.render(
-    <StrictMode>
-      {app}
-    </StrictMode>
-  );
-};
-
-renderApp();
-
-const handleOptionalCookieConsentAccepted = () => {
-  renderApp();
-};
-
-window.addEventListener(COOKIE_CONSENT_EVENT, handleOptionalCookieConsentAccepted);
+root.render(
+  <StrictMode>
+    {app}
+  </StrictMode>
+);

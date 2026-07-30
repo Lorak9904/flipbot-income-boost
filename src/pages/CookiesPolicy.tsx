@@ -1,11 +1,13 @@
 import { LegalDocumentPage } from '@/components/legal/LegalDocumentPage';
 import cookiesEn from '@/legal/cookies_en.md?raw';
 import cookiesPl from '@/legal/cookies_pl.md?raw';
+import { CookieConsentManager } from '@/components/legal/CookieConsentManager';
 
 export default function CookiesPolicyPage() {
   return (
     <LegalDocumentPage
       dateModified="2026-07-21"
+      afterContent={<CookieConsentManager />}
       documents={{
         en: {
           title: 'Cookie Policy',

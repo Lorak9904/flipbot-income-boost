@@ -4,8 +4,7 @@ import { AddItemButton } from "@/components/ui/button-presets";
 import { Button } from "@/components/ui/button";
 import {
   COOKIE_CONSENT_KEY,
-  notifyCookieConsentChoice,
-  notifyOptionalCookieConsentAccepted,
+  persistCookieConsentChoice,
 } from "@/lib/cookie-consent";
 import { getCurrentLanguage, getLocalizedPathForLanguage, type Language } from "./language-utils";
 
@@ -47,30 +46,7 @@ export default function CookieBanner() {
   }, []);
 
   const persistChoice = (choice: "accepted" | "essential") => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, choice);
-
-    const lang = getCurrentLanguage();
-    document.cookie = `lang=${lang}; path=/; max-age=31536000`;
-    localStorage.setItem("lang", lang);
-
-    let visitorId = localStorage.getItem("visitor_id");
-    if (choice === "accepted" && !visitorId) {
-      visitorId = crypto.randomUUID();
-      localStorage.setItem("visitor_id", visitorId);
-      document.cookie = `visitor_id=${visitorId}; path=/; max-age=31536000`;
-    }
-
-    void fetch("/api/cookies/consent/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ consent: choice === "accepted", lang, visitor_id: visitorId }),
-    }).catch(() => undefined);
-
-    if (choice === "accepted") {
-      notifyOptionalCookieConsentAccepted();
-    }
-    notifyCookieConsentChoice();
-
+    persistCookieConsentChoice(choice);
     setVisible(false);
   };
 

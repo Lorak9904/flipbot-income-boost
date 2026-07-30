@@ -24,7 +24,7 @@ Blocking essential storage may stop parts of FlipIt from working.
 
 FlipIt uses PostHog EU for product observability when analytics is configured and you accept optional technologies. This helps us see whether important pages, signup flows, listing workflows, and product actions are working. PostHog is not initialized in your browser before that choice or when optional technologies are refused.
 
-Basic observability events and masked session recordings may run in this memory-only mode regardless of the optional cookie choice. Input fields are configured to be masked. When non-essential consent is accepted, FlipIt may also enable persistent analytics storage and identifiers.
+Browser analytics and masked session recordings run only after you accept optional technologies. Input fields are configured to be masked. Essential server-side observability may still record whether requested routes and account operations work, without enabling PostHog in your browser.
 
 We use analytics to improve the product, debug confusing flows, and understand which parts of the app are useful. We do not use analytics cookies for third-party advertising.
 

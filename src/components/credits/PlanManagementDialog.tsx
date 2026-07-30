@@ -466,6 +466,7 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
               <p className="text-sm text-neutral-300 mb-3">
                 {t.buyAddonCredits || 'Buy add-on image credits'}
               </p>
+              <CheckoutDisclosure variant="one-time" />
               <div className="flex flex-wrap gap-3">
                 <Button
                   variant="outline"
@@ -484,7 +485,6 @@ export function PlanManagementDialog({ open, onOpenChange }: PlanManagementDialo
                   {t.addonPack100 || 'Buy +100 credits'}
                 </Button>
               </div>
-              <CheckoutDisclosure variant="one-time" />
             </div>
           )}
           

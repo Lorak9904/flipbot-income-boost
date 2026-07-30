@@ -23,6 +23,17 @@ import {
   normalizeBillingCurrency,
   persistBillingCurrency,
 } from '@/lib/billing-pricing';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { CheckoutDisclosure } from '@/components/billing/CheckoutDisclosure';
+import { HeroCTA, SecondaryAction } from '@/components/ui/button-presets';
 
 declare global {
   interface Window {
@@ -48,7 +59,11 @@ const PricingPage = () => {
   const [billingCurrency, setBillingCurrency] = useState<BillingCurrency>(() =>
     getInitialBillingCurrency(getCurrentLanguage())
   );
-  const [checkoutAttempted, setCheckoutAttempted] = useState(false);
+  const [pendingCheckout, setPendingCheckout] = useState<{
+    plan: PaidPlan;
+    cycle: 'monthly' | 'annual';
+    currency: BillingCurrency;
+  } | null>(null);
   const t = getTranslations(pricingTranslations);
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
@@ -96,7 +111,7 @@ const PricingPage = () => {
     }
   }, [t.checkoutErrorMessage, t.checkoutErrorTitle, toast]);
 
-  const handleCheckout = async (plan: 'plus' | 'scale' | 'unlimited') => {
+  const handleCheckout = (plan: 'plus' | 'scale' | 'unlimited') => {
     if (!isAuthenticated) {
       sessionStorage.setItem('flipit_checkout_plan', plan);
       sessionStorage.setItem('flipit_checkout_billing', billingCycle);
@@ -105,7 +120,7 @@ const PricingPage = () => {
       return;
     }
 
-    await startCheckout(plan, billingCycle, billingCurrency);
+    setPendingCheckout({ plan, cycle: billingCycle, currency: billingCurrency });
   };
 
   const handleStartSignup = () => {
@@ -153,7 +168,7 @@ const PricingPage = () => {
     ) || billingCurrency;
     const shouldCheckout = params.get('checkout') === '1' || sessionStorage.getItem('flipit_checkout_plan');
 
-    if (checkoutAttempted || !isAuthenticated || !shouldCheckout || !plan) {
+    if (pendingCheckout || !isAuthenticated || !shouldCheckout || !plan) {
       return;
     }
 
@@ -164,13 +179,19 @@ const PricingPage = () => {
     sessionStorage.removeItem('flipit_checkout_plan');
     sessionStorage.removeItem('flipit_checkout_billing');
     sessionStorage.removeItem(CHECKOUT_CURRENCY_STORAGE_KEY);
-    setCheckoutAttempted(true);
     const normalizedCycle: 'monthly' | 'annual' = cycle === 'annual' ? 'annual' : 'monthly';
     if (currency !== billingCurrency) {
       handleCurrencyChange(currency);
     }
-    void startCheckout(plan, normalizedCycle, currency);
-  }, [billingCycle, billingCurrency, checkoutAttempted, isAuthenticated, location.search, startCheckout]);
+    setPendingCheckout({ plan, cycle: normalizedCycle, currency });
+  }, [billingCycle, billingCurrency, isAuthenticated, location.search, pendingCheckout]);
+
+  const confirmCheckout = () => {
+    if (!pendingCheckout) return;
+    const checkout = pendingCheckout;
+    setPendingCheckout(null);
+    void startCheckout(checkout.plan, checkout.cycle, checkout.currency);
+  };
 
   const pricingPlans = [
     {
@@ -370,6 +391,29 @@ const PricingPage = () => {
           </motion.div>
         </div>
       </section>
+
+      <AlertDialog open={Boolean(pendingCheckout)} onOpenChange={(open) => !open && setPendingCheckout(null)}>
+        <AlertDialogContent className="border-neutral-800 bg-neutral-900">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">{t.confirmCheckoutTitle}</AlertDialogTitle>
+            {pendingCheckout && (
+              <CheckoutDisclosure
+                variant="subscription"
+                price={formatPlanPrice(pendingCheckout.plan, pendingCheckout.currency, pendingCheckout.cycle)}
+                period={pendingCheckout.cycle === 'monthly' ? t.perMonth : t.perYear}
+              />
+            )}
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <SecondaryAction>{t.cancelCheckout}</SecondaryAction>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <HeroCTA onClick={confirmCheckout}>{t.continueToCheckout}</HeroCTA>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

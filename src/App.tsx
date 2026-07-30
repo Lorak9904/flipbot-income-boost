@@ -56,6 +56,7 @@ import { ConnectOlxButton } from "./pages/ConnectOlxButton";
 import { OlxSuccessPage } from "./pages/OlxSuccessPage";
 import ButtonShowcase from "./pages/ButtonShowcase";
 import RequireAuth from "./components/RequireAuth";
+import { OptionalAnalyticsProvider } from './components/OptionalAnalyticsProvider';
 import {
   getLocalizedRoutePaths,
   getRoutePath,
@@ -83,7 +84,8 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <HelmetProvider>
         <AuthProvider>
-          <TooltipProvider>
+          <OptionalAnalyticsProvider>
+            <TooltipProvider>
             <Toaster />
             <BrowserRouter basename="/">
             <ScrollToTop />
@@ -151,8 +153,9 @@ const App = () => {
               {/* <WaitlistBadge /> */}
             </div>
           </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+            </TooltipProvider>
+          </OptionalAnalyticsProvider>
+        </AuthProvider>
     </HelmetProvider>
     </QueryClientProvider>
   );

@@ -40,7 +40,7 @@ We process data to:
 For users in the European Economic Area, we rely on the legal bases that match the purpose:
 
 - contract performance when we provide the FlipIt account, marketplace tools, listing workflows, support, and billing features;
-- legitimate interests when we keep the service secure, debug product issues, prevent abuse, improve workflows, use memory-only masked session recordings for product observability, and maintain business records;
+- legitimate interests when we keep the service secure, debug server-side product issues, prevent abuse, improve workflows using essential operational signals, and maintain business records;
 - consent when consent is required for non-essential cookies, persistent analytics identifiers, live chat tools, or optional communications;
 - legal obligation when we must keep records, respond to lawful requests, handle tax/accounting duties, or comply with applicable law.
 

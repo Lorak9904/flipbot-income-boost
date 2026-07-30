@@ -2,7 +2,6 @@ import { motion } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
 import { HeroCTA, SecondaryAction } from '@/components/ui/button-presets';
 import { Link } from 'react-router-dom';
-import { CheckoutDisclosure } from '@/components/billing/CheckoutDisclosure';
 
 interface PricingCardProps {
   name: string;
@@ -119,13 +118,6 @@ export const PricingCard = ({
             <Link to={ctaLink || '#'}>{ctaText}</Link>
           )}
         </SecondaryAction>
-      )}
-      {!isFree && (
-        <CheckoutDisclosure
-          variant="subscription"
-          price={displayPrice}
-          period={billingLabelOverride || (billingCycle === 'monthly' ? perMonthLabel : perYearLabel)}
-        />
       )}
     </motion.div>
   );

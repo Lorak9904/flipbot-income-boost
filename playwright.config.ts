@@ -16,6 +16,11 @@ export default defineConfig({
   },
   webServer: {
     command: 'npm run dev -- --host 127.0.0.1 --port 4173',
+    env: {
+      ...process.env,
+      VITE_PUBLIC_POSTHOG_KEY: 'phc_playwright_test_only',
+      VITE_PUBLIC_POSTHOG_HOST: 'https://posthog.invalid',
+    },
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,

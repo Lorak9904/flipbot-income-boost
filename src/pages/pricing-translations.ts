@@ -132,6 +132,9 @@ export const pricingTranslations = {
     // Errors
     checkoutErrorTitle: "Checkout error",
     checkoutErrorMessage: "We couldn't start checkout. Please try again.",
+    confirmCheckoutTitle: "Confirm your subscription",
+    cancelCheckout: "Not now",
+    continueToCheckout: "Continue to secure checkout",
   },
   pl: {
     // Hero Section
@@ -266,5 +269,8 @@ export const pricingTranslations = {
     // Errors
     checkoutErrorTitle: "Błąd płatności",
     checkoutErrorMessage: "Nie udało się rozpocząć płatności. Spróbuj ponownie.",
+    confirmCheckoutTitle: "Potwierdź subskrypcję",
+    cancelCheckout: "Nie teraz",
+    continueToCheckout: "Przejdź do bezpiecznej płatności",
   },
 };

@@ -24,7 +24,7 @@ Blokowanie niezbędnego storage może sprawić, że część FlipIt nie będzie 
 
 FlipIt używa PostHog EU do obserwowalności produktu, jeżeli analityka jest skonfigurowana i zaakceptujesz opcjonalne technologie. Pomaga nam to sprawdzać, czy ważne strony, rejestracja, workflow ogłoszeń i akcje w produkcie działają poprawnie. PostHog nie jest uruchamiany w Twojej przeglądarce przed tym wyborem ani po odrzuceniu opcjonalnych technologii.
 
-Podstawowe zdarzenia obserwowalności i maskowane nagrania sesji mogą działać w tym trybie pamięciowym niezależnie od wyboru dotyczącego opcjonalnych cookies. Pola formularzy są skonfigurowane jako maskowane. Po zaakceptowaniu opcjonalnych technologii FlipIt może dodatkowo włączyć trwały storage analityczny i identyfikatory.
+Analityka w przeglądarce i maskowane nagrania sesji działają wyłącznie po zaakceptowaniu opcjonalnych technologii. Pola formularzy są skonfigurowane jako maskowane. Niezbędna obserwowalność po stronie serwera może nadal rejestrować, czy wywołane trasy i operacje konta działają, bez uruchamiania PostHog w Twojej przeglądarce.
 
 Analityka pomaga poprawiać produkt, diagnozować niejasne przepływy i rozumieć, które części aplikacji są przydatne. Nie używamy cookies analitycznych do zewnętrznej reklamy.
 

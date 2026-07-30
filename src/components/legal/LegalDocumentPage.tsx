@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm';
 import { AnimatedGradientBackground } from '@/components/AnimatedGradientBackground';
 import { SEOHead } from '@/components/SEOHead';
 import { getCurrentLanguage, type Language } from '@/components/language-utils';
+import type { ReactNode } from 'react';
 
 const SITE_URL = 'https://myflipit.live';
 
@@ -21,6 +22,7 @@ export interface LegalDocumentCopy {
 interface LegalDocumentPageProps {
   documents: Record<Language, LegalDocumentCopy>;
   dateModified: string;
+  afterContent?: ReactNode;
 }
 
 const lastUpdatedPrefixes: Record<Language, string> = {
@@ -61,7 +63,7 @@ const markdownComponents: Components = {
   strong: ({ node: _node, ...props }) => <strong className="font-semibold text-white" {...props} />,
 };
 
-export function LegalDocumentPage({ documents, dateModified }: LegalDocumentPageProps) {
+export function LegalDocumentPage({ documents, dateModified, afterContent }: LegalDocumentPageProps) {
   const language = getCurrentLanguage();
   const copy = documents[language] ?? documents.en;
   const formattedModifiedDate = new Intl.DateTimeFormat(language === 'pl' ? 'pl-PL' : 'en-GB', {
@@ -133,6 +135,7 @@ export function LegalDocumentPage({ documents, dateModified }: LegalDocumentPage
             {copy.content}
           </ReactMarkdown>
         </article>
+        {afterContent}
       </section>
     </div>
   );

@@ -97,9 +97,52 @@ test('Google signup payload is versioned while sign-in stays unchanged', () => {
   expect(buildGoogleLoginPayload('credential', false)).toEqual({ credential: 'credential' });
 });
 
+test('Google signup endpoint receives exact legal acceptance', async ({ page }) => {
+  await installMockGoogle(page);
+  let payload: Record<string, unknown> | null = null;
+  await page.route('**/api/auth/login/google', async (route) => {
+    payload = route.request().postDataJSON();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        token: makeJwtToken(),
+        refresh_token: 'refresh',
+        userData: { id: 'google-user', name: 'Google User', email: 'google@example.com', provider: 'google' },
+      }),
+    });
+  });
+  await page.goto('/login?register=1');
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: 'Mock Google' }).first().click();
+  await expect.poll(() => payload).not.toBeNull();
+  expect(payload).toEqual(buildGoogleLoginPayload('mock-google-credential', true));
+});
+
+test('normal Google sign-in endpoint sends only the credential', async ({ page }) => {
+  await installMockGoogle(page);
+  let payload: Record<string, unknown> | null = null;
+  await page.route('**/api/auth/login/google', async (route) => {
+    payload = route.request().postDataJSON();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        token: makeJwtToken(),
+        refresh_token: 'refresh',
+        userData: { id: 'existing-google-user', name: 'Existing User', email: 'existing@example.com', provider: 'google' },
+      }),
+    });
+  });
+  await page.goto('/login');
+  await page.getByRole('button', { name: 'Mock Google' }).first().click();
+  await expect.poll(() => payload).not.toBeNull();
+  expect(payload).toEqual({ credential: 'mock-google-credential' });
+});
+
 const isPostHogRequest = (url: string) => {
   const host = new URL(url).hostname;
-  return host === 'eu.i.posthog.com' || host === 'eu.posthog.com';
+  return host === 'eu.i.posthog.com' || host === 'eu.posthog.com' || host === 'posthog.invalid';
 };
 
 test('PostHog stays uninitialized before choice and for essential-only', async ({ page }) => {
@@ -139,6 +182,64 @@ test('PostHog starts after optional consent without a reload', async ({ page }) 
   await expect(page.locator('nav').first()).toBeVisible();
 });
 
+test('consented account can withdraw and leaves no identity or later optional requests', async ({ page }) => {
+  await mockAuthenticatedAccount(page);
+  await installMockTawk(page);
+  const postHogRequests: string[] = [];
+  page.on('request', (request) => {
+    if (isPostHogRequest(request.url())) postHogRequests.push(request.url());
+  });
+  await page.route('**/api/cookies/consent/', (route) => route.fulfill({ status: 204, body: '' }));
+  await page.route('**/api/observability/app-route/', (route) => route.fulfill({ status: 204, body: '' }));
+
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Allow optional' }).click();
+  await expect.poll(async () => page.evaluate(() =>
+    Array.from({ length: localStorage.length }, (_, index) => {
+      const key = localStorage.key(index);
+      return key ? [key, localStorage.getItem(key) || ''] : ['', ''];
+    }).some(([key, value]) => key.startsWith('ph_') && value.includes('legal-e2e'))
+  )).toBe(true);
+
+  await page.goto('/cookies');
+  await page.getByRole('button', { name: 'Withdraw optional consent' }).click();
+  const requestCountAfterWithdrawal = postHogRequests.length;
+  await page.getByRole('link', { name: 'Pricing', exact: true }).first().click();
+  await page.waitForTimeout(750);
+
+  expect(postHogRequests).toHaveLength(requestCountAfterWithdrawal);
+  expect(await page.evaluate(() => ({
+    visitorId: localStorage.getItem('visitor_id'),
+    postHogKeys: Object.keys(localStorage).filter((key) => key.startsWith('ph_') || key.startsWith('__ph')),
+    tawkLoaded: Boolean(document.querySelector('script[src*="tawk.to"], iframe[src*="tawk.to"]')),
+  }))).toEqual({ visitorId: null, postHogKeys: [], tawkLoaded: false });
+});
+
+test('cold logged-out boot clears a former PostHog account before its first request', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('flipit_cookie_consent', 'accepted');
+    localStorage.setItem('ph_phc_playwright_test_only_posthog', JSON.stringify({
+      distinct_id: 'old-account',
+      $user_id: 'old-account',
+    }));
+  });
+  const postBodies: string[] = [];
+  page.on('request', (request) => {
+    if (isPostHogRequest(request.url())) postBodies.push(request.postData() || '');
+  });
+  await page.route('**/api/observability/app-route/', (route) => route.fulfill({ status: 204, body: '' }));
+  await page.goto('/');
+  await expect.poll(() => postBodies.length, { timeout: 10_000 }).toBeGreaterThan(0);
+
+  expect(postBodies[0]).not.toContain('old-account');
+  expect(await page.evaluate(() =>
+    Array.from({ length: localStorage.length }, (_, index) => {
+      const key = localStorage.key(index);
+      return key ? localStorage.getItem(key) || '' : '';
+    }).some((value) => value.includes('old-account'))
+  )).toBe(false);
+});
+
 const pricingCases = [
   {
     language: 'en',
@@ -146,6 +247,7 @@ const pricingCases = [
     renewal: 'renews automatically until cancelled',
     terms: 'Terms',
     privacy: 'Privacy Policy',
+    cta: 'Start Plus',
   },
   {
     language: 'pl',
@@ -153,26 +255,87 @@ const pricingCases = [
     renewal: 'odnawia się automatycznie do czasu anulowania',
     terms: 'Regulamin',
     privacy: 'Politykę prywatności',
+    cta: 'Wybierz Plus',
   },
 ] as const;
 
 for (const pricingCase of pricingCases) {
-  test(`${pricingCase.language} pricing shows disclosures only for paid checkout actions`, async ({ page }) => {
+  test(`${pricingCase.language} pricing shows disclosure in final paid checkout confirmation`, async ({ page }) => {
+    await mockAuthenticatedAccount(page);
     await page.goto(pricingCase.path);
-    const disclosures = page.getByTestId('checkout-disclosure-subscription');
-    await expect(disclosures).toHaveCount(3);
-    await expect(disclosures.first()).toContainText(pricingCase.renewal);
-    await expect(disclosures.first().getByRole('link', { name: pricingCase.terms })).toBeVisible();
-    await expect(disclosures.first().getByRole('link', { name: pricingCase.privacy })).toBeVisible();
-    const freeCard = page.getByText(pricingCase.language === 'pl' ? 'Darmowy' : 'Free', { exact: true }).locator('..').locator('..');
-    await expect(freeCard.getByTestId('checkout-disclosure-subscription')).toHaveCount(0);
+    await expect(page.getByTestId('checkout-disclosure-subscription')).toHaveCount(0);
+    await page.getByRole('button', { name: pricingCase.cta }).click();
+    const disclosure = page.getByTestId('checkout-disclosure-subscription');
+    await expect(disclosure).toHaveCount(1);
+    await expect(disclosure).toContainText(pricingCase.renewal);
+    await expect(disclosure.getByRole('link', { name: pricingCase.terms })).toBeVisible();
+    await expect(disclosure.getByRole('link', { name: pricingCase.privacy })).toBeVisible();
   });
 }
+
+test('logged-out paid pricing action stores intent without showing a checkout disclosure', async ({ page }) => {
+  await page.goto('/pricing');
+  await page.getByRole('button', { name: 'Start Plus' }).click();
+  await expect(page).toHaveURL(/\/login\?register=1/);
+  await expect(page.getByTestId('checkout-disclosure-subscription')).toHaveCount(0);
+});
+
+test('saved post-registration plan intent reopens confirmation before Checkout', async ({ page }) => {
+  await mockAuthenticatedAccount(page, { checkoutPlan: 'plus' });
+  let checkoutRequests = 0;
+  await page.route('**/api/billing/checkout/', (route) => {
+    checkoutRequests += 1;
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ url: '/pricing' }) });
+  });
+  await page.goto('/pricing?checkout=1&plan=plus&billing=monthly');
+
+  await expect(page.getByTestId('checkout-disclosure-subscription')).toBeVisible();
+  expect(checkoutRequests).toBe(0);
+  await page.getByRole('button', { name: 'Continue to secure checkout' }).click();
+  await expect.poll(() => checkoutRequests).toBe(1);
+});
 
 function makeJwtToken() {
   const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64');
   const payload = Buffer.from(JSON.stringify({ sub: 'legal-e2e', exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64');
   return `${header}.${payload}.signature`;
+}
+
+async function installMockGoogle(page: Page) {
+  await page.route('https://accounts.google.com/gsi/client', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/javascript',
+    body: `
+      window.google = { accounts: { id: {
+        initialize(options) { window.__flipitGoogleCallback = options.callback; },
+        renderButton(parent) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.textContent = 'Mock Google';
+          button.addEventListener('click', () => window.__flipitGoogleCallback({ credential: 'mock-google-credential' }));
+          parent.appendChild(button);
+        },
+        prompt() {}, cancel() {}, disableAutoSelect() {}, revoke() {}
+      } } };
+    `,
+  }));
+}
+
+async function installMockTawk(page: Page) {
+  await page.route('https://embed.tawk.to/**', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/javascript',
+    body: `
+      window.Tawk_API = {
+        hideWidget() {}, showWidget() {},
+        shutdown() { document.querySelectorAll('iframe[src*="tawk.to"]').forEach((node) => node.remove()); }
+      };
+      localStorage.setItem('twk_test', 'optional');
+      const iframe = document.createElement('iframe');
+      iframe.src = 'https://mock.tawk.to/widget';
+      document.body.appendChild(iframe);
+    `,
+  }));
 }
 
 async function mockUnlimitedAccount(page: Page) {
@@ -205,6 +368,19 @@ async function mockUnlimitedAccount(page: Page) {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ name: 'Legal User', email: 'legal@example.com' }),
+  }));
+}
+
+async function mockAuthenticatedAccount(page: Page, options: { checkoutPlan?: string } = {}) {
+  await page.addInitScript(({ token, checkoutPlan }) => {
+    localStorage.setItem('flipit_token', token);
+    localStorage.setItem('flipit_refresh_token', 'refresh');
+    if (checkoutPlan) sessionStorage.setItem('flipit_checkout_plan', checkoutPlan);
+  }, { token: makeJwtToken(), checkoutPlan: options.checkoutPlan });
+  await page.route('**/api/auth/user', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ id: 'legal-e2e', name: 'Legal User', email: 'legal@example.com', provider: 'email', language: 'en' }),
   }));
 }
 

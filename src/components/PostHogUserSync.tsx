@@ -10,6 +10,10 @@ import {
   type AccountIdentityState,
 } from '@/lib/analytics/account-identity';
 import { normalizeAnalyticsPath } from '@/lib/analytics/route-privacy';
+import {
+  isOptionalAnalyticsReady,
+  OPTIONAL_ANALYTICS_READY_EVENT,
+} from '@/lib/analytics/optional-consent';
 
 export default function PostHogUserSync() {
   const posthog = usePostHog();
@@ -17,6 +21,7 @@ export default function PostHogUserSync() {
   const { user, isLoading } = useAuth();
   const identityRef = useRef<AccountIdentityState>(EMPTY_ACCOUNT_IDENTITY);
   const [canIdentify, setCanIdentify] = useState(() => hasOptionalCookieConsent());
+  const [clientReady, setClientReady] = useState(isOptionalAnalyticsReady);
   const interfaceLanguage = getPathLanguage(location.pathname) ?? user?.language ?? 'en';
 
   useEffect(() => {
@@ -26,17 +31,24 @@ export default function PostHogUserSync() {
   }, []);
 
   useEffect(() => {
-    if (!posthog) return;
+    const handleReadyChange = () => setClientReady(isOptionalAnalyticsReady());
+    window.addEventListener(OPTIONAL_ANALYTICS_READY_EVENT, handleReadyChange);
+    handleReadyChange();
+    return () => window.removeEventListener(OPTIONAL_ANALYTICS_READY_EVENT, handleReadyChange);
+  }, []);
+
+  useEffect(() => {
+    if (!posthog || !clientReady) return;
 
     posthog.register({
       interface_language: interfaceLanguage,
       localized_route: location.pathname === '/pl' || location.pathname.startsWith('/pl/'),
       analytics_path: normalizeAnalyticsPath(location.pathname),
     });
-  }, [interfaceLanguage, location.pathname, posthog]);
+  }, [clientReady, interfaceLanguage, location.pathname, posthog]);
 
   useEffect(() => {
-    if (!posthog) return;
+    if (!posthog || !clientReady) return;
 
     identityRef.current = syncPostHogAccount(posthog, identityRef.current, {
       canIdentify,
@@ -46,6 +58,7 @@ export default function PostHogUserSync() {
     });
   }, [
     canIdentify,
+    clientReady,
     isLoading,
     posthog,
     interfaceLanguage,
