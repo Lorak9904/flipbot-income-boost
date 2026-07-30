@@ -37,11 +37,14 @@ export default function OlxLocationFields({
   const [cities, setCities] = useState<OlxLocationOption[]>([]);
   const [districts, setDistricts] = useState<OlxLocationOption[]>([]);
   const [loadingCities, setLoadingCities] = useState(false);
+  const [cityLoadFailed, setCityLoadFailed] = useState(false);
+  const [cityRetryKey, setCityRetryKey] = useState(0);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [districtLoadFailed, setDistrictLoadFailed] = useState(false);
   const [districtRetryKey, setDistrictRetryKey] = useState(0);
   const [activeCityIndex, setActiveCityIndex] = useState(-1);
   const citySearchRequestIdRef = useRef(0);
+  const cityOptionRefs = useRef(new Map<string | number, HTMLButtonElement>());
   const locationValueRef = useRef(value);
   locationValueRef.current = value;
   const cityId = value?.city_id ? String(value.city_id) : '';
@@ -54,6 +57,7 @@ export default function OlxLocationFields({
     if (query.trim().length < 2 || query === value?.city_name) {
       citySearchRequestIdRef.current += 1;
       setCities([]);
+      setCityLoadFailed(false);
       setActiveCityIndex(-1);
       return;
     }
@@ -62,6 +66,7 @@ export default function OlxLocationFields({
     const timer = window.setTimeout(async () => {
       if (citySearchRequestIdRef.current !== requestId) return;
       setLoadingCities(true);
+      setCityLoadFailed(false);
       try {
         const results = (
           await searchOlxCities({ query, countryCode, signal: controller.signal })
@@ -72,6 +77,8 @@ export default function OlxLocationFields({
       } catch (error) {
         if (!controller.signal.aborted && citySearchRequestIdRef.current === requestId) {
           setCities([]);
+          setCityLoadFailed(true);
+          setActiveCityIndex(-1);
         }
       } finally {
         if (!controller.signal.aborted && citySearchRequestIdRef.current === requestId) {
@@ -83,7 +90,12 @@ export default function OlxLocationFields({
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [countryCode, query, value?.city_name]);
+  }, [cityRetryKey, countryCode, query, value?.city_name]);
+
+  useEffect(() => {
+    if (!activeCity) return;
+    cityOptionRefs.current.get(activeCity.id)?.scrollIntoView({ block: 'nearest' });
+  }, [activeCity]);
 
   useEffect(() => {
     if (!cityId) {
@@ -135,6 +147,7 @@ export default function OlxLocationFields({
     citySearchRequestIdRef.current += 1;
     setQuery(city.name);
     setCities([]);
+    setCityLoadFailed(false);
     setActiveCityIndex(-1);
     onDistrictRequirementChange('loading');
     onChange({ city_id: city.id, city_name: city.name });
@@ -162,6 +175,7 @@ export default function OlxLocationFields({
               citySearchRequestIdRef.current += 1;
               setQuery(event.target.value);
               setCities([]);
+              setCityLoadFailed(false);
               setLoadingCities(false);
               setActiveCityIndex(-1);
               if (cityId) {
@@ -174,6 +188,7 @@ export default function OlxLocationFields({
                 event.preventDefault();
                 citySearchRequestIdRef.current += 1;
                 setCities([]);
+                setCityLoadFailed(false);
                 setLoadingCities(false);
                 setActiveCityIndex(-1);
                 return;
@@ -210,6 +225,25 @@ export default function OlxLocationFields({
             {isPolish ? 'Miasto OLX jest wymagane przed publikacją.' : 'An OLX city is required before publishing.'}
           </p>
         )}
+        {cityLoadFailed && (
+          <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-red-300">
+            <span>
+              {isPolish
+                ? 'Nie udało się wyszukać miast OLX.'
+                : 'Could not search OLX cities.'}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-11 border-red-400/50 bg-transparent px-3 text-xs text-red-200 hover:bg-red-500/10 hover:text-red-100"
+              disabled={disabled || loadingCities}
+              onClick={() => setCityRetryKey((current) => current + 1)}
+            >
+              {isPolish ? 'Spróbuj ponownie' : 'Try again'}
+            </Button>
+          </div>
+        )}
         {cities.length > 0 && (
           <div id={cityListboxId} role="listbox" className="max-h-44 overflow-y-auto rounded-md border border-neutral-700 bg-neutral-950 p-1">
             {cities.map((city, index) => (
@@ -217,6 +251,10 @@ export default function OlxLocationFields({
                 id={`olx-city-option-${city.id}`}
                 key={city.id}
                 type="button"
+                ref={(element) => {
+                  if (element) cityOptionRefs.current.set(city.id, element);
+                  else cityOptionRefs.current.delete(city.id);
+                }}
                 role="option"
                 tabIndex={-1}
                 aria-selected={index === activeCityIndex}

@@ -23,6 +23,8 @@ interface OlxAccountFixture {
 
 interface OlxEditorOptions {
   accounts?: OlxAccountFixture[];
+  citySearchResults?: Array<{ id: number; name: string }>;
+  failFirstCitySearch?: boolean;
   failFirstWarsawDistrictLookup?: boolean;
   initialOlxOverrides?: JsonObject;
 }
@@ -65,6 +67,7 @@ async function prepareOlxEditor(page: Page, options: OlxEditorOptions = {}) {
   };
   const patchPayloads: JsonObject[] = [];
   let warsawDistrictAttempts = 0;
+  let citySearchAttempts = 0;
 
   const applyPlatformOverrides = (incomingOverrides: JsonObject) => {
     const nextOverrides = cloneJson(storedPlatformOverrides);
@@ -311,10 +314,22 @@ async function prepareOlxEditor(page: Page, options: OlxEditorOptions = {}) {
         }),
       });
     }
+    citySearchAttempts += 1;
+    if (options.failFirstCitySearch && citySearchAttempts === 1) {
+      return route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({ detail: 'Temporary OLX city failure' }),
+      });
+    }
+    const cityResults = options.citySearchResults || [
+      { id: 10, name: 'Warsaw' },
+      { id: 11, name: 'Wroclaw' },
+    ];
     return route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ count: 2, results: [{ id: 10, name: 'Warsaw' }, { id: 11, name: 'Wroclaw' }] }),
+      body: JSON.stringify({ count: cityResults.length, results: cityResults }),
     });
   });
 
@@ -322,9 +337,59 @@ async function prepareOlxEditor(page: Page, options: OlxEditorOptions = {}) {
     applyPlatformOverrides,
     getStoredPlatformOverrides: () => cloneJson(storedPlatformOverrides),
     getWarsawDistrictAttempts: () => warsawDistrictAttempts,
+    getCitySearchAttempts: () => citySearchAttempts,
     patchPayloads,
   };
 }
+
+test('OLX city keyboard navigation keeps the active overflow option visible', async ({ page }) => {
+  const citySearchResults = Array.from({ length: 12 }, (_, index) => ({
+    id: 100 + index,
+    name: `Test city ${index + 1}`,
+  }));
+  await prepareOlxEditor(page, { citySearchResults });
+  await page.goto(`/add-item?edit=${TEST_ITEM_UUID}&mode=republish&publish=olx`);
+
+  const cityInput = page.getByRole('combobox', { name: 'OLX city' });
+  await cityInput.fill('Te');
+  const listbox = page.getByRole('listbox');
+  await expect(listbox).toBeVisible();
+  for (let index = 0; index < 10; index += 1) await cityInput.press('ArrowDown');
+
+  const activeId = await cityInput.getAttribute('aria-activedescendant');
+  expect(activeId).toBeTruthy();
+  const activeOption = page.locator(`#${activeId}`);
+  await expect(activeOption).toHaveText('Test city 10');
+  await expect
+    .poll(() =>
+      activeOption.evaluate((option) => {
+        const optionRect = option.getBoundingClientRect();
+        const listboxRect = option.parentElement!.getBoundingClientRect();
+        return optionRect.top >= listboxRect.top && optionRect.bottom <= listboxRect.bottom;
+      }),
+    )
+    .toBe(true);
+});
+
+test('OLX city search failure is retryable and remains required until selection', async ({ page }) => {
+  const editor = await prepareOlxEditor(page, { failFirstCitySearch: true });
+  await page.goto(`/add-item?edit=${TEST_ITEM_UUID}&mode=republish&publish=olx`);
+
+  const cityInput = page.getByRole('combobox', { name: 'OLX city' });
+  await cityInput.fill('Wa');
+  await expect(page.getByText('Could not search OLX cities.')).toBeVisible();
+  await expect(cityInput).toHaveAttribute('aria-required', 'true');
+  await expect(cityInput).toHaveAttribute('aria-expanded', 'false');
+  const retry = page.getByRole('button', { name: 'Try again' });
+  await expect(retry).toHaveCSS('height', '44px');
+
+  await retry.click();
+  await expect.poll(() => editor.getCitySearchAttempts()).toBe(2);
+  await page.getByRole('option', { name: 'Warsaw' }).click();
+  await expect(cityInput).toHaveValue('Warsaw');
+  await expect(page.getByText('Could not search OLX cities.')).toBeHidden();
+  await expect(page.getByText('An OLX city is required before publishing.')).toBeHidden();
+});
 
 test('OLX city, district, and delivery reach publish payload and reset with city or country', async ({ page }) => {
   const editor = await prepareOlxEditor(page, { failFirstWarsawDistrictLookup: true });
