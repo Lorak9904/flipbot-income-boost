@@ -35,9 +35,6 @@ const Footer = () => {
             <p className="max-w-xs text-sm text-neutral-300">
               {t.tagline}
             </p>
-            <span className="mt-4 inline-block rounded-full bg-white/10 px-3 py-1 text-xs text-white backdrop-blur">
-              {t.comingSoon}
-            </span>
           </div>
 
           {/* Product links */}

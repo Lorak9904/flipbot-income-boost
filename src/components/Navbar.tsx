@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { NavbarLogin, NavbarSignup, AddItemButton } from '@/components/ui/button-presets';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Menu, X, CreditCard, Lightbulb, DollarSign, Trophy, Package, Link2, BookOpen, Video, HelpCircle, MoreHorizontal, BarChart3 } from 'lucide-react';
+import { Menu, X, CreditCard, Lightbulb, DollarSign, Package, Link2, BookOpen, Video, HelpCircle, MoreHorizontal, BarChart3 } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCredits } from '@/hooks/useCredits';
@@ -37,7 +37,7 @@ const Navbar = () => {
   const primaryNavItems = [
     { name: t.howItWorks, path: localized('/how-it-works'), icon: Lightbulb },
     { name: t.pricing, path: localized('/pricing'), icon: DollarSign },
-    { name: t.successStories, path: localized('/success-stories'), icon: Trophy },
+    { name: t.successStories, path: localized('/success-stories'), icon: BookOpen },
   ];
 
   const resourceItems = [
@@ -79,7 +79,7 @@ const Navbar = () => {
           </span>
         </Link>
 
-        {/* Desktop nav - Icon-first with hover text reveal */}
+        {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -88,20 +88,20 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className="group relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg transition-all hover:bg-neutral-800/50"
+                className="group relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-neutral-800/50"
               >
                 {Icon && (
                   <Icon 
-                    className={`h-5 w-5 transition-colors ${
+                  className={`h-4 w-4 transition-colors ${
                       active ? 'text-cyan-400' : 'text-neutral-300 group-hover:text-white'
                     }`} 
                   />
                 )}
                 <span 
-                  className={`text-xs font-medium transition-all duration-200 ease-out ${
+                  className={`text-sm font-medium transition-colors ${
                     active 
-                      ? 'opacity-100 max-h-4 text-cyan-400' 
-                      : 'opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-4 text-neutral-300 group-hover:text-white'
+                      ? 'text-cyan-400'
+                      : 'text-neutral-300 group-hover:text-white'
                   }`}
                 >
                   {item.name}
@@ -114,10 +114,10 @@ const Navbar = () => {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="group relative flex flex-col items-center gap-0.5 px-3 py-2 h-auto text-neutral-300 hover:text-white hover:bg-neutral-800/50"
+                className="group relative flex items-center gap-2 px-3 py-2 h-auto text-neutral-300 hover:text-white hover:bg-neutral-800/50"
               >
-                <MoreHorizontal className="h-5 w-5 transition-colors group-hover:text-white" />
-                <span className="text-xs font-medium opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-4 transition-all duration-200 ease-out">
+                <MoreHorizontal className="h-4 w-4 transition-colors group-hover:text-white" />
+                <span className="text-sm font-medium">
                   {t.resources}
                 </span>
               </Button>

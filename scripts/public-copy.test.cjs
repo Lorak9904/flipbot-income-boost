@@ -12,7 +12,10 @@ const ownedPublicCopyFiles = [
   'src/pages/getstarted-translations.ts',
   'src/pages/guide-translations.ts',
   'src/pages/howitworks-translations.ts',
+  'src/pages/HomePage.jsx',
+  'src/pages/homepage-translations.ts',
   'src/pages/successstories-translations.ts',
+  'src/components/footer-translations.ts',
   'src/pages/articles/translations/articles-index.translations.ts',
   'src/pages/articles/translations/cross-list-vinted-to-facebook-marketplace.translations.ts',
   'src/pages/articles/translations/etsy-listing-tool.translations.ts',
@@ -101,6 +104,25 @@ test('EN and PL public copy state the marketplace capability boundaries', () => 
   assert.match(allegro, /connected Allegro actions use the official API beta workflow/i);
   assert.match(allegro, /Są to operacje FlipIt na szkicu, a nie operacje wykonywane przez API Allegro\./);
   assert.match(allegro, /operacje na połączonym koncie Allegro korzystają z oficjalnego API w wersji beta/i);
+});
+
+test('homepage capability copy fails closed and does not present every marketplace as ready', () => {
+  const homepage = read('src/pages/HomePage.jsx');
+  const translations = read('src/pages/homepage-translations.ts');
+  const navbar = read('src/components/navbar-translations.ts');
+
+  assert.doesNotMatch(translations, /ready for every marketplace/i);
+  assert.doesNotMatch(translations, /gotowe na każdą platformę/i);
+  assert.doesNotMatch(translations, /workspace:[\s\S]*\bready:\s*['"]Ready['"]/i);
+  assert.match(translations, /Publishing availability varies by marketplace and capability\./);
+  assert.match(translations, /Dostępność publikacji zależy od platformy i konkretnej funkcji\./);
+  assert.match(homepage, /getMarketplaceCapability\(capabilities, platformId, 'publish'\)/);
+  assert.match(homepage, /capabilitiesError[\s\S]*availabilityUnknown/);
+  assert.match(homepage, /Marketplace-specific listing drafts with manual approval/);
+  assert.doesNotMatch(homepage, /Multi-marketplace publishing with manual approval/);
+  assert.match(navbar, /successStories: 'Seller Workflow Examples'/);
+  assert.match(navbar, /successStories: 'Przykłady pracy sprzedawcy'/);
+  assert.doesNotMatch(navbar, /successStories: '(?:Success Stories|Historie sukcesu)'/);
 });
 
 test('seller examples are explicitly hypothetical in EN and PL', () => {
