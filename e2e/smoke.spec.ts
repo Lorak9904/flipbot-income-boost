@@ -237,6 +237,10 @@ async function installCommonMocks(page: Page, { authenticated }: { authenticated
     });
   });
 
+  await page.route('**/api/observability/app-route/', async (route) => {
+    await route.fulfill({ status: 204, body: '' });
+  });
+
   await page.route('**/api/platforms/health-check/**', async (route) => {
     await route.fulfill({
       status: 200,
@@ -792,9 +796,9 @@ test('first listing coach waits until cookie choice is complete', async ({ page 
   await installCommonMocks(page, { authenticated: true });
   await seedAuthenticatedSession(page, { cookieConsent: false });
 
-  await page.goto('/');
+  await page.goto('/connect-accounts');
 
-  await expect(page.getByText(/FlipIt uses essential storage/i)).toBeVisible();
+  await expect(page.getByText(/FlipIt uses essential browser data/i)).toBeVisible();
   await expect(page.getByRole('button', { name: /First steps|Checking/i })).toBeHidden();
 });
 
@@ -803,7 +807,7 @@ test('first listing coach auto-opens before first marketplace connection and can
   await seedAuthenticatedSession(page);
   await mockNoFirstListingProgress(page);
 
-  await page.goto('/');
+  await page.goto('/connect-accounts');
 
   await expect(page.getByText('Choose a marketplace')).toBeVisible();
 
@@ -827,7 +831,7 @@ test('first listing coach launcher toggles and hides before marketplace redirect
   await seedAuthenticatedSession(page);
   await mockNoFirstListingProgress(page);
 
-  await page.goto('/');
+  await page.goto('/connect-accounts');
 
   await expect(page.getByText('Choose a marketplace')).toBeVisible();
 
