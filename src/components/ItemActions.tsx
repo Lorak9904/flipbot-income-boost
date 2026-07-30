@@ -24,6 +24,12 @@ import { UserItem, Platform, PlatformPublishResult } from '@/types/item';
 import { duplicateItem, deleteItem, removeListingFromMarketplaces, syncPlatformListings } from '@/lib/api/items';
 import { Badge } from '@/components/ui/badge';
 import { buildListingEditorUrl } from '@/lib/listing-editor/navigation';
+import { useQuery } from '@tanstack/react-query';
+import {
+  canUseMarketplaceCapability,
+  platformCapabilitiesQueryOptions,
+} from '@/lib/api/platform-capabilities';
+import { ALL_PLATFORMS } from '@/lib/platforms';
 
 interface ItemActionsProps {
   item: UserItem;
@@ -41,8 +47,6 @@ const PLATFORM_CONFIG: Record<Platform, { name: string }> = {
   etsy: { name: 'Etsy' },
 };
 
-const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay', 'allegro', 'etsy'];
-
 export function ItemActions({ 
   item, 
   onRefresh, 
@@ -52,6 +56,8 @@ export function ItemActions({
   const navigate = useNavigate();
   const { toast } = useToast();
   const t = getTranslations(itemDetailTranslations);
+  const { data: capabilityResponse } = useQuery(platformCapabilitiesQueryOptions());
+  const capabilities = capabilityResponse?.marketplaces;
   
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -71,8 +77,11 @@ export function ItemActions({
   );
   
   // Get available platforms for publishing
-  const availablePlatforms = SUPPORTED_PLATFORMS.filter(
-    platform => connectedPlatforms[platform] && !publishedPlatforms.has(platform)
+  const availablePlatforms = ALL_PLATFORMS.filter(
+    platform =>
+      connectedPlatforms[platform] &&
+      !publishedPlatforms.has(platform) &&
+      canUseMarketplaceCapability(capabilities, platform, 'publish')
   );
   const canPublishToMorePlatforms = availablePlatforms.length > 0;
   const manageActionLabel = canPublishToMorePlatforms
@@ -80,16 +89,22 @@ export function ItemActions({
     : t.actions.editListing;
   
   // Get published marketplaces whose live listing needs saved FlipIt changes published.
-  const syncablePlatforms: Platform[] = ['olx', 'ebay', 'allegro', 'etsy'];
+  const syncablePlatforms = ALL_PLATFORMS.filter((platform) =>
+    canUseMarketplaceCapability(capabilities, platform, 'update')
+  );
   const syncStatus = item.platform_sync_status || {};
   const dirtyPlatforms = syncablePlatforms.filter(platform => {
     const status = syncStatus[platform];
     return publishedPlatforms.has(platform) && status?.dirty;
   });
   const showUpdateAllChanged = dirtyPlatforms.length > 1;
-  const removableMarketplacePlatforms = syncablePlatforms.filter(platform => publishedPlatforms.has(platform));
-  const unsupportedPublishedPlatforms = SUPPORTED_PLATFORMS.filter(
-    platform => publishedPlatforms.has(platform) && !syncablePlatforms.includes(platform)
+  const removableMarketplacePlatforms = ALL_PLATFORMS.filter(
+    platform =>
+      publishedPlatforms.has(platform) &&
+      canUseMarketplaceCapability(capabilities, platform, 'delete')
+  );
+  const unsupportedPublishedPlatforms = ALL_PLATFORMS.filter(
+    platform => publishedPlatforms.has(platform) && !removableMarketplacePlatforms.includes(platform)
   );
   const removableMarketplaceNames = removableMarketplacePlatforms
     .map(platform => PLATFORM_CONFIG[platform].name)
@@ -174,7 +189,7 @@ export function ItemActions({
     setIsSyncing(true);
     setSyncingPlatform('all');
     try {
-      const response = await syncPlatformListings(item.uuid); // No platforms = publish changes to all dirty marketplaces.
+      const response = await syncPlatformListings(item.uuid, dirtyPlatforms);
       
       const successCount = Object.values(response.results || {}).filter(r => r.status === 'success').length;
       const errorCount = Object.values(response.results || {}).filter(r => r.status === 'error').length;

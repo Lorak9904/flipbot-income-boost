@@ -39,6 +39,11 @@ import {
   type PlatformHealthResponse,
 } from '@/lib/api/platform-health';
 import { getTranslations } from '@/components/language-utils';
+import { useQuery } from '@tanstack/react-query';
+import {
+  canUseMarketplaceCapability,
+  platformCapabilitiesQueryOptions,
+} from '@/lib/api/platform-capabilities';
 
 // Supported platforms for sync
 type SyncPlatform = 'olx' | 'vinted' | 'ebay' | 'etsy';
@@ -90,6 +95,8 @@ const translations = {
     platformExpired: (platform: string) =>
       `${platform} connection is expired or invalid. Reconnect it before importing.`,
     noConnectedPlatforms: 'No connected accounts available for import.',
+    capabilityUnavailable: (platform: string) => `Listing import is not available for ${platform}.`,
+    capabilityLoadFailed: 'Marketplace availability could not be checked. Try again.',
   },
   pl: {
     syncListings: 'Importuj ogłoszenia',
@@ -118,6 +125,8 @@ const translations = {
     platformExpired: (platform: string) =>
       `Połączenie ${platform} wygasło lub jest nieprawidłowe. Połącz je ponownie przed importem.`,
     noConnectedPlatforms: 'Nie ma połączonych kont, z których można importować.',
+    capabilityUnavailable: (platform: string) => `Import ogłoszeń z ${platform} nie jest dostępny.`,
+    capabilityLoadFailed: 'Nie udało się sprawdzić dostępności platform. Spróbuj ponownie.',
   },
 };
 
@@ -133,6 +142,12 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
   const [healthLoading, setHealthLoading] = useState(false);
   const { toast } = useToast();
   const t = getTranslations(translations);
+  const {
+    data: capabilityResponse,
+    isLoading: capabilitiesLoading,
+    isError: capabilitiesFailed,
+  } = useQuery(platformCapabilitiesQueryOptions());
+  const capabilities = capabilityResponse?.marketplaces;
 
   const refreshPlatformHealth = async (): Promise<PlatformHealthResponse | null> => {
     setHealthLoading(true);
@@ -161,6 +176,12 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
   };
 
   const platformUnavailableReason = (platform: SyncPlatform): string | null => {
+    if (capabilitiesFailed) {
+      return t.capabilityLoadFailed;
+    }
+    if (!capabilities || !canUseMarketplaceCapability(capabilities, platform, 'import')) {
+      return capabilitiesLoading ? t.capabilityLoadFailed : t.capabilityUnavailable(platform.toUpperCase());
+    }
     const info = platformInfo(platform);
     if (!info) {
       return null;
@@ -206,6 +227,16 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
 
     try {
       const health = await getPlatformHealth();
+      if (!canUseMarketplaceCapability(capabilities, platform, 'import')) {
+        toast({
+          title: t.unavailable,
+          description: capabilitiesFailed
+            ? t.capabilityLoadFailed
+            : t.capabilityUnavailable(platform.toUpperCase()),
+          variant: 'destructive',
+        });
+        return;
+      }
       if (health && !isPlatformConnected(platform, health)) {
         toast({
           title: t.connectFirst,
@@ -277,7 +308,11 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
     try {
       const health = await getPlatformHealth();
       const connectedTargets = PLATFORMS.flatMap<SyncTarget>((platform) => {
-        if (!platform.enabled || !isPlatformConnected(platform.id, health)) {
+        if (
+          !platform.enabled ||
+          !isPlatformConnected(platform.id, health) ||
+          !canUseMarketplaceCapability(capabilities, platform.id, 'import')
+        ) {
           return [];
         }
         if (platform.id !== 'olx') {
@@ -369,7 +404,7 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
                 >
                   <DropdownMenuItem
                     onClick={handleSyncAllConnected}
-                    disabled={isSyncing || healthLoading}
+                    disabled={isSyncing || healthLoading || capabilitiesLoading || capabilitiesFailed}
                     className="cursor-pointer text-neutral-200 hover:text-white hover:bg-neutral-700"
                   >
                     <span className="flex items-center gap-2">
@@ -390,7 +425,7 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
                         <DropdownMenuItem
                           key={`olx-${account.country_code}`}
                           onClick={() => handleSync('olx', account.country_code)}
-                          disabled={isSyncing || healthLoading}
+                          disabled={isSyncing || healthLoading || capabilitiesLoading || capabilitiesFailed}
                           className="cursor-pointer text-neutral-200 hover:text-white hover:bg-neutral-700"
                         >
                           <span className="flex items-center gap-2">
@@ -404,7 +439,7 @@ export function SyncListingsButton({ onSyncComplete, className }: SyncListingsBu
                       <DropdownMenuItem
                         key={platform.id}
                         onClick={() => platform.enabled && handleSync(platform.id)}
-                        disabled={!platform.enabled || isSyncing || healthLoading || platformUnavailableReason(platform.id) !== null}
+                        disabled={!platform.enabled || isSyncing || healthLoading || capabilitiesLoading || platformUnavailableReason(platform.id) !== null}
                         className={`
                           text-neutral-200 hover:text-white hover:bg-neutral-700
                           ${(!platform.enabled || platformUnavailableReason(platform.id)) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}

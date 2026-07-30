@@ -1,13 +1,17 @@
 import { Platform } from '@/types/item';
+import { ALL_PLATFORMS } from '@/lib/platforms';
+import {
+  canUseMarketplaceCapability,
+  type MarketplaceCapabilities,
+} from '@/lib/api/platform-capabilities';
 
 export type ReviewItemFormMode = 'add' | 'edit' | 'republish';
-
-export const SUPPORTED_PLATFORMS: Platform[] = ['facebook', 'olx', 'vinted', 'ebay', 'allegro', 'etsy'];
 
 interface PlatformSelectionInput {
   mode: ReviewItemFormMode;
   connectedPlatforms: Record<Platform, boolean>;
   publishedPlatforms: Platform[];
+  capabilities?: MarketplaceCapabilities | null;
 }
 
 export function isPublishMode(mode: ReviewItemFormMode): boolean {
@@ -18,18 +22,22 @@ export function getConnectedSupportedPlatforms(
   connectedPlatforms: Record<Platform, boolean>
 ): Platform[] {
   // Kept for backward compatibility with older call-sites.
-  return SUPPORTED_PLATFORMS.filter((platform) => connectedPlatforms[platform]);
+  return ALL_PLATFORMS.filter((platform) => connectedPlatforms[platform]);
 }
 
 export function getPlatformSelectionOptions({
   mode,
-  connectedPlatforms,
   publishedPlatforms,
+  capabilities,
 }: PlatformSelectionInput): Platform[] {
   if (mode === 'edit') {
-    return SUPPORTED_PLATFORMS;
+    return ALL_PLATFORMS;
   }
-  return SUPPORTED_PLATFORMS.filter((platform) => !publishedPlatforms.includes(platform));
+  return ALL_PLATFORMS.filter(
+    (platform) =>
+      !publishedPlatforms.includes(platform) &&
+      canUseMarketplaceCapability(capabilities, platform, 'publish')
+  );
 }
 
 export function getDefaultSelectedPlatforms(
