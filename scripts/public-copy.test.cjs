@@ -65,6 +65,39 @@ test('owned public copy does not contain known inflated claims', () => {
   }
 });
 
+test('pricing and billing copy avoids unverified Stripe and marketplace claims', () => {
+  const pricing = read('src/pages/pricing-translations.ts');
+  const credits = read('src/components/credits/credits-translations.ts');
+  const checkoutDisclosure = read('src/components/billing/CheckoutDisclosure.tsx');
+  const billingCopy = [pricing, credits, checkoutDisclosure].join('\n');
+  const forbiddenClaims = [
+    /save 20%|oszcz[eę]dź 20%/i,
+    /most popular|najpopularniejsz/i,
+    /Visa|Mastercard|American Express|Discover|Google Pay|Apple Pay/i,
+    /prorat|proporcjonaln/i,
+    /cancel(?:led|lation)?[^.]*period end|end of (?:your )?(?:current )?billing period|końcem?[^.]*okresu rozliczeniowego/i,
+    /annual[^.]*invoice|faktur[^.]*początku każdego roku/i,
+    /never store[^.]*payment information|does not store[^.]*card details|nigdy nie przechow[^.]*danych płatniczych|nie przechowuje[^.]*danych[^.]*karty/i,
+    /all supported marketplaces|wszystkie obsługiwane platformy/i,
+    /multi-marketplace publishing|publikacja na wielu marketplace/i,
+  ];
+
+  for (const pattern of forbiddenClaims) {
+    assert.doesNotMatch(billingCopy, pattern, `Unverified billing or marketplace claim matched ${pattern}`);
+  }
+
+  assert.match(pricing, /savePercent: "Annual billing available"/);
+  assert.match(pricing, /savePercent: "Rozliczenie roczne dostępne"/);
+  assert.match(pricing, /proBadge: "30 LISTINGS \/ MONTH"/);
+  assert.match(pricing, /proBadge: "30 OGŁOSZEŃ \/ MIESIĄC"/);
+  assert.match(pricing, /Marketplace actions where available/);
+  assert.match(pricing, /Działania na platformach, gdy są dostępne/);
+  assert.match(billingCopy, /Card details are entered in Stripe Checkout/);
+  assert.match(billingCopy, /Dane karty wprowadzasz w Stripe Checkout/);
+  assert.match(checkoutDisclosure, /Plan management and cancellation options are available through Stripe Billing Portal/);
+  assert.match(checkoutDisclosure, /Opcje zarządzania planem i anulowania są dostępne w Stripe Billing Portal/);
+});
+
 test('EN and PL public copy state the marketplace capability boundaries', () => {
   const faq = read('src/pages/faq-content.ts');
   const crosslist = read('src/pages/articles/translations/cross-list-vinted-to-facebook-marketplace.translations.ts');

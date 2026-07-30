@@ -5,7 +5,7 @@ export const pricingTranslations = {
     heroDescription: "Pick the plan that matches your reselling volume",
     monthly: "Monthly",
     annual: "Annual",
-    savePercent: "Save 20% with annual billing",
+    savePercent: "Annual billing available",
     currencyLabel: "Currency",
     
     // Pricing Cards
@@ -16,7 +16,7 @@ export const pricingTranslations = {
     
     proName: "Plus",
     proDescription: "For regular multi-platform selling",
-    proBadge: "MOST POPULAR",
+    proBadge: "30 LISTINGS / MONTH",
     proPrice: "29 PLN",
     proAnnualPrice: "279 PLN",
     proCta: "Start Plus",
@@ -55,7 +55,7 @@ export const pricingTranslations = {
     starterFeature2: "1 AI image enhancement per month",
     starterFeature3: "AI-generated descriptions",
     starterFeature4: "Manual review before publish",
-    starterFeature5: "All supported marketplaces",
+    starterFeature5: "Marketplace actions where available",
     
     proFeature1: "30 listings per month",
     proFeature2: "20 AI image enhancements per month",
@@ -64,7 +64,7 @@ export const pricingTranslations = {
     proFeature5: "Required attributes auto-fill",
     proFeature6: "Brand detection when available",
     proFeature7: "Manual review before publish",
-    proFeature8: "Multi-marketplace publishing",
+    proFeature8: "Marketplace actions where available",
     proFeature9: "Email support",
     
     businessFeature1: "100 listings per month",
@@ -74,7 +74,7 @@ export const pricingTranslations = {
     businessFeature5: "Required attributes auto-fill",
     businessFeature6: "Brand detection when available",
     businessFeature7: "Manual review before publish",
-    businessFeature8: "Multi-marketplace publishing",
+    businessFeature8: "Marketplace actions where available",
     businessFeature9: "Priority email support",
 
     unlimitedFeature1: "Unlimited listings per month",
@@ -84,7 +84,7 @@ export const pricingTranslations = {
     unlimitedFeature5: "Suggested pricing and categories",
     unlimitedFeature6: "Required attributes auto-fill",
     unlimitedFeature7: "Manual review before publish",
-    unlimitedFeature8: "Multi-marketplace publishing",
+    unlimitedFeature8: "Marketplace actions where available",
     unlimitedFeature9: "Priority email support",
     
     // Comparison Table
@@ -106,22 +106,22 @@ export const pricingTranslations = {
     // FAQ
     faqTitle: "Frequently Asked Questions",
     faq1Question: "Can I switch plans at any time?",
-    faq1Answer: "Yes! You can upgrade or downgrade your plan at any time from your account settings. Changes take effect immediately, and you'll only pay the prorated difference when upgrading.",
+    faq1Answer: "Plan management options are available through Stripe Billing Portal. The timing and final amount are shown there and may vary.",
     faq2Question: "Do you offer a free plan?",
     faq2Answer: "Yes. Start is free and lets you try FlipIt with limited monthly usage. Upgrade anytime when you need higher limits.",
-    faq3Question: "What payment methods do you accept?",
-    faq3Answer: "We accept all major credit and debit cards (Visa, Mastercard, American Express, Discover) through our secure payment processor Stripe. You can also pay using Google Pay or Apple Pay.",
+    faq3Question: "How are payments handled?",
+    faq3Answer: "Available payment methods and the final amount are shown in Stripe Checkout and may vary.",
     faq4Question: "Can I cancel anytime?",
-    faq4Answer: "Absolutely. You can cancel your subscription at any time from your account settings. You'll continue to have access until the end of your current billing period.",
+    faq4Answer: "Cancellation options are available through Stripe Billing Portal. The effective timing is shown there and may vary.",
     faq5Question: "How does billing work for annual plans?",
-    faq5Answer: "Annual plans are billed once per year and save you 20% compared to monthly billing. You'll receive an invoice at the start of each year.",
+    faq5Answer: "Annual billing is available. The billing schedule and final amount are shown in Stripe Checkout or Stripe Billing Portal and may vary.",
     faq6Question: "Is my payment information secure?",
-    faq6Answer: "Yes. All payments are processed through Stripe, a PCI-compliant payment processor trusted by millions of businesses worldwide. We never store your payment information on our servers.",
+    faq6Answer: "Card details are entered in Stripe Checkout. Available payment details and the final amount are shown there before confirmation.",
     
     trustTitle: "Clear limits and control before publishing",
     trustPoint1: "Start is free, so you can test the listing workflow before choosing a paid plan.",
     trustPoint2: "You review destination fields and approve marketplace publication attempts yourself.",
-    trustPoint3: "Stripe processes payments. FlipIt does not store your card details on its servers.",
+    trustPoint3: "Card details are entered in Stripe Checkout, where the final amount is shown before confirmation.",
     
     // Final CTA
     ctaTitle: "Ready to Start Your Flipping Journey?",
@@ -142,7 +142,7 @@ export const pricingTranslations = {
     heroDescription: "Znajdź idealne rozwiązanie dla swojej skali sprzedaży",
     monthly: "Miesięcznie",
     annual: "Rocznie",
-    savePercent: "Oszczędź 20% przy płatności rocznej",
+    savePercent: "Rozliczenie roczne dostępne",
     currencyLabel: "Waluta",
     
     // Pricing Cards
@@ -153,7 +153,7 @@ export const pricingTranslations = {
     
     proName: "Plus",
     proDescription: "Dla regularnej sprzedaży wieloplatformowej",
-    proBadge: "Najpopularniejszy",
+    proBadge: "30 OGŁOSZEŃ / MIESIĄC",
     proPrice: "29 PLN",
     proAnnualPrice: "279 PLN",
     proCta: "Wybierz Plus",
@@ -192,7 +192,7 @@ export const pricingTranslations = {
     starterFeature2: "1 ulepszenie zdjęcia AI miesięcznie",
     starterFeature3: "Opisy generowane przez AI",
     starterFeature4: "Ręczna akceptacja przed publikacją",
-    starterFeature5: "Wszystkie obsługiwane platformy",
+    starterFeature5: "Działania na platformach, gdy są dostępne",
     
     proFeature1: "30 ogłoszeń miesięcznie",
     proFeature2: "20 ulepszeń zdjęć AI miesięcznie",
@@ -201,7 +201,7 @@ export const pricingTranslations = {
     proFeature5: "Automatyczne uzupełnianie atrybutów",
     proFeature6: "Wykrywanie marki (gdy dostępna)",
     proFeature7: "Ręczna akceptacja przed publikacją",
-    proFeature8: "Publikacja na wielu marketplace'ach",
+    proFeature8: "Działania na platformach, gdy są dostępne",
     proFeature9: "Wsparcie e-mail",
     
     businessFeature1: "100 ogłoszeń miesięcznie",
@@ -211,7 +211,7 @@ export const pricingTranslations = {
     businessFeature5: "Automatyczne uzupełnianie atrybutów",
     businessFeature6: "Wykrywanie marki (gdy dostępna)",
     businessFeature7: "Ręczna akceptacja przed publikacją",
-    businessFeature8: "Publikacja na wielu marketplace'ach",
+    businessFeature8: "Działania na platformach, gdy są dostępne",
     businessFeature9: "Priorytetowe wsparcie e-mail",
 
     unlimitedFeature1: "Nielimitowana liczba ogłoszeń miesięcznie",
@@ -221,7 +221,7 @@ export const pricingTranslations = {
     unlimitedFeature5: "Sugestie cen i kategorii",
     unlimitedFeature6: "Automatyczne uzupełnianie atrybutów",
     unlimitedFeature7: "Ręczna akceptacja przed publikacją",
-    unlimitedFeature8: "Publikacja na wielu marketplace'ach",
+    unlimitedFeature8: "Działania na platformach, gdy są dostępne",
     unlimitedFeature9: "Priorytetowe wsparcie e-mail",
     
     // Comparison Table
@@ -243,22 +243,22 @@ export const pricingTranslations = {
     // FAQ
     faqTitle: "Najczęściej zadawane pytania",
     faq1Question: "Czy mogę zmienić plan w dowolnym momencie?",
-    faq1Answer: "Tak! Możesz podwyższyć lub obniżyć swój plan w dowolnym momencie z ustawień konta. Zmiany wchodzą w życie natychmiast, a przy podwyższaniu płacisz tylko proporcjonalną różnicę.",
+    faq1Answer: "Opcje zarządzania planem są dostępne w Stripe Billing Portal. Termin zmiany i ostateczna kwota są tam pokazane i mogą się różnić.",
     faq2Question: "Czy jest darmowy plan?",
     faq2Answer: "Tak. Start jest darmowy i pozwala przetestować FlipIt z ograniczonym miesięcznym limitem. Możesz przejść na wyższy plan w dowolnym momencie.",
-    faq3Question: "Jakie metody płatności akceptujecie?",
-    faq3Answer: "Akceptujemy wszystkie główne karty kredytowe i debetowe (Visa, Mastercard, American Express, Discover) przez bezpieczny procesor płatności Stripe. Możesz również płacić przez Google Pay lub Apple Pay.",
+    faq3Question: "Jak obsługiwane są płatności?",
+    faq3Answer: "Dostępne metody płatności i ostateczna kwota są pokazane w Stripe Checkout i mogą się różnić.",
     faq4Question: "Czy mogę anulować w dowolnym momencie?",
-    faq4Answer: "Oczywiście. Możesz anulować subskrypcję w dowolnym momencie z ustawień konta. Zachowasz dostęp do końca bieżącego okresu rozliczeniowego.",
+    faq4Answer: "Opcje anulowania są dostępne w Stripe Billing Portal. Termin wejścia anulowania w życie jest tam pokazany i może się różnić.",
     faq5Question: "Jak działa rozliczanie dla planów rocznych?",
-    faq5Answer: "Plany roczne są rozliczane raz w roku i oszczędzasz 20% w porównaniu do rozliczenia miesięcznego. Fakturę otrzymasz na początku każdego roku.",
+    faq5Answer: "Rozliczenie roczne jest dostępne. Harmonogram rozliczeń i ostateczna kwota są pokazane w Stripe Checkout lub Stripe Billing Portal i mogą się różnić.",
     faq6Question: "Czy moje dane płatności są bezpieczne?",
-    faq6Answer: "Tak. Wszystkie płatności są przetwarzane przez Stripe, procesor zgodny z PCI, któremu ufają miliony firm na całym świecie. Nigdy nie przechowujemy Twoich danych płatniczych na naszych serwerach.",
+    faq6Answer: "Dane karty wprowadzasz w Stripe Checkout. Szczegóły płatności i ostateczna kwota są tam pokazane przed potwierdzeniem.",
     
     trustTitle: "Jasne limity i kontrola przed publikacją",
     trustPoint1: "Plan Start jest bezpłatny, więc możesz sprawdzić proces tworzenia ogłoszeń przed wyborem płatnego planu.",
     trustPoint2: "To Ty sprawdzasz dane dla platform i zatwierdzasz próby publikacji.",
-    trustPoint3: "Płatności obsługuje Stripe. FlipIt nie przechowuje danych Twojej karty na swoich serwerach.",
+    trustPoint3: "Dane karty wprowadzasz w Stripe Checkout, gdzie przed potwierdzeniem zobaczysz ostateczną kwotę.",
     
     // Final CTA
     ctaTitle: "Gotowy, by zacząć flipować?",

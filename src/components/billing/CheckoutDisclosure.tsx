@@ -25,8 +25,8 @@ export function CheckoutDisclosure(props: CheckoutDisclosureProps) {
     >
       {props.variant === 'subscription'
         ? language === 'pl'
-          ? `${props.price} ${props.period}. Subskrypcja odnawia się automatycznie do czasu anulowania. Możesz nią zarządzać i anulować ją w portalu rozliczeniowym. Kontynuując, potwierdzasz zapoznanie się z `
-          : `${props.price} ${props.period}. The subscription renews automatically until cancelled. You can manage and cancel it through the billing portal. By continuing, you acknowledge the `
+          ? `${props.price} ${props.period}. Ostateczna kwota i termin są pokazane w Stripe Checkout i mogą się różnić. Opcje zarządzania planem i anulowania są dostępne w Stripe Billing Portal. Kontynuując, potwierdzasz zapoznanie się z `
+          : `${props.price} ${props.period}. The final amount and timing are shown in Stripe Checkout and may vary. Plan management and cancellation options are available through Stripe Billing Portal. By continuing, you acknowledge the `
         : language === 'pl'
           ? 'Cena pokazana w Stripe Checkout jest płatnością jednorazową, bez opłat cyklicznych. Kontynuując, potwierdzasz zapoznanie się z '
           : 'The price shown in Stripe Checkout is a one-time payment with no recurring charge. By continuing, you acknowledge the '}

@@ -358,7 +358,7 @@ const pricingCases = [
   {
     language: 'en',
     path: '/pricing',
-    renewal: 'renews automatically until cancelled',
+    disclosure: 'Plan management and cancellation options are available through Stripe Billing Portal',
     terms: 'Terms',
     privacy: 'Privacy Policy',
     cta: 'Start Plus',
@@ -366,7 +366,7 @@ const pricingCases = [
   {
     language: 'pl',
     path: '/pl/cennik',
-    renewal: 'odnawia się automatycznie do czasu anulowania',
+    disclosure: 'Opcje zarządzania planem i anulowania są dostępne w Stripe Billing Portal',
     terms: 'Regulamin',
     privacy: 'Politykę prywatności',
     cta: 'Wybierz Plus',
@@ -381,7 +381,7 @@ for (const pricingCase of pricingCases) {
     await page.getByRole('button', { name: pricingCase.cta }).click();
     const disclosure = page.getByTestId('checkout-disclosure-subscription');
     await expect(disclosure).toHaveCount(1);
-    await expect(disclosure).toContainText(pricingCase.renewal);
+    await expect(disclosure).toContainText(pricingCase.disclosure);
     await expect(disclosure.getByRole('link', { name: pricingCase.terms })).toBeVisible();
     await expect(disclosure.getByRole('link', { name: pricingCase.privacy })).toBeVisible();
   });
