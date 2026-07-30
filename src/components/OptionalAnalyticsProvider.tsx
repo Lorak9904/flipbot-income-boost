@@ -4,7 +4,9 @@ import type { PostHogConfig } from 'posthog-js';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   COOKIE_CONSENT_CHOICE_EVENT,
+  COOKIE_CONSENT_KEY,
   hasOptionalCookieConsent,
+  notifyCookieConsentChoice,
   type CookieConsentEvent,
 } from '@/lib/cookie-consent';
 import {
@@ -28,22 +30,31 @@ const postHogOptions: Partial<PostHogConfig> = {
   capture_exceptions: true,
   before_send: sanitizePostHogEvent,
   persistence: 'localStorage+cookie',
-  disable_session_recording: false,
+  opt_out_capturing_by_default: true,
+  opt_out_persistence_by_default: true,
+  disable_session_recording: true,
+  request_batching: false,
   session_recording: { maskAllInputs: true },
-  loaded: () => resumeOptionalAnalytics(),
+  loaded: () => {
+    try {
+      performance.mark('flipit:optional-analytics-client-loaded');
+    } catch {
+      // Diagnostics must not interfere with optional analytics startup.
+    }
+    resumeOptionalAnalytics();
+  },
 };
 
 export function OptionalAnalyticsProvider({ children }: { children: ReactNode }) {
   const { isLoading, user } = useAuth();
   const [hasConsent, setHasConsent] = useState(hasOptionalCookieConsent);
-  const [ready, setReady] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     const handleChoice = (event: Event) => {
       const choice = (event as CookieConsentEvent).detail.choice;
       if (choice === 'essential') {
         stopOptionalAnalytics();
-        setReady(false);
         setHasConsent(false);
         return;
       }
@@ -54,18 +65,34 @@ export function OptionalAnalyticsProvider({ children }: { children: ReactNode })
   }, []);
 
   useEffect(() => {
-    if (!POSTHOG_KEY || !hasConsent || isLoading) {
+    const handleStoredChoice = (event: StorageEvent) => {
+      if (event.key !== COOKIE_CONSENT_KEY) return;
+      notifyCookieConsentChoice(event.newValue === 'accepted' ? 'accepted' : 'essential');
+    };
+    window.addEventListener('storage', handleStoredChoice);
+    return () => window.removeEventListener('storage', handleStoredChoice);
+  }, []);
+
+  useEffect(() => {
+    if (!POSTHOG_KEY || isLoading) {
       setOptionalAnalyticsReady(false);
-      setReady(false);
+      return;
+    }
+
+    if (!hasConsent) {
+      setOptionalAnalyticsReady(false);
       return;
     }
 
     if (!user) clearStoredPostHogState();
-    resumeOptionalAnalytics();
-    setReady(true);
-  }, [hasConsent, isLoading, user]);
+    if (initialized) {
+      resumeOptionalAnalytics();
+    } else {
+      setInitialized(true);
+    }
+  }, [hasConsent, initialized, isLoading, user]);
 
-  if (!POSTHOG_KEY || !ready) return children;
+  if (!POSTHOG_KEY || !initialized) return children;
 
   return (
     <PostHogProvider apiKey={POSTHOG_KEY} options={postHogOptions}>

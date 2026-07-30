@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { AddItemButton } from "@/components/ui/button-presets";
 import { Button } from "@/components/ui/button";
 import {
+  COOKIE_CONSENT_CHOICE_EVENT,
   COOKIE_CONSENT_KEY,
   persistCookieConsentChoice,
 } from "@/lib/cookie-consent";
@@ -43,6 +44,10 @@ export default function CookieBanner() {
     if (!localStorage.getItem(COOKIE_CONSENT_KEY)) {
       setVisible(true);
     }
+
+    const hideAfterChoice = () => setVisible(false);
+    window.addEventListener(COOKIE_CONSENT_CHOICE_EVENT, hideAfterChoice);
+    return () => window.removeEventListener(COOKIE_CONSENT_CHOICE_EVENT, hideAfterChoice);
   }, []);
 
   const persistChoice = (choice: "accepted" | "essential") => {

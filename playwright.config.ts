@@ -5,7 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  workers: process.env.CI ? 2 : 4,
   reporter: [['list'], ['html', { outputFolder: 'playwright-report' }]],
   use: {
     baseURL: 'http://127.0.0.1:4173',
@@ -22,7 +22,7 @@ export default defineConfig({
       VITE_PUBLIC_POSTHOG_HOST: 'https://posthog.invalid',
     },
     url: 'http://127.0.0.1:4173',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120000,
   },
   projects: [

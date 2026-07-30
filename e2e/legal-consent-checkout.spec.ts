@@ -4,6 +4,20 @@ import { buildGoogleLoginPayload } from '../src/lib/legal-acceptance';
 const TERMS_VERSION = '2026-06-28';
 const PRIVACY_VERSION = '2026-07-21';
 
+test.beforeEach(async ({ page }) => {
+  await page.route('https://posthog.invalid/**', (route) => route.fulfill({
+    status: route.request().method() === 'OPTIONS' ? 204 : 200,
+    contentType: 'application/json',
+    headers: { 'Access-Control-Allow-Origin': '*' },
+    body: route.request().method() === 'OPTIONS' ? '' : '{}',
+  }));
+  await page.route('https://embed.tawk.to/**', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/javascript',
+    body: '',
+  }));
+});
+
 const registrationCases = [
   {
     language: 'en',
@@ -157,12 +171,16 @@ test('PostHog stays uninitialized before choice and for essential-only', async (
     if (isPostHogRequest(request.url())) postHogRequests.push(request.url());
   });
   const consentRequest = page.waitForRequest('**/api/cookies/consent/');
+  await page.addInitScript(() => {
+    localStorage.setItem('visitor_id', 'withdrawn-visitor');
+    document.cookie = 'visitor_id=withdrawn-visitor; path=/; SameSite=Lax';
+  });
   await page.goto('/');
   await expect(page.getByRole('button', { name: 'Only necessary' })).toBeVisible();
   expect(postHogRequests).toEqual([]);
   await page.getByRole('button', { name: 'Only necessary' }).click();
-  expect((await consentRequest).postDataJSON()).toMatchObject({ consent: false, lang: 'en' });
-  await page.waitForTimeout(750);
+  expect((await consentRequest).postDataJSON()).toEqual({ consent: false, lang: 'en' });
+  await page.waitForTimeout(2_000);
   expect(postHogRequests).toEqual([]);
   expect(essentialRouteObservations).toBeGreaterThan(0);
   await expect(page.locator('nav').first()).toBeVisible();
@@ -201,18 +219,114 @@ test('consented account can withdraw and leaves no identity or later optional re
     }).some(([key, value]) => key.startsWith('ph_') && value.includes('legal-e2e'))
   )).toBe(true);
 
-  await page.goto('/cookies');
+  await expect.poll(() => page.evaluate(() => {
+    const cookieNames = document.cookie.split(';').map((cookie) => cookie.split('=', 1)[0]?.trim());
+    return localStorage.getItem('twk_test') === 'optional'
+      && localStorage.getItem('tawk_uuid_test') === 'optional'
+      && sessionStorage.getItem('TawkConnectionTime') === 'optional'
+      && cookieNames.includes('twk_test')
+      && cookieNames.includes('tawk_uuid_test')
+      && cookieNames.includes('TawkConnectionTime');
+  })).toBe(true);
+
+  await page.getByRole('link', { name: 'Cookies Policy', exact: true }).click();
+  await expect(page).toHaveURL(/\/cookies$/);
+  await expect.poll(() => page.evaluate(() =>
+    performance.getEntriesByName('flipit:optional-analytics-client-loaded').length
+  )).toBe(1);
   await page.getByRole('button', { name: 'Withdraw optional consent' }).click();
   const requestCountAfterWithdrawal = postHogRequests.length;
   await page.getByRole('link', { name: 'Pricing', exact: true }).first().click();
   await page.waitForTimeout(750);
 
   expect(postHogRequests).toHaveLength(requestCountAfterWithdrawal);
-  expect(await page.evaluate(() => ({
-    visitorId: localStorage.getItem('visitor_id'),
-    postHogKeys: Object.keys(localStorage).filter((key) => key.startsWith('ph_') || key.startsWith('__ph')),
-    tawkLoaded: Boolean(document.querySelector('script[src*="tawk.to"], iframe[src*="tawk.to"]')),
-  }))).toEqual({ visitorId: null, postHogKeys: [], tawkLoaded: false });
+  expect(await page.evaluate(() => {
+    const isTawkArtifact = (name: string) => {
+      const normalizedName = name.toLowerCase();
+      return normalizedName.startsWith('twk_')
+        || normalizedName.startsWith('tawk_uuid_')
+        || normalizedName === 'tawkconnectiontime';
+    };
+    const tawkStorageKeys = [localStorage, sessionStorage].flatMap((storage) =>
+      Array.from({ length: storage.length }, (_, index) => storage.key(index) || '').filter(isTawkArtifact)
+    );
+    const tawkCookieNames = document.cookie
+      .split(';')
+      .map((cookie) => cookie.split('=', 1)[0]?.trim() || '')
+      .filter(isTawkArtifact);
+
+    return {
+      visitorId: localStorage.getItem('visitor_id'),
+      postHogKeys: Object.keys(localStorage).filter((key) =>
+        (key.startsWith('ph_') || key.startsWith('__ph')) && !key.startsWith('__ph_opt_in_out_')
+      ),
+      postHogDenialMarkers: Object.entries(localStorage)
+        .filter(([key]) => key.startsWith('__ph_opt_in_out_'))
+        .map(([, value]) => value),
+      tawkLoaded: Boolean(document.querySelector('script[src*="tawk.to"], iframe[src*="tawk.to"]')),
+      tawkStorageKeys,
+      tawkCookieNames,
+    };
+  })).toEqual({
+    visitorId: null,
+    postHogKeys: [],
+    postHogDenialMarkers: ['0'],
+    tawkLoaded: false,
+    tawkStorageKeys: [],
+    tawkCookieNames: [],
+  });
+
+  const requestCountBeforeReaccept = postHogRequests.length;
+  const clientLoadsBeforeReaccept = await page.evaluate(() =>
+    performance.getEntriesByName('flipit:optional-analytics-client-loaded').length
+  );
+  await page.goBack();
+  await expect(page).toHaveURL(/\/cookies$/);
+  await page.getByRole('button', { name: 'Allow optional' }).click();
+  await expect.poll(() => postHogRequests.length, { timeout: 10_000 }).toBeGreaterThan(requestCountBeforeReaccept);
+  await expect(page.locator('#flipit-tawk-script')).toBeAttached();
+  expect(await page.evaluate(() =>
+    performance.getEntriesByName('flipit:optional-analytics-client-loaded').length
+  )).toBe(clientLoadsBeforeReaccept);
+});
+
+test('optional-consent withdrawal synchronizes to another open tab', async ({ page }) => {
+  const otherPage = await page.context().newPage();
+  await otherPage.route('https://posthog.invalid/**', (route) => route.fulfill({
+    status: route.request().method() === 'OPTIONS' ? 204 : 200,
+    contentType: 'application/json',
+    headers: { 'Access-Control-Allow-Origin': '*' },
+    body: route.request().method() === 'OPTIONS' ? '' : '{}',
+  }));
+  for (const tab of [page, otherPage]) {
+    await tab.route('https://embed.tawk.to/**', (route) => route.fulfill({
+      status: 200,
+      contentType: 'application/javascript',
+      body: '',
+    }));
+    await tab.route('**/api/cookies/consent/', (route) => route.fulfill({ status: 204, body: '' }));
+    await tab.route('**/api/observability/app-route/', (route) => route.fulfill({ status: 204, body: '' }));
+  }
+
+  const firstTabPostHogRequests: string[] = [];
+  page.on('request', (request) => {
+    if (isPostHogRequest(request.url())) firstTabPostHogRequests.push(request.url());
+  });
+
+  await Promise.all([page.goto('/'), otherPage.goto('/')]);
+  await page.getByRole('button', { name: 'Allow optional' }).click();
+  await expect.poll(() => firstTabPostHogRequests.length, { timeout: 10_000 }).toBeGreaterThan(0);
+  await expect(otherPage.getByRole('button', { name: 'Only necessary' })).toHaveCount(0);
+
+  await otherPage.goto('/cookies');
+  await otherPage.getByRole('button', { name: 'Withdraw optional consent' }).click();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('flipit_cookie_consent'))).toBe('essential');
+  const requestCountAfterWithdrawal = firstTabPostHogRequests.length;
+  await page.getByRole('link', { name: 'Pricing', exact: true }).first().click();
+  await page.waitForTimeout(2_000);
+
+  expect(firstTabPostHogRequests).toHaveLength(requestCountAfterWithdrawal);
+  await otherPage.close();
 });
 
 test('cold logged-out boot clears a former PostHog account before its first request', async ({ page }) => {
@@ -290,9 +404,56 @@ test('saved post-registration plan intent reopens confirmation before Checkout',
   await page.goto('/pricing?checkout=1&plan=plus&billing=monthly');
 
   await expect(page.getByTestId('checkout-disclosure-subscription')).toBeVisible();
+  await expect(page).toHaveURL(/\/pricing$/);
   expect(checkoutRequests).toBe(0);
   await page.getByRole('button', { name: 'Continue to secure checkout' }).click();
   await expect.poll(() => checkoutRequests).toBe(1);
+});
+
+test('cancelling a saved checkout intent consumes it without starting or reopening checkout', async ({ page }) => {
+  await mockAuthenticatedAccount(page, { checkoutPlan: 'plus' });
+  let checkoutRequests = 0;
+  await page.route('**/api/billing/checkout/', (route) => {
+    checkoutRequests += 1;
+    return route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ error: 'not expected' }) });
+  });
+  await page.goto('/pricing?checkout=1&plan=plus&billing=monthly');
+
+  await expect(page.getByTestId('checkout-disclosure-subscription')).toBeVisible();
+  await expect(page).toHaveURL(/\/pricing$/);
+  await page.getByRole('button', { name: 'Not now' }).click();
+  await expect(page.getByTestId('checkout-disclosure-subscription')).toHaveCount(0);
+  expect(checkoutRequests).toBe(0);
+  expect(await page.evaluate(() => sessionStorage.getItem('flipit_checkout_plan'))).toBeNull();
+
+  await page.reload();
+  await expect(page.getByTestId('checkout-disclosure-subscription')).toHaveCount(0);
+  expect(checkoutRequests).toBe(0);
+});
+
+test('a failed saved checkout attempt runs once and does not reopen', async ({ page }) => {
+  await mockAuthenticatedAccount(page, { checkoutPlan: 'plus' });
+  let checkoutRequests = 0;
+  await page.route('**/api/billing/checkout/', (route) => {
+    checkoutRequests += 1;
+    return route.fulfill({
+      status: 500,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: 'Checkout unavailable for test' }),
+    });
+  });
+  await page.goto('/pricing?checkout=1&plan=plus&billing=monthly');
+
+  await expect(page.getByTestId('checkout-disclosure-subscription')).toBeVisible();
+  await expect(page).toHaveURL(/\/pricing$/);
+  await page.getByRole('button', { name: 'Continue to secure checkout' }).click();
+  await expect.poll(() => checkoutRequests).toBe(1);
+  await expect(page.getByText('Checkout unavailable for test')).toBeVisible();
+  await expect(page.getByTestId('checkout-disclosure-subscription')).toHaveCount(0);
+
+  await page.reload();
+  await expect(page.getByTestId('checkout-disclosure-subscription')).toHaveCount(0);
+  expect(checkoutRequests).toBe(1);
 });
 
 function makeJwtToken() {
@@ -331,6 +492,11 @@ async function installMockTawk(page: Page) {
         shutdown() { document.querySelectorAll('iframe[src*="tawk.to"]').forEach((node) => node.remove()); }
       };
       localStorage.setItem('twk_test', 'optional');
+      localStorage.setItem('tawk_uuid_test', 'optional');
+      sessionStorage.setItem('TawkConnectionTime', 'optional');
+      document.cookie = 'twk_test=optional; path=/; SameSite=Lax';
+      document.cookie = 'tawk_uuid_test=optional; path=/; SameSite=Lax';
+      document.cookie = 'TawkConnectionTime=optional; path=/; SameSite=Lax';
       const iframe = document.createElement('iframe');
       iframe.src = 'https://mock.tawk.to/widget';
       document.body.appendChild(iframe);
@@ -375,7 +541,10 @@ async function mockAuthenticatedAccount(page: Page, options: { checkoutPlan?: st
   await page.addInitScript(({ token, checkoutPlan }) => {
     localStorage.setItem('flipit_token', token);
     localStorage.setItem('flipit_refresh_token', 'refresh');
-    if (checkoutPlan) sessionStorage.setItem('flipit_checkout_plan', checkoutPlan);
+    if (checkoutPlan && !sessionStorage.getItem('__e2e_checkout_plan_seeded')) {
+      sessionStorage.setItem('flipit_checkout_plan', checkoutPlan);
+      sessionStorage.setItem('__e2e_checkout_plan_seeded', '1');
+    }
   }, { token: makeJwtToken(), checkoutPlan: options.checkoutPlan });
   await page.route('**/api/auth/user', (route) => route.fulfill({
     status: 200,

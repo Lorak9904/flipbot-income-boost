@@ -52,7 +52,11 @@ export function persistCookieConsentChoice(choice: CookieConsentChoice): void {
   void fetch('/api/cookies/consent/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ consent: choice === 'accepted', lang, visitor_id: activeVisitorId }),
+    body: JSON.stringify({
+      consent: choice === 'accepted',
+      lang,
+      ...(choice === 'accepted' && activeVisitorId ? { visitor_id: activeVisitorId } : {}),
+    }),
   }).catch(() => undefined);
 
   if (choice === 'accepted') notifyOptionalCookieConsentAccepted();

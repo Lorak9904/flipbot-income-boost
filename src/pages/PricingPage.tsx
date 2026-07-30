@@ -176,6 +176,15 @@ const PricingPage = () => {
       return;
     }
 
+    const remainingParams = new URLSearchParams(location.search);
+    for (const key of ['checkout', 'plan', 'billing', 'currency']) {
+      remainingParams.delete(key);
+    }
+    navigate({
+      pathname: location.pathname,
+      search: remainingParams.size > 0 ? `?${remainingParams.toString()}` : '',
+    }, { replace: true });
+
     sessionStorage.removeItem('flipit_checkout_plan');
     sessionStorage.removeItem('flipit_checkout_billing');
     sessionStorage.removeItem(CHECKOUT_CURRENCY_STORAGE_KEY);
@@ -184,7 +193,7 @@ const PricingPage = () => {
       handleCurrencyChange(currency);
     }
     setPendingCheckout({ plan, cycle: normalizedCycle, currency });
-  }, [billingCycle, billingCurrency, isAuthenticated, location.search, pendingCheckout]);
+  }, [billingCycle, billingCurrency, isAuthenticated, location.pathname, location.search, navigate, pendingCheckout]);
 
   const confirmCheckout = () => {
     if (!pendingCheckout) return;
