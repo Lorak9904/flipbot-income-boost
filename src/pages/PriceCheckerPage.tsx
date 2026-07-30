@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { usePostHog } from '@posthog/react';
 import { Camera, ImageUp, Info, Loader2, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -20,11 +19,6 @@ import {
 } from '@/lib/api/price-checks';
 import { EBAY_PRICE_CHECK_MARKETS, IMAGE_SEARCH_MARKETS } from '@/lib/price-checker';
 import { getRoutePath } from '@/lib/localized-routes';
-import {
-  priceCheckCompletedProperties,
-  priceCheckFailedProperties,
-  priceCheckStartedProperties,
-} from '@/lib/analytics/price-checker';
 import { priceCheckerTranslations } from './price-checker-translations';
 
 type SearchMode = 'keyword' | 'image';
@@ -45,6 +39,7 @@ const BROWSER_MARKETS: Record<string, string> = {
   IE: 'EBAY_IE',
   IT: 'EBAY_IT',
   NL: 'EBAY_NL',
+  PL: 'EBAY_PL',
   US: 'EBAY_US',
 };
 
@@ -57,7 +52,6 @@ const defaultMarketplace = (language: 'en' | 'pl') => {
 export default function PriceCheckerPage() {
   const t = getTranslations(priceCheckerTranslations);
   const language = getCurrentLanguage();
-  const posthog = usePostHog();
   const inputRef = useRef<HTMLInputElement>(null);
   const submittingRef = useRef(false);
   const temporaryPhotoFallbackRef = useRef(false);
@@ -120,8 +114,6 @@ export default function PriceCheckerPage() {
     setIsSubmitting(true);
     setError('');
     setResult(null);
-    posthog?.capture('public_price_check_started', priceCheckStartedProperties(nextMode, marketplace));
-
     try {
       const uploaded = nextMode === 'image' && nextImage ? await uploadPriceCheckImage(nextImage) : null;
       const nextResult = await createPriceCheck({
@@ -142,17 +134,9 @@ export default function PriceCheckerPage() {
       });
       setResult(nextResult);
       setSelectedIds(new Set(nextResult.sampled_items.map((item) => item.provider_item_id)));
-      posthog?.capture(
-        'public_price_check_completed',
-        priceCheckCompletedProperties(nextMode, marketplace, nextResult.status, nextResult.sample_count),
-      );
     } catch (requestError) {
       const failureType = requestError instanceof PriceCheckRequestError ? requestError.failureType : 'network';
       setError(errorCopy(failureType));
-      posthog?.capture(
-        'public_price_check_failed',
-        priceCheckFailedProperties(nextMode, marketplace, failureType),
-      );
     } finally {
       submittingRef.current = false;
       setIsSubmitting(false);
@@ -266,7 +250,12 @@ export default function PriceCheckerPage() {
                 <Label>{t.imageLabel}</Label>
                 <button
                   type="button"
-                  onClick={() => inputRef.current?.click()}
+                  onClick={() => {
+                    if (inputRef.current) {
+                      inputRef.current.value = '';
+                      inputRef.current.click();
+                    }
+                  }}
                   className="flex min-h-48 w-full items-center justify-center overflow-hidden rounded-md border border-dashed border-neutral-600 bg-neutral-900/70 text-left transition-colors hover:border-cyan-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
                 >
                   {previewUrl ? (
@@ -292,7 +281,11 @@ export default function PriceCheckerPage() {
                   aria-label={t.imageDrop}
                   accept="image/jpeg,image/png,image/webp"
                   className="sr-only"
-                  onChange={(event) => chooseImage(event.target.files?.[0] || null)}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] || null;
+                    event.target.value = '';
+                    chooseImage(file);
+                  }}
                 />
                 <div className="flex items-start gap-2 text-sm leading-6 text-neutral-400">
                   <Info className="mt-1 h-4 w-4 shrink-0 text-cyan-300" aria-hidden="true" />
@@ -349,10 +342,17 @@ export default function PriceCheckerPage() {
                 <p>{t.activeOnly}</p>
                 <p>{t.privacyNote}</p>
               </div>
-              <Button type="submit" disabled={isSubmitting} className="min-h-12 shrink-0 px-6">
-                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Search className="mr-2 h-4 w-4" aria-hidden="true" />}
-                {isSubmitting ? t.submitting : t.submit}
-              </Button>
+              {mode === 'keyword' ? (
+                <Button type="submit" disabled={isSubmitting} className="min-h-12 shrink-0 px-6">
+                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Search className="mr-2 h-4 w-4" aria-hidden="true" />}
+                  {isSubmitting ? t.submitting : t.submit}
+                </Button>
+              ) : isSubmitting ? (
+                <div role="status" className="inline-flex min-h-12 shrink-0 items-center text-sm text-neutral-300">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                  {t.submitting}
+                </div>
+              ) : null}
             </div>
           </form>
 

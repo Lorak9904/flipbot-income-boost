@@ -107,6 +107,14 @@ test('one photo auto-submits once and Polish copy explains the temporary DE/EUR 
   await page.route(/\/api\/price-checks\/$/, async (route) => {
     createCount += 1;
     payload = route.request().postDataJSON();
+    if (createCount === 1) {
+      await route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({ detail: 'provider details must stay hidden' }),
+      });
+      return;
+    }
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -123,14 +131,21 @@ test('one photo auto-submits once and Polish copy explains the temporary DE/EUR 
   await page.goto('/pl/wycena-przedmiotu');
   await page.getByRole('button', { name: 'Wyszukaj po zdjęciu' }).click();
   await expect(page.getByText(/eBay Niemcy w EUR/)).toBeVisible();
-  await page.getByLabel('Wybierz wyraźne zdjęcie').setInputFiles({
+  const photoInput = page.getByLabel('Wybierz wyraźne zdjęcie');
+  const photo = {
     name: 'phone.png',
     mimeType: 'image/png',
     buffer: Buffer.from('89504e470d0a1a0a', 'hex'),
-  });
+  };
+  await photoInput.setInputFiles(photo);
+
+  await expect(page.getByRole('alert')).toContainText('Dane cenowe eBay są chwilowo niedostępne');
+  await expect(page.getByRole('alert')).not.toContainText('provider details');
+  await expect(page.getByRole('button', { name: 'Sprawdź aktywne ceny' })).toHaveCount(0);
+  await photoInput.setInputFiles(photo);
 
   await expect(page.getByText('Typowy zakres cen ofertowych')).toBeVisible();
-  expect(createCount).toBe(1);
+  expect(createCount).toBe(2);
   expect(payload).toMatchObject({ search_mode: 'image', marketplace_id: 'EBAY_DE' });
   expect((payload?.images as unknown[]).length).toBe(1);
 
@@ -187,22 +202,28 @@ test('mobile flow has no overflow or critical accessibility violations', async (
   expect(results.violations.filter((violation) => violation.impact === 'critical')).toEqual([]);
 });
 
-test('analytics properties are low-cardinality and exclude item text or image data', async ({ page }) => {
+test('English page maps an en-PL browser region to eBay Poland and PLN', async ({ browser }) => {
+  const context = await browser.newContext({ locale: 'en-PL' });
+  const page = await context.newPage();
   await prepare(page);
-  await page.goto('/price-checker');
-  const properties = await page.evaluate(async () => {
-    const analytics = await import('/src/lib/analytics/price-checker.ts');
-    return {
-      started: analytics.priceCheckStartedProperties('keyword', 'EBAY_US'),
-      completed: analytics.priceCheckCompletedProperties('image', 'EBAY_DE', 'completed', 5),
-      failed: analytics.priceCheckFailedProperties('image', 'EBAY_DE', 'timeout'),
-    };
+  let payload: Record<string, unknown> | undefined;
+  await page.route(/\/api\/price-checks\/$/, async (route) => {
+    payload = route.request().postDataJSON();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        ...completedResult,
+        marketplace_id: 'EBAY_PL',
+        currency: 'PLN',
+        sampled_items: comparables.map((item) => ({ ...item, marketplace_id: 'EBAY_PL', currency: 'PLN' })),
+      }),
+    });
   });
 
-  expect(properties).toEqual({
-    started: { mode: 'keyword', marketplace_id: 'EBAY_US', outcome: 'started' },
-    completed: { mode: 'image', marketplace_id: 'EBAY_DE', outcome: 'completed', sample_count: 5 },
-    failed: { mode: 'image', marketplace_id: 'EBAY_DE', outcome: 'failed', failure_type: 'timeout' },
-  });
-  expect(JSON.stringify(properties)).not.toMatch(/query|description|filename|photo_url|item_title|storage_key/i);
+  await page.goto('/price-checker');
+  await submitText(page);
+  await expect(page.getByText('Typical asking range')).toBeVisible();
+  expect(payload).toMatchObject({ marketplace_id: 'EBAY_PL', search_mode: 'keyword' });
+  await context.close();
 });
