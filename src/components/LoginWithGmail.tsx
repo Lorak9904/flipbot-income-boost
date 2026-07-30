@@ -68,7 +68,7 @@ export default function LoginWithGmail({
 
           try {
             const response = await axios.post(
-              `/api/auth/login/google`,
+              `/api/auth/login/google/`,
               buildGoogleLoginPayload(credential, signupMode),
             );
 

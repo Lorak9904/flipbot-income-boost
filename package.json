@@ -12,6 +12,7 @@
     "serve:dist": "node ./scripts/serve-dist.cjs",
     "test:static": "node --test ./scripts/serve-dist.test.cjs",
     "test:public-copy": "node --test scripts/public-copy.test.cjs",
+    "test:api-contract": "node --test scripts/api-contract.test.cjs",
     "test:e2e": "node ./scripts/run-e2e-local.cjs",
     "test:e2e:headed": "node ./scripts/run-e2e-local.cjs --headed",
     "test:e2e:ui": "node ./scripts/run-e2e-local.cjs --ui"

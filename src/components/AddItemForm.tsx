@@ -210,7 +210,7 @@ const AddItemForm = ({
       payload.currency = resolveCurrency(data.currency, user?.language || language || getCurrentLanguage());
 
       const token = localStorage.getItem('flipit_token');
-      const response = await fetch('/api/items/propose', {
+      const response = await fetch('/api/items/propose/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

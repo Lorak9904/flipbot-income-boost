@@ -328,7 +328,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
           const authToken = typeof window !== 'undefined' ? localStorage.getItem('flipit_token') : null;
           const { data: presigned } = await axios.post(
-            "/api/get-presigned-url",
+            "/api/get-presigned-url/",
             {
               filename: image.file!.name,
               content_type: image.file!.type,

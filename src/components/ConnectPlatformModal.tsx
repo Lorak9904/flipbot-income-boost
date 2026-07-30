@@ -85,7 +85,7 @@ export const ConnectPlatformModal = ({
     setStatus('connecting');
     try {
       const token = localStorage.getItem('flipit_token');
-      const response = await fetch('/api/manual-connect', {
+      const response = await fetch('/api/manual-connect/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

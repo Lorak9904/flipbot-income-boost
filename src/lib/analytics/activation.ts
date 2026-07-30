@@ -30,7 +30,7 @@ export function captureActivationEvent(
 
 export function captureFirstLiveListingCreated(
   posthog: PostHogLike,
-  userId: string | undefined,
+  userId: string | number | undefined,
   properties: {
     draft_id?: string;
     platforms: Platform[];

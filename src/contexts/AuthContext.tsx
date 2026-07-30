@@ -7,7 +7,7 @@ import {
 } from '@/lib/legal-acceptance';
 
 export type User = {
-  id: string;
+  id: string | number;
   name: string;
   email: string;
   avatar?: string;
@@ -21,7 +21,6 @@ type AuthContextType = {
   isLoading: boolean;
   refreshToken: () => Promise<void>;
   login: (userData: User, token: string) => void;
-  loginWithProvider: (provider: 'google' | 'facebook', token: string) => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
   registerWithEmail: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
@@ -58,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!refreshToken) throw new Error("No refresh token available");
     
     try {
-      const response = await fetch("/api/auth/refresh", {
+      const response = await fetch("/api/auth/refresh/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refresh_token: refreshToken }),
@@ -111,7 +110,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!storedRefreshToken) return null;
 
     try {
-      const response = await fetch("/api/auth/refresh", {
+      const response = await fetch("/api/auth/refresh/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refresh_token: storedRefreshToken }),
@@ -159,7 +158,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Now fetch user with valid token
       try {
-        const response = await fetch("/api/auth/user", {
+        const response = await fetch("/api/auth/user/", {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
@@ -178,7 +177,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const newToken = await attemptSilentRefresh();
           if (newToken) {
             // Retry with new token
-            const retryResponse = await fetch("/api/auth/user", {
+            const retryResponse = await fetch("/api/auth/user/", {
               method: "POST",
               headers: { 
                 "Content-Type": "application/json",
@@ -227,39 +226,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('flipit_token', token);
   };
 
-  const loginWithProvider = async (provider: 'google' | 'facebook', token: string) => {
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider, token }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to log in");
-      }
-
-      const data = await response.json();
-      // Backend returns: { userData: {...}, token, refresh_token }
-      const userData = {
-        id: data.userData?.id || data.id,
-        name: data.userData?.name || data.name,
-        email: data.userData?.email || data.email,
-        provider,
-        language: data.userData?.language
-      };
-      
-      // Use setUserAndTokens to properly save both tokens
-      setUserAndTokens(userData, data.token, data.refresh_token);
-    } catch (error) {
-      console.error("Login failed:", error);
-      throw error;
-    }
-  };
-
   const loginWithEmail = async (email: string, password: string) => {
     try {
-      const response = await fetch("/api/auth/login/email", {
+      const response = await fetch("/api/auth/login/email/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -294,7 +263,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const registerWithEmail = async (email: string, password: string, name: string) => {
     try {
-      const response = await fetch("/api/auth/register", {
+      const response = await fetch("/api/auth/register/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -347,7 +316,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isLoading,
         refreshToken,
         login,
-        loginWithProvider,
         loginWithEmail,
         registerWithEmail,
         logout,
