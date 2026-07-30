@@ -40,7 +40,6 @@ import EbayActiveListingsVsSoldPricesArticle from "./pages/articles/EbayActiveLi
 import HowMuchIsMyUsedItemWorthArticle from "./pages/articles/HowMuchIsMyUsedItemWorthArticle";
 import OlxCountryAccountsArticle from "./pages/articles/OlxCountryAccountsArticle";
 import EtsyListingToolArticle from "./pages/articles/EtsyListingToolArticle";
-// import FacebookCallbackPage from "./pages/FacebookCallbackPage";
 import TermsPage from "./pages/Terms";
 import PrivacyPolicyPage from "./pages/PrivacyPolicy";
 import CookiesPolicyPage from "./pages/CookiesPolicy"
