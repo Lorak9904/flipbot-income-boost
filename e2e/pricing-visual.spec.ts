@@ -7,9 +7,13 @@ async function seedEssentialConsent(page: Page) {
   });
 }
 
-test('pricing controls remain accessible and preserve billing behavior', async ({ page }) => {
+for (const viewport of [
+  { name: 'mobile', width: 390, height: 844 },
+  { name: 'tablet boundary', width: 768, height: 1024 },
+] as const) {
+test(`${viewport.name} pricing controls remain accessible and preserve billing behavior`, async ({ page }) => {
   await seedEssentialConsent(page);
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize({ width: viewport.width, height: viewport.height });
   await page.goto('/pricing');
 
   const annual = page.getByRole('button', { name: 'Annual', exact: true });
@@ -39,9 +43,14 @@ test('pricing controls remain accessible and preserve billing behavior', async (
     expect(size.height).toBeGreaterThanOrEqual(44);
   }
 });
+}
 
-test('mobile cookie consent choices meet the minimum touch target', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+for (const viewport of [
+  { name: 'mobile', width: 390, height: 844 },
+  { name: 'tablet boundary', width: 768, height: 1024 },
+] as const) {
+test(`${viewport.name} cookie consent choices meet the minimum touch target`, async ({ page }) => {
+  await page.setViewportSize({ width: viewport.width, height: viewport.height });
   await page.goto('/pricing');
 
   const choices = page.getByRole('button').filter({
@@ -59,6 +68,7 @@ test('mobile cookie consent choices meet the minimum touch target', async ({ pag
     expect(size.height).toBeGreaterThanOrEqual(44);
   }
 });
+}
 
 for (const viewport of [
   { name: 'desktop EN', width: 1440, height: 1024, path: '/pricing' },

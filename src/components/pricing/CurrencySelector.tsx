@@ -22,7 +22,7 @@ export const CurrencySelector = ({ currency, onChange, label }: CurrencySelector
               type="button"
               onClick={() => onChange(option)}
               aria-pressed={active}
-              className={`h-11 min-w-16 rounded-md px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 sm:h-9 ${
+              className={`min-h-11 min-w-16 rounded-md px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 ${
                 active
                   ? 'bg-cyan-500 text-neutral-950'
                   : 'text-neutral-300 hover:bg-white/10 hover:text-white'

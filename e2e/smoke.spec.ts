@@ -870,6 +870,7 @@ test('user items and item detail load with mocked data', async ({ page }) => {
 
 test('authenticated user items preserves the shared visual foundation', async ({ page }, testInfo) => {
   const tracker = await preparePage(page, { authenticated: true });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.addInitScript(({ userId }) => {
     sessionStorage.setItem(`flipit_first_listing_coach_minimized:${userId}`, 'true');
     sessionStorage.setItem(`flipit_first_listing_coach_intro:${userId}`, 'true');
@@ -887,7 +888,9 @@ test('authenticated user items preserves the shared visual foundation', async ({
     await disableAnimations(page);
 
     await expect(page).toHaveURL('/user/items');
-    await expect(page.getByText('E2E Jacket')).toBeVisible();
+    const listingCard = page.locator('article').filter({ hasText: 'E2E Jacket' });
+    await expect(listingCard).toBeVisible();
+    await expect(listingCard.locator('..')).toHaveCSS('opacity', '1');
     await expect(page.getByRole('button', { name: 'Refresh statuses', exact: true })).toBeVisible();
     const navigationToggle = page.getByRole('button', { name: 'Toggle navigation' });
     if (viewport.width >= 1280) {
@@ -929,6 +932,8 @@ test('authenticated user items preserves the shared visual foundation', async ({
     tracker.assertNoNewIssues(checkpoint, `/user/items (${viewport.name})`);
 
     if (viewport.screenshot) {
+      await listingCard.scrollIntoViewIfNeeded();
+      await expect(listingCard).toBeInViewport();
       await page.screenshot({
         path: testInfo.outputPath(`authenticated-user-items-${viewport.name}.png`),
         fullPage: false,
