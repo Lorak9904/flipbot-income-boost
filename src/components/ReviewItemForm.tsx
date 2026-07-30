@@ -1395,7 +1395,7 @@ const ReviewItemForm = ({
         mode,
       });
 
-      const response = await fetch('/api/items/publish', {
+      const response = await fetch('/api/items/publish/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
