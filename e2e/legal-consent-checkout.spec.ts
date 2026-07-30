@@ -40,7 +40,7 @@ const registrationCases = [
 for (const registrationCase of registrationCases) {
   test(`${registrationCase.language} registration requires and submits current legal acceptance`, async ({ page }) => {
     let payload: Record<string, unknown> | null = null;
-    await page.route('**/api/auth/register', async (route) => {
+    await page.route('**/api/auth/register/', async (route) => {
       payload = route.request().postDataJSON();
       await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
     });
@@ -79,7 +79,7 @@ for (const registrationCase of registrationCases) {
   });
 
   test(`${registrationCase.language} registration maps stable legal errors`, async ({ page }) => {
-    await page.route('**/api/auth/register', (route) => route.fulfill({
+    await page.route('**/api/auth/register/', (route) => route.fulfill({
       status: 400,
       contentType: 'application/json',
       body: JSON.stringify({ code: registrationCase.errorCode, detail: 'internal detail must not be shown' }),
@@ -114,7 +114,7 @@ test('Google signup payload is versioned while sign-in stays unchanged', () => {
 test('Google signup endpoint receives exact legal acceptance', async ({ page }) => {
   await installMockGoogle(page);
   let payload: Record<string, unknown> | null = null;
-  await page.route('**/api/auth/login/google', async (route) => {
+  await page.route('**/api/auth/login/google/', async (route) => {
     payload = route.request().postDataJSON();
     await route.fulfill({
       status: 200,
@@ -136,7 +136,7 @@ test('Google signup endpoint receives exact legal acceptance', async ({ page }) 
 test('normal Google sign-in endpoint sends only the credential', async ({ page }) => {
   await installMockGoogle(page);
   let payload: Record<string, unknown> | null = null;
-  await page.route('**/api/auth/login/google', async (route) => {
+  await page.route('**/api/auth/login/google/', async (route) => {
     payload = route.request().postDataJSON();
     await route.fulfill({
       status: 200,
@@ -509,7 +509,7 @@ async function mockUnlimitedAccount(page: Page) {
     localStorage.setItem('flipit_token', token);
     localStorage.setItem('flipit_refresh_token', 'refresh');
   }, { token: makeJwtToken() });
-  await page.route('**/api/auth/user', (route) => route.fulfill({
+  await page.route('**/api/auth/user/', (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ id: 'legal-e2e', name: 'Legal User', email: 'legal@example.com', provider: 'email', language: 'en' }),
@@ -546,7 +546,7 @@ async function mockAuthenticatedAccount(page: Page, options: { checkoutPlan?: st
       sessionStorage.setItem('__e2e_checkout_plan_seeded', '1');
     }
   }, { token: makeJwtToken(), checkoutPlan: options.checkoutPlan });
-  await page.route('**/api/auth/user', (route) => route.fulfill({
+  await page.route('**/api/auth/user/', (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ id: 'legal-e2e', name: 'Legal User', email: 'legal@example.com', provider: 'email', language: 'en' }),

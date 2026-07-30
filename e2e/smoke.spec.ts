@@ -262,7 +262,7 @@ async function installCommonMocks(page: Page, { authenticated }: { authenticated
     });
   });
 
-  await page.route('**/api/auth/user', async (route) => {
+  await page.route('**/api/auth/user/', async (route) => {
     if (!authenticated) {
       await route.fulfill({
         status: 401,
@@ -279,7 +279,7 @@ async function installCommonMocks(page: Page, { authenticated }: { authenticated
     });
   });
 
-  await page.route('**/api/auth/refresh', async (route) => {
+  await page.route('**/api/auth/refresh/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -622,7 +622,7 @@ test('protected route redirects to login when unauthenticated', async ({ page })
 test('email login flow stores token and redirects home', async ({ page }) => {
   await preparePage(page, { authenticated: false });
 
-  await page.route('**/api/auth/login/email', async (route) => {
+  await page.route('**/api/auth/login/email/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
