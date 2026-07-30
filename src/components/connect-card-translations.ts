@@ -97,6 +97,7 @@ export const connectCardTranslations: Translations = {
     vintedRefreshSuccess: 'Vinted cookies refreshed.',
     vintedRefreshFailed: 'Vinted refresh failed. Please try again.',
     vintedRefreshInvalid: 'Vinted session invalid. Please re-add cookies.',
+    vintedVerificationRequired: "Complete Vinted's security check in your browser, then update the connection.",
   },
   pl: {
     // Connection statuses
@@ -194,5 +195,6 @@ export const connectCardTranslations: Translations = {
     vintedRefreshSuccess: 'Ciasteczka Vinted odświeżone.',
     vintedRefreshFailed: 'Odświeżenie Vinted nie powiodło się. Spróbuj ponownie.',
     vintedRefreshInvalid: 'Sesja Vinted jest nieważna. Dodaj ciasteczka ponownie.',
+    vintedVerificationRequired: 'Przejdź kontrolę bezpieczeństwa w Vinted, a następnie zaktualizuj połączenie.',
   },
 };

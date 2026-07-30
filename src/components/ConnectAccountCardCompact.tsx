@@ -47,6 +47,7 @@ import type { OlxCountry, OlxMarketplaceAccount } from '@/lib/api/olx';
 import { formatCountryLabel } from '@/lib/country-label';
 import { Badge } from '@/components/ui/badge';
 import type { MarketplaceCapabilitySet } from '@/lib/api/platform-capabilities';
+import { isVintedVerificationRequired } from '@/lib/vinted-publish-result';
 import {
   capabilityReasonLabel,
   capabilityStatusLabel,
@@ -58,7 +59,7 @@ interface ConnectAccountCardProps {
   platform: 'facebook' | 'olx' | 'vinted' | 'ebay' | 'allegro' | 'etsy';
   platformName: string;
   logoSrc: string;
-  onConnected?: () => void | Promise<void>;
+  onConnected?: (outcome: { verified: boolean }) => void | Promise<void>;
   isConnected: boolean;
   sessionStatus?: 'valid' | 'expired' | 'invalid' | null;
   invalidReason?: string | null;
@@ -69,6 +70,7 @@ interface ConnectAccountCardProps {
   olxAccounts?: OlxMarketplaceAccount[];
   capabilitySet?: MarketplaceCapabilitySet;
   capabilitiesFailed?: boolean;
+  openConnectOnMount?: boolean;
 }
 
 type ConnectionStatus = 'connected' | 'not-connected' | 'expired' | 'invalid' | 'pending';
@@ -140,6 +142,7 @@ const ConnectAccountCard = ({
   olxAccounts = [],
   capabilitySet,
   capabilitiesFailed = false,
+  openConnectOnMount = false,
 }: ConnectAccountCardProps) => {
   const [isConnected, setIsConnected] = useState(initialConnected);
   const [showConnectModal, setShowConnectModal] = useState(false);
@@ -161,6 +164,12 @@ const ConnectAccountCard = ({
   useEffect(() => {
     setIsConnected(initialConnected);
   }, [initialConnected]);
+
+  useEffect(() => {
+    if (openConnectOnMount && (platform === 'vinted' || platform === 'facebook')) {
+      setShowConnectModal(true);
+    }
+  }, [openConnectOnMount, platform]);
 
   const tr = (key: string, replacements?: Record<string, string>) => {
     let text = t[key] || key;
@@ -312,7 +321,7 @@ const ConnectAccountCard = ({
           ? t.toastDisconnectedSuccess.replace('{platform}', `OLX ${countryCode.toUpperCase()}`)
           : tr('toastDisconnectedSuccess', { platform: platformName })
       );
-      if (onConnected) onConnected();
+      if (onConnected) onConnected({ verified: false });
     } catch (error) {
       notify.error(t.toastDisconnectedError);
     }
@@ -320,7 +329,7 @@ const ConnectAccountCard = ({
 
   const handleConnectionSuccess = () => {
     setIsConnected(true);
-    if (onConnected) onConnected();
+    if (onConnected) onConnected({ verified: true });
   };
 
   const handleVintedRefresh = async () => {
@@ -342,20 +351,31 @@ const ConnectAccountCard = ({
 
       const refreshResult = await response.json().catch(() => null);
 
+      if (isVintedVerificationRequired(refreshResult)) {
+        notify.warning(t.vintedVerificationRequired);
+        setShowConnectModal(true);
+        return;
+      }
+
       if (response.ok && refreshResult?.connected && refreshResult?.status === 'valid') {
         const statusResponse = await fetch('/api/vinted/status/', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const statusResult = await statusResponse.json().catch(() => null);
 
+        if (isVintedVerificationRequired(statusResult)) {
+          notify.warning(t.vintedVerificationRequired);
+          setShowConnectModal(true);
+          return;
+        }
+
         if (statusResponse.ok && statusResult?.connected && statusResult?.status === 'valid') {
           setIsConnected(true);
-          await onConnected?.();
+          await onConnected?.({ verified: true });
           notify.success(t.vintedRefreshSuccess);
           return;
         }
 
-        await onConnected?.();
         if (statusResponse.status === 401 || statusResponse.status === 403 || statusResult?.status === 'invalid') {
           notify.error(t.vintedRefreshInvalid);
           setShowConnectModal(true);
@@ -367,7 +387,6 @@ const ConnectAccountCard = ({
       }
 
       if (response.status === 401 || response.status === 403) {
-        await onConnected?.();
         notify.error(t.vintedRefreshInvalid);
         setShowConnectModal(true);
         return;

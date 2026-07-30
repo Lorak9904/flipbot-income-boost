@@ -16,6 +16,7 @@ import { PLATFORM_LOGOS } from '@/lib/platform-logos';
 import { fetchPlatformHealth, type PlatformHealthInfo } from '@/lib/api/platform-health';
 import { captureActivationEvent } from '@/lib/analytics/activation';
 import { platformCapabilitiesQueryOptions } from '@/lib/api/platform-capabilities';
+import { notify } from '@/lib/notifications';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -64,6 +65,13 @@ const ConnectAccountsPage = () => {
   const location = useLocation();
   const posthog = usePostHog();
   const t = getTranslations(connectAccountsTranslations);
+  const connectionParams = new URLSearchParams(location.search);
+  const requestedReconnect = connectionParams.get('reconnect');
+  const requestedReason = connectionParams.get('reason');
+  const requestedReturnTo = connectionParams.get('returnTo');
+  const safeReturnTo = requestedReturnTo?.startsWith('/') && !requestedReturnTo.startsWith('//')
+    ? requestedReturnTo
+    : null;
 
   const fetchConnectedPlatforms = async (): Promise<ConnectedPlatformsState> => {
     const data = (await fetchPlatformHealth()) as PlatformHealthCheckPayload;
@@ -214,14 +222,28 @@ const ConnectAccountsPage = () => {
           title: t.toastEtsyReconnectTitle,
           description: t.toastEtsyReconnectDescription,
         },
+        vinted: {
+          title: requestedReason === 'verification_required'
+            ? t.toastVintedVerificationTitle
+            : t.toastVintedReconnectTitle,
+          description: requestedReason === 'verification_required'
+            ? t.toastVintedVerificationDescription
+            : t.toastVintedReconnectDescription,
+        },
       };
       const toastConfig = reconnectToastMap[reconnect];
       if (toastConfig) {
-        toast({
-          title: toastConfig.title,
-          description: message || toastConfig.description,
-          variant: "destructive",
-        });
+        if (reconnect === 'vinted') {
+          notify.warning(toastConfig.title, {
+            description: message || toastConfig.description,
+          });
+        } else {
+          toast({
+            title: toastConfig.title,
+            description: message || toastConfig.description,
+            variant: "destructive",
+          });
+        }
       }
       // Clear URL params but keep user on page to reconnect
       window.history.replaceState({}, document.title, location.pathname);
@@ -246,11 +268,22 @@ const ConnectAccountsPage = () => {
     t.toastOlxConnectedTitle,
     t.toastOlxReconnectDescription,
     t.toastOlxReconnectTitle,
+    t.toastVintedReconnectDescription,
+    t.toastVintedReconnectTitle,
+    t.toastVintedVerificationDescription,
+    t.toastVintedVerificationTitle,
+    requestedReason,
     posthog,
   ]);
 
-  const handleAccountConnected = async () => {
+  const handleAccountConnected = async (
+    platform?: string,
+    outcome?: { verified: boolean },
+  ) => {
     await refetch();
+    if (platform === 'vinted' && outcome?.verified && safeReturnTo) {
+      navigate(safeReturnTo, { replace: true });
+    }
   };
 
   if (isLoading || !connectedPlatforms) {
@@ -318,7 +351,7 @@ const ConnectAccountsPage = () => {
               logoSrc={PLATFORM_LOGOS.facebook}
               isConnected={!!connectedPlatforms?.facebook}
               sessionStatus={connectedPlatforms?.facebook_session_status}
-              onConnected={handleAccountConnected}
+              onConnected={() => handleAccountConnected()}
               capabilitySet={capabilityResponse?.marketplaces.facebook}
               capabilitiesFailed={capabilitiesFailed}
             />
@@ -332,7 +365,7 @@ const ConnectAccountsPage = () => {
               invalidReason={connectedPlatforms?.olx_invalid_reason}
               olxAccounts={connectedPlatforms?.olx_accounts || []}
               olxCountries={connectedPlatforms?.olx_countries || []}
-              onConnected={handleAccountConnected}
+              onConnected={() => handleAccountConnected()}
               capabilitySet={capabilityResponse?.marketplaces.olx}
               capabilitiesFailed={capabilitiesFailed}
             />
@@ -342,9 +375,10 @@ const ConnectAccountsPage = () => {
               platformName={t.platformVinted}
               logoSrc={PLATFORM_LOGOS.vinted}
               isConnected={!!connectedPlatforms?.vinted}
-              onConnected={handleAccountConnected}
+              onConnected={(outcome) => handleAccountConnected('vinted', outcome)}
               sessionStatus={connectedPlatforms?.vinted_session_status}
               invalidReason={connectedPlatforms?.vinted_invalid_reason}
+              openConnectOnMount={requestedReconnect === 'vinted'}
               capabilitySet={capabilityResponse?.marketplaces.vinted}
               capabilitiesFailed={capabilitiesFailed}
             />
@@ -356,7 +390,7 @@ const ConnectAccountsPage = () => {
               isConnected={!!connectedPlatforms?.ebay}
               sessionStatus={connectedPlatforms?.ebay_session_status}
               invalidReason={connectedPlatforms?.ebay_invalid_reason}
-              onConnected={handleAccountConnected}
+              onConnected={() => handleAccountConnected()}
               capabilitySet={capabilityResponse?.marketplaces.ebay}
               capabilitiesFailed={capabilitiesFailed}
             />
@@ -368,7 +402,7 @@ const ConnectAccountsPage = () => {
               isConnected={!!connectedPlatforms?.allegro}
               sessionStatus={connectedPlatforms?.allegro_session_status}
               invalidReason={connectedPlatforms?.allegro_invalid_reason}
-              onConnected={handleAccountConnected}
+              onConnected={() => handleAccountConnected()}
               capabilitySet={capabilityResponse?.marketplaces.allegro}
               capabilitiesFailed={capabilitiesFailed}
             />
@@ -383,7 +417,7 @@ const ConnectAccountsPage = () => {
               appConfigured={connectedPlatforms?.etsy_app_configured}
               actionKey={connectedPlatforms?.etsy_action_key}
               pendingMessage={connectedPlatforms?.etsy_message}
-              onConnected={handleAccountConnected}
+              onConnected={() => handleAccountConnected()}
               capabilitySet={capabilityResponse?.marketplaces.etsy}
               capabilitiesFailed={capabilitiesFailed}
             />

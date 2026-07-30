@@ -90,6 +90,8 @@ import {
 } from '@/lib/api/platform-capabilities';
 import { capabilityStatusLabel, getPlatformCapabilityCopy } from './platform-capability-translations';
 import { ALL_PLATFORMS } from '@/lib/platforms';
+import { notify } from '@/lib/notifications';
+import { isVintedVerificationRequired } from '@/lib/vinted-publish-result';
 
 interface ReviewItemFormProps {
   initialData: GeneratedItemDataWithVinted;
@@ -1424,6 +1426,24 @@ const ReviewItemForm = ({
           return;
         }
 
+        if (
+          response.status === 403 &&
+          selectedPlatforms.includes('vinted') &&
+          isVintedVerificationRequired(error?.data)
+        ) {
+          captureActivationEvent(posthog, 'publish_failed', {
+            draft_id: payload.draft_id,
+            platform: 'vinted',
+            status_code: response.status,
+            error: 'vinted_verification_required',
+          });
+          publishFailureTracked = true;
+          notify.warning(t.toast.vintedVerificationTitle, {
+            description: t.toast.vintedVerificationDescription,
+          });
+          return;
+        }
+
         const missingAttributes = error?.data?.missing_attributes as
           | Record<string, { missing?: Array<{ key?: string; label?: string }> }>
           | undefined;
@@ -1470,6 +1490,10 @@ const ReviewItemForm = ({
             message?: string;
             external_id?: string;
             listing_url?: string;
+            error_code?: string;
+            action_required?: string;
+            retryable?: boolean;
+            response?: Record<string, unknown>;
           }
         >;
       };
@@ -1491,18 +1515,27 @@ const ReviewItemForm = ({
               description: t.toast.publishedSuccess.replace('{platform}', platform),
             });
           } else {
+            const platformDetail = result.platform_details?.[platform];
+            const verificationRequired =
+              platform === 'vinted' && isVintedVerificationRequired(platformDetail);
             captureActivationEvent(posthog, 'publish_failed', {
               draft_id: result.uuid || payload.draft_id,
               platform,
               status,
-              status_code: result.platform_details?.[platform]?.status_code,
-              error: result.platform_details?.[platform]?.message || String(status),
+              status_code: platformDetail?.status_code,
+              error: platformDetail?.error_code || platformDetail?.message || String(status),
             });
-            toast({
-              title: t.toast.publishError.replace('{platform}', platform),
-              description: String(status),
-              variant: "destructive",
-            });
+            if (verificationRequired) {
+              notify.warning(t.toast.vintedVerificationTitle, {
+                description: t.toast.vintedVerificationDescription,
+              });
+            } else {
+              toast({
+                title: t.toast.publishError.replace('{platform}', platform),
+                description: platformDetail?.message || String(status),
+                variant: "destructive",
+              });
+            }
           }
         });
       } else {

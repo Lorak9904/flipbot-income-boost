@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { enUS, pl } from 'date-fns/locale';
 import {
@@ -12,6 +13,8 @@ import {
   Layers3,
   Link2,
   Package,
+  RotateCcw,
+  ShieldAlert,
   Trash2,
   XCircle,
 } from 'lucide-react';
@@ -25,7 +28,9 @@ import { cdnThumb } from '@/lib/images';
 import { formatMoney } from '@/lib/currency';
 import type { ItemDetailTranslations } from '@/utils/translations/item-detail-translations';
 import type { Platform, PlatformPublishResult, UserItem } from '@/types/item';
-import type { Language } from '@/components/language-utils';
+import { getLocalizedPathForCurrentLanguage, type Language } from '@/components/language-utils';
+import { buildListingEditorUrl } from '@/lib/listing-editor/navigation';
+import { isVintedVerificationRequired } from '@/lib/vinted-publish-result';
 
 interface ListingDetailSectionProps {
   item: UserItem;
@@ -91,6 +96,15 @@ const publishStatusTone = (result: PlatformPublishResult, t: ItemDetailTranslati
       label: t.sections.publishSuccess,
       badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50',
       borderClass: 'border-emerald-500/30',
+    };
+  }
+
+  if (isVintedVerificationRequired(result)) {
+    return {
+      icon: <ShieldAlert className="h-5 w-5 text-amber-300" />,
+      label: t.sections.publishVerificationRequired,
+      badgeClass: 'border-amber-500/50 bg-amber-500/20 text-amber-200',
+      borderClass: 'border-amber-500/40',
     };
   }
 
@@ -450,6 +464,21 @@ export function PublishingStatusPanel({
               result.platform === 'allegro' ||
               result.platform === 'etsy');
           const timestamp = formatDateTime(result.updated_at || result.published_at, language);
+          const verificationRequired = isVintedVerificationRequired(result);
+          const returnPath = getLocalizedPathForCurrentLanguage(`/user/items/${item.uuid}`);
+          const connectionParams = new URLSearchParams({
+            reconnect: 'vinted',
+            reason: 'verification_required',
+            returnTo: returnPath,
+          });
+          const connectionPath = `${getLocalizedPathForCurrentLanguage('/connect-accounts')}?${connectionParams}`;
+          const retryPath = getLocalizedPathForCurrentLanguage(
+            buildListingEditorUrl({
+              mode: 'republish',
+              itemId: item.uuid,
+              publishPlatform: 'vinted',
+            })
+          );
 
           return (
             <div
@@ -483,10 +512,37 @@ export function PublishingStatusPanel({
                       </p>
                     )}
 
-                    {(result.message || result.error_message) && (
+                    {verificationRequired ? (
+                      <p className="mt-2 max-w-2xl text-sm leading-6 text-amber-100/90">
+                        {t.sections.publishVerificationDescription}
+                      </p>
+                    ) : (result.message || result.error_message) && (
                       <p className={`mt-1 text-sm ${result.error_message ? 'text-red-300' : 'text-neutral-400'}`}>
                         {result.error_message ? `${t.sections.providerError}: ${result.error_message}` : result.message}
                       </p>
+                    )}
+
+                    {verificationRequired && (
+                      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                        <Button asChild size="sm" variant="outline" className="min-h-10 border-amber-500/50 bg-amber-500/10 text-amber-100 hover:bg-amber-500/20 hover:text-white">
+                          <a href="https://www.vinted.pl/items/new" target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            {t.sections.openVinted}
+                          </a>
+                        </Button>
+                        <Button asChild size="sm" className="min-h-10 bg-cyan-600 text-white hover:bg-cyan-500">
+                          <Link to={connectionPath}>
+                            <Link2 className="mr-2 h-4 w-4" />
+                            {t.sections.updateVintedConnection}
+                          </Link>
+                        </Button>
+                        <Button asChild size="sm" variant="ghost" className="min-h-10 text-neutral-200 hover:bg-neutral-800 hover:text-white">
+                          <Link to={retryPath}>
+                            <RotateCcw className="mr-2 h-4 w-4" />
+                            {t.sections.retryVintedPublishing}
+                          </Link>
+                        </Button>
+                      </div>
                     )}
 
                     {timestamp && <p className="mt-1 text-xs text-neutral-500">{timestamp}</p>}

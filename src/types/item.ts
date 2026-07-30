@@ -201,7 +201,16 @@ export interface PlatformPublishResult {
   message?: string;
   external_id?: string;
   listing_url?: string;
-  response?: Record<string, unknown>;
+  error_code?: string;
+  action_required?: string;
+  retryable?: boolean;
+  response?: {
+    error_code?: string;
+    action_required?: string;
+    retryable?: boolean;
+    provider_reason?: string;
+    [key: string]: unknown;
+  };
   marketplace_account_key?: string;
   marketplace_country?: string;
   created_at?: string;
