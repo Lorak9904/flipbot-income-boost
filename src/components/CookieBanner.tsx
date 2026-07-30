@@ -58,18 +58,18 @@ export default function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 rounded-lg border border-neutral-700 bg-neutral-950/95 p-4 text-white shadow-2xl backdrop-blur-md">
-      <p className="text-sm leading-6 text-neutral-200">
+    <div className="fixed bottom-3 left-1/2 z-[9999] w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 rounded-lg border border-neutral-700 bg-neutral-950/95 p-3 text-white shadow-2xl backdrop-blur-md sm:bottom-4 sm:left-auto sm:right-4 sm:w-[26rem] sm:translate-x-0">
+      <p className="text-xs leading-5 text-neutral-200">
         {copy.text}{" "}
         <Link to={cookiesPath} className="font-medium text-cyan-300 underline underline-offset-4 hover:text-cyan-200">
           {copy.learnMore}
         </Link>
       </p>
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+      <div className="mt-3 flex gap-2">
         <AddItemButton
           sizeVariant="md"
           onClick={() => persistChoice("accepted")}
-          className="min-h-11 w-full justify-center px-4 py-2 button-fluid-text !border-cyan-200 !bg-cyan-800 !text-white hover:!bg-cyan-700"
+          className="h-9 min-h-0 w-full justify-center px-3 py-1.5 text-xs !border-cyan-200 !bg-cyan-800 !text-white hover:!bg-cyan-700"
         >
           {copy.accept}
         </AddItemButton>
@@ -77,7 +77,7 @@ export default function CookieBanner() {
           type="button"
           variant="outline"
           onClick={() => persistChoice("essential")}
-          className="min-h-11 w-full border-neutral-600 bg-neutral-900/80 px-4 py-2 text-neutral-200 hover:border-neutral-400 hover:bg-neutral-800 hover:text-white"
+          className="h-9 min-h-0 w-full border-neutral-600 bg-neutral-900/80 px-3 py-1.5 text-xs text-neutral-200 hover:border-neutral-400 hover:bg-neutral-800 hover:text-white"
         >
           {copy.necessary}
         </Button>
