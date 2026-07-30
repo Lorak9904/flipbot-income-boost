@@ -409,11 +409,39 @@ const ReviewItemForm = ({
     []
   );
 
+  const missingOlxLocationFields = useMemo(() => {
+    const location = platformOverrides.olx?.location;
+    return [
+      !location?.city_id ? t.marketplaceRequirements.olxCity : null,
+      !location?.district_id ? t.marketplaceRequirements.olxDistrict : null,
+    ].filter((field): field is string => Boolean(field));
+  }, [platformOverrides.olx?.location, t.marketplaceRequirements.olxCity, t.marketplaceRequirements.olxDistrict]);
+
   const marketplaceReadiness = useMemo(() => {
     const readiness: Partial<Record<Platform, MarketplaceRequirementReadiness>> = {};
 
     for (const platform of selectedPlatforms) {
       const base = baseMarketplaceReadiness(platform, platformOverrides, connectedPlatforms[platform]);
+      if (platform === 'olx') {
+        if (base.state === 'needs_category' || base.state === 'unavailable') {
+          readiness.olx = base;
+          continue;
+        }
+
+        const dynamic = dynamicRequirementReadiness.olx;
+        if (dynamic?.state === 'unavailable') {
+          readiness.olx = dynamic;
+          continue;
+        }
+
+        const missingCount =
+          missingOlxLocationFields.length +
+          (dynamic?.state === 'needs_attributes' ? dynamic.missingCount || 0 : 0);
+        readiness.olx = missingCount
+          ? { state: 'needs_attributes', missingCount }
+          : dynamic || base;
+        continue;
+      }
       if (platform !== 'vinted') {
         readiness[platform] = dynamicRequirementReadiness[platform] || base;
         continue;
@@ -450,6 +478,7 @@ const ReviewItemForm = ({
     loadingMarketplaceAttributes.vinted,
     marketplaceAttributeErrors.vinted,
     marketplaceAttributes.vinted,
+    missingOlxLocationFields,
     platformOverrides,
     selectedPlatforms,
   ]);
@@ -744,14 +773,29 @@ const ReviewItemForm = ({
   }, [connectedPlatforms.vinted, language, loadVintedRequirements, platformOverrides.vinted?.catalog_id, selectedPlatforms]);
 
   const updateOlxCategoryOverride = (categoryId: string | number, categoryPath?: string) => {
+    const nextCategoryId = String(categoryId);
+    const categoryChanged =
+      String(platformOverrides.olx?.category_id ?? '') !== nextCategoryId;
+    if (categoryChanged) {
+      setDynamicRequirementReadiness((previous) => ({
+        ...previous,
+        olx: { state: 'checking' },
+      }));
+    }
+
     setPlatformOverrides((prev) => {
       const existing = prev.olx;
       const existingOverrides =
         existing && typeof existing === 'object' ? (existing as Record<string, unknown>) : {};
       const nextOlxOverrides: Record<string, unknown> = {
         ...existingOverrides,
-        category_id: String(categoryId),
+        category_id: nextCategoryId,
       };
+
+      if (categoryChanged) {
+        delete nextOlxOverrides.attributes;
+        delete nextOlxOverrides.ad_delivery;
+      }
 
       if (categoryPath && categoryPath.trim()) {
         nextOlxOverrides.category_path = categoryPath.trim();
@@ -1350,12 +1394,33 @@ const ReviewItemForm = ({
                   !hasRequirementValue(marketplaceAttributes.vinted?.values[field.key])
               )
             : undefined;
-        focusMarketplaceRequirement(incompletePlatform, firstMissingVintedField?.key);
+        const missingOlxLocationFieldId =
+          incompletePlatform === 'olx' && missingOlxLocationFields.length > 0
+            ? platformOverrides.olx?.location?.city_id
+              ? 'olx-district'
+              : 'olx-city'
+            : undefined;
+        if (missingOlxLocationFieldId) {
+          setActiveRequirementPlatform('olx');
+          window.requestAnimationFrame(() => {
+            const field = document.getElementById(missingOlxLocationFieldId);
+            field?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            field?.focus();
+          });
+        } else {
+          focusMarketplaceRequirement(incompletePlatform, firstMissingVintedField?.key);
+        }
         toast({
           title: t.marketplaceRequirements.completeRequirementsTitle,
-          description: t.marketplaceRequirements.completeRequirementsDescription(
-            t.platforms[incompletePlatform]
-          ),
+          description:
+            incompletePlatform === 'olx' && missingOlxLocationFields.length > 0
+              ? t.marketplaceRequirements.missingFieldsDescription(
+                  t.platforms.olx,
+                  missingOlxLocationFields
+                )
+              : t.marketplaceRequirements.completeRequirementsDescription(
+                  t.platforms[incompletePlatform]
+                ),
           variant: 'destructive',
         });
         return;

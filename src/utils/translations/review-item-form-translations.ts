@@ -63,6 +63,8 @@ export const reviewItemFormTranslations = {
       completeRequirementsDescription: (platform: string) => `Complete ${platform} requirements before publishing.`,
       missingFieldsDescription: (platform: string, fields: string[]) =>
         `${platform} still requires: ${fields.join(', ')}.`,
+      olxCity: "OLX city",
+      olxDistrict: "OLX district",
       olxCountry: "OLX country",
       olxCountryConnectedInfo: "Used to load OLX categories, required details, and publish to the selected country.",
       olxCountryUnconnectedInfo: "No OLX country is connected yet. You can prepare the listing, but publishing requires a connected country.",
@@ -287,6 +289,8 @@ export const reviewItemFormTranslations = {
       completeRequirementsDescription: (platform: string) => `Uzupełnij wymagania platformy ${platform} przed publikacją.`,
       missingFieldsDescription: (platform: string, fields: string[]) =>
         `Uzupełnij wymagane dane dla ${platform}: ${fields.join(', ')}.`,
+      olxCity: "miasto OLX",
+      olxDistrict: "dzielnica OLX",
       olxCountry: "Kraj OLX",
       olxCountryConnectedInfo: "Służy do wczytania kategorii OLX, wymaganych danych i publikacji w wybranym kraju.",
       olxCountryUnconnectedInfo: "Nie połączono jeszcze żadnego kraju OLX. Możesz przygotować ogłoszenie, ale publikacja wymaga połączonego kraju.",

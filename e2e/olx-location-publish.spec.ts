@@ -140,20 +140,57 @@ async function prepareOlxEditor(page: Page) {
       }),
     }),
   );
-  await page.route('**/api/olx/categories/path/**', (route) =>
-    route.fulfill({
+  await page.route('**/api/olx/categories/path/**', (route) => {
+    const categoryId = Number(new URL(route.request().url()).searchParams.get('category_id') || 100);
+    const selected = {
+      category_id: categoryId,
+      name: categoryId === 200 ? 'Coats' : 'Jackets',
+      path: categoryId === 200 ? 'Fashion > Coats' : 'Fashion > Jackets',
+      parent_id: null,
+      is_leaf: true,
+    };
+    return route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ selected: { category_id: 100, path: 'Fashion > Jackets' } }),
-    }),
-  );
-  await page.route('**/api/platforms/olx/attributes/**', (route) =>
+      body: JSON.stringify({ path: [selected], selected }),
+    });
+  });
+  await page.route('**/api/olx/categories/search/**', (route) =>
     route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
+        query: 'Coa',
+        count: 1,
+        results: [
+          {
+            category_id: 200,
+            name: 'Coats',
+            path: 'Fashion > Coats',
+            parent_id: null,
+            is_leaf: true,
+            has_children: false,
+            ancestors: [],
+          },
+        ],
+      }),
+    }),
+  );
+  await page.route('**/api/olx/categories/tree/**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ count: 0, results: [] }),
+    }),
+  );
+  await page.route('**/api/platforms/olx/attributes/**', (route) => {
+    const categoryId = new URL(route.request().url()).searchParams.get('category_id') || '100';
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
         platform: 'olx',
-        category_id: '100',
+        category_id: categoryId,
         fields: [
           {
             key: 'delivery',
@@ -168,8 +205,8 @@ async function prepareOlxEditor(page: Page) {
         ],
         required_fields: [],
       }),
-    }),
-  );
+    });
+  });
   await page.route('**/api/olx/locations/cities/**', (route) => {
     const url = new URL(route.request().url());
     if (url.pathname.includes('/districts/')) {
@@ -205,17 +242,14 @@ test('OLX city, district, and delivery reach publish payload and reset with city
 
   await page.goto(`/add-item?edit=${TEST_ITEM_UUID}&mode=republish&publish=olx`);
 
-  const cityInput = page.getByLabel('OLX city');
-  const districtSelect = page
-    .getByText('OLX district', { exact: true })
-    .locator('..')
-    .getByRole('combobox')
-    .first();
+  const cityInput = page.getByRole('combobox', { name: 'OLX city' });
+  const districtSelect = page.getByRole('combobox', { name: 'OLX district' });
   await cityInput.fill('War');
-  await page.getByRole('button', { name: 'Warsaw' }).click();
+  await expect(page.getByRole('listbox')).toBeVisible();
+  await page.getByRole('option', { name: 'Warsaw' }).click();
   await districtSelect.click();
   await page.getByRole('option', { name: 'Old Town' }).click();
-  await page.getByText('Courier', { exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Courier' }).click();
 
   await page.getByRole('button', { name: 'Publish Item' }).click();
   await expect.poll(() => publishPayloads.length).toBe(1);
@@ -231,14 +265,34 @@ test('OLX city, district, and delivery reach publish payload and reset with city
     },
   });
 
+  await page.getByRole('textbox', { name: 'OLX category' }).click();
+  const categoryDialog = page.getByRole('dialog', { name: 'Choose OLX category' });
+  await categoryDialog.getByPlaceholder('Search').fill('Coa');
+  await categoryDialog.getByRole('button', { name: /Coats/ }).click();
+
+  await expect(page.getByRole('checkbox', { name: 'Courier' })).not.toBeChecked();
+  await expect(page.getByRole('button', { name: /OLX 1 required/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Publish Item' }).click();
+  await expect.poll(() => publishPayloads.length).toBe(1);
+
+  await page.getByRole('checkbox', { name: 'Parcel locker' }).click();
+  await page.getByRole('button', { name: 'Publish Item' }).click();
+  await expect.poll(() => publishPayloads.length).toBe(2);
+  expect(publishPayloads[1]).toMatchObject({
+    platform_listing_overrides: {
+      olx: {
+        category_id: 200,
+        ad_delivery: { delivery_package_ids: ['parcel-locker'] },
+      },
+    },
+  });
+  expect(JSON.stringify(publishPayloads[1])).not.toContain('courier');
+
   await cityInput.fill('Wro');
   await expect(districtSelect).toBeDisabled();
   await page.getByRole('button', { name: 'Publish Item' }).click();
   await expect.poll(() => publishPayloads.length).toBe(2);
-  const cityResetOverrides = publishPayloads[1].platform_listing_overrides as {
-    olx: Record<string, unknown>;
-  };
-  expect(cityResetOverrides.olx).not.toHaveProperty('location');
+  await expect(page.getByText('OLX still requires: OLX city, OLX district.')).toBeVisible();
 
   const countrySelect = page
     .getByText('OLX country', { exact: true })
@@ -250,9 +304,7 @@ test('OLX city, district, and delivery reach publish payload and reset with city
   await page.getByRole('option', { name: 'Bulgaria' }).click();
   await page.getByRole('alertdialog').getByRole('button', { name: 'Change country' }).click();
 
-  await expect(page.getByLabel('OLX city')).toHaveValue('');
-  await expect(
-    page.getByText('OLX district', { exact: true }).locator('..').getByRole('combobox').first(),
-  ).toBeDisabled();
+  await expect(page.getByRole('combobox', { name: 'OLX city' })).toHaveValue('');
+  await expect(page.getByRole('combobox', { name: 'OLX district' })).toBeDisabled();
   await expect(page.getByText('No OLX category selected.')).toBeVisible();
 });
