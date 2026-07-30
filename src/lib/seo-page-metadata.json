@@ -25,14 +25,14 @@
   },
   "crosslistVintedFacebook": {
     "type": "article",
-    "en": { "title": "Cross-list Vinted Items to Facebook Marketplace | FlipIt", "description": "Adapt a Vinted listing for Facebook Marketplace with marketplace-specific copy, pricing, categories, and seller review before publication." },
-    "pl": { "title": "Crosslisting z Vinted na Facebook Marketplace | FlipIt", "description": "Dostosuj ofertę z Vinted do Facebook Marketplace: opis, cenę, kategorię i pozostałe dane sprawdzisz przed publikacją." }
+    "en": { "title": "Move a Vinted Draft to Facebook Marketplace | FlipIt", "description": "Adapt Vinted item details for Facebook Marketplace, then publish manually. FlipIt does not currently publish to Facebook." },
+    "pl": { "title": "Szkic z Vinted na Facebook Marketplace | FlipIt", "description": "Dopasuj dane produktu z Vinted do Facebook Marketplace, a potem opublikuj ręcznie. FlipIt obecnie nie publikuje na Facebooku." }
   },
   "productRelisterVinted": {
     "type": "article",
     "lastModified": "2026-07-15",
-    "en": { "title": "Product Relister for Vinted: Move and Refresh Listings | FlipIt", "description": "Prepare a Vinted draft from eBay, OLX, Facebook Marketplace, or existing photos. Check required fields and duplicates before publishing." },
-    "pl": { "title": "Jak przenieść lub odświeżyć ogłoszenie na Vinted | FlipIt", "description": "Przygotuj szkic Vinted na podstawie oferty z OLX, eBay, Facebook Marketplace albo własnych zdjęć. Sprawdź wymagane dane przed publikacją." }
+    "en": { "title": "Product Relister for Vinted: Prepare a Draft | FlipIt", "description": "Prepare and review a Vinted draft in FlipIt, then complete publication manually in Vinted. The connection is session-based, not an official API." },
+    "pl": { "title": "Jak przygotować szkic ogłoszenia Vinted | FlipIt", "description": "Przygotuj i sprawdź szkic w FlipIt, a publikację dokończ ręcznie w Vinted. Połączenie jest sesyjne, a nie przez oficjalne API." }
   },
   "sellOnAllegro": {
     "type": "article",
@@ -64,20 +64,20 @@
   },
   "etsyListingTool": {
     "type": "article",
-    "en": { "title": "Etsy Listing Tool for Shop-Ready Drafts | FlipIt", "description": "Prepare Etsy listing drafts with product photos, categories, attributes, price, shipping details, and review before publication." },
-    "pl": { "title": "Narzędzie do przygotowania ofert Etsy | FlipIt", "description": "Przygotuj szkice ofert Etsy ze zdjęciami, kategorią, atrybutami, ceną i wysyłką, a następnie sprawdź je przed publikacją." }
+    "en": { "title": "Etsy Listing Draft Tool | FlipIt", "description": "Prepare an Etsy listing draft for review. Etsy uses an official API beta workflow and requires configured FlipIt OAuth before provider actions are available." },
+    "pl": { "title": "Narzędzie do szkiców ofert Etsy | FlipIt", "description": "Przygotuj szkic Etsy do sprawdzenia. Integracja beta korzysta z oficjalnego API i wymaga konfiguracji OAuth FlipIt." }
   },
   "howItWorks": {
     "en": { "title": "How FlipIt Crosslisting Works", "description": "See how FlipIt turns product photos into marketplace-specific drafts that you review and approve before publishing." },
     "pl": { "title": "Jak działa crosslisting w FlipIt", "description": "Zobacz, jak FlipIt zmienia zdjęcia produktu w szkice dopasowane do platform, które sprawdzasz i zatwierdzasz przed publikacją." }
   },
   "successStories": {
-    "en": { "title": "Seller Workflows and Success Stories | FlipIt", "description": "Explore practical ways marketplace sellers reduce repetitive listing work and keep control of cross-platform publishing." },
-    "pl": { "title": "Historie i sposoby pracy sprzedawców | FlipIt", "description": "Poznaj praktyczne sposoby ograniczania powtarzalnej pracy przy ogłoszeniach i zachowania kontroli nad publikacją na wielu platformach." }
+    "en": { "title": "Seller Workflow Examples | FlipIt", "description": "Explore hypothetical listing workflows you can test yourself. These examples are not customer testimonials or claims of measured outcomes." },
+    "pl": { "title": "Przykłady pracy sprzedawcy | FlipIt", "description": "Zobacz hipotetyczne procesy pracy z ogłoszeniami, które możesz sprawdzić samodzielnie. To nie są opinie klientów ani deklaracje wyników." }
   },
   "pricing": {
-    "en": { "title": "FlipIt Pricing for Marketplace Sellers", "description": "Compare FlipIt plans, publishing limits, AI image credits, and billing options. Start free and upgrade when your listing volume grows." },
-    "pl": { "title": "Cennik FlipIt dla sprzedawców online", "description": "Porównaj plany FlipIt, limity publikacji, kredyty na zdjęcia AI i rozliczenia. Zacznij bezpłatnie i zmień plan, gdy wzrośnie sprzedaż." }
+    "en": { "title": "FlipIt Pricing for Marketplace Sellers", "description": "Compare FlipIt plan limits, AI image credits, billing cycles, and provider-dependent marketplace workflows before choosing a plan." },
+    "pl": { "title": "Cennik FlipIt dla sprzedawców online", "description": "Porównaj limity planów FlipIt, kredyty na zdjęcia AI, okresy rozliczeniowe i operacje zależne od integracji." }
   },
   "faq": {
     "en": { "title": "FlipIt FAQ: Crosslisting and Marketplace Workflows", "description": "Answers about supported marketplaces, AI-generated drafts, seller approval, account connections, payments, privacy, and current product limits." },

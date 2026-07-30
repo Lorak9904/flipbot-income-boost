@@ -36,7 +36,7 @@ export const vintedRelistingToolTranslations: Translations = {
     
     section4Title: 'How FlipIt Helps You Relist on Vinted',
     section4Para1: 'FlipIt prepares titles, descriptions, category suggestions, and marketplace-specific fields from the photos and details you provide. Missing facts such as size or device capacity should remain visible for you to complete.',
-    section4Para2: 'You review the result before publishing. FlipIt does not make a listing compliant by itself, and it should not hide missing information or a failed marketplace response.',
+    section4Para2: 'The Vinted connection is session-based, not an official API, and is not production-equivalent. Publishing, updating, and deleting Vinted listings are currently unavailable in FlipIt, so complete those actions in Vinted after reviewing the draft.',
     
     section5Title: 'Check the current Vinted rules before publishing',
     section5Para1: 'Vinted\'s catalog rules require one listing per item, the correct category and condition, and clear photos of the actual product. Identical active listings can be removed.',
@@ -54,7 +54,7 @@ export const vintedRelistingToolTranslations: Translations = {
     faq2Question: 'How often should I relist items on Vinted?',
     faq2Answer: 'There is no reliable universal interval. Update or replace a listing when there is a real reason, such as corrected details, better photos, a changed price, or an old listing that is no longer active.',
     faq3Question: 'Can FlipIt relist to multiple platforms at once?',
-    faq3Answer: 'FlipIt can prepare one product record for supported marketplaces, but each destination has its own required fields and result. Review every marketplace before publishing.',
+    faq3Answer: 'FlipIt can prepare one product record for supported draft workflows, but each destination has its own fields and capability status. Vinted publication is currently unavailable in FlipIt.',
     faq4Question: 'Is FlipIt safe to use with my Vinted account?',
     faq4Answer: 'No tool can guarantee account safety or compliance. FlipIt keeps publication under your control and shows required fields, but you remain responsible for the listing and the current marketplace rules.',
     
@@ -100,7 +100,7 @@ export const vintedRelistingToolTranslations: Translations = {
     
     section4Title: 'Jak FlipIt pomaga w odświeżaniu na Vinted',
     section4Para1: 'FlipIt przygotowuje tytuł, opis, propozycję kategorii i pola wymagane na danej platformie na podstawie podanych zdjęć i informacji. Brakujące fakty, takie jak rozmiar czy pojemność urządzenia, powinny pozostać widoczne do ręcznego uzupełnienia.',
-    section4Para2: 'Przed publikacją sprawdzasz wynik. FlipIt nie gwarantuje zgodności oferty z regulaminem i nie powinien ukrywać brakujących danych ani błędu zwróconego przez platformę.',
+    section4Para2: 'Połączenie z Vinted jest oparte na sesji, a nie na oficjalnym API, i nie jest odpowiednikiem integracji produkcyjnej. Publikacja, aktualizacja i usuwanie ofert Vinted są obecnie niedostępne w FlipIt, więc wykonaj te operacje w Vinted po sprawdzeniu szkicu.',
     
     section5Title: 'Przed publikacją sprawdź aktualne zasady Vinted',
     section5Para1: 'Zasady katalogu Vinted wymagają jednego ogłoszenia dla jednego przedmiotu, właściwej kategorii i stanu oraz wyraźnych zdjęć rzeczywistego produktu. Identyczne aktywne oferty mogą zostać usunięte.',
@@ -118,7 +118,7 @@ export const vintedRelistingToolTranslations: Translations = {
     faq2Question: 'Jak często powinno się odświeżać produkty na Vinted?',
     faq2Answer: 'Nie ma uniwersalnego terminu. Popraw albo zastąp ofertę wtedy, gdy masz konkretny powód: lepsze zdjęcia, poprawione dane, nową cenę albo wcześniejsze ogłoszenie nie jest już aktywne.',
     faq3Question: 'Czy FlipIt może odświeżać na wielu platformach naraz?',
-    faq3Answer: 'FlipIt może przygotować jeden rekord produktu pod obsługiwane platformy, ale każda z nich ma własne wymagane pola i osobny wynik publikacji. Sprawdź każdą platformę przed wysłaniem oferty.',
+    faq3Answer: 'FlipIt może przygotować jeden produkt dla obsługiwanych procesów tworzenia szkicu, ale każda platforma ma własne pola i status możliwości. Publikacja na Vinted jest obecnie niedostępna w FlipIt.',
     faq4Question: 'Czy FlipIt jest bezpieczny dla mojego konta Vinted?',
     faq4Answer: 'Żadne narzędzie nie może zagwarantować bezpieczeństwa konta ani zgodności z regulaminem. FlipIt pozostawia publikację pod Twoją kontrolą i pokazuje wymagane pola, ale odpowiadasz za treść oferty i aktualne zasady platformy.',
     

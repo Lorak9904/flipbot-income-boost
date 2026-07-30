@@ -20,11 +20,11 @@ export const articlesIndexTranslations: Translations = {
     article1Badge: 'Popular',
     
     article2Title: 'Cross List Vinted to Facebook Marketplace',
-    article2Description: 'Adapt a Vinted item for Facebook Marketplace while checking the destination copy, category, price, and photos.',
+    article2Description: 'Adapt a Vinted item for Facebook Marketplace, then complete publication manually because Facebook publishing is unavailable in FlipIt.',
     article2Badge: 'Crosslisting',
     
     article3Title: 'Product Relister for Vinted',
-    article3Description: 'Prepare a Vinted draft from existing photos or another marketplace, then complete Vinted-specific requirements before publishing.',
+    article3Description: 'Prepare a Vinted draft, then complete the action in Vinted. FlipIt\'s Vinted connection is session-based and publishing is unavailable.',
     article3Badge: 'Preparation',
 
     article4Title: 'How to Sell on Allegro',
@@ -44,7 +44,7 @@ export const articlesIndexTranslations: Translations = {
     article7Badge: 'OLX countries',
 
     article8Title: 'Etsy Listing Tool',
-    article8Description: 'Prepare Etsy-ready drafts from product photos, review shop-specific fields, import active listings, and publish only after approval.',
+    article8Description: 'Prepare Etsy drafts through the official API beta workflow when FlipIt OAuth is configured, then review shop-specific fields.',
     article8Badge: 'Etsy',
     article9Title: 'How Much Is My Used Item Worth?',
     article9Description: 'A practical guide to pricing used phones, laptops, furniture, jewellery and other second-hand items with stronger comparisons.',
@@ -52,7 +52,7 @@ export const articlesIndexTranslations: Translations = {
     
     // CTA
     ctaTitle: 'Ready to Automate Your Reselling?',
-    ctaDescription: 'FlipIt turns product photos into reviewed listing drafts for the marketplaces you use, then lets you publish with approval.',
+    ctaDescription: 'FlipIt prepares listing drafts for review. Connection type and available actions vary by marketplace, and no workflow is production-certified.',
     ctaButtonText: 'Get Started Free',
     
     // Pillar guide link
@@ -79,11 +79,11 @@ export const articlesIndexTranslations: Translations = {
     article1Badge: 'Popularne',
     
     article2Title: 'Crosslisting z Vinted na Facebook Marketplace',
-    article2Description: 'Dopasuj przedmiot z Vinted do Facebook Marketplace i sprawdź opis, kategorię, cenę oraz zdjęcia przed publikacją.',
+    article2Description: 'Dopasuj przedmiot z Vinted do Facebook Marketplace, a publikację wykonaj ręcznie, ponieważ FlipIt obecnie nie publikuje na Facebooku.',
     article2Badge: 'Crosslisting',
     
     article3Title: 'Jak przenieść lub odświeżyć ogłoszenie na Vinted',
-    article3Description: 'Przygotuj szkic Vinted z własnych zdjęć albo oferty z innej platformy, a przed publikacją uzupełnij wymagane dane.',
+    article3Description: 'Przygotuj szkic Vinted, a operację dokończ w Vinted. Połączenie jest sesyjne, a publikacja w FlipIt niedostępna.',
     article3Badge: 'Przygotowanie',
 
     article4Title: 'Jak sprzedawać na Allegro',
@@ -103,7 +103,7 @@ export const articlesIndexTranslations: Translations = {
     article7Badge: 'Kraje OLX',
 
     article8Title: 'Narzędzie do ofert Etsy',
-    article8Description: 'Przygotuj szkice ofert Etsy ze zdjęć, sprawdź pola sklepu, importuj aktywne oferty i publikuj dopiero po akceptacji.',
+    article8Description: 'Przygotuj szkic Etsy w workflow beta przez oficjalne API, gdy OAuth FlipIt jest skonfigurowany, i sprawdź pola sklepu.',
     article8Badge: 'Etsy',
     article9Title: 'Ile wart jest używany przedmiot?',
     article9Description: 'Praktyczny poradnik wyceny używanych telefonów, laptopów, mebli, biżuterii i innych rzeczy na podstawie lepszych porównań.',
@@ -111,7 +111,7 @@ export const articlesIndexTranslations: Translations = {
     
     // CTA
     ctaTitle: 'Gotowy na automatyzację sprzedaży?',
-    ctaDescription: 'FlipIt zamienia zdjęcia produktów w szkice ofert do sprawdzenia i publikacji na marketplace\'ach, których używasz.',
+    ctaDescription: 'FlipIt przygotowuje szkice do sprawdzenia. Typ połączenia i dostępne operacje zależą od platformy, a żaden workflow nie ma certyfikacji produkcyjnej.',
     ctaButtonText: 'Zacznij za darmo',
     
     // Pillar guide link

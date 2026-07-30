@@ -43,8 +43,8 @@ export const sellOnAllegroTranslations: Translations = {
     section5Para2: 'This workflow removes repetitive data entry and lets you focus on sourcing and sales instead of copy-paste.',
 
     section6Title: 'How FlipIt helps you sell on Allegro',
-    section6Para1: 'FlipIt integrates with Allegro and prepares drafts for you: descriptions, price suggestions, categories, and required attributes based on your images.',
-    section6Para2: 'You always review and approve before publishing. Publishing is asynchronous and results are stored per item - you stay in control, even at scale.',
+    section6Para1: 'FlipIt prepares Allegro drafts through the official API: descriptions, price suggestions, categories, and required attributes based on your images.',
+    section6Para2: 'The Allegro workflow is beta and not production-certified. Review and approve each action, then check the provider result stored for the item.',
 
     section7Title: 'What FlipIt does not do',
     section7Para1: 'FlipIt does not manage orders, inventory, payments, or buyer messages. It is a listing automation platform, not an ERP.',
@@ -58,9 +58,9 @@ export const sellOnAllegroTranslations: Translations = {
 
     // FAQ
     faq1Question: 'Is Allegro good for power sellers?',
-    faq1Answer: 'Yes - especially if you list consistently and want reach. The platform rewards quality offers and stable workflows.',
+    faq1Answer: 'Results depend on demand, pricing, offer quality, account eligibility, and Allegro rules. FlipIt does not guarantee sales or ranking.',
     faq2Question: 'Does FlipIt auto-publish on Allegro?',
-    faq2Answer: 'No. You always review and approve before anything goes live.',
+    faq2Answer: 'No. You review and approve each action. Allegro uses an official API beta workflow that is not production-certified.',
     faq3Question: 'Which marketplaces does FlipIt support?',
     faq3Answer: 'FlipIt supports OLX, Vinted, Facebook Marketplace, eBay, Allegro, and Etsy listing workflows. Availability and verification steps can vary by account and platform.',
     faq4Question: 'Will FlipIt handle orders or inventory?',
@@ -68,7 +68,7 @@ export const sellOnAllegroTranslations: Translations = {
 
     // CTA
     ctaTitle: 'Ready to list faster on Allegro?',
-    ctaDescription: 'Prepare Allegro-ready drafts in minutes, review them, and publish with full control.',
+    ctaDescription: 'Prepare an Allegro draft, review the required fields, and use the official API beta workflow with seller approval.',
     ctaButtonText: 'Try FlipIt Free',
     ctaFooterText: 'Already have an account?',
     ctaFooterLinkText: 'Log in here',
@@ -115,8 +115,8 @@ export const sellOnAllegroTranslations: Translations = {
     section5Para2: 'Taki workflow usuwa powtarzalne wpisywanie danych i pozwala skupić się na sourcingu i sprzedaży.',
 
     section6Title: 'Jak FlipIt pomaga sprzedawać na Allegro',
-    section6Para1: 'FlipIt integruje się z Allegro i przygotowuje szkice: opisy, sugestie cen, kategorie oraz wymagane atrybuty na podstawie zdjęć.',
-    section6Para2: 'Zawsze zatwierdzasz publikację. Publikacja jest asynchroniczna, a wyniki są zapisywane per oferta - masz kontrolę nawet przy dużej skali.',
+    section6Para1: 'FlipIt przygotowuje szkice Allegro przez oficjalne API: opisy, sugestie cen, kategorie i wymagane atrybuty na podstawie zdjęć.',
+    section6Para2: 'Workflow Allegro ma status beta i nie ma certyfikacji produkcyjnej. Sprawdzasz i zatwierdzasz każdą operację, a wynik dostawcy jest zapisany przy ofercie.',
 
     section7Title: 'Czego FlipIt nie robi',
     section7Para1: 'FlipIt nie zarządza zamówieniami, stanem magazynu, płatnościami ani wiadomościami od kupujących. To narzędzie do automatyzacji ofert, nie ERP.',
@@ -130,9 +130,9 @@ export const sellOnAllegroTranslations: Translations = {
 
     // FAQ
     faq1Question: 'Czy Allegro jest dobre dla power sellerów?',
-    faq1Answer: 'Tak - szczególnie jeśli sprzedajesz regularnie i zależy Ci na zasięgu. Platforma premiuje jakość ofert i uporządkowany proces.',
+    faq1Answer: 'Wynik zależy od popytu, ceny, jakości oferty, uprawnień konta i zasad Allegro. FlipIt nie gwarantuje sprzedaży ani pozycji.',
     faq2Question: 'Czy FlipIt automatycznie publikuje na Allegro?',
-    faq2Answer: 'Nie. Zawsze zatwierdzasz publikację przed wysłaniem na marketplace.',
+    faq2Answer: 'Nie. Każdą operację sprawdzasz i zatwierdzasz. Allegro korzysta z oficjalnego API w wersji beta bez certyfikacji produkcyjnej.',
     faq3Question: 'Jakie marketplace\'y obsługuje FlipIt?',
     faq3Answer: 'FlipIt obsługuje workflow ofert dla OLX, Vinted, Facebook Marketplace, eBay, Allegro i Etsy. Dostępność oraz kroki weryfikacji mogą zależeć od konta i platformy.',
     faq4Question: 'Czy FlipIt obsłuży zamówienia lub magazyn?',
@@ -140,7 +140,7 @@ export const sellOnAllegroTranslations: Translations = {
 
     // CTA
     ctaTitle: 'Chcesz sprzedawać na Allegro szybciej?',
-    ctaDescription: 'Przygotuj oferty pod Allegro w kilka minut, zatwierdź i publikuj z pełną kontrolą.',
+    ctaDescription: 'Przygotuj szkic Allegro, sprawdź wymagane pola i użyj workflow beta przez oficjalne API z akceptacją sprzedawcy.',
     ctaButtonText: 'Wypróbuj FlipIt za darmo',
     ctaFooterText: 'Masz już konto?',
     ctaFooterLinkText: 'Zaloguj się tutaj',

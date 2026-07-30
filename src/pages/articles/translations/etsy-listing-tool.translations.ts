@@ -10,7 +10,7 @@ export const etsyListingToolTranslations: Translations = {
     heroTitle: 'Etsy Listing Tool',
     heroTitleHighlight: 'for shop-ready drafts',
     heroSubtitle:
-      'Upload item photos once. FlipIt helps prepare the title, description, taxonomy category, attributes, price, and shipping settings you review before the listing goes live.',
+      'Upload item photos once. FlipIt helps prepare the title, description, taxonomy category, attributes, price, and shipping settings. Provider actions require a configured Etsy OAuth app and seller approval.',
     heroBadge1: 'Shop-scoped setup',
     heroBadge2: 'Import active listings',
     heroBadge3: 'Review before publish',
@@ -42,7 +42,7 @@ export const etsyListingToolTranslations: Translations = {
     section4Para1:
       'If you already sell on Etsy, FlipIt can import active Etsy listings from a connected shop. That gives you a starting point in FlipIt before creating new drafts or comparing items across marketplaces.',
     section4Para2:
-      'Import is still account-dependent. If the Etsy token expires or the shop connection is not valid, you reconnect before importing or publishing again.',
+      'Etsy uses an official API and is currently a beta workflow, not a certified integration. Provider operations are unavailable when the FlipIt Etsy OAuth app is not configured; an expired shop token also requires reconnection.',
 
     section5Title: 'Before publishing an Etsy listing',
     section5Para1:
@@ -66,7 +66,7 @@ export const etsyListingToolTranslations: Translations = {
       'No. In FlipIt, Etsy is handled as one shop-scoped integration. Location affects Etsy shop settings such as currency, shipping profiles, processing time, returns, taxes, and legal requirements, but it is not split into OLX-style country endpoints.',
     faq2Question: 'Can FlipIt import my current Etsy listings?',
     faq2Answer:
-      'Yes. After you connect an Etsy shop, FlipIt can import active Etsy listings into your workspace. If the connection expires, you reconnect before importing again.',
+      'When the Etsy OAuth app is configured and your shop connection is valid, the beta workflow can import active Etsy listings. Otherwise Etsy provider operations are unavailable.',
     faq3Question: 'Does FlipIt publish to Etsy automatically?',
     faq3Answer:
       'No. FlipIt prepares the draft and required details, but you review and approve the listing before it is published.',
@@ -93,7 +93,7 @@ export const etsyListingToolTranslations: Translations = {
     heroTitle: 'Narzędzie do ofert Etsy',
     heroTitleHighlight: 'dla szkiców do sprawdzenia',
     heroSubtitle:
-      'Dodajesz zdjęcia produktu raz. FlipIt pomaga przygotować tytuł, opis, kategorię Etsy, atrybuty, cenę i ustawienia, które sprawdzasz przed publikacją.',
+      'Dodajesz zdjęcia produktu raz. FlipIt pomaga przygotować tytuł, opis, kategorię Etsy, atrybuty, cenę i ustawienia. Operacje wymagają skonfigurowanej aplikacji OAuth Etsy i akceptacji sprzedawcy.',
     heroBadge1: 'Ustawienia sklepu',
     heroBadge2: 'Import aktywnych ofert',
     heroBadge3: 'Publikacja po akceptacji',
@@ -125,7 +125,7 @@ export const etsyListingToolTranslations: Translations = {
     section4Para1:
       'Jeśli już sprzedajesz na Etsy, FlipIt może importować aktywne oferty z połączonego sklepu. Dzięki temu masz punkt wyjścia w FlipIt przed tworzeniem nowych szkiców albo porównywaniem produktów między marketplaceami.',
     section4Para2:
-      'Import zależy od konta. Jeśli token Etsy wygaśnie albo połączenie sklepu będzie nieważne, przed importem lub publikacją trzeba połączyć konto ponownie.',
+      'Etsy korzysta z oficjalnego API i ma obecnie status beta, a nie certyfikowanej integracji. Bez konfiguracji aplikacji OAuth Etsy operacje dostawcy są niedostępne; wygasły token sklepu również wymaga ponownego połączenia.',
 
     section5Title: 'Co sprawdzić przed publikacją na Etsy',
     section5Para1:
@@ -149,7 +149,7 @@ export const etsyListingToolTranslations: Translations = {
       'Nie. W FlipIt Etsy działa jako integracja sklepu. Lokalizacja wpływa na ustawienia Etsy, np. walutę, profile wysyłki, czas przygotowania, zwroty, podatki i wymogi prawne, ale nie ma podziału na endpointy krajowe jak w OLX.',
     faq2Question: 'Czy FlipIt importuje moje obecne oferty Etsy?',
     faq2Answer:
-      'Tak. Po połączeniu sklepu Etsy FlipIt może importować aktywne oferty do workspace. Jeśli połączenie wygaśnie, trzeba je odnowić przed kolejnym importem.',
+      'Gdy aplikacja OAuth Etsy jest skonfigurowana, a połączenie sklepu pozostaje ważne, workflow beta może importować aktywne oferty. W innym przypadku operacje Etsy są niedostępne.',
     faq3Question: 'Czy FlipIt publikuje na Etsy automatycznie?',
     faq3Answer:
       'Nie. FlipIt przygotowuje szkic i wymagane dane, ale przed publikacją sprawdzasz i zatwierdzasz ofertę.',

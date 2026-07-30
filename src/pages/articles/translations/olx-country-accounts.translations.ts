@@ -10,7 +10,7 @@ export const olxCountryAccountsTranslations: Translations = {
     heroTitle: 'OLX listing automation',
     heroTitleHighlight: 'by country',
     heroSubtitle:
-      'FlipIt helps sellers prepare OLX-ready drafts for supported country accounts, then review categories, attributes, price, and text before publishing.',
+      'FlipIt helps sellers prepare OLX-ready drafts for supported country accounts. OLX uses an official API, but the workflow is experimental and not production-certified.',
     heroBadge1: 'Country account setup',
     heroBadge2: 'Review before publishing',
     heroBadge3: 'Category-aware drafts',
@@ -75,7 +75,7 @@ export const olxCountryAccountsTranslations: Translations = {
       'Not yet. Czechia / Czech Republic is not currently supported by FlipIt’s OLX integration.',
     faq6Question: 'Does FlipIt publish OLX listings automatically?',
     faq6Answer:
-      'No. FlipIt prepares the draft and marketplace-specific details, but you review and approve before publishing.',
+      'No. FlipIt prepares the draft and marketplace-specific details, but you review and approve each action. The official API workflow is experimental and not production-certified.',
 
     ctaTitle: 'Prepare OLX listings for the country where you sell',
     ctaDescription:
@@ -93,7 +93,7 @@ export const olxCountryAccountsTranslations: Translations = {
     heroTitle: 'Automatyzacja ogłoszeń OLX',
     heroTitleHighlight: 'według kraju',
     heroSubtitle:
-      'FlipIt pomaga przygotować szkice ogłoszeń pod obsługiwane konta OLX, a przed publikacją sprawdzasz kategorię, atrybuty, cenę i treść.',
+      'FlipIt pomaga przygotować szkice ogłoszeń pod obsługiwane konta OLX. Integracja korzysta z oficjalnego API, ale ma status eksperymentalny i nie ma certyfikacji produkcyjnej.',
     heroBadge1: 'Konta według kraju',
     heroBadge2: 'Publikacja po akceptacji',
     heroBadge3: 'Kategorie OLX',
@@ -158,7 +158,7 @@ export const olxCountryAccountsTranslations: Translations = {
       'Jeszcze nie. Czechy / Czech Republic nie są obecnie obsługiwane przez integrację OLX w FlipIt.',
     faq6Question: 'Czy FlipIt publikuje ogłoszenia OLX automatycznie?',
     faq6Answer:
-      'Nie. FlipIt przygotowuje szkic i dane wymagane przez marketplace, ale przed publikacją sprawdzasz i zatwierdzasz ogłoszenie.',
+      'Nie. FlipIt przygotowuje szkic i dane wymagane przez marketplace, ale każdą operację sprawdzasz i zatwierdzasz. Workflow przez oficjalne API jest eksperymentalny i nie ma certyfikacji produkcyjnej.',
 
     ctaTitle: 'Przygotuj ogłoszenia OLX dla kraju, w którym sprzedajesz',
     ctaDescription:

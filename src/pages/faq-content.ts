@@ -16,7 +16,7 @@ export const faqContent = {
       {
         title: 'Connections and listing status',
         items: [
-          { question: 'Which marketplace connections are available?', answer: 'FlipIt includes workflows for OLX, Vinted, eBay, Allegro, Etsy, and Facebook Marketplace. Capabilities vary by provider because each platform exposes different APIs and account requirements.' },
+          { question: 'Which marketplace connections are available?', answer: 'Allegro and eBay are beta workflows through official APIs. OLX is experimental through an official API. Etsy uses an official API but is unavailable when FlipIt OAuth is not configured. Vinted is experimental and session-based; publishing, updating, and deleting are unavailable. Facebook is also session-based and experimental, and publishing is unavailable. None of these workflows is production-certified.' },
           { question: 'Which OLX countries are supported?', answer: 'The current OLX integration supports country-specific accounts for Poland, Bulgaria, Romania, Portugal, Ukraine, and Kazakhstan. Availability can change with provider access.', linkText: 'Read the OLX country guide', linkHref: '/articles/olx-listing-automation-by-country' },
           { question: 'Are listing statuses always synchronized?', answer: 'Not for every marketplace. FlipIt stores the last known result and can refresh remote status where a supported provider check exists. A successful past publication does not guarantee that an offer is still live.' },
           { question: 'What happens when a connection expires?', answer: 'FlipIt reports that the account needs attention. Reconnect the marketplace before retrying actions that require its credentials.' },
@@ -60,7 +60,7 @@ export const faqContent = {
       {
         title: 'Połączenia i statusy ogłoszeń',
         items: [
-          { question: 'Jakie platformy można połączyć?', answer: 'FlipIt zawiera procesy dla OLX, Vinted, eBay, Allegro, Etsy i Facebook Marketplace. Zakres funkcji różni się, ponieważ każda platforma udostępnia inne API i wymaga innych danych konta.' },
+          { question: 'Jakie platformy można połączyć?', answer: 'Allegro i eBay działają w wersji beta przez oficjalne API. OLX działa eksperymentalnie przez oficjalne API. Etsy korzysta z oficjalnego API, ale jest niedostępne bez konfiguracji OAuth FlipIt. Vinted działa eksperymentalnie przez sesję; publikacja, aktualizacja i usuwanie są niedostępne. Facebook również działa eksperymentalnie przez sesję, a publikacja jest niedostępna. Żaden z tych procesów nie ma certyfikacji produkcyjnej.' },
           { question: 'Które kraje OLX są obsługiwane?', answer: 'Obecna integracja OLX obsługuje konta dla Polski, Bułgarii, Rumunii, Portugalii, Ukrainy i Kazachstanu. Dostępność może zmienić się wraz z zasadami dostawcy.', linkText: 'Przeczytaj poradnik o krajach OLX', linkHref: '/articles/olx-listing-automation-by-country' },
           { question: 'Czy statusy ogłoszeń zawsze są synchronizowane?', answer: 'Nie na każdej platformie. FlipIt zapisuje ostatni znany wynik i może odświeżyć zdalny status tam, gdzie mamy obsługiwany mechanizm sprawdzania. Dawna udana publikacja nie gwarantuje, że oferta nadal jest aktywna.' },
           { question: 'Co się stanie, gdy połączenie wygaśnie?', answer: 'FlipIt poinformuje, że konto wymaga uwagi. Przed ponowieniem operacji wymagającej dostępu połącz platformę ponownie.' },
