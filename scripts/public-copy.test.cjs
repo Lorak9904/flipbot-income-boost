@@ -104,10 +104,12 @@ test('account deletion copy does not promise total erasure or Stripe cancellatio
   assert.doesNotMatch(settings, /all associated data|all your data from our servers/i);
   assert.doesNotMatch(settings, /wszystkie ogłoszenia i powiązane dane|wszystkich danych z naszych serwerów/i);
   assert.doesNotMatch(settings, /permanently deleted|trwale usunięte/i);
-  assert.match(settings, /active paid plan[\s\S]*Stripe Billing Portal[\s\S]*contact support/i);
-  assert.match(settings, /aktywny płatny plan[\s\S]*Stripe Billing Portal[\s\S]*skontaktuj się ze wsparciem/i);
-  assert.match(settings, /current database relationships/);
-  assert.match(settings, /obecne relacje w bazie/);
+  assert.match(settings, /does not cancel an active paid plan[\s\S]*Stripe Billing Portal[\s\S]*contact support/i);
+  assert.match(settings, /nie powoduje ono anulowania aktywnego płatnego planu[\s\S]*Stripe Billing Portal[\s\S]*skontaktuj się ze wsparciem/i);
+  assert.match(settings, /database records removed[\s\S]*current relationships/);
+  assert.match(settings, /rekordy bazy danych usuwane[\s\S]*obecne relacje/);
+  assert.match(settings, /FlipIt item and draft records/);
+  assert.match(settings, /FlipIt marketplace tokens and connection records/);
 });
 
 test('EN and PL public copy state the marketplace capability boundaries', () => {

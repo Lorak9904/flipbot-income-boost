@@ -55,15 +55,15 @@ export const settingsTranslations: Translations = {
     
     // Danger zone
     dangerZoneTitle: 'Danger Zone',
-    dangerZoneDescription: 'Deleting your FlipIt account cannot be undone. If you have an active paid plan, manage or cancel it in Stripe Billing Portal and contact support before deleting the account.',
+    dangerZoneDescription: 'Deleting your FlipIt account cannot be undone and does not cancel an active paid plan. Cancel the plan in Stripe Billing Portal or contact support before deleting the account.',
     deleteAccountButton: 'Delete Account',
     
     // Delete confirmation dialog
     deleteDialogTitle: 'Are you absolutely sure?',
-    deleteDialogDescription: 'This action cannot be undone. It deletes your FlipIt account record and data removed with it by the current database relationships, including:',
-    deleteDialogListItem1: 'All your listed items',
+    deleteDialogDescription: 'This action cannot be undone. It deletes your FlipIt account record and database records removed with it by the current relationships, including:',
+    deleteDialogListItem1: 'Your FlipIt item and draft records',
     deleteDialogListItem2: 'Your profile information',
-    deleteDialogListItem3: 'All marketplace connections',
+    deleteDialogListItem3: 'FlipIt marketplace tokens and connection records',
     deleteDialogListItem4: 'Item statistics and history linked to the account',
     deleteDialogCancel: 'Cancel',
     deleteDialogConfirm: 'Yes, delete my account',
@@ -138,15 +138,15 @@ export const settingsTranslations: Translations = {
     
     // Danger zone
     dangerZoneTitle: 'Strefa niebezpieczna',
-    dangerZoneDescription: 'Usunięcia konta FlipIt nie można cofnąć. Jeżeli masz aktywny płatny plan, przed usunięciem konta zarządzaj nim lub anuluj go w Stripe Billing Portal i skontaktuj się ze wsparciem.',
+    dangerZoneDescription: 'Usunięcia konta FlipIt nie można cofnąć i nie powoduje ono anulowania aktywnego płatnego planu. Przed usunięciem konta anuluj plan w Stripe Billing Portal lub skontaktuj się ze wsparciem.',
     deleteAccountButton: 'Usuń konto',
     
     // Delete confirmation dialog
     deleteDialogTitle: 'Czy na pewno chcesz to zrobić?',
-    deleteDialogDescription: 'Ta akcja jest nieodwracalna. Usuwa rekord konta FlipIt oraz dane usuwane razem z nim przez obecne relacje w bazie, w tym:',
-    deleteDialogListItem1: 'Wszystkie Twoje ogłoszenia',
+    deleteDialogDescription: 'Ta akcja jest nieodwracalna. Usuwa rekord konta FlipIt oraz rekordy bazy danych usuwane razem z nim przez obecne relacje, w tym:',
+    deleteDialogListItem1: 'Rekordy Twoich przedmiotów i wersji roboczych w FlipIt',
     deleteDialogListItem2: 'Informacje o Twoim profilu',
-    deleteDialogListItem3: 'Wszystkie połączenia z platformami',
+    deleteDialogListItem3: 'Tokeny platform i rekordy połączeń w FlipIt',
     deleteDialogListItem4: 'Statystyki i historię ogłoszeń powiązane z kontem',
     deleteDialogCancel: 'Anuluj',
     deleteDialogConfirm: 'Tak, usuń moje konto',
