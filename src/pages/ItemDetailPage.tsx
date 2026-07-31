@@ -581,7 +581,7 @@ const ItemDetailPage = () => {
             custom={1}
             className="space-y-6"
           >
-            <section className="rounded-2xl border border-neutral-800 bg-neutral-950/50 p-5 shadow-2xl shadow-cyan-950/10 backdrop-blur md:p-6">
+            <section className="rounded-lg border border-neutral-800 bg-neutral-900/55 p-5 backdrop-blur-sm md:p-6">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="mb-3 flex flex-wrap gap-2">

@@ -88,7 +88,7 @@ export function ListingEditorCore({
         </motion.h1>
 
         {step === 'add' ? (
-          <Card className="bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 transition-all duration-300 hover:ring-cyan-400/40 hover:shadow-xl border-0">
+          <Card className="border-neutral-800 bg-neutral-900/55 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-cyan-400">{addCardTitle}</CardTitle>
               <CardDescription className="text-neutral-300">{addCardDescription}</CardDescription>
@@ -110,9 +110,9 @@ export function ListingEditorCore({
             </CardContent>
           </Card>
         ) : (
-          <Card className="bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 transition-all duration-300 hover:ring-fuchsia-400/40 hover:shadow-xl border-0">
+          <Card className="border-neutral-800 bg-neutral-900/55 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-fuchsia-400">{reviewCardTitle}</CardTitle>
+              <CardTitle className="text-cyan-300">{reviewCardTitle}</CardTitle>
               <CardDescription className="text-neutral-300">{reviewCardDescription}</CardDescription>
             </CardHeader>
             <CardContent>

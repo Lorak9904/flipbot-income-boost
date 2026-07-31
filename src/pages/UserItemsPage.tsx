@@ -494,7 +494,7 @@ const UserItemsPage = () => {
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center bg-neutral-950">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -650,7 +650,7 @@ const UserItemsPage = () => {
             <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
           </div>
         ) : error ? (
-          <Card className="p-12 bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 border-0">
+          <Card className="border-neutral-800 bg-neutral-900/55 p-6 backdrop-blur-sm sm:p-12">
             <div className="text-center">
               <p className="text-red-400 mb-4">{error}</p>
               <AddItemButton 
@@ -667,7 +667,7 @@ const UserItemsPage = () => {
             variants={fadeUp}
             custom={3}
           >
-            <Card className="p-12 bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 border-0">
+            <Card className="border-neutral-800 bg-neutral-900/55 p-6 backdrop-blur-sm sm:p-12">
               <div className="text-center">
                 <Package className="h-16 w-16 mx-auto mb-4 text-neutral-500" />
                 <h3 className="text-xl font-semibold mb-2 text-white">{t.empty.title}</h3>
@@ -701,7 +701,7 @@ const UserItemsPage = () => {
 
                 return (
                   <article key={item.uuid} className="group">
-                    <Card className="border-0 bg-neutral-900/50 backdrop-blur-sm ring-1 ring-neutral-700 transition-all duration-300 group-hover:-translate-y-1 group-hover:ring-cyan-400/40 group-hover:shadow-xl">
+                    <Card className="h-full border-neutral-800 bg-neutral-900/55 backdrop-blur-sm transition-colors duration-200 group-hover:border-cyan-400/40">
                       <CardHeader>
                         <div className="mb-2 flex items-start justify-between gap-3">
                           <CardTitle className="line-clamp-2 text-lg text-white">
