@@ -14,6 +14,7 @@
     "test:public-copy": "node --test scripts/public-copy.test.cjs",
     "test:api-contract": "node --test scripts/api-contract.test.cjs",
     "test:vinted-recovery": "node --test scripts/vinted-recovery.test.cjs",
+    "test:facebook-publish-result": "node --test scripts/facebook-publish-result.test.cjs",
     "test:e2e": "node ./scripts/run-e2e-local.cjs",
     "test:e2e:headed": "node ./scripts/run-e2e-local.cjs --headed",
     "test:e2e:ui": "node ./scripts/run-e2e-local.cjs --ui"

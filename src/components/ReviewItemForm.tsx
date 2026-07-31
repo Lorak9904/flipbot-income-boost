@@ -93,6 +93,7 @@ import {
   type MarketplaceCapabilities,
 } from '@/lib/api/platform-capabilities';
 import { capabilityStatusLabel, getPlatformCapabilityCopy } from './platform-capability-translations';
+import { isProvenPublishSuccess } from '@/lib/facebook-publish-result';
 import { ALL_PLATFORMS } from '@/lib/platforms';
 import { notify } from '@/lib/notifications';
 import { isVintedVerificationRequired } from '@/lib/vinted-publish-result';
@@ -1629,7 +1630,9 @@ const ReviewItemForm = ({
 
       if (result.platforms) {
         Object.entries(result.platforms).forEach(([platform, status]) => {
-          if (status === "success") {
+          const platformDetail = result.platform_details?.[platform];
+          const provenSuccess = isProvenPublishSuccess(platform, status, platformDetail);
+          if (provenSuccess) {
             const typedPlatform = platform as Platform;
             successfulPlatforms.push(typedPlatform);
             captureActivationEvent(posthog, 'publish_succeeded', {
@@ -1643,9 +1646,9 @@ const ReviewItemForm = ({
               description: t.toast.publishedSuccess.replace('{platform}', platform),
             });
           } else {
-            const platformDetail = result.platform_details?.[platform];
             const verificationRequired =
               platform === 'vinted' && isVintedVerificationRequired(platformDetail);
+            const facebookIdentityUnproven = platform === 'facebook' && status === 'success';
             captureActivationEvent(posthog, 'publish_failed', {
               draft_id: result.uuid || payload.draft_id,
               platform,
@@ -1660,7 +1663,9 @@ const ReviewItemForm = ({
             } else {
               toast({
                 title: t.toast.publishError.replace('{platform}', platform),
-                description: platformDetail?.message || String(status),
+                description: facebookIdentityUnproven
+                  ? t.toast.facebookIdentityUnproven
+                  : platformDetail?.message || String(status),
                 variant: "destructive",
               });
             }
