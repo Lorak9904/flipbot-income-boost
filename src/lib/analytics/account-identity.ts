@@ -24,6 +24,24 @@ export const EMPTY_ACCOUNT_IDENTITY: AccountIdentityState = {
 
 export const canonicalAccountId = (id: string | number): string => String(id);
 
+const accountProfileProperties = (
+  accountId: string,
+  user: AnalyticsAccount,
+  interfaceLanguage: string,
+): Record<string, string> => {
+  const properties: Record<string, string> = {
+    $name: `FlipIt account ${accountId}`,
+    account_state: 'active',
+    interface_language: interfaceLanguage,
+  };
+  if (user.provider && ['email', 'google', 'facebook'].includes(user.provider)) {
+    properties.login_provider = user.provider;
+  }
+  const language = user.language ?? interfaceLanguage;
+  if (language === 'en' || language === 'pl') properties.language = language;
+  return properties;
+};
+
 const currentAccountId = (
   client: AccountIdentityClient,
   previous: AccountIdentityState,
@@ -71,13 +89,11 @@ export const syncPostHogAccount = (
     }
   }
 
-  const properties = {
-    email: options.user.email,
-    name: options.user.name,
-    login_provider: options.user.provider,
-    language: options.user.language ?? options.interfaceLanguage,
-    interface_language: options.interfaceLanguage,
-  };
+  const properties = accountProfileProperties(
+    accountId,
+    options.user,
+    options.interfaceLanguage,
+  );
   const profileSignature = JSON.stringify(properties);
 
   if (persistedAccountId !== accountId || previous.profileSignature !== profileSignature) {

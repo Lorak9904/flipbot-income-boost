@@ -62,8 +62,8 @@ test('identifies a consented account with the canonical backend-compatible ID', 
   expect(client.identifies[0]).toEqual({
     id: '42',
     properties: {
-      email: account.email,
-      name: account.name,
+      $name: 'FlipIt account 42',
+      account_state: 'active',
       login_provider: 'email',
       language: 'en',
       interface_language: 'en',
@@ -98,8 +98,8 @@ test('resets before account switching and refreshes changed profile properties',
   const priorState = {
     accountId: '42',
     profileSignature: JSON.stringify({
-      email: account.email,
-      name: account.name,
+      $name: 'FlipIt account 42',
+      account_state: 'active',
       login_provider: account.provider,
       language: account.language,
       interface_language: 'en',
@@ -118,11 +118,33 @@ test('resets before account switching and refreshes changed profile properties',
   syncPostHogAccount(client, switchedState, {
     canIdentify: true,
     isLoading: false,
-    user: { ...account, id: 43, name: 'Updated Name' },
+    user: { ...account, id: 43, language: 'pl' },
     interfaceLanguage: 'en',
   });
-  expect(client.identifies[client.identifies.length - 1]?.properties.name).toBe('Updated Name');
+  expect(client.identifies[client.identifies.length - 1]?.properties.language).toBe('pl');
   expect(client.identifies).toHaveLength(2);
+});
+
+test('person properties remain pseudonymous and omit unsupported optional values', () => {
+  const client = new FakePostHog();
+  syncPostHogAccount(client, EMPTY_ACCOUNT_IDENTITY, {
+    canIdentify: true,
+    isLoading: false,
+    user: {
+      ...account,
+      provider: 'custom-provider',
+      language: 'unexpected',
+    },
+    interfaceLanguage: 'en',
+  });
+
+  expect(client.identifies[0]?.properties).toEqual({
+    $name: 'FlipIt account 42',
+    account_state: 'active',
+    interface_language: 'en',
+  });
+  expect(client.identifies[0]?.properties).not.toHaveProperty('email');
+  expect(client.identifies[0]?.properties).not.toHaveProperty('name');
 });
 
 test('analytics failures remain isolated from account behavior', () => {
