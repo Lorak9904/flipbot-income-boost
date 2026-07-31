@@ -1,44 +1,26 @@
 ﻿import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { getTranslations, getCurrentLanguage, getLocalizedPathForLanguage } from './language-utils';
 import { footerTranslations } from './footer-translations';
+import BrandLink from './BrandLink';
 
-/**
- * Footer — neon‑on‑dark theme to match the new FlipIt aesthetic.
- * Gradient blobs sit behind a glass‑dark panel; text adapts to mobile.
- */
 const Footer = () => {
   const t = getTranslations(footerTranslations);
   const language = getCurrentLanguage();
   const getLocalized = (path: string) => getLocalizedPathForLanguage(path, language);
   return (
-    <footer className="relative overflow-hidden bg-neutral-950 text-white">
-      {/* Neon gradient blobs */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/3 -top-24 h-80 w-80 -translate-x-1/2 rotate-45 rounded-full bg-fuchsia-600 opacity-20 blur-3xl" />
-        <div className="absolute right-1/4 bottom-0 h-72 w-72 translate-x-1/2 rounded-full bg-cyan-500 opacity-20 blur-3xl" />
-      </div>
-
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+    <footer className="border-t border-white/10 bg-neutral-950 text-white">
+      <div className="container mx-auto px-4 py-12 md:py-16">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           {/* Logo & tagline */}
           <div>
-            <Link to={getLocalized('/')} className="mb-4 flex items-center gap-2" aria-label="FlipIt">
-              <div
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 font-bold"
-                aria-hidden="true"
-              >
-                FI
-              </div>
-              <span className="font-heading text-xl font-semibold">FlipIt</span>
-            </Link>
+            <BrandLink to={getLocalized('/')} className="mb-3" />
             <p className="max-w-xs text-sm text-neutral-300">
               {t.tagline}
             </p>
           </div>
 
           {/* Product links */}
-          <nav>
+          <nav aria-label={t.productTitle}>
             <h4 className="mb-4 text-sm font-semibold text-neutral-100">{t.productTitle}</h4>
             <ul className="space-y-2 text-sm">
               <li>
@@ -51,11 +33,6 @@ const Footer = () => {
                   {t.priceChecker}
                 </Link>
               </li>
-              {/* <li>
-                <Link to="/features" className="text-neutral-300 transition-colors hover:text-cyan-400">
-                  Features
-                </Link>
-              </li> */}
               <li>
                 <Link to={getLocalized('/how-it-works')} className="text-neutral-300 transition-colors hover:text-cyan-400">
                   {t.howItWorks}
@@ -70,7 +47,7 @@ const Footer = () => {
           </nav>
 
           {/* Tutorials links */}
-          <nav>
+          <nav aria-label={t.tutorialsTitle}>
             <h4 className="mb-4 text-sm font-semibold text-neutral-100">{t.tutorialsTitle}</h4>
             <ul className="space-y-2 text-sm">
               <li>
@@ -107,7 +84,7 @@ const Footer = () => {
           </nav>
 
           {/* Support links */}
-          <nav>
+          <nav aria-label={t.supportTitle}>
             <h4 className="mb-4 text-sm font-semibold text-neutral-100">{t.supportTitle}</h4>
             <ul className="space-y-2 text-sm">
               <li>
@@ -139,7 +116,7 @@ const Footer = () => {
           </nav>
         </div>
 
-        <div className="mt-16 border-t border-white/10 pt-8 text-center text-xs text-neutral-500">
+        <div className="mt-12 border-t border-white/10 pt-6 text-center text-xs text-neutral-500 md:mt-16 md:pt-8">
           <p>&copy; {new Date().getFullYear()} {t.copyright}</p>
         </div>
       </div>

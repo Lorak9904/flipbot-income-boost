@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { NavbarLogin, NavbarSignup, AddItemButton } from '@/components/ui/button-presets';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -22,6 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import BrandLink from './BrandLink';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,6 +35,10 @@ const Navbar = () => {
   const localized = (path: string) => getLocalizedPathForLanguage(path, lang);
   // Show TARGET language flag (if current is PL, show GB for switching to EN)
   const flagCode = lang === 'pl' ? 'GB' : 'PL';
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname, location.search]);
 
   const primaryNavItems = [
     { name: t.howItWorks, path: localized('/how-it-works'), icon: Lightbulb },
@@ -58,12 +64,11 @@ const Navbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Mobile link class (text always visible)
   const linkClass = (path: string) =>
-    `relative px-2 py-1 text-sm transition-colors ${
+    `relative flex min-h-11 items-center rounded-md px-3 py-2 text-sm transition-colors ${
       isActive(path)
-        ? 'text-cyan-400 font-semibold'
-        : 'text-neutral-300 hover:text-white'
+        ? 'bg-cyan-400/10 text-cyan-300 font-semibold'
+        : 'text-neutral-300 hover:bg-white/5 hover:text-white'
     }`;
 
   return (
@@ -72,12 +77,7 @@ const Navbar = () => {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent"></div>
       
       <div className="container mx-auto px-4 flex items-center justify-between h-16">
-        {/* Enhanced logo with better gradient and shadow */}
-        <Link to={localized('/')} className="flex items-center gap-2 font-bold text-xl text-white">
-          <span className="bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent drop-shadow-sm">
-            FlipIt
-          </span>
-        </Link>
+        <BrandLink to={localized('/')} />
 
         {/* Desktop nav */}
         <div className="hidden xl:flex items-center gap-2">
@@ -88,6 +88,7 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 to={item.path}
+                aria-current={active ? 'page' : undefined}
                 className="group relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-neutral-800/50"
               >
                 {Icon && (
@@ -216,9 +217,12 @@ const Navbar = () => {
 
         {/* Mobile menu button - Enhanced styling */}
         <button
-          className="p-2 rounded-lg hover:bg-neutral-800/50 transition-colors backdrop-blur-sm xl:hidden"
+          type="button"
+          className="flex h-11 w-11 items-center justify-center rounded-lg transition-colors hover:bg-neutral-800/50 xl:hidden"
           onClick={() => setIsOpen((v) => !v)}
           aria-label={t.toggleMenu}
+          aria-expanded={isOpen}
+          aria-controls="mobile-navigation"
         >
           {isOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
         </button>
@@ -233,6 +237,7 @@ const Navbar = () => {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25 }}
             className="border-t border-white/5 bg-neutral-950/98 backdrop-blur-md xl:hidden"
+            id="mobile-navigation"
           >
             <div className="flex flex-col gap-2 px-4 py-4">
               {/* Mobile Credits Widget */}
@@ -287,6 +292,7 @@ const Navbar = () => {
                     key={item.name}
                     to={item.path}
                     className={linkClass(item.path)}
+                    aria-current={isActive(item.path) ? 'page' : undefined}
                     onClick={() => setIsOpen(false)}
                   >
                     <span className="flex items-center gap-2">
@@ -306,6 +312,7 @@ const Navbar = () => {
                         key={item.name}
                         to={item.path}
                         className={linkClass(item.path)}
+                        aria-current={isActive(item.path) ? 'page' : undefined}
                         onClick={() => setIsOpen(false)}
                       >
                         <span className="flex items-center gap-2">
@@ -326,7 +333,7 @@ const Navbar = () => {
                   toggleLanguage();
                   setIsOpen(false);
                 }}
-                className="text-neutral-300 hover:text-white hover:bg-neutral-800/50 flex items-center gap-2 justify-start w-full"
+                className="min-h-11 text-neutral-300 hover:text-white hover:bg-neutral-800/50 flex items-center gap-2 justify-start w-full"
               >
                 <ReactCountryFlag countryCode={flagCode} svg className="h-4 w-6 rounded-sm" />
                 {t.languageToggle}
