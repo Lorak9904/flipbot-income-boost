@@ -216,7 +216,7 @@ test('consented account can withdraw and leaves no identity or later optional re
     Array.from({ length: localStorage.length }, (_, index) => {
       const key = localStorage.key(index);
       return key ? [key, localStorage.getItem(key) || ''] : ['', ''];
-    }).some(([key, value]) => key.startsWith('ph_') && value.includes('legal-e2e'))
+    }).some(([key, value]) => key.startsWith('ph_') && value.includes('4242'))
   )).toBe(true);
 
   await expect.poll(() => page.evaluate(() => {
@@ -458,7 +458,7 @@ test('a failed saved checkout attempt runs once and does not reopen', async ({ p
 
 function makeJwtToken() {
   const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64');
-  const payload = Buffer.from(JSON.stringify({ sub: 'legal-e2e', exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64');
+  const payload = Buffer.from(JSON.stringify({ sub: '4242', exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64');
   return `${header}.${payload}.signature`;
 }
 
@@ -512,7 +512,7 @@ async function mockUnlimitedAccount(page: Page) {
   await page.route('**/api/auth/user/', (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
-    body: JSON.stringify({ id: 'legal-e2e', name: 'Legal User', email: 'legal@example.com', provider: 'email', language: 'en' }),
+    body: JSON.stringify({ id: '4242', name: 'Legal User', email: 'legal@example.com', provider: 'email', language: 'en' }),
   }));
   await page.route('**/api/credits/', (route) => route.fulfill({
     status: 200,
@@ -549,7 +549,7 @@ async function mockAuthenticatedAccount(page: Page, options: { checkoutPlan?: st
   await page.route('**/api/auth/user/', (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
-    body: JSON.stringify({ id: 'legal-e2e', name: 'Legal User', email: 'legal@example.com', provider: 'email', language: 'en' }),
+    body: JSON.stringify({ id: '4242', name: 'Legal User', email: 'legal@example.com', provider: 'email', language: 'en' }),
   }));
 }
 
