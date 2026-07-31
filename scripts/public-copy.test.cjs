@@ -98,6 +98,18 @@ test('pricing and billing copy avoids unverified Stripe and marketplace claims',
   assert.match(checkoutDisclosure, /Opcje zarządzania planem i anulowania są dostępne w Stripe Billing Portal/);
 });
 
+test('account deletion copy does not promise total erasure or Stripe cancellation', () => {
+  const settings = read('src/pages/settings-translations.ts');
+
+  assert.doesNotMatch(settings, /all associated data|all your data from our servers/i);
+  assert.doesNotMatch(settings, /wszystkie ogłoszenia i powiązane dane|wszystkich danych z naszych serwerów/i);
+  assert.doesNotMatch(settings, /permanently deleted|trwale usunięte/i);
+  assert.match(settings, /active paid plan[\s\S]*Stripe Billing Portal[\s\S]*contact support/i);
+  assert.match(settings, /aktywny płatny plan[\s\S]*Stripe Billing Portal[\s\S]*skontaktuj się ze wsparciem/i);
+  assert.match(settings, /current database relationships/);
+  assert.match(settings, /obecne relacje w bazie/);
+});
+
 test('EN and PL public copy state the marketplace capability boundaries', () => {
   const faq = read('src/pages/faq-content.ts');
   const crosslist = read('src/pages/articles/translations/cross-list-vinted-to-facebook-marketplace.translations.ts');

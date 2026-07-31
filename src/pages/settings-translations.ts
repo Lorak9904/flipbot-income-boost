@@ -55,16 +55,16 @@ export const settingsTranslations: Translations = {
     
     // Danger zone
     dangerZoneTitle: 'Danger Zone',
-    dangerZoneDescription: 'Once you delete your account, there is no going back. This action will permanently delete your account, all your items, and all associated data.',
+    dangerZoneDescription: 'Deleting your FlipIt account cannot be undone. If you have an active paid plan, manage or cancel it in Stripe Billing Portal and contact support before deleting the account.',
     deleteAccountButton: 'Delete Account',
     
     // Delete confirmation dialog
     deleteDialogTitle: 'Are you absolutely sure?',
-    deleteDialogDescription: 'This action cannot be undone. This will permanently delete your account and remove all your data from our servers, including:',
+    deleteDialogDescription: 'This action cannot be undone. It deletes your FlipIt account record and data removed with it by the current database relationships, including:',
     deleteDialogListItem1: 'All your listed items',
     deleteDialogListItem2: 'Your profile information',
     deleteDialogListItem3: 'All marketplace connections',
-    deleteDialogListItem4: 'All item statistics and history',
+    deleteDialogListItem4: 'Item statistics and history linked to the account',
     deleteDialogCancel: 'Cancel',
     deleteDialogConfirm: 'Yes, delete my account',
     deletingDialogConfirm: 'Deleting...',
@@ -82,7 +82,7 @@ export const settingsTranslations: Translations = {
     toastPasswordTooShortTitle: 'Password too short',
     toastPasswordTooShortDescription: 'Password must be at least 8 characters',
     toastAccountDeletedTitle: 'Account deleted',
-    toastAccountDeletedDescription: 'Your account has been permanently deleted',
+    toastAccountDeletedDescription: 'Your FlipIt account record has been deleted',
   },
   pl: {
     // Page title & description
@@ -138,16 +138,16 @@ export const settingsTranslations: Translations = {
     
     // Danger zone
     dangerZoneTitle: 'Strefa niebezpieczna',
-    dangerZoneDescription: 'Po usunięciu konta nie ma odwrotu. Ta akcja trwale usunie Twoje konto, wszystkie ogłoszenia i powiązane dane.',
+    dangerZoneDescription: 'Usunięcia konta FlipIt nie można cofnąć. Jeżeli masz aktywny płatny plan, przed usunięciem konta zarządzaj nim lub anuluj go w Stripe Billing Portal i skontaktuj się ze wsparciem.',
     deleteAccountButton: 'Usuń konto',
     
     // Delete confirmation dialog
     deleteDialogTitle: 'Czy na pewno chcesz to zrobić?',
-    deleteDialogDescription: 'Ta akcja jest nieodwracalna. Spowoduje trwałe usunięcie Twojego konta i wszystkich danych z naszych serwerów, w tym:',
+    deleteDialogDescription: 'Ta akcja jest nieodwracalna. Usuwa rekord konta FlipIt oraz dane usuwane razem z nim przez obecne relacje w bazie, w tym:',
     deleteDialogListItem1: 'Wszystkie Twoje ogłoszenia',
     deleteDialogListItem2: 'Informacje o Twoim profilu',
     deleteDialogListItem3: 'Wszystkie połączenia z platformami',
-    deleteDialogListItem4: 'Wszystkie statystyki i historię',
+    deleteDialogListItem4: 'Statystyki i historię ogłoszeń powiązane z kontem',
     deleteDialogCancel: 'Anuluj',
     deleteDialogConfirm: 'Tak, usuń moje konto',
     deletingDialogConfirm: 'Usuwanie...',
@@ -165,6 +165,6 @@ export const settingsTranslations: Translations = {
     toastPasswordTooShortTitle: 'Hasło za krótkie',
     toastPasswordTooShortDescription: 'Hasło musi mieć co najmniej 8 znaków',
     toastAccountDeletedTitle: 'Konto usunięte',
-    toastAccountDeletedDescription: 'Twoje konto zostało trwale usunięte',
+    toastAccountDeletedDescription: 'Rekord Twojego konta FlipIt został usunięty',
   },
 };
