@@ -22,7 +22,7 @@ export const EMPTY_ACCOUNT_IDENTITY: AccountIdentityState = {
   profileSignature: null,
 };
 
-export const canonicalAccountId = (id: string | number): string => String(id);
+export const canonicalAccountId = (id: string | number): string => BigInt(id).toString();
 
 const accountProfileProperties = (
   accountId: string,
@@ -32,12 +32,16 @@ const accountProfileProperties = (
   const properties: Record<string, string> = {
     $name: `FlipIt account ${accountId}`,
     account_state: 'active',
-    interface_language: interfaceLanguage,
   };
-  if (user.provider && ['email', 'google', 'facebook'].includes(user.provider)) {
-    properties.login_provider = user.provider;
+  const provider = user.provider?.trim().toLowerCase();
+  if (provider && ['email', 'google', 'facebook'].includes(provider)) {
+    properties.login_provider = provider;
   }
-  const language = user.language ?? interfaceLanguage;
+  const normalizedInterfaceLanguage = interfaceLanguage.trim().toLowerCase();
+  if (normalizedInterfaceLanguage === 'en' || normalizedInterfaceLanguage === 'pl') {
+    properties.interface_language = normalizedInterfaceLanguage;
+  }
+  const language = (user.language ?? normalizedInterfaceLanguage).trim().toLowerCase();
   if (language === 'en' || language === 'pl') properties.language = language;
   return properties;
 };

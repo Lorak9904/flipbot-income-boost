@@ -57,6 +57,8 @@ test('identifies a consented account with the canonical backend-compatible ID', 
   });
 
   expect(canonicalAccountId(account.id)).toBe('42');
+  expect(canonicalAccountId('042')).toBe('42');
+  expect(canonicalAccountId('9007199254740993')).toBe('9007199254740993');
   expect(state.accountId).toBe('42');
   expect(client.identifies).toHaveLength(1);
   expect(client.identifies[0]).toEqual({
@@ -135,16 +137,31 @@ test('person properties remain pseudonymous and omit unsupported optional values
       provider: 'custom-provider',
       language: 'unexpected',
     },
-    interfaceLanguage: 'en',
+    interfaceLanguage: 'unexpected',
   });
 
   expect(client.identifies[0]?.properties).toEqual({
     $name: 'FlipIt account 42',
     account_state: 'active',
-    interface_language: 'en',
   });
   expect(client.identifies[0]?.properties).not.toHaveProperty('email');
   expect(client.identifies[0]?.properties).not.toHaveProperty('name');
+});
+
+test('normalizes allowlisted profile properties consistently with the backend', () => {
+  const client = new FakePostHog();
+  syncPostHogAccount(client, EMPTY_ACCOUNT_IDENTITY, {
+    canIdentify: true,
+    isLoading: false,
+    user: { ...account, provider: ' Google ', language: ' PL ' },
+    interfaceLanguage: ' EN ',
+  });
+
+  expect(client.identifies[0]?.properties).toMatchObject({
+    login_provider: 'google',
+    language: 'pl',
+    interface_language: 'en',
+  });
 });
 
 test('analytics failures remain isolated from account behavior', () => {
