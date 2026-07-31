@@ -1,4 +1,4 @@
-const FACEBOOK_LISTING_PATH = /^\/marketplace\/item\/(\d+)\/?$/;
+const FACEBOOK_LISTING_PATH = /^\/marketplace\/item\/(\d+)$/;
 
 export function isProvenFacebookPublishResult(detail) {
   const externalId = String(detail?.external_id ?? '').trim();
@@ -12,6 +12,11 @@ export function isProvenFacebookPublishResult(detail) {
     return (
       url.protocol === 'https:' &&
       (url.hostname === 'facebook.com' || url.hostname === 'www.facebook.com') &&
+      url.username === '' &&
+      url.password === '' &&
+      (url.port === '' || url.port === '443') &&
+      url.search === '' &&
+      url.hash === '' &&
       match?.[1] === externalId
     );
   } catch {

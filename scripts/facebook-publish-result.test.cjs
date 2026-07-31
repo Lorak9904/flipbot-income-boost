@@ -30,6 +30,28 @@ test('failed and unknown Facebook outcomes never become publish success', async 
   assert.equal(isProvenPublishSuccess('facebook', 'pending', undefined), false);
 });
 
+test('Facebook identity rejects noncanonical Marketplace URLs', async () => {
+  const { isProvenPublishSuccess } = await resultModule;
+  const noncanonicalUrls = [
+    'https://www.facebook.com/marketplace/item/123456789/',
+    'https://www.facebook.com/marketplace/item/123456789?tracking=1',
+    'https://www.facebook.com/marketplace/item/123456789#details',
+    'https://user@www.facebook.com/marketplace/item/123456789',
+    'https://www.facebook.com:8443/marketplace/item/123456789',
+  ];
+
+  for (const listingUrl of noncanonicalUrls) {
+    assert.equal(
+      isProvenPublishSuccess('facebook', 'success', {
+        external_id: '123456789',
+        listing_url: listingUrl,
+      }),
+      false,
+      listingUrl,
+    );
+  }
+});
+
 test('other marketplaces preserve the existing status contract', async () => {
   const { isProvenPublishSuccess } = await resultModule;
 
