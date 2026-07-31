@@ -12,6 +12,7 @@ test('navbar exposes mobile menu and current-page state accessibly', () => {
   assert.match(source, /aria-expanded=\{isOpen\}/);
   assert.match(source, /aria-controls="mobile-navigation"/);
   assert.match(source, /aria-current=\{active \? 'page' : undefined\}/);
+  assert.match(source, /<DropdownMenuItem asChild key=\{item\.name\}>/);
   assert.match(source, /min-h-11/);
 });
 

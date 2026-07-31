@@ -1,6 +1,5 @@
-﻿import { useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { NavbarLogin, NavbarSignup, AddItemButton } from '@/components/ui/button-presets';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -126,9 +125,14 @@ const Navbar = () => {
             <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-700">
               {resourceItems.map((item) => {
                 const Icon = item.icon;
+                const active = isActive(item.path);
                 return (
-                  <DropdownMenuItem key={item.name} className="text-neutral-200 hover:text-white">
-                    <Link to={item.path} className="w-full flex items-center gap-2">
+                  <DropdownMenuItem asChild key={item.name}>
+                    <Link
+                      to={item.path}
+                      aria-current={active ? 'page' : undefined}
+                      className="flex w-full items-center gap-2 text-neutral-200 hover:text-white"
+                    >
                       {Icon && <Icon className="h-4 w-4" />}
                       {item.name}
                     </Link>
