@@ -1,11 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AuthPageShell } from '@/components/auth/AuthPageShell';
-import { authFadeUp } from '@/components/auth/auth-motion';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AuthButton } from '@/components/ui/button-presets';
-import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginWithGmail from '@/components/LoginWithGmail';
 import { SEOHead } from '@/components/SEOHead';
@@ -14,6 +10,16 @@ import { loginTranslations } from './login-translations';
 import { isSafeReturnPath } from '@/lib/listing-editor/navigation';
 import { matchLocalizedRoute } from '@/lib/localized-routes';
 import { AuthApiError } from '@/lib/legal-acceptance';
+
+// Fade‑up motion reused across inputs / header
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i = 1) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: 0.15 * i, duration: 0.6, ease: 'easeOut' },
+  }),
+};
 
 const LoginPage = () => {
   const t = getTranslations(loginTranslations);
@@ -162,38 +168,100 @@ const LoginPage = () => {
     }
   }, [location.search]);
 
-  const formTitle = isSignUp ? t.createAccount : t.welcomeBack;
-  const [formTitleLead, ...formTitleRest] = formTitle.split(' ');
-
   return (
-    <>
+    <div className="relative min-h-screen overflow-hidden bg-neutral-950 text-white">
       <SEOHead
         title={language === 'pl' ? 'Logowanie do FlipIt' : 'Log in to FlipIt'}
         description={language === 'pl' ? 'Zaloguj się do FlipIt, aby przygotowywać, sprawdzać i publikować ogłoszenia na połączonych platformach.' : 'Log in to FlipIt to prepare, review, and publish listings for your connected marketplaces.'}
         language={language}
         robots="noindex, nofollow"
       />
-      <AuthPageShell
-        eyebrow={t.pageAccess}
-        heroTitle={t.heroTitle}
-        heroDescription={t.heroDescription}
-        formTitle={<>{formTitleLead}{formTitleRest.length > 0 && <>&nbsp;<span className="text-cyan-400">{formTitleRest.join(' ')}</span></>}</>}
-      >
+      <div className="pointer-events-none fixed inset-0 -z-20">
+        <div className="absolute inset-0 bg-neutral-950" />
+        <motion.div
+          className="absolute inset-0"
+          initial={{ opacity: 1 }}
+          animate={{ opacity: [1, 0.7, 1] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ background: 'radial-gradient(circle at 20% 20%, rgba(236,72,153,.3) 0%, transparent 50%)' }}
+        />
+        <motion.div
+          className="absolute inset-0"
+          initial={{ opacity: 0.7 }}
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ background: 'radial-gradient(circle at 80% 40%, rgba(6,182,212,.25) 0%, transparent 50%)' }}
+        />
+        <motion.div
+          className="absolute inset-0"
+          initial={{ opacity: 0.5 }}
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ background: 'radial-gradient(circle at 40% 80%, rgba(168,85,247,.2) 0%, transparent 50%)' }}
+        />
+        <motion.div
+          className="absolute inset-0"
+          initial={{ opacity: 0.3 }}
+          animate={{ opacity: [0.3, 0.7, 0.3] }}
+          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ background: 'radial-gradient(circle at 90% 90%, rgba(236,72,153,.15) 0%, transparent 50%)' }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(135deg, rgba(6,182,212,.1) 0%, rgba(236,72,153,.1) 100%)',
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-8 px-6 py-16 lg:flex-row lg:items-center lg:justify-center lg:gap-16">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          className="flex flex-col items-center text-center lg:items-start lg:text-left max-w-xl"
+        >
+          <span className="text-xs uppercase tracking-[0.4em] text-cyan-300">{t.pageAccess}</span>
+          <h1 className="mt-4 text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
+            {t.heroTitle}
+          </h1>
+          <p className="mt-4 text-neutral-300 max-w-lg">
+            {t.heroDescription}
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          className="w-full max-w-md rounded-3xl border border-white/10 bg-neutral-900/60 p-8 md:p-10 shadow-2xl shadow-fuchsia-500/10 backdrop-blur"
+        >
+          <motion.h2 variants={fadeUp} className="mb-8 text-center text-2xl md:text-3xl font-extrabold tracking-tight">
+            {isSignUp ? (
+              <>{t.createAccount.split(' ')[0]}&nbsp;<span className="text-cyan-400">{t.createAccount.split(' ')[1]}</span></>
+            ) : (
+              <>{t.welcomeBack.split(' ')[0]}&nbsp;<span className="text-cyan-400">{t.welcomeBack.split(' ')[1]}</span></>
+            )}
+          </motion.h2>
 
           {error && (
-            <Alert variant="destructive" className="mb-4 bg-red-500/10"><AlertDescription>{error}</AlertDescription></Alert>
+            <p role="alert" className="mb-4 rounded-lg bg-red-500/10 p-3 text-sm text-red-400 ring-1 ring-red-400/50">
+              {error}
+            </p>
           )}
           {registerSuccess && (
-            <Alert variant="success" className="mb-4"><AlertDescription>{registerSuccess}</AlertDescription></Alert>
+            <p role="alert" className="mb-4 rounded-lg bg-emerald-500/10 p-3 text-sm text-emerald-400 ring-1 ring-emerald-400/50">
+              {registerSuccess}
+            </p>
           )}
 
           {isSignUp ? (
             <form onSubmit={handleRegister} className="space-y-6">
-              <motion.div variants={authFadeUp} custom={2}>
+              <motion.div variants={fadeUp} custom={2}>
                 <label htmlFor="register-name" className="mb-1 block text-sm font-medium">
                   {t.nameLabel}
                 </label>
-                <Input
+                <input
                   id="register-name"
                   type="text"
                   value={name}
@@ -201,14 +269,14 @@ const LoginPage = () => {
                   required
                   autoComplete="name"
                   placeholder={t.namePlaceholder}
-                  className="h-12 border-neutral-700 bg-neutral-800/60 px-6 text-white placeholder:text-neutral-500 focus-visible:ring-cyan-500 focus-visible:ring-offset-neutral-950"
+                  className="w-full rounded-lg bg-neutral-800/60 px-6 py-3 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               </motion.div>
-              <motion.div variants={authFadeUp} custom={3}>
+              <motion.div variants={fadeUp} custom={3}>
                 <label htmlFor="register-email" className="mb-1 block text-sm font-medium">
                   {t.emailLabel}
                 </label>
-                <Input
+                <input
                   id="register-email"
                   type="email"
                   value={email}
@@ -216,14 +284,14 @@ const LoginPage = () => {
                   required
                   autoComplete="email"
                   placeholder={t.emailPlaceholder}
-                  className="h-12 border-neutral-700 bg-neutral-800/60 px-6 text-white placeholder:text-neutral-500 focus-visible:ring-cyan-500 focus-visible:ring-offset-neutral-950"
+                  className="w-full rounded-lg bg-neutral-800/60 px-6 py-3 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               </motion.div>
-              <motion.div variants={authFadeUp} custom={4}>
+              <motion.div variants={fadeUp} custom={4}>
                 <label htmlFor="register-password" className="mb-1 block text-sm font-medium">
                   {t.passwordLabel}
                 </label>
-                <Input
+                <input
                   id="register-password"
                   type="password"
                   value={password}
@@ -231,22 +299,22 @@ const LoginPage = () => {
                   required
                   autoComplete="new-password"
                   placeholder={t.passwordPlaceholder}
-                  className="h-12 border-neutral-700 bg-neutral-800/60 px-6 text-white placeholder:text-neutral-500 focus-visible:ring-cyan-500 focus-visible:ring-offset-neutral-950"
+                  className="w-full rounded-lg bg-neutral-800/60 px-6 py-3 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               </motion.div>
               {passwordErrors.length > 0 && (
-                <ul role="alert" className="mb-2 text-xs text-red-400">
+                <ul className="mb-2 text-xs text-red-400">
                   {passwordErrors.map((err, i) => (
                     <li key={i}>{err}</li>
                   ))}
                 </ul>
               )}
-              <motion.label variants={authFadeUp} custom={5} className="flex min-h-11 items-start gap-3 text-sm leading-5 text-neutral-300">
+              <motion.label variants={fadeUp} custom={5} className="flex items-start gap-3 text-sm leading-5 text-neutral-300">
                 <input
                   type="checkbox"
                   checked={legalAccepted}
                   onChange={(event) => setLegalAccepted(event.target.checked)}
-                  className="mt-0.5 h-5 w-5 shrink-0 rounded border-neutral-600 bg-neutral-800 accent-cyan-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                  className="mt-1 h-4 w-4 rounded border-neutral-600 bg-neutral-800 accent-cyan-500"
                   aria-describedby="registration-legal-copy"
                 />
                 <span id="registration-legal-copy">
@@ -261,16 +329,16 @@ const LoginPage = () => {
                   .
                 </span>
               </motion.label>
-              <motion.div variants={authFadeUp} custom={5} className="flex items-center justify-between text-xs">
+              <motion.div variants={fadeUp} custom={5} className="flex items-center justify-between text-xs">
                 <button
                   type="button"
-                  className="inline-flex min-h-11 items-center text-neutral-400 transition-colors hover:text-cyan-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                  className="text-neutral-400 transition-colors hover:text-cyan-400"
                   onClick={() => setIsSignUp(false)}
                 >
                   {t.backToSignIn}
                 </button>
               </motion.div>
-              <motion.div variants={authFadeUp} custom={6}>
+              <motion.div variants={fadeUp} custom={6}>
                 <AuthButton
                   type="submit"
                   disabled={loading || !legalAccepted}
@@ -293,11 +361,11 @@ const LoginPage = () => {
           ) : (
             <>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <motion.div variants={authFadeUp} custom={2}>
+                <motion.div variants={fadeUp} custom={2}>
                   <label htmlFor="email" className="mb-1 block text-sm font-medium">
                     {t.emailLabel}
                   </label>
-                  <Input
+                  <input
                     id="email"
                     type="email"
                     value={email}
@@ -305,15 +373,15 @@ const LoginPage = () => {
                     required
                     autoComplete="email"
                     placeholder={t.emailPlaceholder}
-                    className="h-12 border-neutral-700 bg-neutral-800/60 px-6 text-white placeholder:text-neutral-500 focus-visible:ring-cyan-500 focus-visible:ring-offset-neutral-950"
+                    className="w-full rounded-lg bg-neutral-800/60 px-6 py-3 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </motion.div>
 
-                <motion.div variants={authFadeUp} custom={3}>
+                <motion.div variants={fadeUp} custom={3}>
                   <label htmlFor="password" className="mb-1 block text-sm font-medium">
                     {t.passwordLabel}
                   </label>
-                  <Input
+                  <input
                     id="password"
                     type="password"
                     value={password}
@@ -321,24 +389,24 @@ const LoginPage = () => {
                     required
                     autoComplete="current-password"
                     placeholder={t.passwordPlaceholder}
-                    className="h-12 border-neutral-700 bg-neutral-800/60 px-6 text-white placeholder:text-neutral-500 focus-visible:ring-cyan-500 focus-visible:ring-offset-neutral-950"
+                    className="w-full rounded-lg bg-neutral-800/60 px-6 py-3 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </motion.div>
 
-                <motion.div variants={authFadeUp} custom={4} className="flex items-center justify-between gap-4 text-xs">
-                  <Link to={localized('/forgot-password')} className="inline-flex min-h-11 items-center text-neutral-400 transition-colors hover:text-cyan-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">
+                <motion.div variants={fadeUp} custom={4} className="flex items-center justify-between text-xs">
+                  <Link to={localized('/forgot-password')} className="text-neutral-400 transition-colors hover:text-cyan-400">
                     {t.forgotPassword}
                   </Link>
                   <button
                     type="button"
-                    className="inline-flex min-h-11 items-center text-neutral-400 transition-colors hover:text-cyan-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                    className="text-neutral-400 transition-colors hover:text-cyan-400"
                     onClick={() => setIsSignUp(true)}
                   >
                     {t.createAccountLink}
                   </button>
                 </motion.div>
 
-                <motion.div variants={authFadeUp} custom={5}>
+                <motion.div variants={fadeUp} custom={5}>
                   <AuthButton
                     type="submit"
                     disabled={loading}
@@ -355,8 +423,9 @@ const LoginPage = () => {
               <LoginWithGmail />
             </>
           )}
-      </AuthPageShell>
-    </>
+        </motion.div>
+      </div>
+    </div>
   );
 };
 

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -22,11 +21,6 @@ import {
   getTranslations,
 } from '../components/language-utils';
 import { getSeoMetadata } from '@/lib/seo-metadata';
-import {
-  getMarketplaceCapability,
-  platformCapabilitiesQueryOptions,
-} from '@/lib/api/platform-capabilities';
-import { capabilityStatusLabel } from '@/components/platform-capability-translations';
 import { homePageTranslations } from './homepage-translations';
 
 const HERO_IMAGE_SIZES = '(min-width: 1024px) 32rem, (min-width: 640px) 70vw, calc(100vw - 3rem)';
@@ -59,29 +53,7 @@ const READINESS_LOGOS = {
   Allegro: { src: '/platform-logos/allegro-icon.svg', className: 'h-5 w-5' },
   Etsy: { src: '/platform-logos/etsy-icon.svg', className: 'h-5 w-5' },
 };
-const MARKETPLACE_IDS = {
-  OLX: 'olx',
-  Vinted: 'vinted',
-  'Facebook Marketplace': 'facebook',
-  eBay: 'ebay',
-  Allegro: 'allegro',
-  Etsy: 'etsy',
-};
-const CAPABILITY_TONES = {
-  certified: 'text-emerald-300',
-  beta: 'text-amber-300',
-  experimental: 'text-fuchsia-300',
-  unavailable: 'text-neutral-400',
-};
-
-function ListingWorkspace({
-  t,
-  reviewPath,
-  language,
-  capabilities,
-  capabilitiesLoading,
-  capabilitiesError,
-}) {
+function ListingWorkspace({ t, reviewPath }) {
   const [comparisonPosition, setComparisonPosition] = useState(58);
   const updateComparisonFromPointer = (event) => {
     if (event.pointerType !== 'mouse') return;
@@ -207,18 +179,6 @@ function ListingWorkspace({
           <div className="space-y-1.5">
             {t.marketplaces.map((marketplace) => {
               const logo = READINESS_LOGOS[marketplace];
-              const platformId = MARKETPLACE_IDS[marketplace];
-              const publishCapability = capabilitiesError
-                ? null
-                : getMarketplaceCapability(capabilities, platformId, 'publish');
-              const statusText = capabilitiesLoading
-                ? t.workspace.checkingAvailability
-                : publishCapability
-                  ? capabilityStatusLabel(language, publishCapability.status)
-                  : t.workspace.availabilityUnknown;
-              const statusTone = publishCapability
-                ? CAPABILITY_TONES[publishCapability.status]
-                : 'text-neutral-400';
 
               return (
                 <div key={marketplace} className="flex min-h-9 items-center justify-between gap-2 rounded-lg border border-white/10 bg-black/20 px-2.5 py-1.5">
@@ -232,9 +192,9 @@ function ListingWorkspace({
                     </span>
                     <span className="text-[11px] font-medium leading-tight text-neutral-200">{marketplace}</span>
                   </span>
-                  <span className={`inline-flex shrink-0 items-center gap-1.5 text-[10px] font-medium ${statusTone}`}>
+                  <span className="inline-flex shrink-0 items-center gap-1.5 text-[10px] font-medium text-cyan-200">
                     <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
-                    {statusText}
+                    {t.workspace.reviewOptions}
                   </span>
                 </div>
               );
@@ -265,11 +225,6 @@ const HomePage = () => {
   const seo = getSeoMetadata('home', language);
   const pageTitle = seo?.title ?? t.pageTitle;
   const pageDescription = seo?.description ?? t.pageDescription;
-  const {
-    data: capabilityResponse,
-    isLoading: capabilitiesLoading,
-    isError: capabilitiesError,
-  } = useQuery(platformCapabilitiesQueryOptions());
   const workflowSteps = [
     { Icon: UploadCloud, ...t.workflowSteps[0] },
     { Icon: Sparkles, ...t.workflowSteps[1] },
@@ -338,10 +293,6 @@ const HomePage = () => {
             <ListingWorkspace
               t={t}
               reviewPath={localized('/login?register=1')}
-              language={language}
-              capabilities={capabilityResponse?.marketplaces}
-              capabilitiesLoading={capabilitiesLoading}
-              capabilitiesError={capabilitiesError}
             />
           </div>
         </div>

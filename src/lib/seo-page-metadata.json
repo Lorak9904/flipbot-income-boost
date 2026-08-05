@@ -72,8 +72,8 @@
     "pl": { "title": "Jak działa crosslisting w FlipIt", "description": "Zobacz, jak FlipIt zmienia zdjęcia produktu w szkice dopasowane do platform, które sprawdzasz i zatwierdzasz przed publikacją." }
   },
   "successStories": {
-    "en": { "title": "Seller Workflow Examples | FlipIt", "description": "Explore hypothetical listing workflows you can test yourself. These examples are not customer testimonials or claims of measured outcomes." },
-    "pl": { "title": "Przykłady pracy sprzedawcy | FlipIt", "description": "Zobacz hipotetyczne procesy pracy z ogłoszeniami, które możesz sprawdzić samodzielnie. To nie są opinie klientów ani deklaracje wyników." }
+    "en": { "title": "Seller Workflows | FlipIt", "description": "Explore practical ways to prepare, review, and manage marketplace listing drafts with FlipIt." },
+    "pl": { "title": "Procesy sprzedawcy | FlipIt", "description": "Zobacz praktyczne sposoby przygotowania, sprawdzania i zarządzania szkicami ogłoszeń w FlipIt." }
   },
   "pricing": {
     "en": { "title": "FlipIt Pricing for Marketplace Sellers", "description": "Compare FlipIt plan limits, AI image credits, billing cycles, and provider-dependent marketplace workflows before choosing a plan." },

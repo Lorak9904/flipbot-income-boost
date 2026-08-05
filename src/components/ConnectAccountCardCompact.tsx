@@ -103,9 +103,9 @@ const statusConfig: Record<
   },
   'not-connected': {
     icon: Circle,
-    colorClass: 'text-neutral-400',
-    bgClass: 'bg-neutral-500/20',
-    borderClass: 'border-neutral-500/30',
+    colorClass: 'text-slate-400',
+    bgClass: 'bg-slate-500/20',
+    borderClass: 'border-slate-500/30',
   },
   expired: {
     icon: Clock,
@@ -422,7 +422,7 @@ const ConnectAccountCard = ({
   // Require authentication
   if (!user) {
     return (
-      <Card className="min-h-[176px] border border-neutral-800 bg-neutral-900/55 backdrop-blur-sm">
+        <Card className="h-[168px] border border-slate-700/80 bg-slate-800/60">
         <CardContent className="p-4 h-full flex items-center justify-center">
           <p className="text-sm text-red-400 text-center">
             {tr('authRequiredMessage', { platform: platformName })}
@@ -434,8 +434,12 @@ const ConnectAccountCard = ({
 
   return (
     <>
-      <motion.div className="w-full">
-        <Card className="min-h-[176px] overflow-hidden border border-neutral-800 bg-neutral-900/55 backdrop-blur-sm transition-colors hover:border-cyan-400/40">
+      <motion.div
+        whileHover={{ y: -3, scale: 1.01 }}
+        transition={{ type: 'spring', stiffness: 300 }}
+        className="w-full"
+      >
+        <Card className="h-[168px] overflow-hidden border border-slate-700/80 bg-slate-800/60 hover:border-slate-600/80 transition-colors">
           <CardContent className="p-4 h-full flex flex-col">
             {/* Top Row: Logo, Name, Status */}
             <div className="flex items-center justify-between gap-3">
@@ -453,16 +457,16 @@ const ConnectAccountCard = ({
                   </h3>
                   {capabilitySet && (
                     <div className="mt-1 flex min-w-0 items-center gap-1.5">
-                      <Badge className="border-neutral-700 bg-neutral-800 px-1.5 py-0 text-[10px] text-neutral-300">
+                      <Badge className="border-slate-600 bg-slate-800 px-1.5 py-0 text-[10px] text-slate-300">
                         {capabilityStatusLabel(language, capabilitySet.overall_status)}
                       </Badge>
-                      <span className="truncate text-[10px] text-neutral-400">
+                      <span className="truncate text-[10px] text-slate-400">
                         {integrationMethodLabel(language, capabilitySet.integration_method)}
                       </span>
                     </div>
                   )}
                   {platform === 'olx' && olxAccountSummary && (
-                    <p className="text-xs text-neutral-400 truncate">
+                    <p className="text-xs text-slate-400 truncate">
                       {olxAccountSummary}
                     </p>
                   )}
@@ -485,7 +489,7 @@ const ConnectAccountCard = ({
                   </TooltipTrigger>
                   <TooltipContent
                     side="bottom"
-                    className="max-w-xs border-neutral-700 bg-neutral-900 text-neutral-200"
+                    className="bg-slate-800 border-slate-700 text-slate-200 max-w-xs"
                   >
                     <p className="text-sm">{getTooltipText()}</p>
                   </TooltipContent>
@@ -527,7 +531,7 @@ const ConnectAccountCard = ({
               ) : (
                 <SecondaryAction
                   size="sm"
-                  className="min-h-11 px-3 py-2 text-xs text-cyan-200"
+                  className="min-h-11 px-3 py-2 text-xs text-teal-200"
                   onClick={handleConnect}
                   disabled={!canConnect || (isConnectingOauth && OAUTH_PLATFORMS.includes(platform))}
                   title={!canConnect ? capabilityReason || capabilityCopy.unavailable : undefined}
@@ -558,19 +562,19 @@ const ConnectAccountCard = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
-                  className="border-neutral-700 bg-neutral-900"
+                  className="bg-slate-800 border-slate-700"
                 >
                   {isConnected ? (
                     <>
                       <DropdownMenuItem
-                        className="min-h-11 cursor-pointer text-neutral-200 hover:bg-neutral-800 hover:text-white"
+                        className="min-h-11 text-slate-200 hover:text-white hover:bg-slate-700 cursor-pointer"
                         onClick={() => navigate(getLocalizedPathForCurrentLanguage(`/platform-settings/${platform}`))}
                       >
                         <Settings className="w-4 h-4 mr-2" />
                         {t.settingsButton}
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        className="min-h-11 cursor-pointer text-neutral-200 hover:bg-neutral-800 hover:text-white"
+                        className="min-h-11 text-slate-200 hover:text-white hover:bg-slate-700 cursor-pointer"
                         onClick={handleConnect}
                         disabled={!canConnect || (isConnectingOauth && OAUTH_PLATFORMS.includes(platform))}
                       >
@@ -579,7 +583,7 @@ const ConnectAccountCard = ({
                       </DropdownMenuItem>
                       {platform !== 'olx' && (
                         <DropdownMenuItem
-                          className="min-h-11 cursor-pointer text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                          className="min-h-11 text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
                           onClick={() => handleDisconnect()}
                         >
                           <LogOut className="w-4 h-4 mr-2" />
@@ -588,7 +592,7 @@ const ConnectAccountCard = ({
                       )}
                       {platform === 'olx' && connectedOlxAccounts.length > 1 && (
                         <DropdownMenuItem
-                          className="min-h-11 cursor-pointer text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                          className="min-h-11 text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
                           onClick={() => handleDisconnect()}
                         >
                           <LogOut className="w-4 h-4 mr-2" />
@@ -597,7 +601,7 @@ const ConnectAccountCard = ({
                       )}
                       {platform === 'olx' && connectedOlxAccounts.length === 0 && (
                         <DropdownMenuItem
-                          className="min-h-11 cursor-pointer text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                          className="min-h-11 text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
                           onClick={() => handleDisconnect()}
                         >
                           <LogOut className="w-4 h-4 mr-2" />
@@ -607,7 +611,7 @@ const ConnectAccountCard = ({
                       {platform === 'olx' && connectedOlxAccounts.map((account) => (
                         <DropdownMenuItem
                           key={`disconnect-olx-${account.country_code}`}
-                          className="min-h-11 cursor-pointer text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                          className="min-h-11 text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
                           onClick={() => handleDisconnect(account.country_code)}
                         >
                           <LogOut className="w-4 h-4 mr-2" />
@@ -617,7 +621,7 @@ const ConnectAccountCard = ({
                     </>
                   ) : (
                     <DropdownMenuItem
-                      className="min-h-11 cursor-pointer text-cyan-300 hover:bg-cyan-500/10 hover:text-cyan-200"
+                      className="min-h-11 text-teal-400 hover:text-teal-300 hover:bg-teal-500/10 cursor-pointer"
                       onClick={handleConnect}
                       disabled={!canConnect || (isConnectingOauth && OAUTH_PLATFORMS.includes(platform))}
                     >
@@ -629,7 +633,7 @@ const ConnectAccountCard = ({
               </DropdownMenu>
             </div>
           </CardContent>
-      </Card>
+        </Card>
       </motion.div>
 
       {/* Connect Modal - Only for cookie-based platforms (Facebook, Vinted) */}
@@ -645,10 +649,10 @@ const ConnectAccountCard = ({
 
       {platform === 'olx' && (
         <Dialog open={showOlxCountryDialog} onOpenChange={setShowOlxCountryDialog}>
-          <DialogContent className="border-neutral-700 bg-neutral-900 text-white">
+          <DialogContent className="bg-slate-900 border-slate-700 text-white">
             <DialogHeader>
               <DialogTitle>{t.olxCountryDialogTitle}</DialogTitle>
-              <DialogDescription className="text-neutral-400">
+              <DialogDescription className="text-slate-400">
                 {t.olxCountryDialogDescription}
               </DialogDescription>
             </DialogHeader>
@@ -662,7 +666,7 @@ const ConnectAccountCard = ({
                   <SecondaryAction
                     key={country.country_code}
                     type="button"
-                    className="min-h-11 justify-between px-3 py-2"
+                    className="justify-between px-3 py-2"
                     onClick={() => handleOlxConnect(country.country_code)}
                     disabled={isConnectingOauth}
                   >
@@ -671,7 +675,7 @@ const ConnectAccountCard = ({
                         ? `${t.reconnectButton}: ${countryLabel}`
                         : `${t.connectButton}: ${countryLabel}`}
                     </span>
-                    <span className="text-xs text-neutral-400">
+                    <span className="text-xs text-slate-400">
                       {connected ? t.olxCountryConnected : country.currency || country.country_code}
                     </span>
                   </SecondaryAction>
