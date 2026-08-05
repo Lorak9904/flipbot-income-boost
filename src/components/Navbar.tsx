@@ -22,7 +22,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import BrandLink from './BrandLink';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,11 +62,12 @@ const Navbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  // Mobile link class (text always visible)
   const linkClass = (path: string) =>
-    `relative flex min-h-11 items-center rounded-md px-3 py-2 text-sm transition-colors ${
+    `relative flex min-h-11 items-center px-2 py-1 text-sm transition-colors ${
       isActive(path)
-        ? 'bg-cyan-400/10 text-cyan-300 font-semibold'
-        : 'text-neutral-300 hover:bg-white/5 hover:text-white'
+        ? 'text-cyan-400 font-semibold'
+        : 'text-neutral-300 hover:text-white'
     }`;
 
   return (
@@ -76,7 +76,12 @@ const Navbar = () => {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent"></div>
       
       <div className="container mx-auto px-4 flex items-center justify-between h-16">
-        <BrandLink to={localized('/')} />
+        {/* Enhanced logo with better gradient and shadow */}
+        <Link to={localized('/')} className="flex items-center gap-2 font-bold text-xl text-white">
+          <span className="bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent drop-shadow-sm">
+            FlipIt
+          </span>
+        </Link>
 
         {/* Desktop nav */}
         <div className="hidden xl:flex items-center gap-2">

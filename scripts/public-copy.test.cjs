@@ -153,7 +153,7 @@ test('EN and PL public copy state the marketplace capability boundaries', () => 
   assert.match(allegro, /operacje na połączonym koncie Allegro korzystają z oficjalnego API w wersji beta/i);
 });
 
-test('homepage capability copy fails closed and does not present every marketplace as ready', () => {
+test('homepage keeps marketplace logos without exposing internal maturity labels', () => {
   const homepage = read('src/pages/HomePage.jsx');
   const translations = read('src/pages/homepage-translations.ts');
   const navbar = read('src/components/navbar-translations.ts');
@@ -161,27 +161,27 @@ test('homepage capability copy fails closed and does not present every marketpla
   assert.doesNotMatch(translations, /ready for every marketplace/i);
   assert.doesNotMatch(translations, /gotowe na każdą platformę/i);
   assert.doesNotMatch(translations, /workspace:[\s\S]*\bready:\s*['"]Ready['"]/i);
-  assert.match(translations, /Publishing availability varies by marketplace and capability\./);
-  assert.match(translations, /Dostępność publikacji zależy od platformy i konkretnej funkcji\./);
-  assert.match(homepage, /getMarketplaceCapability\(capabilities, platformId, 'publish'\)/);
-  assert.match(homepage, /capabilitiesError[\s\S]*availabilityUnknown/);
+  assert.match(translations, /reviewOptions: 'Review options'/);
+  assert.match(translations, /reviewOptions: 'Sprawdź opcje'/);
+  assert.doesNotMatch(homepage, /capabilityStatusLabel|getMarketplaceCapability/);
+  assert.doesNotMatch(translations, /checkingAvailability|availabilityUnknown/);
+  assert.match(homepage, /READINESS_LOGOS/);
   assert.match(homepage, /Marketplace-specific listing drafts with manual approval/);
   assert.doesNotMatch(homepage, /Multi-marketplace publishing with manual approval/);
-  assert.match(navbar, /successStories: 'Seller Workflow Examples'/);
-  assert.match(navbar, /successStories: 'Przykłady pracy sprzedawcy'/);
+  assert.match(navbar, /successStories: 'Seller Workflows'/);
+  assert.match(navbar, /successStories: 'Procesy sprzedawcy'/);
   assert.doesNotMatch(navbar, /successStories: '(?:Success Stories|Historie sukcesu)'/);
 });
 
-test('seller examples are explicitly hypothetical in EN and PL', () => {
+test('seller workflows remain illustrative without an awkward testimonial disclaimer', () => {
   const examples = read('src/pages/successstories-translations.ts');
   const metadata = JSON.parse(read('src/lib/seo-page-metadata.json'));
 
-  assert.match(examples, /These hypothetical examples/);
-  assert.match(examples, /not reports from real customers/i);
-  assert.match(examples, /Te hipotetyczne przykłady/);
-  assert.match(examples, /Nie opisują prawdziwych klientów/i);
-  assert.equal(metadata.successStories.en.title, 'Seller Workflow Examples | FlipIt');
-  assert.equal(metadata.successStories.pl.title, 'Przykłady pracy sprzedawcy | FlipIt');
+  assert.match(examples, /Explore illustrative ways/);
+  assert.match(examples, /Zobacz przykładowe sposoby/);
+  assert.doesNotMatch(examples, /testimonial|opinie klientów/i);
+  assert.equal(metadata.successStories.en.title, 'Seller Workflows | FlipIt');
+  assert.equal(metadata.successStories.pl.title, 'Procesy sprzedawcy | FlipIt');
 });
 
 test('truthful copy is attached to the intended localized public routes', () => {

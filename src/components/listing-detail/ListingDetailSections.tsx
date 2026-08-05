@@ -288,7 +288,7 @@ export function PendingPublishBanner({ count, marketplaceLabels, actionLabel, t 
   if (count === 0) return null;
 
   return (
-    <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+    <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 shadow-lg shadow-amber-950/20">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex gap-3">
           <div className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/40">
@@ -571,7 +571,7 @@ export function PublishingStatusPanel({
 
 export function ListingAdvancedDetails({ item, formatPlatformLabel, t }: ListingDetailSectionProps) {
   return (
-    <Collapsible className="rounded-lg border border-neutral-800 bg-neutral-900/55 p-4 backdrop-blur-sm">
+    <Collapsible className="rounded-xl border border-neutral-800 bg-neutral-900/55 p-4 backdrop-blur-sm">
       <CollapsibleTrigger asChild>
         <Button type="button" variant="ghost" className="min-h-11 w-full justify-between text-neutral-200 hover:bg-neutral-800/60">
           {t.sections.advancedTitle}

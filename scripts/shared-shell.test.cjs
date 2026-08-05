@@ -16,16 +16,14 @@ test('navbar exposes mobile menu and current-page state accessibly', () => {
   assert.match(source, /min-h-11/);
 });
 
-test('navbar and footer share the approved FlipIt wordmark', () => {
+test('navbar and footer retain the colorful landing-era brand treatment', () => {
   const navbar = read('src/components/Navbar.tsx');
   const footer = read('src/components/Footer.tsx');
-  const brand = read('src/components/BrandLink.tsx');
 
-  assert.match(navbar, /<BrandLink to=\{localized\('\/'\)\} \/>/);
-  assert.match(footer, /<BrandLink to=\{getLocalized\('\/'\)\}/);
-  assert.match(brand, /from-cyan-400 via-sky-300 to-fuchsia-400/);
-  assert.doesNotMatch(footer, />\s*FI\s*</);
-  assert.doesNotMatch(footer, /gradient blobs/i);
+  assert.match(navbar, /from-cyan-400 to-fuchsia-400/);
+  assert.match(footer, /from-cyan-500 to-fuchsia-500/);
+  assert.match(footer, />\s*FI\s*</);
+  assert.match(footer, /Neon gradient blobs/);
 });
 
 test('footer navigation landmarks are labelled with localized headings', () => {
